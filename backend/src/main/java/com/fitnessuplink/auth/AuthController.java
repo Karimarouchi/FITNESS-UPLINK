@@ -1,0 +1,85 @@
+package com.fitnessuplink.auth;
+
+import com.fitnessuplink.auth.config.SecurityProperties;
+import com.fitnessuplink.auth.dto.AuthResponse;
+import com.fitnessuplink.auth.dto.LoginRequest;
+import com.fitnessuplink.auth.dto.SignupRequest;
+import com.fitnessuplink.auth.security.UserPrincipal;
+import com.fitnessuplink.user.UserService;
+import com.fitnessuplink.user.dto.UserResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/v1/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+    private final AuthCookieService authCookieService;
+    private final SecurityProperties securityProperties;
+    private final UserService userService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
+        AuthService.IssuedAuth issued = authService.signup(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("Set-Cookie", authCookieService.createRefreshCookie(issued.rawRefreshToken(), issued.refreshTtl()).toString())
+                .body(issued.response());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthService.IssuedAuth issued = authService.login(request);
+        return authCookieService.withRefreshCookie(
+                issued.response(),
+                authCookieService.createRefreshCookie(issued.rawRefreshToken(), issued.refreshTtl())
+        );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(HttpServletRequest request) {
+        AuthService.IssuedAuth issued = authService.refresh(readRefreshCookie(request));
+        return authCookieService.withRefreshCookie(
+                issued.response(),
+                authCookieService.createRefreshCookie(issued.rawRefreshToken(), issued.refreshTtl())
+        );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        authService.logout(readRefreshCookie(request));
+        return ResponseEntity.noContent()
+                .header("Set-Cookie", authCookieService.clearRefreshCookie().toString())
+                .build();
+    }
+
+    @GetMapping("/me")
+    public UserResponse me(@AuthenticationPrincipal UserPrincipal principal) {
+        return userService.toResponse(principal.getUser());
+    }
+
+    private String readRefreshCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        String name = securityProperties.refreshToken().cookieName();
+        for (Cookie cookie : cookies) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+}
