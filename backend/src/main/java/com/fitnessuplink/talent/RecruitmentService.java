@@ -161,6 +161,12 @@ public class RecruitmentService {
         Instant now = Instant.now();
         if (entry.getStatus() != status) {
             assertTransition(entry.getStatus(), status);
+            if (entry.getStatus() == PipelineStatus.CONTRACT_SENT
+                    && status != PipelineStatus.HIRED
+                    && status != PipelineStatus.ARCHIVED
+                    && status != PipelineStatus.REJECTED) {
+                cancelOpenContracts(entry.getId());
+            }
             entry.setStatus(status);
             entry.setStatusUpdatedAt(now);
         }
@@ -298,10 +304,25 @@ public class RecruitmentService {
         if (working.contains(from) && working.contains(to)) {
             return;
         }
-        if (from == PipelineStatus.CONTRACT_SENT && to == PipelineStatus.HIRED) {
+        if (from == PipelineStatus.CONTRACT_SENT && (working.contains(to) || to == PipelineStatus.HIRED)) {
             return;
         }
         throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
+    }
+
+    private void cancelOpenContracts(UUID recruitmentId) {
+        Instant now = Instant.now();
+        for (Contract contract : contractRepository.findByRecruitmentIdOrderByCreatedAtDesc(recruitmentId)) {
+            if (contract.getStatus() == ContractStatus.COMPLETED
+                    || contract.getStatus() == ContractStatus.CANCELLED
+                    || contract.getStatus() == ContractStatus.DECLINED
+                    || contract.getStatus() == ContractStatus.EXPIRED) {
+                continue;
+            }
+            contract.setStatus(ContractStatus.CANCELLED);
+            contract.setUpdatedAt(now);
+            contractRepository.save(contract);
+        }
     }
 
     private Map<UUID, ContractSummaryDto> latestContracts(List<UUID> recruitmentIds) {
