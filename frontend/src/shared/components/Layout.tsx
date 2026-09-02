@@ -1,9 +1,14 @@
+import type { ReactNode } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isSuperAdmin, isVerified } from "@/features/auth/types";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 
-export function Layout() {
+type LayoutProps = {
+  children?: ReactNode;
+};
+
+export function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
   const displayName = user?.displayName || [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Profil";
 
@@ -48,7 +53,7 @@ export function Layout() {
         </nav>
       </header>
       <main className="max-w-[1280px] mx-auto px-6 py-8">
-        <Outlet />
+        {children ?? <Outlet />}
       </main>
     </div>
   );

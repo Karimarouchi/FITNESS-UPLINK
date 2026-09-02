@@ -3,6 +3,17 @@
 @theme {
   --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-ui: Inter, "Segoe UI", system-ui, sans-serif;
+
+  --color-ink: #10151a;
+  --color-paper: #f4f5f1;
+  --color-paper-2: #ffffff;
+  --color-paper-line: #dee1d8;
+  --color-lime: #d6ff3f;
+  --color-coral: #ff5a36;
+  --color-slate: #5b6570;
+  --color-slate-light: #9aa3ac;
 
   --color-surface: #fcf8fb;
   --color-surface-dim: #dcd9db;
