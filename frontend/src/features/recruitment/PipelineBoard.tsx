@@ -5,10 +5,16 @@ export function PipelineBoard({
   items,
   onOpen,
   onStatus,
+  onPrepareContract,
+  onViewContract,
+  onMarkHired,
 }: {
   items: Recruitment[];
   onOpen: (item: Recruitment) => void;
   onStatus: (item: Recruitment, status: PipelineStatus) => void;
+  onPrepareContract: (item: Recruitment) => void;
+  onViewContract: (item: Recruitment) => void;
+  onMarkHired: (item: Recruitment) => void;
 }) {
   return (
     <div className="pipeline-board">
@@ -28,6 +34,9 @@ export function PipelineBoard({
                   item={item}
                   onOpen={() => onOpen(item)}
                   onStatus={(status) => onStatus(item, status)}
+                  onPrepareContract={() => onPrepareContract(item)}
+                  onViewContract={() => onViewContract(item)}
+                  onMarkHired={() => onMarkHired(item)}
                 />
               ))}
             </div>

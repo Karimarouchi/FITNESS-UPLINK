@@ -14,6 +14,9 @@ import { AdminVerificationsPage } from "@/features/admin/pages/AdminVerification
 import { PipelinePage } from "@/features/recruitment/pages/PipelinePage";
 import { FavoritesPage } from "@/features/recruitment/pages/FavoritesPage";
 import { JobOffersPage } from "@/features/jobs/pages/JobOffersPage";
+import { ContractsPage } from "@/features/contracts/pages/ContractsPage";
+import { ContractDetailPage } from "@/features/contracts/pages/ContractDetailPage";
+import { NotificationsPage } from "@/features/notifications/pages/NotificationsPage";
 
 export function AppRouter() {
   return (
@@ -37,6 +40,9 @@ export function AppRouter() {
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/job-offers" element={<JobOffersPage />} />
+          <Route path="/contracts" element={<ContractsPage />} />
+          <Route path="/contracts/:id" element={<ContractDetailPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/admin/verifications" element={<AdminVerificationsPage />} />
         </Route>
       </Route>

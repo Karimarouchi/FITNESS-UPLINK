@@ -20,6 +20,9 @@ export function PipelineDrawer({
   onArchive,
   onContact,
   onNewRecruitment,
+  onPrepareContract,
+  onViewContract,
+  onMarkHired,
 }: {
   item: Recruitment;
   noteDraft: string;
@@ -30,8 +33,21 @@ export function PipelineDrawer({
   onArchive: () => void;
   onContact: () => void;
   onNewRecruitment: () => void;
+  onPrepareContract: () => void;
+  onViewContract: () => void;
+  onMarkHired: () => void;
 }) {
   const candidate = item.candidate;
+  const contract = item.contract;
+  const canHire = Boolean(contract?.completed);
+
+  function changeStatus(next: PipelineStatus) {
+    if (next === "HIRED" && !canHire) {
+      return;
+    }
+    onStatus(next);
+  }
+
   return (
     <div className="fu-backdrop" role="presentation" onClick={onClose}>
       <aside className="fu-drawer" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
@@ -56,11 +72,18 @@ export function PipelineDrawer({
         <p>Recrutement : {opportunityLabel(item)}</p>
         <p>Date d’entrée : {formatPipelineDate(item.createdAt)}</p>
         <p>Dernière mise à jour : {formatPipelineDate(item.updatedAt)}</p>
+        {item.status === "CONTRACT_SENT" && contract ? (
+          <div className="pipeline-contract-state">
+            <p>{contract.candidateSigned ? "✓ Candidat signé" : "○ Signature candidat en attente"}</p>
+            <p>{contract.employerSigned ? "✓ Employeur signé" : "○ Employeur doit signer"}</p>
+            {contract.completed ? <p>✓ Contrat finalisé</p> : null}
+          </div>
+        ) : null}
         <label className="fu-field">
           Changer le statut
-          <select className="custom-input" value={item.status} onChange={(event) => onStatus(event.target.value as PipelineStatus)}>
+          <select className="custom-input" value={item.status} onChange={(event) => changeStatus(event.target.value as PipelineStatus)}>
             {PIPELINE_STATUSES.map((status) => (
-              <option key={status.value} value={status.value}>
+              <option key={status.value} value={status.value} disabled={status.value === "HIRED" && !canHire && item.status !== "HIRED"}>
                 {status.label}
               </option>
             ))}
@@ -77,6 +100,21 @@ export function PipelineDrawer({
           <button className="ob-secondary" type="button" onClick={onContact}>
             Contacter
           </button>
+          {item.status === "NEGOTIATION" ? (
+            <button className="ob-primary" type="button" onClick={onPrepareContract}>
+              Préparer le contrat
+            </button>
+          ) : null}
+          {item.status === "CONTRACT_SENT" && contract ? (
+            <button className="ob-secondary" type="button" onClick={onViewContract}>
+              Voir le contrat
+            </button>
+          ) : null}
+          {contract?.completed && item.status !== "HIRED" ? (
+            <button className="ob-primary" type="button" onClick={onMarkHired}>
+              Marquer comme recruté
+            </button>
+          ) : null}
           <button className="ob-secondary" type="button" onClick={onSaveNote}>
             Enregistrer la note
           </button>

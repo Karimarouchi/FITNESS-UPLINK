@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
-import { isBusiness, isSuperAdmin, isVerified } from "@/features/auth/types";
+import { isBusiness, isCandidate, isSuperAdmin, isVerified } from "@/features/auth/types";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { VerificationBadge } from "@/shared/components/VerificationBadge";
 
@@ -52,7 +52,23 @@ export function HomePage() {
               <p className="font-body-md text-on-surface-variant">Retrouvez les profils que vous avez sauvegardés.</p>
             </div>
           </Link>
+          <Link to="/contracts" className="home-profile-card">
+            <span className="home-shortcut-icon material-symbols-outlined">description</span>
+            <div className="home-profile-copy">
+              <p className="home-profile-name">Contrats</p>
+              <p className="font-body-md text-on-surface-variant">Préparez, envoyez et signez les contrats de recrutement.</p>
+            </div>
+          </Link>
         </>
+      ) : null}
+      {isCandidate(user) ? (
+        <Link to="/contracts" className="home-profile-card">
+          <span className="home-shortcut-icon material-symbols-outlined">description</span>
+          <div className="home-profile-copy">
+            <p className="home-profile-name">Mes contrats</p>
+            <p className="font-body-md text-on-surface-variant">Consultez et signez les contrats qui vous ont été envoyés.</p>
+          </div>
+        </Link>
       ) : null}
       {isSuperAdmin(user) ? (
         <Link to="/admin/verifications" className="home-profile-card">

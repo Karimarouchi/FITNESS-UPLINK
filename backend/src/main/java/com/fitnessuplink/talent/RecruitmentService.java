@@ -1,6 +1,10 @@
 package com.fitnessuplink.talent;
 
 import com.fitnessuplink.common.exception.ApiException;
+import com.fitnessuplink.contracts.Contract;
+import com.fitnessuplink.contracts.ContractRepository;
+import com.fitnessuplink.contracts.ContractStatus;
+import com.fitnessuplink.contracts.dto.ContractSummaryDto;
 import com.fitnessuplink.jobs.JobOffer;
 import com.fitnessuplink.jobs.JobOfferRepository;
 import com.fitnessuplink.jobs.JobOfferService;
@@ -21,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,6 +48,7 @@ public class RecruitmentService {
     private final JobOfferService jobOfferService;
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
+    private final ContractRepository contractRepository;
 
     @Transactional
     public RecruitmentDto create(User employer, CreateRecruitmentRequest request) {
@@ -90,6 +97,9 @@ public class RecruitmentService {
         Map<UUID, JobOffer> offers = jobOfferRepository.findAllById(
                 rows.stream().map(TalentPipeline::getJobOfferId).filter(Objects::nonNull).collect(Collectors.toSet())
         ).stream().collect(Collectors.toMap(JobOffer::getId, offer -> offer));
+        Map<UUID, ContractSummaryDto> contracts = latestContracts(
+                rows.stream().map(TalentPipeline::getId).toList()
+        );
 
         return rows.stream()
                 .filter(row -> jobOfferId == null || jobOfferId.equals(row.getJobOfferId()))
@@ -104,7 +114,8 @@ public class RecruitmentService {
                             row,
                             candidate,
                             row.getJobOfferId() == null ? null : offers.get(row.getJobOfferId()),
-                            valuesByUser.getOrDefault(candidate.getId(), Map.of())
+                            valuesByUser.getOrDefault(candidate.getId(), Map.of()),
+                            contracts.get(row.getId())
                     );
                     if (!needle.isBlank() && !matches(dto, needle)) {
                         return null;
@@ -139,10 +150,34 @@ public class RecruitmentService {
         if (status == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PIPELINE_STATUS");
         }
+        if (status == PipelineStatus.CONTRACT_SENT) {
+            throw new ApiException(HttpStatus.CONFLICT, "CONTRACT_REQUIRED");
+        }
         TalentPipeline entry = requireOwned(employer.getId(), id);
+        if (status == PipelineStatus.HIRED
+                && !contractRepository.existsByRecruitmentIdAndStatus(entry.getId(), ContractStatus.COMPLETED)) {
+            throw new ApiException(HttpStatus.CONFLICT, "CONTRACT_NOT_COMPLETED");
+        }
         Instant now = Instant.now();
         if (entry.getStatus() != status) {
+            assertTransition(entry.getStatus(), status);
             entry.setStatus(status);
+            entry.setStatusUpdatedAt(now);
+        }
+        entry.setUpdatedAt(now);
+        return toDto(talentPipelineRepository.save(entry));
+    }
+
+    @Transactional
+    public RecruitmentDto markContractSent(User employer, UUID recruitmentId) {
+        JobOfferService.requireEmployer(employer);
+        TalentPipeline entry = requireOwned(employer.getId(), recruitmentId);
+        if (entry.getStatus() != PipelineStatus.NEGOTIATION && entry.getStatus() != PipelineStatus.CONTRACT_SENT) {
+            throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
+        }
+        Instant now = Instant.now();
+        if (entry.getStatus() != PipelineStatus.CONTRACT_SENT) {
+            entry.setStatus(PipelineStatus.CONTRACT_SENT);
             entry.setStatusUpdatedAt(now);
         }
         entry.setUpdatedAt(now);
@@ -191,10 +226,16 @@ public class RecruitmentService {
     }
 
     private RecruitmentDto toDto(TalentPipeline entry, User candidate, JobOffer offer) {
-        return toDto(entry, candidate, offer, valuesOf(Set.of(candidate.getId())).getOrDefault(candidate.getId(), Map.of()));
+        return toDto(entry, candidate, offer, valuesOf(Set.of(candidate.getId())).getOrDefault(candidate.getId(), Map.of()), contractSummary(entry.getId()));
     }
 
-    private RecruitmentDto toDto(TalentPipeline entry, User candidate, JobOffer offer, Map<String, String> values) {
+    private RecruitmentDto toDto(
+            TalentPipeline entry,
+            User candidate,
+            JobOffer offer,
+            Map<String, String> values,
+            ContractSummaryDto contract
+    ) {
         return new RecruitmentDto(
                 entry.getId(),
                 toCandidate(candidate, values),
@@ -204,7 +245,8 @@ public class RecruitmentService {
                 entry.getInternalNote(),
                 entry.getCreatedAt(),
                 entry.getUpdatedAt(),
-                entry.getStatusUpdatedAt()
+                entry.getStatusUpdatedAt(),
+                contract
         );
     }
 
@@ -237,6 +279,61 @@ public class RecruitmentService {
                 firstUploadId(values.get("professional_photo")),
                 candidate.isVerified(),
                 candidate.getEmail()
+        );
+    }
+
+    private void assertTransition(PipelineStatus from, PipelineStatus to) {
+        if (from == to) {
+            return;
+        }
+        if (to == PipelineStatus.REJECTED || to == PipelineStatus.ARCHIVED) {
+            return;
+        }
+        Set<PipelineStatus> working = EnumSet.of(
+                PipelineStatus.NEW,
+                PipelineStatus.CONTACTED,
+                PipelineStatus.INTERVIEW_SCHEDULED,
+                PipelineStatus.NEGOTIATION
+        );
+        if (working.contains(from) && working.contains(to)) {
+            return;
+        }
+        if (from == PipelineStatus.CONTRACT_SENT && to == PipelineStatus.HIRED) {
+            return;
+        }
+        throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
+    }
+
+    private Map<UUID, ContractSummaryDto> latestContracts(List<UUID> recruitmentIds) {
+        if (recruitmentIds.isEmpty()) {
+            return Map.of();
+        }
+        return contractRepository.findByRecruitmentIdIn(recruitmentIds).stream()
+                .collect(Collectors.groupingBy(Contract::getRecruitmentId))
+                .entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> toSummary(entry.getValue().stream()
+                                .max(Comparator.comparing(Contract::getCreatedAt))
+                                .orElseThrow())
+                ));
+    }
+
+    private ContractSummaryDto contractSummary(UUID recruitmentId) {
+        return contractRepository.findByRecruitmentIdOrderByCreatedAtDesc(recruitmentId).stream()
+                .findFirst()
+                .map(this::toSummary)
+                .orElse(null);
+    }
+
+    private ContractSummaryDto toSummary(Contract contract) {
+        return new ContractSummaryDto(
+                contract.getId(),
+                contract.getStatus(),
+                contract.getCandidateSignedAt() != null,
+                contract.getEmployerSignedAt() != null,
+                contract.getStatus() == ContractStatus.COMPLETED,
+                contract.getSentAt()
         );
     }
 

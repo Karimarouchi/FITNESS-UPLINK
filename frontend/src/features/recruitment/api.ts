@@ -41,7 +41,27 @@ export type Recruitment = {
   createdAt: string;
   updatedAt: string;
   statusUpdatedAt: string;
+  contract: ContractSummary | null;
 };
+
+export type ContractSummary = {
+  id: string;
+  status: ContractStatus;
+  candidateSigned: boolean;
+  employerSigned: boolean;
+  completed: boolean;
+  sentAt: string | null;
+};
+
+export type ContractStatus =
+  | "DRAFT"
+  | "SENT"
+  | "CANDIDATE_SIGNED"
+  | "EMPLOYER_SIGNED"
+  | "COMPLETED"
+  | "DECLINED"
+  | "CANCELLED"
+  | "EXPIRED";
 
 export type RecruitmentSummary = {
   id: string;
@@ -92,6 +112,24 @@ export function recruitmentError(code: string) {
       return "Recrutement introuvable.";
     case "JOB_OFFER_IN_USE":
       return "Cette offre est liée à un recrutement en cours.";
+    case "CONTRACT_REQUIRED":
+      return "Un contrat doit être envoyé avant de passer au statut Contrat envoyé.";
+    case "CONTRACT_NOT_COMPLETED":
+      return "Le contrat doit être finalisé avant de marquer ce candidat comme recruté.";
+    case "INVALID_RECRUITMENT_TRANSITION":
+      return "Cette transition de statut n’est pas autorisée.";
+    case "CONTRACT_NOT_FOUND":
+      return "Contrat introuvable.";
+    case "CONTRACT_ALREADY_SENT":
+      return "Un contrat est déjà en cours pour ce recrutement.";
+    case "SIGNATURE_PROVIDER_ERROR":
+      return "Le contrat n’a pas pu être envoyé.";
+    case "INVALID_CONTRACT_STATUS":
+      return "Cette action n’est pas possible sur le contrat dans son état actuel.";
+    case "FILE_TOO_LARGE":
+      return "Ce fichier est trop volumineux (10 Mo maximum).";
+    case "INVALID_FILE_TYPE":
+      return "Seuls les fichiers PDF sont acceptés.";
     default:
       return code;
   }
