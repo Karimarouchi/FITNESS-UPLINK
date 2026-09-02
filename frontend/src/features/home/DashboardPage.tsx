@@ -12,7 +12,7 @@ export function DashboardPage() {
     <section className="home-welcome">
       <p className="font-label-caps uppercase text-on-surface-variant mb-2">Tableau de bord</p>
       <h1 className="font-display-lg-mobile text-primary mb-3">Bonjour, {user?.firstName}</h1>
-      <Link to="/profile" className="home-profile-card">
+      <Link to="/app/profile" className="home-profile-card">
         <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={88} />
         <div className="home-profile-copy">
           <div className="talent-card-title">

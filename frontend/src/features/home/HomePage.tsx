@@ -1,13 +1,11 @@
-import { Hero } from "./components/Hero";
-import { ModulesGrid } from "./components/ModulesGrid";
-import { PublicLayout } from "./components/PublicLayout";
-import { HERO_STATS, MODULES } from "./data";
+import { Hero } from "@/components/public/Hero";
+import { ModulesGrid } from "@/components/public/ModulesGrid";
 
 export function HomePage() {
   return (
-    <PublicLayout>
-      <Hero stats={HERO_STATS} />
-      <ModulesGrid modules={MODULES} />
-    </PublicLayout>
+    <>
+      <Hero />
+      <ModulesGrid />
+    </>
   );
 }

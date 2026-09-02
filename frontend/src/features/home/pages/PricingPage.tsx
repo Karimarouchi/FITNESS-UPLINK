@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
 import { PRICING_PLANS } from "../data";
+import { PublicAuthActions } from "@/components/layout/PublicAuthActions";
+import "../home.css";
 
 export function PricingPage() {
   return (
@@ -10,12 +11,7 @@ export function PricingPage() {
           Plans d’abonnement différenciés par catégorie d’utilisateur. Les montants, devises et droits sont administrés depuis le back-office — jamais figés dans le code.
         </p>
         <div className="fu-page-actions">
-          <Link className="fu-btn fu-btn--lime" to="/signup">
-            Choisir un plan
-          </Link>
-          <Link className="fu-btn fu-btn--outline" to="/login">
-            Se connecter
-          </Link>
+          <PublicAuthActions ghostClass="fu-btn fu-btn--outline" solidClass="fu-btn fu-btn--lime" />
         </div>
       </header>
       <div className="fu-page-grid fu-page-grid--plans">

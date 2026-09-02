@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness Universe — Maquette de navigation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10151A;
+    --ink-2:#1B2229;
+    --ink-line:#2A323A;
+    --paper:#F4F5F1;
+    --paper-2:#FFFFFF;
+    --paper-line:#DEE1D8;
+    --lime:#D6FF3F;
+    --lime-dim:#EAF7CE;
+    --coral:#FF5A36;
+    --slate:#5B6570;
+    --slate-light:#9AA3AC;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:#E7E9E3;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800;
+    letter-spacing:0.01em;
+    line-height:0.95;
+  }
+  a{ color:inherit; }
+
+  /* ---------- Meta switcher (not part of the mockup itself) ---------- */
+  .meta-bar{ display:flex; justify-content:center; gap:0; padding:18px 0 0; background:#E7E9E3; }
+  .meta-bar button{
+    font-family:'Inter'; font-weight:600; font-size:13px;
+    padding:10px 22px; cursor:pointer;
+    background:transparent; border:1px solid #12161a33;
+    color:#12161a; border-radius:2px;
+  }
+  .meta-bar button.active{ background:var(--ink); color:var(--lime); border-color:var(--ink); }
+  .meta-bar button:first-child{ border-radius:2px 0 0 2px; }
+  .meta-bar button:last-child{ border-radius:0 2px 2px 0; border-left:none; }
+  .meta-label{ text-align:center; font-family:'Inter'; font-size:12px; color:#6b7280; padding:8px 0 20px; }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* ==================================================================
+     SCREEN 1 — FRONT-OFFICE PUBLIC (Visiteur) — NAVBAR
+     ================================================================== */
+  #public{ background:var(--paper); }
+
+  .pub-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 48px; border-bottom:1px solid var(--paper-line); background:var(--paper);
+  }
+  .pub-logo{ display:flex; align-items:center; gap:10px; }
+  .pub-logo .mark{ width:30px; height:30px; background:var(--ink); display:flex; align-items:center; justify-content:center; }
+  .pub-logo .mark span{ color:var(--lime); font-family:'Big Shoulders Display'; font-weight:800; font-size:18px; }
+  .pub-logo .word{ font-family:'Big Shoulders Display'; font-weight:800; font-size:20px; letter-spacing:0.02em; }
+
+  .pub-links{ display:flex; align-items:center; gap:34px; }
+  .pub-links a{ text-decoration:none; color:var(--ink); font-size:14px; font-weight:500; padding-bottom:4px; border-bottom:2px solid transparent; transition:border-color .15s ease; }
+  .pub-links a:hover{ border-bottom-color:var(--lime); }
+
+  .pub-actions{ display:flex; align-items:center; gap:14px; }
+  .btn-ghost{ font-family:'Inter'; font-weight:600; font-size:13.5px; color:var(--ink); background:transparent; border:none; cursor:pointer; }
+  .btn-solid{ font-family:'Inter'; font-weight:600; font-size:13.5px; color:var(--ink); background:var(--lime); border:none; padding:11px 20px; cursor:pointer; border-radius:2px; }
+  .btn-outline{ font-family:'Inter'; font-weight:600; font-size:13px; color:var(--ink); background:transparent; border:1px solid var(--ink); padding:9px 16px; cursor:pointer; border-radius:2px; }
+
+  .hero{ display:grid; grid-template-columns:1.3fr 1fr; gap:60px; padding:80px 48px 90px; align-items:end; }
+  .hero h1{ font-size:clamp(46px,6vw,84px); text-transform:uppercase; }
+  .hero h1 .accent{ color:var(--slate-light); }
+  .hero p{ font-size:16px; color:var(--slate); max-width:46ch; margin-top:22px; line-height:1.55; }
+  .hero-ctas{ display:flex; gap:14px; margin-top:32px; }
+
+  .stat-col{ display:flex; flex-direction:column; border-left:1px solid var(--paper-line); padding-left:36px; }
+  .stat{ padding:18px 0; border-bottom:1px solid var(--paper-line); }
+  .stat:last-child{ border-bottom:none; }
+  .stat .num{ font-family:'Big Shoulders Display'; font-weight:700; font-size:40px; }
+  .stat .lbl{ font-size:13px; color:var(--slate); margin-top:2px; }
+
+  .modules{ padding:0 48px 100px; }
+  .modules .section-head{ display:flex; justify-content:space-between; align-items:baseline; padding-bottom:28px; border-bottom:1px solid var(--paper-line); margin-bottom:36px; }
+  .modules .section-head h2{ font-size:30px; text-transform:uppercase; }
+  .modules .section-head span{ font-size:13px; color:var(--slate); }
+
+  .module-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:1px; background:var(--paper-line); border:1px solid var(--paper-line); }
+  .module-card{ background:var(--paper-2); padding:26px 22px; min-height:150px; display:flex; flex-direction:column; justify-content:space-between; }
+  .module-card .n{ font-size:12px; color:var(--slate-light); font-weight:600; }
+  .module-card h3{ font-family:'Inter'; font-size:15px; font-weight:700; margin-top:14px; line-height:1.3; }
+  .module-card p{ font-size:12.5px; color:var(--slate); margin-top:6px; line-height:1.4; }
+
+  .pub-footer{ background:var(--ink); color:#B9BFC5; padding:30px 48px; font-size:12.5px; display:flex; justify-content:space-between; }
+
+  /* ==================================================================
+     SCREEN 2 — APP CONNECTÉE (Professionnel) — SIDEBAR
+     ================================================================== */
+  #app{ background:var(--ink); }
+  .app-shell{ display:flex; min-height:760px; }
+
+  .sidebar{ width:252px; flex-shrink:0; background:var(--ink); border-right:1px solid var(--ink-line); padding:24px 0 20px; display:flex; flex-direction:column; overflow-y:auto; }
+  .sb-logo{ display:flex; align-items:center; gap:9px; padding:0 22px 26px; }
+  .sb-logo .mark{ width:24px; height:24px; background:var(--lime); }
+  .sb-logo .word{ font-family:'Big Shoulders Display'; font-weight:800; font-size:16px; color:#fff; letter-spacing:0.02em; }
+
+  .sb-group{ padding:0 14px; margin-bottom:22px; }
+  .sb-group-title{ font-size:10.5px; font-weight:700; letter-spacing:0.06em; color:var(--slate-light); padding:0 10px 8px; }
+  .sb-link{ display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:2px; margin-bottom:1px; color:#C7CCD1; font-size:13.5px; font-weight:500; text-decoration:none; border-left:2px solid transparent; cursor:pointer; }
+  .sb-link .dot{ width:6px; height:6px; background:var(--slate-light); border-radius:50%; flex-shrink:0; }
+  .sb-link:hover{ background:var(--ink-2); }
+  .sb-link.active{ background:var(--ink-2); color:#fff; border-left-color:var(--lime); }
+  .sb-link.active .dot{ background:var(--lime); }
+
+  .sb-foot{ margin-top:auto; padding:14px 22px 0; border-top:1px solid var(--ink-line); }
+  .sb-user{ display:flex; align-items:center; gap:10px; padding-top:16px; }
+  .sb-avatar{ width:34px; height:34px; background:var(--lime); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--ink); font-family:'Inter'; flex-shrink:0; }
+  .sb-user .name{ font-size:13px; color:#fff; font-weight:600; }
+  .sb-user .role{ font-size:11px; color:var(--slate-light); }
+
+  .main{ flex:1; background:var(--paper); min-width:0; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 32px; background:var(--paper-2); border-bottom:1px solid var(--paper-line); }
+  .search{ display:flex; align-items:center; gap:8px; background:var(--paper); border:1px solid var(--paper-line); padding:9px 14px; border-radius:2px; width:320px; }
+  .search input{ border:none; background:transparent; outline:none; font-size:13px; width:100%; font-family:'Inter'; }
+  .top-actions{ display:flex; align-items:center; gap:18px; }
+  .bell{ width:34px; height:34px; border:1px solid var(--paper-line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; position:relative;}
+  .bell::after{ content:''; position:absolute; top:6px; right:7px; width:6px; height:6px; background:var(--coral); border-radius:50%; }
+
+  .main-content{ padding:32px; }
+  .page{ display:none; }
+  .page.active{ display:block; }
+
+  .page-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:26px; }
+  .page-head h1{ font-size:34px; text-transform:uppercase; }
+  .page-head .sub{ font-size:13px; color:var(--slate); margin-top:6px; }
+  .head-actions{ display:flex; gap:10px; }
+
+  .badge{ display:inline-flex; align-items:center; gap:7px; background:var(--lime-dim); color:#3B5A0B; font-size:12px; font-weight:600; padding:6px 12px; border-radius:2px; margin-top:8px; }
+  .badge .dot{ width:6px; height:6px; background:#3B5A0B; border-radius:50%; }
+  .badge.warn{ background:#FFE7DE; color:#B23A1B; }
+  .badge.warn .dot{ background:#B23A1B; }
+  .badge.pending{ background:#FFF3D0; color:#8A6200; }
+  .badge.pending .dot{ background:#8A6200; }
+
+  .cards-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px; }
+  .kcard{ background:var(--paper-2); border:1px solid var(--paper-line); padding:18px; }
+  .kcard .lbl{ font-size:12px; color:var(--slate); }
+  .kcard .val{ font-family:'Big Shoulders Display'; font-weight:700; font-size:32px; margin-top:6px; }
+  .kcard .delta{ font-size:11.5px; color:#3B5A0B; margin-top:4px; }
+
+  .panel{ background:var(--paper-2); border:1px solid var(--paper-line); margin-bottom:20px; }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--paper-line); }
+  .panel-head h2{ font-family:'Inter'; font-size:15px; font-weight:700; }
+  .panel-head a{ font-size:12.5px; color:var(--slate); text-decoration:none; }
+  .panel-body{ padding:20px; }
+
+  table{ width:100%; border-collapse:collapse; }
+  th{ text-align:left; font-size:11px; color:var(--slate-light); font-weight:600; padding:10px 20px; border-bottom:1px solid var(--paper-line); }
+  td{ padding:13px 20px; font-size:13px; border-bottom:1px solid var(--paper-line); color:var(--ink); }
+  tr:last-child td{ border-bottom:none; }
+  .status-pill{ font-size:11px; font-weight:600; padding:4px 9px; border-radius:20px; white-space:nowrap; }
+  .status-pill.new{ background:#E4ECFB; color:#1E4FA3; }
+  .status-pill.interview{ background:#FFF3D0; color:#8A6200; }
+  .status-pill.sent{ background:#EAF7CE; color:#3B5A0B; }
+  .status-pill.refused{ background:#F3D9D9; color:#8A1F1F; }
+  .status-pill.verified{ background:#EAF7CE; color:#3B5A0B; }
+  .status-pill.pending{ background:#FFF3D0; color:#8A6200; }
+
+  .btn-mini{ font-family:'Inter'; font-weight:600; font-size:12px; color:var(--ink); background:var(--paper); border:1px solid var(--paper-line); padding:7px 13px; cursor:pointer; border-radius:2px; }
+  .btn-mini.primary{ background:var(--lime); border-color:var(--lime); }
+  .btn-mini.dark{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  /* --- Profil professionnel --- */
+  .profile-banner{ background:var(--paper-2); border:1px solid var(--paper-line); padding:26px; display:flex; gap:20px; align-items:center; margin-bottom:20px; }
+  .profile-banner .avatar-lg{ width:76px; height:76px; border-radius:50%; background:var(--ink); color:var(--lime); display:flex; align-items:center; justify-content:center; font-family:'Big Shoulders Display'; font-size:26px; font-weight:800; flex-shrink:0; }
+  .profile-banner .pn{ font-size:22px; font-weight:700; font-family:'Inter'; }
+  .profile-banner .pt{ font-size:13.5px; color:var(--slate); margin-top:2px; }
+  .profile-banner .ploc{ font-size:12.5px; color:var(--slate-light); margin-top:4px; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+  .tag{ font-size:11.5px; font-weight:600; background:var(--paper); border:1px solid var(--paper-line); padding:5px 10px; border-radius:20px; }
+
+  .info-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:0; }
+  .info-cell{ padding:16px 20px; border-bottom:1px solid var(--paper-line); border-right:1px solid var(--paper-line); }
+  .info-cell:nth-child(3n){ border-right:none; }
+  .info-cell .k{ font-size:11px; color:var(--slate-light); font-weight:600; }
+  .info-cell .v{ font-size:14px; margin-top:4px; font-weight:500; }
+
+  .exp-item{ display:flex; gap:16px; padding:18px 20px; border-bottom:1px solid var(--paper-line); }
+  .exp-item:last-child{ border-bottom:none; }
+  .exp-dates{ width:110px; flex-shrink:0; font-size:12px; color:var(--slate-light); font-weight:600; }
+  .exp-body .t{ font-size:14px; font-weight:700; }
+  .exp-body .c{ font-size:12.5px; color:var(--slate); margin-top:1px; }
+  .exp-body .d{ font-size:12.5px; color:var(--slate); margin-top:6px; line-height:1.5; }
+
+  /* --- CV --- */
+  .cv-upload{ border:1.5px dashed var(--paper-line); padding:34px; text-align:center; }
+  .cv-upload .icon{ font-size:26px; }
+  .cv-upload .t{ font-size:14px; font-weight:600; margin-top:10px; }
+  .cv-upload .s{ font-size:12px; color:var(--slate); margin-top:4px; }
+
+  /* --- Diplômes & certifications --- */
+  .doc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .doc-card{ background:var(--paper-2); border:1px solid var(--paper-line); padding:18px; }
+  .doc-card .top{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .doc-card .t{ font-size:14px; font-weight:700; margin-top:10px; }
+  .doc-card .org{ font-size:12px; color:var(--slate); margin-top:2px; }
+  .doc-card .meta{ font-size:11.5px; color:var(--slate-light); margin-top:10px; }
+  .doc-card .refused-note{ font-size:11.5px; color:#8A1F1F; margin-top:8px; background:#FBECEC; padding:8px 10px; }
+  .doc-icon{ width:32px; height:32px; background:var(--paper); border:1px solid var(--paper-line); display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .add-card{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:1.5px dashed var(--paper-line); color:var(--slate); font-size:13px; font-weight:600; min-height:150px; cursor:pointer; }
+
+  /* --- Vidéos --- */
+  .video-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .video-card{ background:var(--ink); aspect-ratio:16/10; position:relative; display:flex; align-items:center; justify-content:center; }
+  .video-card .play{ width:44px; height:44px; border-radius:50%; background:var(--lime); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink); }
+  .video-card .cap{ position:absolute; bottom:0; left:0; right:0; padding:10px 12px; background:linear-gradient(0deg, rgba(0,0,0,.75), transparent); color:#fff; font-size:12px; font-weight:600; }
+
+  /* --- Disponibilités --- */
+  .week-grid{ display:grid; grid-template-columns:70px repeat(7,1fr); border:1px solid var(--paper-line); background:var(--paper-2); }
+  .week-grid .hd{ padding:10px 6px; font-size:11px; font-weight:700; text-align:center; border-bottom:1px solid var(--paper-line); border-left:1px solid var(--paper-line); background:var(--paper); }
+  .week-grid .hd:first-child{ border-left:none; }
+  .week-grid .time{ padding:10px 8px; font-size:11px; color:var(--slate-light); border-bottom:1px solid var(--paper-line); }
+  .week-grid .slot{ border-bottom:1px solid var(--paper-line); border-left:1px solid var(--paper-line); min-height:38px; }
+  .week-grid .slot.avail{ background:var(--lime-dim); }
+  .week-grid .slot.booked{ background:#E4ECFB; }
+  .week-grid .legend{ display:flex; gap:18px; padding:14px 20px; font-size:12px; color:var(--slate); }
+  .legend .sw{ display:inline-block; width:10px; height:10px; margin-right:6px; vertical-align:-1px; }
+
+  /* --- Opportunités --- */
+  .opp-item{ display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--paper-line); gap:16px; }
+  .opp-item:last-child{ border-bottom:none; }
+  .opp-main .t{ font-size:14.5px; font-weight:700; }
+  .opp-main .c{ font-size:12.5px; color:var(--slate); margin-top:3px; }
+  .opp-main .tag-row{ margin-top:8px; }
+  .opp-match{ text-align:center; flex-shrink:0; }
+  .opp-match .pct{ font-family:'Big Shoulders Display'; font-size:26px; font-weight:700; color:#3B5A0B; }
+  .opp-match .lbl{ font-size:10.5px; color:var(--slate-light); }
+
+  /* --- Contrats --- */
+  .contract-item{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--paper-line); }
+  .contract-item:last-child{ border-bottom:none; }
+  .contract-item .t{ font-size:14px; font-weight:700; }
+  .contract-item .s{ font-size:12px; color:var(--slate); margin-top:2px; }
+
+  /* --- Agenda coaching --- */
+  .booking-item{ display:flex; gap:14px; padding:16px 20px; border-bottom:1px solid var(--paper-line); align-items:center; }
+  .booking-item:last-child{ border-bottom:none; }
+  .booking-time{ width:64px; flex-shrink:0; font-family:'Big Shoulders Display'; font-size:20px; font-weight:700; }
+  .booking-body .t{ font-size:13.5px; font-weight:700; }
+  .booking-body .s{ font-size:12px; color:var(--slate); margin-top:2px; }
+
+  /* --- Paiements & abonnement --- */
+  .plan-card{ background:var(--ink); color:#fff; padding:26px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .plan-card .name{ font-size:11px; color:var(--slate-light); font-weight:600; letter-spacing:0.04em; }
+  .plan-card .price{ font-family:'Big Shoulders Display'; font-size:38px; font-weight:800; margin-top:6px; }
+  .plan-card .price span{ font-family:'Inter'; font-size:13px; font-weight:500; color:var(--slate-light); }
+  .plan-card .btn-mini{ background:var(--lime); border-color:var(--lime); }
+
+  /* --- Paramètres --- */
+  .settings-section{ padding:20px; border-bottom:1px solid var(--paper-line); }
+  .settings-section:last-child{ border-bottom:none; }
+  .settings-row{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; }
+  .settings-row .k{ font-size:13.5px; font-weight:600; }
+  .settings-row .s{ font-size:12px; color:var(--slate); margin-top:2px; }
+  .field{ margin-bottom:14px; }
+  .field label{ font-size:12px; font-weight:600; color:var(--slate); display:block; margin-bottom:6px; }
+  .field input, .field select{ width:100%; padding:10px 12px; border:1px solid var(--paper-line); font-size:13px; font-family:'Inter'; background:var(--paper); border-radius:2px; }
+  .switch{ width:38px; height:22px; background:var(--paper-line); border-radius:20px; position:relative; cursor:pointer; flex-shrink:0; }
+  .switch.on{ background:var(--lime); }
+  .switch::after{ content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left .15s; }
+  .switch.on::after{ left:18px; }
+  .danger-zone{ border:1px solid #F3D9D9; background:#FBECEC; padding:18px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .btn-danger{ font-family:'Inter'; font-weight:600; font-size:12px; color:#8A1F1F; background:#fff; border:1px solid #E3A9A9; padding:8px 14px; cursor:pointer; border-radius:2px; }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  @media (max-width: 980px){
+    .hero{ grid-template-columns:1fr; }
+    .module-grid{ grid-template-columns:repeat(2,1fr); }
+    .cards-row{ grid-template-columns:repeat(2,1fr); }
+    .pub-links{ display:none; }
+    .app-shell{ flex-direction:column; }
+    .sidebar{ width:100%; }
+    .info-grid{ grid-template-columns:1fr 1fr; }
+    .doc-grid, .video-grid{ grid-template-columns:1fr 1fr; }
+    .two-col{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="meta-bar">
+  <button class="tab-btn active" data-target="public">Vue publique — Visiteur</button>
+  <button class="tab-btn" data-target="app">Vue connectée — Professionnel</button>
+</div>
+<div class="meta-label">Cliquez sur les liens de la sidebar (vue connectée) pour naviguer entre les pages</div>
+
+<!-- ============================================================
+     SCREEN 1 : PUBLIC / VISITEUR — NAVBAR
+     ============================================================ -->
+<div id="public" class="screen active">
+  <nav class="pub-nav">
+    <div class="pub-logo">
+      <div class="mark"><span>F</span></div>
+      <div class="word">FITNESS UNIVERSE</div>
+    </div>
+    <div class="pub-links">
+      <a href="#">Fitness-Hire Elite</a>
+      <a href="#">Coaching privé</a>
+      <a href="#">Académie</a>
+      <a href="#">Marketplace</a>
+      <a href="#">News</a>
+      <a href="#">Events</a>
+      <a href="#">Tarifs</a>
+    </div>
+    <div class="pub-actions">
+      <button class="btn-ghost">Se connecter</button>
+      <button class="btn-solid">Rejoindre</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1>Connecter<br>l'industrie<br><span class="accent">mondiale</span> du fitness</h1>
+      <p>Recrutement, coaching, formation et équipement — un seul écosystème pour les professionnels, salles de sport et prestataires du fitness.</p>
+      <div class="hero-ctas">
+        <button class="btn-solid">Trouver un professionnel</button>
+        <button class="btn-outline">Créer un profil</button>
+      </div>
+    </div>
+    <div class="stat-col">
+      <div class="stat"><div class="num">12,400+</div><div class="lbl">Professionnels vérifiés</div></div>
+      <div class="stat"><div class="num">34</div><div class="lbl">Pays couverts</div></div>
+      <div class="stat"><div class="num">1,200</div><div class="lbl">Recrutements finalisés</div></div>
+    </div>
+  </section>
+
+  <section class="modules">
+    <div class="section-head">
+      <h2>L'écosystème</h2>
+      <span>7 modules connectés</span>
+    </div>
+    <div class="module-grid">
+      <div class="module-card"><div class="n">01</div><h3>Fitness-Hire Elite</h3><p>Recrutement, offres d'emploi et matching de talents.</p></div>
+      <div class="module-card"><div class="n">02</div><h3>Coaching privé</h3><p>Réservation de séances, packs et agenda coach.</p></div>
+      <div class="module-card"><div class="n">03</div><h3>Services salles de sport</h3><p>Prestataires : maintenance, juridique, marketing.</p></div>
+      <div class="module-card"><div class="n">04</div><h3>Marketplace matériel</h3><p>Catalogue fournisseurs et demandes de devis.</p></div>
+      <div class="module-card"><div class="n">05</div><h3>Académie & formations</h3><p>Certifications, workshops et masterclass.</p></div>
+      <div class="module-card"><div class="n">06</div><h3>News & Knowledge Center</h3><p>Actualités, tendances et recherches du secteur.</p></div>
+      <div class="module-card"><div class="n">07</div><h3>Events & compétitions</h3><p>Salons, conférences et networking.</p></div>
+      <div class="module-card" style="background:var(--ink); color:#fff;"><h3 style="margin-top:auto;">Voir tous les modules →</h3></div>
+    </div>
+  </section>
+
+  <footer class="pub-footer">
+    <span>© 2026 Fitness Universe</span>
+    <span>Confidentialité · Conditions générales · Contact</span>
+  </footer>
+</div>
+
+<!-- ============================================================
+     SCREEN 2 : APP CONNECTÉE — SIDEBAR (Professionnel)
+     ============================================================ -->
+<div id="app" class="screen">
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="sb-logo"><div class="mark"></div><div class="word">FITNESS UNIVERSE</div></div>
+
+      <div class="sb-group">
+        <a class="sb-link active" data-page="dashboard"><span class="dot"></span>Tableau de bord</a>
+      </div>
+
+      <div class="sb-group">
+        <div class="sb-group-title">MON PROFIL</div>
+        <a class="sb-link" data-page="profile"><span class="dot"></span>Profil professionnel</a>
+        <a class="sb-link" data-page="cv"><span class="dot"></span>CV</a>
+        <a class="sb-link" data-page="certifications"><span class="dot"></span>Diplômes & certifications</a>
+        <a class="sb-link" data-page="videos"><span class="dot"></span>Vidéos de présentation</a>
+        <a class="sb-link" data-page="availability"><span class="dot"></span>Disponibilités</a>
+      </div>
+
+      <div class="sb-group">
+        <div class="sb-group-title">RECRUTEMENT</div>
+        <a class="sb-link" data-page="opportunities"><span class="dot"></span>Opportunités</a>
+        <a class="sb-link" data-page="applications"><span class="dot"></span>Candidatures</a>
+        <a class="sb-link" data-page="contracts"><span class="dot"></span>Contrats</a>
+      </div>
+
+      <div class="sb-group">
+        <div class="sb-group-title">COACHING</div>
+        <a class="sb-link" data-page="coaching"><span class="dot"></span>Agenda & réservations</a>
+      </div>
+
+      <div class="sb-group">
+        <div class="sb-group-title">COMPTE</div>
+        <a class="sb-link" data-page="billing"><span class="dot"></span>Paiements & abonnement</a>
+        <a class="sb-link" data-page="settings"><span class="dot"></span>Paramètres</a>
+      </div>
+
+      <div class="sb-foot">
+        <div class="sb-user">
+          <div class="sb-avatar">MK</div>
+          <div>
+            <div class="name">Malek K.</div>
+            <div class="role">Coach — Abonnement actif</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="search">🔍<input placeholder="Rechercher une opportunité, un contrat…"></div>
+        <div class="top-actions">
+          <div class="bell">🔔</div>
+          <div class="sb-avatar" style="width:32px;height:32px;font-size:12px;">MK</div>
+        </div>
+      </div>
+
+      <div class="main-content">
+
+        <!-- ============ TABLEAU DE BORD ============ -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-head">
+            <div>
+              <h1>Tableau de bord</h1>
+              <span class="badge"><span class="dot"></span>Profil vérifié</span>
+            </div>
+          </div>
+
+          <div class="cards-row">
+            <div class="kcard"><div class="lbl">Candidatures actives</div><div class="val">6</div><div class="delta">+2 cette semaine</div></div>
+            <div class="kcard"><div class="lbl">Vues du profil</div><div class="val">142</div><div class="delta">+18 cette semaine</div></div>
+            <div class="kcard"><div class="lbl">Séances coaching</div><div class="val">9</div><div class="delta">3 à venir</div></div>
+            <div class="kcard"><div class="lbl">Documents à jour</div><div class="val">4/4</div><div class="delta">Aucune action requise</div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Candidatures en cours</h2><a data-nav="applications">Voir tout</a></div>
+            <table>
+              <thead><tr><th>Employeur</th><th>Poste</th><th>Pays</th><th>Statut</th></tr></thead>
+              <tbody>
+                <tr><td>Momentum Club</td><td>Coach principal — Cross Training</td><td>Émirats Arabes Unis</td><td><span class="status-pill new">Nouveau</span></td></tr>
+                <tr><td>Atlas Wellness Resort</td><td>Responsable fitness</td><td>Maroc</td><td><span class="status-pill interview">Entretien prévu</span></td></tr>
+                <tr><td>PulseFit Studio</td><td>Coach Pilates</td><td>Tunisie</td><td><span class="status-pill sent">Contrat envoyé</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Prochaines séances de coaching</h2><a data-nav="coaching">Voir l'agenda</a></div>
+            <div class="booking-item"><div class="booking-time">09:00</div><div class="booking-body"><div class="t">Séance individuelle — Sami B.</div><div class="s">Cross training · 60 min</div></div></div>
+            <div class="booking-item"><div class="booking-time">14:30</div><div class="booking-body"><div class="t">Cours collectif — Pilates</div><div class="s">6 participants · 45 min</div></div></div>
+          </div>
+        </section>
+
+        <!-- ============ PROFIL PROFESSIONNEL ============ -->
+        <section class="page" id="page-profile">
+          <div class="page-head">
+            <div><h1>Profil professionnel</h1><div class="sub">Visible par les employeurs abonnés une fois votre profil vérifié</div></div>
+            <div class="head-actions"><button class="btn-mini primary">Modifier le profil</button></div>
+          </div>
+
+          <div class="profile-banner">
+            <div class="avatar-lg">MK</div>
+            <div>
+              <div class="pn">Malek Karoui</div>
+              <div class="pt">Coach principal — Cross Training & Préparation physique</div>
+              <div class="ploc">Tunis, Tunisie · Prêt à déménager · Disponible pour mission internationale</div>
+              <div class="tag-row">
+                <span class="tag">Cross Training</span>
+                <span class="tag">HYROX</span>
+                <span class="tag">Préparation physique</span>
+                <span class="tag">Nutrition sportive</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Informations générales</h2></div>
+            <div class="info-grid">
+              <div class="info-cell"><div class="k">SALAIRE SOUHAITÉ</div><div class="v">3 200 € / mois</div></div>
+              <div class="info-cell"><div class="k">TYPE DE CONTRAT</div><div class="v">CDI ou mission longue durée</div></div>
+              <div class="info-cell"><div class="k">LANGUES</div><div class="v">Français, Arabe, Anglais (C1)</div></div>
+              <div class="info-cell"><div class="k">PAYS RECHERCHÉS</div><div class="v">Golfe, Maroc, France</div></div>
+              <div class="info-cell"><div class="k">DISPONIBILITÉ</div><div class="v">Immédiate</div></div>
+              <div class="info-cell"><div class="k">ANNÉES D'EXPÉRIENCE</div><div class="v">7 ans</div></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Expériences professionnelles</h2><a>Ajouter</a></div>
+            <div class="exp-item">
+              <div class="exp-dates">2022 — Aujourd'hui</div>
+              <div class="exp-body"><div class="t">Coach principal</div><div class="c">Iron Bay Fitness Club, Tunis</div><div class="d">Encadrement de 4 coachs, programmation Cross Training, suivi de 120 adhérents.</div></div>
+            </div>
+            <div class="exp-item">
+              <div class="exp-dates">2019 — 2022</div>
+              <div class="exp-body"><div class="t">Coach sportif indépendant</div><div class="c">Freelance, Tunis & en ligne</div><div class="d">Coaching individuel et collectif, préparation physique pour athlètes amateurs.</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CV ============ -->
+        <section class="page" id="page-cv">
+          <div class="page-head">
+            <div><h1>CV</h1><div class="sub">Document utilisé par les employeurs lors de l'étude de votre candidature</div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Fichier actuel</h2><a>Télécharger</a></div>
+            <div class="exp-item" style="align-items:center;">
+              <div class="doc-icon">📄</div>
+              <div class="exp-body" style="flex:1;"><div class="t">CV_Malek_Karoui_2026.pdf</div><div class="c">Mis à jour le 12 août 2026 · 340 Ko</div></div>
+              <button class="btn-mini">Remplacer</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Remplacer le CV</h2></div>
+            <div class="panel-body">
+              <div class="cv-upload">
+                <div class="icon">⬆</div>
+                <div class="t">Glissez votre CV ici ou cliquez pour parcourir</div>
+                <div class="s">Formats acceptés : PDF, DOCX — 5 Mo maximum</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ DIPLÔMES & CERTIFICATIONS ============ -->
+        <section class="page" id="page-certifications">
+          <div class="page-head">
+            <div><h1>Diplômes & certifications</h1><div class="sub">Chaque document est vérifié manuellement par l'équipe Fitness Universe</div></div>
+            <div class="head-actions"><button class="btn-mini primary">Ajouter un document</button></div>
+          </div>
+
+          <div class="doc-grid">
+            <div class="doc-card">
+              <div class="top"><div class="doc-icon">🎓</div><span class="status-pill verified">Vérifié</span></div>
+              <div class="t">Licence STAPS — Entraînement sportif</div>
+              <div class="org">Université de Tunis · 2018</div>
+              <div class="meta">Vérifié le 03 août 2026</div>
+            </div>
+            <div class="doc-card">
+              <div class="top"><div class="doc-icon">🏅</div><span class="status-pill verified">Vérifié</span></div>
+              <div class="t">Certification CrossFit Level 2</div>
+              <div class="org">CrossFit Inc. · 2021</div>
+              <div class="meta">Vérifié le 03 août 2026</div>
+            </div>
+            <div class="doc-card">
+              <div class="top"><div class="doc-icon">🏅</div><span class="status-pill pending">En attente</span></div>
+              <div class="t">Certification HYROX Coach</div>
+              <div class="org">HYROX Academy · 2025</div>
+              <div class="meta">Envoyé le 28 août 2026 — en cours d'examen</div>
+            </div>
+            <div class="doc-card">
+              <div class="top"><div class="doc-icon">🏅</div><span class="status-pill refused">Refusé</span></div>
+              <div class="t">Attestation premiers secours</div>
+              <div class="org">Croissant-Rouge Tunisien · 2019</div>
+              <div class="refused-note">Motif : document illisible — merci de renvoyer un scan net.</div>
+            </div>
+            <div class="add-card">+ Ajouter un diplôme ou une certification</div>
+          </div>
+        </section>
+
+        <!-- ============ VIDÉOS ============ -->
+        <section class="page" id="page-videos">
+          <div class="page-head">
+            <div><h1>Vidéos de présentation</h1><div class="sub">Montrez votre style de coaching aux employeurs et clients potentiels</div></div>
+            <div class="head-actions"><button class="btn-mini primary">Ajouter une vidéo</button></div>
+          </div>
+          <div class="video-grid">
+            <div class="video-card"><div class="play">▶</div><div class="cap">Séance Cross Training — 2:14</div></div>
+            <div class="video-card"><div class="play">▶</div><div class="cap">Présentation & parcours — 1:02</div></div>
+            <div class="video-card" style="background:var(--paper-2); border:1.5px dashed var(--paper-line); display:flex; align-items:center; justify-content:center;">
+              <div style="text-align:center; color:var(--slate); font-size:13px; font-weight:600;">+ Ajouter une vidéo<br><span style="font-weight:400; font-size:11.5px; color:var(--slate-light);">Upload ou lien YouTube / Vimeo</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ DISPONIBILITÉS ============ -->
+        <section class="page" id="page-availability">
+          <div class="page-head">
+            <div><h1>Disponibilités</h1><div class="sub">Créneaux généraux et récurrents, notamment pour les cours collectifs</div></div>
+            <div class="head-actions"><button class="btn-mini">+ Exception ponctuelle</button><button class="btn-mini primary">+ Ajouter un créneau</button></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Semaine type</h2></div>
+            <div class="week-grid">
+              <div class="hd"></div>
+              <div class="hd">Lun</div><div class="hd">Mar</div><div class="hd">Mer</div><div class="hd">Jeu</div><div class="hd">Ven</div><div class="hd">Sam</div><div class="hd">Dim</div>
+
+              <div class="time">08:00</div>
+              <div class="slot avail"></div><div class="slot avail"></div><div class="slot"></div><div class="slot avail"></div><div class="slot avail"></div><div class="slot"></div><div class="slot"></div>
+
+              <div class="time">10:00</div>
+              <div class="slot booked"></div><div class="slot"></div><div class="slot avail"></div><div class="slot"></div><div class="slot booked"></div><div class="slot avail"></div><div class="slot"></div>
+
+              <div class="time">14:00</div>
+              <div class="slot avail"></div><div class="slot avail"></div><div class="slot avail"></div><div class="slot avail"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+
+              <div class="time">17:00</div>
+              <div class="slot"></div><div class="slot booked"></div><div class="slot"></div><div class="slot booked"></div><div class="slot avail"></div><div class="slot"></div><div class="slot"></div>
+            </div>
+            <div class="legend">
+              <span><span class="sw" style="background:var(--lime-dim); border:1px solid var(--paper-line);"></span>Disponible</span>
+              <span><span class="sw" style="background:#E4ECFB; border:1px solid var(--paper-line);"></span>Réservé</span>
+              <span><span class="sw" style="background:var(--paper-2); border:1px solid var(--paper-line);"></span>Fermé</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ OPPORTUNITÉS ============ -->
+        <section class="page" id="page-opportunities">
+          <div class="page-head">
+            <div><h1>Opportunités</h1><div class="sub">Offres correspondant à votre profil, spécialités et mobilité</div></div>
+          </div>
+          <div class="panel">
+            <div class="opp-item">
+              <div class="opp-main">
+                <div class="t">Coach principal — Cross Training</div>
+                <div class="c">Momentum Club · Dubaï, Émirats Arabes Unis · CDI</div>
+                <div class="tag-row"><span class="tag">Cross Training</span><span class="tag">HYROX</span><span class="tag">Anglais requis</span></div>
+              </div>
+              <div class="opp-match"><div class="pct">92%</div><div class="lbl">correspondance</div></div>
+              <button class="btn-mini primary">Postuler</button>
+            </div>
+            <div class="opp-item">
+              <div class="opp-main">
+                <div class="t">Responsable fitness</div>
+                <div class="c">Atlas Wellness Resort · Marrakech, Maroc · CDI</div>
+                <div class="tag-row"><span class="tag">Management</span><span class="tag">Préparation physique</span></div>
+              </div>
+              <div class="opp-match"><div class="pct">81%</div><div class="lbl">correspondance</div></div>
+              <button class="btn-mini primary">Postuler</button>
+            </div>
+            <div class="opp-item">
+              <div class="opp-main">
+                <div class="t">Coach Pilates</div>
+                <div class="c">PulseFit Studio · Tunis, Tunisie · Temps partiel</div>
+                <div class="tag-row"><span class="tag">Pilates</span><span class="tag">Cours collectifs</span></div>
+              </div>
+              <div class="opp-match"><div class="pct">74%</div><div class="lbl">correspondance</div></div>
+              <button class="btn-mini">Déjà postulé</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CANDIDATURES ============ -->
+        <section class="page" id="page-applications">
+          <div class="page-head">
+            <div><h1>Candidatures</h1><div class="sub">Suivi de vos candidatures et de leur statut dans le pipeline employeur</div></div>
+          </div>
+          <div class="panel">
+            <table>
+              <thead><tr><th>Employeur</th><th>Poste</th><th>Pays</th><th>Envoyée le</th><th>Statut</th></tr></thead>
+              <tbody>
+                <tr><td>Momentum Club</td><td>Coach principal — Cross Training</td><td>Émirats Arabes Unis</td><td>28 août 2026</td><td><span class="status-pill new">Nouveau</span></td></tr>
+                <tr><td>Atlas Wellness Resort</td><td>Responsable fitness</td><td>Maroc</td><td>22 août 2026</td><td><span class="status-pill interview">Entretien prévu</span></td></tr>
+                <tr><td>PulseFit Studio</td><td>Coach Pilates</td><td>Tunisie</td><td>15 août 2026</td><td><span class="status-pill sent">Contrat envoyé</span></td></tr>
+                <tr><td>Vertex Performance</td><td>Préparateur physique</td><td>Qatar</td><td>03 août 2026</td><td><span class="status-pill refused">Refusé</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ CONTRATS ============ -->
+        <section class="page" id="page-contracts">
+          <div class="page-head">
+            <div><h1>Contrats</h1><div class="sub">Signature électronique, archivage et historique</div></div>
+          </div>
+          <div class="panel">
+            <div class="contract-item">
+              <div><div class="t">Contrat — PulseFit Studio</div><div class="s">Reçu le 24 août 2026 · En attente de votre signature</div></div>
+              <div><button class="btn-mini dark">Signer maintenant</button></div>
+            </div>
+            <div class="contract-item">
+              <div><div class="t">Contrat — Iron Bay Fitness Club</div><div class="s">Signé le 02 janvier 2022 · Archivé</div></div>
+              <div><button class="btn-mini">Télécharger le PDF</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ AGENDA & RÉSERVATIONS (COACHING) ============ -->
+        <section class="page" id="page-coaching">
+          <div class="page-head">
+            <div><h1>Agenda & réservations</h1><div class="sub">Séances de coaching privé réservées par vos clients</div></div>
+            <div class="head-actions"><button class="btn-mini">+ Créer une indisponibilité</button></div>
+          </div>
+          <div class="cards-row">
+            <div class="kcard"><div class="lbl">Séances cette semaine</div><div class="val">9</div></div>
+            <div class="kcard"><div class="lbl">Clients actifs</div><div class="val">14</div></div>
+            <div class="kcard"><div class="lbl">Packs en cours</div><div class="val">7</div></div>
+            <div class="kcard"><div class="lbl">Note moyenne</div><div class="val">4.8</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Aujourd'hui — 2 septembre</h2></div>
+            <div class="booking-item"><div class="booking-time">09:00</div><div class="booking-body"><div class="t">Sami B. — Séance individuelle</div><div class="s">Cross training · 60 min · Payé</div></div></div>
+            <div class="booking-item"><div class="booking-time">14:30</div><div class="booking-body"><div class="t">Cours collectif — Pilates</div><div class="s">6 / 8 participants · 45 min</div></div></div>
+            <div class="booking-item"><div class="booking-time">18:00</div><div class="booking-body"><div class="t">Nour T. — Séance individuelle</div><div class="s">Pack 10 séances · 4 restantes</div></div></div>
+          </div>
+        </section>
+
+        <!-- ============ PAIEMENTS & ABONNEMENT ============ -->
+        <section class="page" id="page-billing">
+          <div class="page-head">
+            <div><h1>Paiements & abonnement</h1></div>
+          </div>
+          <div class="plan-card">
+            <div>
+              <div class="name">ABONNEMENT PROFESSIONNEL DU FITNESS</div>
+              <div class="price">50 DT<span> / mois · renouvellement le 14 sept. 2026</span></div>
+            </div>
+            <button class="btn-mini">Gérer l'abonnement</button>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Historique de facturation</h2></div>
+            <table>
+              <thead><tr><th>Date</th><th>Description</th><th>Montant</th><th>Statut</th></tr></thead>
+              <tbody>
+                <tr><td>14 août 2026</td><td>Abonnement mensuel</td><td>50 DT</td><td><span class="status-pill verified">Payé</span></td></tr>
+                <tr><td>14 juillet 2026</td><td>Abonnement mensuel</td><td>50 DT</td><td><span class="status-pill verified">Payé</span></td></tr>
+                <tr><td>14 juin 2026</td><td>Abonnement mensuel</td><td>50 DT</td><td><span class="status-pill refused">Échec — carte expirée</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ PARAMÈTRES ============ -->
+        <section class="page" id="page-settings">
+          <div class="page-head"><div><h1>Paramètres</h1></div></div>
+
+          <div class="panel">
+            <div class="settings-section">
+              <div class="two-col">
+                <div class="field"><label>Adresse e-mail</label><input value="malek.karoui@email.com"></div>
+                <div class="field"><label>Téléphone</label><input value="+216 XX XXX XXX"></div>
+              </div>
+              <div class="two-col">
+                <div class="field"><label>Langue de l'interface</label><select><option>Français</option><option>English</option><option>العربية</option></select></div>
+                <div class="field"><label>Mot de passe</label><input type="password" value="••••••••••"></div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-row"><div><div class="k">Notifications e-mail</div><div class="s">Candidatures, contrats, réservations</div></div><div class="switch on"></div></div>
+              <div class="settings-row"><div><div class="k">Notifications push</div><div class="s">Rappels de séances et alertes urgentes</div></div><div class="switch on"></div></div>
+              <div class="settings-row"><div><div class="k">Visibilité du profil</div><div class="s">Visible par les employeurs abonnés vérifiés</div></div><div class="switch on"></div></div>
+            </div>
+
+            <div class="settings-section">
+              <div class="danger-zone">
+                <div><div class="k">Désactiver mon compte</div><div class="s">Votre profil sera masqué mais vos données conservées</div></div>
+                <button class="btn-danger">Désactiver</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Bascule Vue publique / Vue connectée
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+
+  // Navigation entre les pages de la sidebar
+  function goToPage(pageId){
+    document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('active'));
+    document.querySelectorAll('.sb-link[data-page="'+pageId+'"]').forEach(l=>l.classList.add('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const target = document.getElementById('page-'+pageId);
+    if(target) target.classList.add('active');
+    document.querySelector('.main').scrollTo?.(0,0);
+  }
+
+  document.querySelectorAll('.sb-link[data-page]').forEach(link=>{
+    link.addEventListener('click', ()=> goToPage(link.dataset.page));
+  });
+
+  // Liens rapides internes ("Voir tout", "Voir l'agenda"…)
+  document.querySelectorAll('[data-nav]').forEach(link=>{
+    link.style.cursor = 'pointer';
+    link.addEventListener('click', ()=> goToPage(link.dataset.nav));
+  });
+</script>
+
+</body>
+</html>

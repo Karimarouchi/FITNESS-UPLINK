@@ -8,6 +8,7 @@ import com.fitnessuplink.onboarding.dto.UploadResponse;
 import com.fitnessuplink.user.User;
 import com.fitnessuplink.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -56,35 +58,15 @@ public class UploadService {
                 .findFirst()
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Unknown profile field"));
 
-        String contentType = file.getContentType() == null ? "application/octet-stream" : file.getContentType().toLowerCase(Locale.ROOT);
+        byte[] bytes = readFileBytes(file);
+        String contentType = resolveContentType(file.getContentType(), file.getOriginalFilename(), bytes);
         validateType(field, contentType);
         long max = maxBytesFor(field);
-        if (file.getSize() > max) {
+        if (bytes.length > max) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "This file is too large");
         }
 
-        UUID id = UUID.randomUUID();
-        String extension = extensionOf(file.getOriginalFilename(), contentType);
-        Path directory = Path.of(uploadProperties.dir(), userId.toString()).toAbsolutePath().normalize();
-        Path target = directory.resolve(id + extension);
-        try {
-            Files.createDirectories(directory);
-            file.transferTo(target.toFile());
-        } catch (IOException ex) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
-        }
-
-        UserUpload upload = UserUpload.builder()
-                .id(id)
-                .userId(userId)
-                .fieldKey(fieldKey)
-                .originalFilename(safeName(file.getOriginalFilename()))
-                .contentType(contentType)
-                .sizeBytes(file.getSize())
-                .storagePath(target.toString())
-                .createdAt(Instant.now())
-                .build();
-        userUploadRepository.save(upload);
+        UserUpload upload = persist(userId, fieldKey, safeName(file.getOriginalFilename()), contentType, bytes);
         return toResponse(upload);
     }
 
@@ -107,12 +89,7 @@ public class UploadService {
         if (file == null || file.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_FILE_TYPE");
         }
-        byte[] bytes;
-        try {
-            bytes = file.getBytes();
-        } catch (IOException ex) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
-        }
+        byte[] bytes = readFileBytes(file);
         String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
         String filename = file.getOriginalFilename() == null ? "contract.pdf" : file.getOriginalFilename();
         if (!"application/pdf".equals(contentType) && !filename.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
@@ -130,44 +107,19 @@ public class UploadService {
         if (bytes.length > max) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "FILE_TOO_LARGE");
         }
-        UUID id = UUID.randomUUID();
-        Path directory = Path.of(uploadProperties.dir(), userId.toString(), "contracts").toAbsolutePath().normalize();
-        Path target = directory.resolve(id + ".pdf");
-        try {
-            Files.createDirectories(directory);
-            Files.write(target, bytes);
-        } catch (IOException ex) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
-        }
-        UserUpload upload = UserUpload.builder()
-                .id(id)
-                .userId(userId)
-                .fieldKey(fieldKey)
-                .originalFilename(safeName(filename.endsWith(".pdf") ? filename : filename + ".pdf"))
-                .contentType("application/pdf")
-                .sizeBytes(bytes.length)
-                .storagePath(target.toString())
-                .createdAt(Instant.now())
-                .build();
-        return userUploadRepository.save(upload);
+        return persist(
+                userId,
+                fieldKey,
+                safeName(filename.endsWith(".pdf") ? filename : filename + ".pdf"),
+                "application/pdf",
+                bytes
+        );
     }
 
     public byte[] readBytes(UUID uploadId) {
         UserUpload upload = userUploadRepository.findById(uploadId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "File not found"));
-        try {
-            return Files.readAllBytes(Path.of(upload.getStoragePath()));
-        } catch (IOException ex) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "File not found");
-        }
-    }
-
-    private LoadedUpload resourceOf(UserUpload upload) {
-        Resource resource = new FileSystemResource(upload.getStoragePath());
-        if (!resource.exists()) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "File not found");
-        }
-        return new LoadedUpload(upload, resource);
+        return bytesOf(upload);
     }
 
     public boolean belongsTo(UUID userId, UUID uploadId, String fieldKey) {
@@ -176,11 +128,56 @@ public class UploadService {
                 .isPresent();
     }
 
+    private UserUpload persist(UUID userId, String fieldKey, String filename, String contentType, byte[] bytes) {
+        UserUpload upload = UserUpload.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .fieldKey(fieldKey)
+                .originalFilename(filename)
+                .contentType(contentType)
+                .sizeBytes(bytes.length)
+                .content(bytes)
+                .createdAt(Instant.now())
+                .build();
+        return userUploadRepository.save(upload);
+    }
+
+    private LoadedUpload resourceOf(UserUpload upload) {
+        return new LoadedUpload(upload, new ByteArrayResource(bytesOf(upload)));
+    }
+
+    private byte[] bytesOf(UserUpload upload) {
+        if (upload.getContent() != null && upload.getContent().length > 0) {
+            return upload.getContent();
+        }
+        String path = upload.getStoragePath();
+        if (path != null && !path.isBlank() && !"db".equals(path)) {
+            Resource resource = new FileSystemResource(path);
+            if (resource.exists()) {
+                try {
+                    return Files.readAllBytes(Path.of(path));
+                } catch (IOException ex) {
+                    throw new ApiException(HttpStatus.NOT_FOUND, "File not found");
+                }
+            }
+        }
+        throw new ApiException(HttpStatus.NOT_FOUND, "File not found");
+    }
+
+    private byte[] readFileBytes(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
+        }
+    }
+
     private void validateType(ProfileField field, String contentType) {
         String accept = field.getAccept();
         if (accept != null && !accept.isBlank()) {
             boolean ok = java.util.Arrays.stream(accept.split(","))
                     .map(String::trim)
+                    .map(this::normalizeMime)
                     .anyMatch(allowed -> allowed.equalsIgnoreCase(contentType));
             if (!ok) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "This file type is not allowed");
@@ -198,30 +195,85 @@ public class UploadService {
         }
     }
 
+    private String resolveContentType(String declared, String filename, byte[] bytes) {
+        String sniffed = sniffContentType(bytes);
+        if (sniffed != null) {
+            return sniffed;
+        }
+        String normalized = normalizeMime(declared);
+        if (IMAGE_TYPES.contains(normalized) || DOC_TYPES.contains(normalized) || VIDEO_TYPES.contains(normalized)) {
+            return normalized;
+        }
+        String fromName = typeFromFilename(filename);
+        if (fromName != null) {
+            return fromName;
+        }
+        return normalized.isBlank() ? "application/octet-stream" : normalized;
+    }
+
+    private String sniffContentType(byte[] bytes) {
+        if (bytes == null || bytes.length < 3) {
+            return null;
+        }
+        if (isJpeg(bytes)) {
+            return "image/jpeg";
+        }
+        if (bytes.length >= 8 && (bytes[0] & 0xFF) == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
+            return "image/png";
+        }
+        if (bytes.length >= 12 && bytes[0] == 'R' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == 'F'
+                && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P') {
+            return "image/webp";
+        }
+        if (bytes.length >= 4 && bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F') {
+            return "application/pdf";
+        }
+        if (bytes.length >= 8 && new String(bytes, 4, 4, StandardCharsets.US_ASCII).equals("ftyp")) {
+            return "video/mp4";
+        }
+        return null;
+    }
+
+    private boolean isJpeg(byte[] bytes) {
+        return bytes.length >= 3 && (bytes[0] & 0xFF) == 0xFF && (bytes[1] & 0xFF) == 0xD8 && (bytes[2] & 0xFF) == 0xFF;
+    }
+
+    private String typeFromFilename(String filename) {
+        if (filename == null || !filename.contains(".")) {
+            return null;
+        }
+        String ext = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
+        return switch (ext) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "webp" -> "image/webp";
+            case "pdf" -> "application/pdf";
+            case "mp4" -> "video/mp4";
+            case "webm" -> "video/webm";
+            case "doc" -> "application/msword";
+            case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            default -> null;
+        };
+    }
+
+    private String normalizeMime(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return "";
+        }
+        String value = contentType.toLowerCase(Locale.ROOT).split(";", 2)[0].trim();
+        return switch (value) {
+            case "image/jpg", "image/pjpeg" -> "image/jpeg";
+            case "image/x-png" -> "image/png";
+            default -> value;
+        };
+    }
+
     private long maxBytesFor(ProfileField field) {
         String type = field.getFieldType() == null ? "" : field.getFieldType().toUpperCase(Locale.ROOT);
         return switch (type) {
             case "PHOTO" -> 5L * 1024 * 1024;
             case "FILES", "FILE" -> field.getFieldKey().contains("video") ? 50L * 1024 * 1024 : 10L * 1024 * 1024;
             default -> uploadProperties.maxBytes();
-        };
-    }
-
-    private String extensionOf(String filename, String contentType) {
-        if (filename != null && filename.contains(".") && !filename.endsWith(".")) {
-            String ext = filename.substring(filename.lastIndexOf('.')).toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9.]", "");
-            if (ext.length() >= 2 && ext.length() <= 8) {
-                return ext;
-            }
-        }
-        return switch (contentType) {
-            case "image/jpeg" -> ".jpg";
-            case "image/png" -> ".png";
-            case "image/webp" -> ".webp";
-            case "application/pdf" -> ".pdf";
-            case "video/mp4" -> ".mp4";
-            case "video/webm" -> ".webm";
-            default -> "";
         };
     }
 

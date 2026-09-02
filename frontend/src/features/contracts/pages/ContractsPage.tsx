@@ -22,7 +22,7 @@ export function ContractsPage() {
   }, [candidate, employer]);
 
   if (!candidate && !employer) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   function statusCopy(item: Contract) {

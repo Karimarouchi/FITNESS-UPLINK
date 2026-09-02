@@ -112,6 +112,7 @@ class RecruitmentServiceTest {
         when(userRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
         when(jobOfferService.requireOwned(employerId, offerId)).thenReturn(offer);
         when(jobOfferService.toSummary(offer)).thenReturn(new JobOfferSummaryDto(offerId, offer.getTitle(), offer.getPosition(), offer.getLocation()));
+        when(jobOfferRepository.findById(offerId)).thenReturn(Optional.of(offer));
         when(talentPipelineRepository.existsByEmployerIdAndCandidateIdAndJobOfferId(employerId, candidateId, offerId)).thenReturn(false);
         when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
         when(talentPipelineRepository.saveAndFlush(any(TalentPipeline.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -261,6 +262,39 @@ class RecruitmentServiceTest {
         assertEquals(candidate.getDisplayName(), list.getFirst().candidate().displayName());
         assertEquals("Note privée", list.getFirst().internalNote());
         assertTrue(list.getFirst().directRecruitment());
+    }
+
+    @Test
+    void candidateListHidesEmployerNotes() {
+        TalentPipeline row = entry(PipelineStatus.INTERVIEW_SCHEDULED, null);
+        when(talentPipelineRepository.findByCandidateIdOrderByUpdatedAtDesc(candidateId)).thenReturn(List.of(row));
+        when(userRepository.findAllById(anyCollection())).thenReturn(List.of(candidate, employer));
+        when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
+        when(jobOfferRepository.findAllById(anyCollection())).thenReturn(List.of());
+
+        List<RecruitmentDto> list = recruitmentService.list(candidate, null, null, null, null);
+
+        assertEquals(1, list.size());
+        assertNull(list.getFirst().internalNote());
+        assertEquals(employer.getDisplayName(), list.getFirst().employer().displayName());
+    }
+
+    @Test
+    void candidateCanApplyToPublishedOffer() {
+        offer.setStatus(com.fitnessuplink.jobs.JobOfferStatus.PUBLISHED);
+        when(jobOfferRepository.findById(offerId)).thenReturn(Optional.of(offer));
+        when(userRepository.findById(employerId)).thenReturn(Optional.of(employer));
+        when(userRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
+        when(talentPipelineRepository.existsByEmployerIdAndCandidateIdAndJobOfferId(employerId, candidateId, offerId)).thenReturn(false);
+        when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
+        when(jobOfferService.toSummary(offer)).thenReturn(new JobOfferSummaryDto(offerId, offer.getTitle(), offer.getPosition(), offer.getLocation()));
+        when(talentPipelineRepository.saveAndFlush(any(TalentPipeline.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        RecruitmentDto dto = recruitmentService.apply(candidate, offerId);
+
+        assertEquals(PipelineStatus.NEW, dto.status());
+        assertNull(dto.internalNote());
+        assertEquals(offerId, dto.jobOffer().id());
     }
 
     @Test

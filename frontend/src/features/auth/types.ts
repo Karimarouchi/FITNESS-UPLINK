@@ -89,8 +89,41 @@ export function isCandidate(user: AuthUser | null | undefined) {
   return user?.role?.code === "CANDIDATE";
 }
 
+export function isMember(user: AuthUser | null | undefined) {
+  return user?.role?.code === "MEMBER";
+}
+
 export function isVerified(user: AuthUser | null | undefined) {
   return user?.verificationStatus === "verified";
+}
+
+export function initialsOf(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return "U";
+  }
+  const first = parts[0][0] ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1][0] ?? "") : "";
+  return (first + last).toUpperCase();
+}
+
+export function shortNameOf(user: AuthUser) {
+  const first = user.firstName?.trim() ?? "";
+  const last = user.lastName?.trim() ?? "";
+  if (first && last) {
+    return `${first} ${last[0]}.`;
+  }
+  return user.displayName || user.email;
+}
+
+export function verificationLabel(user: AuthUser | null | undefined) {
+  if (isVerified(user)) {
+    return "Profil vérifié";
+  }
+  if (user?.verificationStatus === "rejected") {
+    return "Profil refusé";
+  }
+  return "Vérification en cours";
 }
 
 export function destinationFor(user: AuthUser) {
@@ -102,6 +135,6 @@ export function destinationFor(user: AuthUser) {
     case "PROFILE":
       return "/onboarding/profile";
     default:
-      return "/";
+      return "/app/dashboard";
   }
 }

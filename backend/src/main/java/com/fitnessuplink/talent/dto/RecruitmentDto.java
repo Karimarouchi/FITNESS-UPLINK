@@ -10,6 +10,7 @@ import java.util.UUID;
 public record RecruitmentDto(
         UUID id,
         RecruitmentCandidateDto candidate,
+        RecruitmentEmployerDto employer,
         JobOfferSummaryDto jobOffer,
         boolean directRecruitment,
         PipelineStatus status,

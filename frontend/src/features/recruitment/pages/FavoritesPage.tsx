@@ -30,7 +30,7 @@ export function FavoritesPage() {
   }, []);
 
   if (!isBusiness(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   async function remove(item: FavoriteCard) {

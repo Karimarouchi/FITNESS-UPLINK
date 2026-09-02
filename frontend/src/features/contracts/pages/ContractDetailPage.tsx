@@ -42,7 +42,7 @@ export function ContractDetailPage() {
   }, [id, candidate, employer]);
 
   if (!candidate && !employer) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
   if (!id) {
     return <Navigate to="/contracts" replace />;

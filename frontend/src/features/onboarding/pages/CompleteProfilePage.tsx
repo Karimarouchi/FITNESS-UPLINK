@@ -3,9 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import type { CountrySummary, ProfileField } from "@/features/auth/types";
-import { isVerified } from "@/features/auth/types";
-import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
-import { VerificationBadge } from "@/shared/components/VerificationBadge";
 import {
   trimValue,
   validateCity,
@@ -119,20 +116,12 @@ type Section = {
   fields: ProfileField[];
 };
 
-function photoUploadId(value?: string) {
-  try {
-    const parsed = JSON.parse(value || "[]") as { id?: string } | { id?: string }[];
-    const first = Array.isArray(parsed) ? parsed[0] : parsed;
-    return first?.id;
-  } catch {
-    return undefined;
-  }
-}
-
 export function CompleteProfilePage() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
-  const editing = useLocation().pathname === "/profile";
+  const path = useLocation().pathname;
+  const editing = path === "/profile" || path === "/app/profile/edit";
+  const embedded = path.startsWith("/app/");
   const [fields, setFields] = useState<ProfileField[]>([]);
   const [countries, setCountries] = useState<CountrySummary[]>([]);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -271,7 +260,7 @@ export function CompleteProfilePage() {
       }
       const next = await completeProfile(payload);
       updateUser(next);
-      navigate("/", { replace: true });
+      navigate(editing ? "/app/profile" : "/app/dashboard", { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Impossible d’enregistrer le profil");
     } finally {
@@ -413,56 +402,11 @@ export function CompleteProfilePage() {
 
   const candidate = user?.role?.code === "CANDIDATE";
   const business = user?.role?.category === "BUSINESS";
-  const displayName = user?.displayName || [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "Profil";
-  const avatarId =
-    photoUploadId(values.professional_photo) ?? photoUploadId(values.organization_logo) ?? user?.avatarUploadId;
-  const goBack = () => navigate(editing ? "/" : "/onboarding/country");
+  const goBack = () => navigate(editing ? "/app/profile" : "/onboarding/country");
 
-  return (
-    <div className="ob-shell ob-shell--profile">
-      <header className="ob-profile-nav">
-        <button className="ob-nav-back" type="button" onClick={goBack}>
-          <span className="material-symbols-outlined">arrow_back</span>
-          <span className="font-label-caps uppercase">Retour</span>
-        </button>
-        <div className="font-headline-md text-primary">Fitness Uplink</div>
-        {editing ? (
-          <ProfileAvatar uploadId={avatarId} name={displayName} size={40} />
-        ) : (
-          <div className="font-label-caps text-on-surface-variant">Étape 3 / 3</div>
-        )}
-      </header>
-      <main className="ob-profile ob-profile--wide">
-        <div className="ob-profile-intro">
-          {editing ? (
-            <div className="ob-profile-circle">
-              <ProfileAvatar uploadId={avatarId} name={displayName} size={112} />
-              <div className="mt-3 flex justify-center">
-                <VerificationBadge verified={isVerified(user)} />
-              </div>
-            </div>
-          ) : null}
-          <p className="ob-kicker">{user?.role?.label}</p>
-          <h1 className="font-display-lg-mobile md:font-display-lg text-on-surface">
-            {editing
-              ? "Mon profil"
-              : candidate
-                ? "Votre dossier candidat"
-                : business
-                  ? "Votre dossier établissement"
-                  : "Complete your profile"}
-          </h1>
-          <p className="font-body-lg text-on-surface-variant">
-            {editing
-              ? "Consultez vos informations et mettez-les à jour à tout moment."
-              : candidate
-                ? "Présentez votre parcours, vos pièces et vos préférences. Vous pourrez affiner plus tard."
-                : business
-                  ? "Renseignez l’identité, les pièces juridiques et les coordonnées de votre structure. Vous pourrez affiner plus tard."
-                  : "Tell us a little more about yourself to personalize your Fitness Uplink experience."}
-          </p>
-        </div>
+  const form = (
         <form className="ob-dossier" onSubmit={onSubmit} noValidate>
+          {embedded ? null : (
           <div className="ob-role-badge">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-secondary">{user?.role?.icon ?? "person"}</span>
@@ -474,6 +418,7 @@ export function CompleteProfilePage() {
               </button>
             )}
           </div>
+          )}
           {loading ? <p className="font-body-md text-on-surface-variant">Chargement du formulaire…</p> : null}
           {sections.map((section, index) => {
             const folded = Boolean(collapsed[section.key]);
@@ -511,12 +456,56 @@ export function CompleteProfilePage() {
               </button>
               <button className="ob-primary" type="submit" disabled={submitting || loading}>
                 {submitting ? "Enregistrement..." : editing ? "Enregistrer" : "Terminer"}
-                {submitting ? "Enregistrement..." : editing ? "Enregistrer" : "Terminer"}
                 <span className="material-symbols-outlined text-[16px]">{editing ? "check" : "arrow_forward"}</span>
               </button>
             </div>
           </div>
         </form>
+  );
+
+  if (embedded) {
+    return (
+      <section className="ob-embedded">
+        <div className="page-head">
+          <div>
+            <h1>{business ? "Modifier le profil organisation" : "Modifier le profil"}</h1>
+            <div className="sub">Mettez à jour vos informations. Elles restent dans votre dossier.</div>
+          </div>
+        </div>
+        {form}
+      </section>
+    );
+  }
+
+  return (
+    <div className="ob-shell ob-shell--profile">
+      <header className="ob-profile-nav">
+        <button className="ob-nav-back" type="button" onClick={goBack}>
+          <span className="material-symbols-outlined">arrow_back</span>
+          <span className="font-label-caps uppercase">Retour</span>
+        </button>
+        <div className="font-headline-md text-primary">Fitness Uplink</div>
+        <div className="font-label-caps text-on-surface-variant">Étape 3 / 3</div>
+      </header>
+      <main className="ob-profile ob-profile--wide">
+        <div className="ob-profile-intro">
+          <p className="ob-kicker">{user?.role?.label}</p>
+          <h1 className="font-display-lg-mobile md:font-display-lg text-on-surface">
+            {candidate
+              ? "Votre dossier candidat"
+              : business
+                ? "Votre dossier établissement"
+                : "Complete your profile"}
+          </h1>
+          <p className="font-body-lg text-on-surface-variant">
+            {candidate
+              ? "Présentez votre parcours, vos pièces et vos préférences. Vous pourrez affiner plus tard."
+              : business
+                ? "Renseignez l’identité, les pièces juridiques et les coordonnées de votre structure. Vous pourrez affiner plus tard."
+                : "Tell us a little more about yourself to personalize your Fitness Uplink experience."}
+          </p>
+        </div>
+        {form}
       </main>
     </div>
   );

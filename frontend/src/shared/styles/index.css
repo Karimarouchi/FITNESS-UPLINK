@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fu.css";
 
 @theme {
   --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
@@ -7,10 +8,13 @@
   --font-ui: Inter, "Segoe UI", system-ui, sans-serif;
 
   --color-ink: #10151a;
+  --color-ink-2: #1b2229;
+  --color-ink-line: #2a323a;
   --color-paper: #f4f5f1;
   --color-paper-2: #ffffff;
   --color-paper-line: #dee1d8;
   --color-lime: #d6ff3f;
+  --color-lime-dim: #eaf7ce;
   --color-coral: #ff5a36;
   --color-slate: #5b6570;
   --color-slate-light: #9aa3ac;

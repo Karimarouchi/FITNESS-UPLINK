@@ -8,7 +8,9 @@ import com.fitnessuplink.contracts.dto.ContractSummaryDto;
 import com.fitnessuplink.jobs.JobOffer;
 import com.fitnessuplink.jobs.JobOfferRepository;
 import com.fitnessuplink.jobs.JobOfferService;
+import com.fitnessuplink.jobs.JobOfferStatus;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
+import com.fitnessuplink.talent.dto.RecruitmentEmployerDto;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
 import com.fitnessuplink.talent.dto.CreateRecruitmentRequest;
@@ -55,9 +57,8 @@ public class RecruitmentService {
         JobOfferService.requireEmployer(employer);
         User candidate = requireCandidate(request.candidateId());
         UUID jobOfferId = request.jobOfferId();
-        JobOffer offer = null;
         if (jobOfferId != null) {
-            offer = jobOfferService.requireOwned(employer.getId(), jobOfferId);
+            jobOfferService.requireOwned(employer.getId(), jobOfferId);
         }
         if (alreadyExists(employer.getId(), candidate.getId(), jobOfferId)) {
             throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
@@ -79,58 +80,86 @@ public class RecruitmentService {
         } catch (DataIntegrityViolationException ex) {
             throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
         }
-        return toDto(entry, candidate, offer);
+        return toDto(entry, false);
     }
 
     @Transactional(readOnly = true)
-    public List<RecruitmentDto> list(User employer, UUID jobOfferId, Boolean direct, PipelineStatus status, String query) {
-        JobOfferService.requireEmployer(employer);
-        if (jobOfferId != null) {
-            jobOfferService.requireOwned(employer.getId(), jobOfferId);
+    public List<RecruitmentDto> list(User viewer, UUID jobOfferId, Boolean direct, PipelineStatus status, String query) {
+        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
+            if (jobOfferId != null) {
+                jobOfferService.requireOwned(viewer.getId(), jobOfferId);
+            }
+            return mapRows(
+                    talentPipelineRepository.findByEmployerIdOrderByUpdatedAtDesc(viewer.getId()),
+                    jobOfferId,
+                    direct,
+                    status,
+                    query,
+                    false
+            );
         }
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
-        List<TalentPipeline> rows = talentPipelineRepository.findByEmployerIdOrderByUpdatedAtDesc(employer.getId());
-        Set<UUID> candidateIds = rows.stream().map(TalentPipeline::getCandidateId).collect(Collectors.toSet());
-        Map<UUID, User> candidates = userRepository.findAllById(candidateIds).stream()
-                .collect(Collectors.toMap(User::getId, user -> user));
-        Map<UUID, Map<String, String>> valuesByUser = valuesOf(candidateIds);
-        Map<UUID, JobOffer> offers = jobOfferRepository.findAllById(
-                rows.stream().map(TalentPipeline::getJobOfferId).filter(Objects::nonNull).collect(Collectors.toSet())
-        ).stream().collect(Collectors.toMap(JobOffer::getId, offer -> offer));
-        Map<UUID, ContractSummaryDto> contracts = latestContracts(
-                rows.stream().map(TalentPipeline::getId).toList()
-        );
-
-        return rows.stream()
-                .filter(row -> jobOfferId == null || jobOfferId.equals(row.getJobOfferId()))
-                .filter(row -> direct == null || Boolean.TRUE.equals(direct) == (row.getJobOfferId() == null))
-                .filter(row -> status == null || status == row.getStatus())
-                .map(row -> {
-                    User candidate = candidates.get(row.getCandidateId());
-                    if (candidate == null) {
-                        return null;
-                    }
-                    RecruitmentDto dto = toDto(
-                            row,
-                            candidate,
-                            row.getJobOfferId() == null ? null : offers.get(row.getJobOfferId()),
-                            valuesByUser.getOrDefault(candidate.getId(), Map.of()),
-                            contracts.get(row.getId())
-                    );
-                    if (!needle.isBlank() && !matches(dto, needle)) {
-                        return null;
-                    }
-                    return dto;
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        if (viewer.isCandidate() && viewer.isOnboardingCompleted()) {
+            return mapRows(
+                    talentPipelineRepository.findByCandidateIdOrderByUpdatedAtDesc(viewer.getId()),
+                    jobOfferId,
+                    direct,
+                    status,
+                    query,
+                    true
+            );
+        }
+        throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
     }
 
     @Transactional(readOnly = true)
-    public RecruitmentDto get(User employer, UUID id) {
-        JobOfferService.requireEmployer(employer);
-        TalentPipeline entry = requireOwned(employer.getId(), id);
-        return toDto(entry);
+    public RecruitmentDto get(User viewer, UUID id) {
+        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
+            return toDto(requireOwned(viewer.getId(), id), false);
+        }
+        if (viewer.isCandidate() && viewer.isOnboardingCompleted()) {
+            TalentPipeline entry = talentPipelineRepository.findByIdAndCandidateId(id, viewer.getId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECRUITMENT_NOT_FOUND"));
+            return toDto(entry, true);
+        }
+        throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+    }
+
+    @Transactional
+    public RecruitmentDto apply(User candidate, UUID jobOfferId) {
+        if (!candidate.isCandidate() || !candidate.isOnboardingCompleted()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+        }
+        JobOffer offer = jobOfferRepository.findById(jobOfferId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
+        if (offer.getStatus() != JobOfferStatus.PUBLISHED
+                || (offer.getExpiresAt() != null && offer.getExpiresAt().isBefore(Instant.now()))) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND");
+        }
+        User employer = userRepository.findById(offer.getEmployerId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
+        if (!employer.isBusiness() || !employer.isOnboardingCompleted()) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND");
+        }
+        if (alreadyExists(employer.getId(), candidate.getId(), offer.getId())) {
+            throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
+        }
+        Instant now = Instant.now();
+        TalentPipeline entry = TalentPipeline.builder()
+                .id(UUID.randomUUID())
+                .employerId(employer.getId())
+                .candidateId(candidate.getId())
+                .jobOfferId(offer.getId())
+                .status(PipelineStatus.NEW)
+                .createdAt(now)
+                .updatedAt(now)
+                .statusUpdatedAt(now)
+                .build();
+        try {
+            talentPipelineRepository.saveAndFlush(entry);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
+        }
+        return toDto(entry, true);
     }
 
     @Transactional(readOnly = true)
@@ -226,34 +255,124 @@ public class RecruitmentService {
     }
 
     private RecruitmentDto toDto(TalentPipeline entry) {
-        User candidate = requireCandidate(entry.getCandidateId());
-        JobOffer offer = entry.getJobOfferId() == null ? null : jobOfferRepository.findById(entry.getJobOfferId()).orElse(null);
-        return toDto(entry, candidate, offer);
+        return toDto(entry, false);
     }
 
-    private RecruitmentDto toDto(TalentPipeline entry, User candidate, JobOffer offer) {
-        return toDto(entry, candidate, offer, valuesOf(Set.of(candidate.getId())).getOrDefault(candidate.getId(), Map.of()), contractSummary(entry.getId()));
+    private RecruitmentDto toDto(TalentPipeline entry, boolean hideInternalNote) {
+        User candidate = requireCandidate(entry.getCandidateId());
+        User employer = userRepository.findById(entry.getEmployerId()).orElse(null);
+        JobOffer offer = entry.getJobOfferId() == null ? null : jobOfferRepository.findById(entry.getJobOfferId()).orElse(null);
+        Map<UUID, Map<String, String>> values = valuesOf(employer == null
+                ? Set.of(candidate.getId())
+                : Set.of(candidate.getId(), employer.getId()));
+        return toDto(
+                entry,
+                candidate,
+                employer,
+                offer,
+                values.getOrDefault(candidate.getId(), Map.of()),
+                employer == null ? Map.of() : values.getOrDefault(employer.getId(), Map.of()),
+                contractSummary(entry.getId()),
+                hideInternalNote
+        );
+    }
+
+    private List<RecruitmentDto> mapRows(
+            List<TalentPipeline> rows,
+            UUID jobOfferId,
+            Boolean direct,
+            PipelineStatus status,
+            String query,
+            boolean hideInternalNote
+    ) {
+        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        Set<UUID> candidateIds = rows.stream().map(TalentPipeline::getCandidateId).collect(Collectors.toSet());
+        Set<UUID> employerIds = rows.stream().map(TalentPipeline::getEmployerId).collect(Collectors.toSet());
+        Set<UUID> peopleIds = new java.util.HashSet<>();
+        peopleIds.addAll(candidateIds);
+        peopleIds.addAll(employerIds);
+        Map<UUID, User> people = userRepository.findAllById(peopleIds).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+        Map<UUID, Map<String, String>> valuesByUser = valuesOf(peopleIds);
+        Map<UUID, JobOffer> offers = jobOfferRepository.findAllById(
+                rows.stream().map(TalentPipeline::getJobOfferId).filter(Objects::nonNull).collect(Collectors.toSet())
+        ).stream().collect(Collectors.toMap(JobOffer::getId, offer -> offer));
+        Map<UUID, ContractSummaryDto> contracts = latestContracts(
+                rows.stream().map(TalentPipeline::getId).toList()
+        );
+
+        return rows.stream()
+                .filter(row -> jobOfferId == null || jobOfferId.equals(row.getJobOfferId()))
+                .filter(row -> direct == null || Boolean.TRUE.equals(direct) == (row.getJobOfferId() == null))
+                .filter(row -> status == null || status == row.getStatus())
+                .map(row -> {
+                    User candidate = people.get(row.getCandidateId());
+                    if (candidate == null) {
+                        return null;
+                    }
+                    RecruitmentDto dto = toDto(
+                            row,
+                            candidate,
+                            people.get(row.getEmployerId()),
+                            row.getJobOfferId() == null ? null : offers.get(row.getJobOfferId()),
+                            valuesByUser.getOrDefault(candidate.getId(), Map.of()),
+                            valuesByUser.getOrDefault(row.getEmployerId(), Map.of()),
+                            contracts.get(row.getId()),
+                            hideInternalNote
+                    );
+                    if (!needle.isBlank() && !matches(dto, needle)) {
+                        return null;
+                    }
+                    return dto;
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     private RecruitmentDto toDto(
             TalentPipeline entry,
             User candidate,
+            User employer,
             JobOffer offer,
-            Map<String, String> values,
-            ContractSummaryDto contract
+            Map<String, String> candidateValues,
+            Map<String, String> employerValues,
+            ContractSummaryDto contract,
+            boolean hideInternalNote
     ) {
         return new RecruitmentDto(
                 entry.getId(),
-                toCandidate(candidate, values),
+                toCandidate(candidate, candidateValues),
+                toEmployer(employer, employerValues),
                 offer == null ? null : jobOfferService.toSummary(offer),
                 entry.getJobOfferId() == null,
                 entry.getStatus(),
-                entry.getInternalNote(),
+                hideInternalNote ? null : entry.getInternalNote(),
                 entry.getCreatedAt(),
                 entry.getUpdatedAt(),
                 entry.getStatusUpdatedAt(),
                 contract
         );
+    }
+
+    private RecruitmentEmployerDto toEmployer(User employer, Map<String, String> values) {
+        if (employer == null) {
+            return null;
+        }
+        return new RecruitmentEmployerDto(
+                employer.getId(),
+                organizationName(employer, values),
+                countryOf(employer)
+        );
+    }
+
+    private String organizationName(User employer, Map<String, String> values) {
+        for (String key : List.of("trade_name", "legal_name", "company_name", "gym_name", "academy_name", "organization_name")) {
+            String value = text(values, key);
+            if (value != null) {
+                return value;
+            }
+        }
+        return employer.getDisplayName();
     }
 
     private RecruitmentSummaryDto toSummary(TalentPipeline entry) {
@@ -365,6 +484,7 @@ public class RecruitmentService {
                 nullToEmpty(candidate.title()),
                 nullToEmpty(candidate.city()),
                 candidate.country() == null ? "" : candidate.country().name(),
+                dto.employer() == null ? "" : nullToEmpty(dto.employer().displayName()),
                 dto.jobOffer() == null ? "recrutement direct" : nullToEmpty(dto.jobOffer().title())
         ).toLowerCase(Locale.ROOT);
         return haystack.contains(needle);

@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
 import type { PublicModuleContent } from "../data";
+import { PublicAuthActions } from "@/components/layout/PublicAuthActions";
+import "../home.css";
 
 type PublicModulePageProps = {
   content: PublicModuleContent;
@@ -12,12 +13,7 @@ export function PublicModulePage({ content }: PublicModulePageProps) {
         <h1 className="fu-page-title">{content.title}</h1>
         <p className="fu-page-lead">{content.lead}</p>
         <div className="fu-page-actions">
-          <Link className="fu-btn fu-btn--lime" to="/signup">
-            {content.ctaLabel}
-          </Link>
-          <Link className="fu-btn fu-btn--outline" to="/login">
-            Se connecter
-          </Link>
+          <PublicAuthActions ghostClass="fu-btn fu-btn--outline" solidClass="fu-btn fu-btn--lime" />
         </div>
       </header>
       <div className="fu-page-grid">

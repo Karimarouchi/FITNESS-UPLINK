@@ -17,7 +17,7 @@ export function Layout({ children }: LayoutProps) {
       <header className="app-topbar">
         <p className="font-headline-md tracking-tight text-primary-container">Fitness Uplink</p>
         <nav className="flex items-center gap-6">
-          <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/" end>
+          <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/app/dashboard" end>
             Accueil
           </NavLink>
           {isBusiness(user) ? (
@@ -52,7 +52,7 @@ export function Layout({ children }: LayoutProps) {
           <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/notifications">
             Notifications
           </NavLink>
-          <NavLink to="/profile" className="app-avatar-link" title="Mon profil" aria-label="Voir et modifier mon profil">
+          <NavLink to="/app/profile" className="app-avatar-link" title="Mon profil" aria-label="Voir et modifier mon profil">
             <span className="app-avatar-wrap">
               <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={40} />
               {isVerified(user) ? <span className="avatar-verified material-symbols-outlined">verified</span> : null}

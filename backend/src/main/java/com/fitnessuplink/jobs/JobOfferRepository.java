@@ -10,5 +10,7 @@ public interface JobOfferRepository extends JpaRepository<JobOffer, UUID> {
 
     List<JobOffer> findByEmployerIdOrderByUpdatedAtDesc(UUID employerId);
 
+    List<JobOffer> findByStatusOrderByUpdatedAtDesc(JobOfferStatus status);
+
     Optional<JobOffer> findByIdAndEmployerId(UUID id, UUID employerId);
 }

@@ -10,9 +10,13 @@ public interface TalentPipelineRepository extends JpaRepository<TalentPipeline, 
 
     List<TalentPipeline> findByEmployerIdOrderByUpdatedAtDesc(UUID employerId);
 
+    List<TalentPipeline> findByCandidateIdOrderByUpdatedAtDesc(UUID candidateId);
+
     List<TalentPipeline> findByEmployerIdAndCandidateIdOrderByUpdatedAtDesc(UUID employerId, UUID candidateId);
 
     Optional<TalentPipeline> findByIdAndEmployerId(UUID id, UUID employerId);
+
+    Optional<TalentPipeline> findByIdAndCandidateId(UUID id, UUID candidateId);
 
     boolean existsByEmployerIdAndCandidateId(UUID employerId, UUID candidateId);
 

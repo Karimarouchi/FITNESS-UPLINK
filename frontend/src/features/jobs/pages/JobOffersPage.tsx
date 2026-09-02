@@ -53,7 +53,7 @@ export function JobOffersPage() {
   }
 
   if (!isBusiness(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   function fill(offer: JobOffer) {

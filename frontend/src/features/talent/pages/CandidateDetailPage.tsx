@@ -69,7 +69,7 @@ export function CandidateDetailPage() {
   }, [id]);
 
   if (!isBusiness(user) && !isSuperAdmin(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   async function toggleFavorite() {

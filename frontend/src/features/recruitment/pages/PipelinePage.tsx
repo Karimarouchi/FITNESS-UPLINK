@@ -75,7 +75,7 @@ export function PipelinePage() {
   }, [filters, statusFilter, query]);
 
   if (!isBusiness(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   function replaceItem(updated: Recruitment) {

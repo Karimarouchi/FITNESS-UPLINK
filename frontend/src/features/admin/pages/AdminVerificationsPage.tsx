@@ -154,7 +154,7 @@ export function AdminVerificationsPage() {
   }
 
   if (!isSuperAdmin(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   const visible = items.filter((item) => {
@@ -206,8 +206,8 @@ export function AdminVerificationsPage() {
 
   return (
     <section className="talent-page talent-page--wide">
-      <p className="font-label-caps uppercase text-on-surface-variant">Administration</p>
-      <h1 className="font-display-lg-mobile text-primary mb-4">Candidats et employeurs</h1>
+      <p className="font-label-caps uppercase text-on-surface-variant">Back-office</p>
+      <h1 className="font-display-lg-mobile text-primary mb-4">Vérifications</h1>
       <p className="font-body-md text-on-surface-variant mb-6">
         Validez chaque contrôle séparément. Le badge n’apparaît que lorsque tous les contrôles requis sont validés.
         Candidats : identité, puis diplômes et certifications s’ils sont fournis. Employeurs : existence, documents légaux et représentant légal, chacun de son côté.

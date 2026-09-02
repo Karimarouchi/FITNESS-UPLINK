@@ -40,8 +40,11 @@ public class UserUpload {
     @Column(name = "size_bytes", nullable = false)
     private long sizeBytes;
 
-    @Column(name = "storage_path", nullable = false, length = 400)
+    @Column(name = "storage_path", length = 400)
     private String storagePath;
+
+    @Column(name = "content")
+    private byte[] content;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

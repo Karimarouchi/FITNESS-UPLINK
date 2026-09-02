@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import type { NavLinkItem } from "../data";
+import { PublicAuthActions } from "@/components/layout/PublicAuthActions";
 
 type NavbarProps = {
   links: NavLinkItem[];
@@ -42,12 +43,7 @@ export function Navbar({ links }: NavbarProps) {
           </ul>
 
           <div className="fu-nav-actions">
-            <Link className="fu-btn fu-btn--ghost" to="/login">
-              Se connecter
-            </Link>
-            <Link className="fu-btn fu-btn--lime" to="/signup">
-              Rejoindre
-            </Link>
+            <PublicAuthActions ghostClass="fu-btn fu-btn--ghost" solidClass="fu-btn fu-btn--lime" />
           </div>
 
           <button
@@ -83,12 +79,11 @@ export function Navbar({ links }: NavbarProps) {
               ))}
             </ul>
             <div className="fu-nav-panel-actions">
-              <Link className="fu-btn fu-btn--ghost" to="/login" onClick={() => setOpen(false)}>
-                Se connecter
-              </Link>
-              <Link className="fu-btn fu-btn--lime" to="/signup" onClick={() => setOpen(false)}>
-                Rejoindre
-              </Link>
+              <PublicAuthActions
+                ghostClass="fu-btn fu-btn--ghost"
+                solidClass="fu-btn fu-btn--lime"
+                onNavigate={() => setOpen(false)}
+              />
             </div>
           </div>
         </div>

@@ -34,6 +34,11 @@ export type RecruitmentCandidate = {
 export type Recruitment = {
   id: string;
   candidate: RecruitmentCandidate;
+  employer: {
+    id: string;
+    displayName: string;
+    country: CountrySummary | null;
+  } | null;
   jobOffer: JobOfferSummary | null;
   directRecruitment: boolean;
   status: PipelineStatus;
@@ -94,6 +99,25 @@ export const BOARD_COLUMNS: PipelineStatus[] = [
 
 export function statusLabel(status: PipelineStatus) {
   return PIPELINE_STATUSES.find((item) => item.value === status)?.label ?? status;
+}
+
+export function pipelineTone(status: PipelineStatus): "new" | "interview" | "sent" | "refused" | "verified" | "pending" {
+  switch (status) {
+    case "NEW":
+    case "CONTACTED":
+      return "new";
+    case "INTERVIEW_SCHEDULED":
+    case "NEGOTIATION":
+      return "interview";
+    case "CONTRACT_SENT":
+      return "sent";
+    case "HIRED":
+      return "verified";
+    case "REJECTED":
+      return "refused";
+    default:
+      return "pending";
+  }
 }
 
 export function recruitmentError(code: string) {

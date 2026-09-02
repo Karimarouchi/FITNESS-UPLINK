@@ -28,6 +28,9 @@
 @REM ----------------------------------------------------------------------------
 
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
+@REM pom.xml requires Java 25; prefer Temurin 25 even if this shell still has Java 17
+@FOR /D %%J IN ("C:\Program Files\Eclipse Adoptium\jdk-25*") DO @SET "JAVA_HOME=%%~fJ"
+@IF EXIST "%JAVA_HOME%\bin\java.exe" @SET "PATH=%JAVA_HOME%\bin;%PATH%"
 @SET __MVNW_CMD__=
 @SET __MVNW_ERROR__=
 @SET __MVNW_PSMODULEP_SAVE=%PSModulePath%

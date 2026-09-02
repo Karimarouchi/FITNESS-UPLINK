@@ -1,4 +1,5 @@
 import { api } from "@/shared/api/client";
+import type { CountrySummary } from "@/features/auth/types";
 
 export type JobOfferStatus = "DRAFT" | "PUBLISHED";
 
@@ -62,4 +63,33 @@ export function updateJobOffer(id: string, body: UpsertJobOffer) {
 
 export function deleteJobOffer(id: string) {
   return api.delete<void>(`/v1/job-offers/${id}`);
+}
+
+export type Opportunity = {
+  id: string;
+  title: string;
+  position: string | null;
+  location: string | null;
+  contractType: string | null;
+  salaryAmount: string | null;
+  salaryCurrency: string | null;
+  languages: string[];
+  certifications: string[];
+  experience: string | null;
+  description: string | null;
+  employerName: string;
+  employerCountry: CountrySummary | null;
+  applied: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+};
+
+export function fetchOpportunities(query = "") {
+  const q = query.trim();
+  const path = q ? `/v1/opportunities?q=${encodeURIComponent(q)}` : "/v1/opportunities";
+  return api.get<Opportunity[]>(path);
+}
+
+export function applyToOpportunity(id: string) {
+  return api.post<void>(`/v1/opportunities/${id}/apply`);
 }

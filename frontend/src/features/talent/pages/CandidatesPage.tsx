@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { favoriteCandidate, fetchCandidates, unfavoriteCandidate, type CandidateCard } from "../api";
 import { CandidatePhoto } from "../CandidatePhoto";
 import { VerificationBadge } from "@/shared/components/VerificationBadge";
@@ -8,7 +8,8 @@ import { isBusiness, isSuperAdmin } from "@/features/auth/types";
 
 export function CandidatesPage() {
   const { user } = useAuth();
-  const [query, setQuery] = useState("");
+  const [params] = useSearchParams();
+  const [query, setQuery] = useState(params.get("q") ?? "");
   const [items, setItems] = useState<CandidateCard[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ export function CandidatesPage() {
   }, [query]);
 
   if (!isBusiness(user) && !isSuperAdmin(user)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/app/dashboard" replace />;
   }
 
   async function toggleFavorite(item: CandidateCard) {

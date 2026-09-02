@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CountrySummary, ItemField, ProfileField } from "@/features/auth/types";
+import { ApiError } from "@/shared/api/client";
 import { fetchUploadBlob, uploadProfileFile } from "./api";
 
 type FileItem = { id: string; name: string; contentType: string; size: number };
@@ -415,6 +416,7 @@ export function PhotoField({
   const current = files[0];
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
     let url: string | null = null;
@@ -449,36 +451,46 @@ export function PhotoField({
       return;
     }
     setBusy(true);
+    setLocalError(null);
     try {
       const result = await uploadProfileFile(field.fieldKey, file);
       onChange(JSON.stringify([{ id: result.id, name: result.originalFilename, contentType: result.contentType, size: result.sizeBytes }]));
-    } catch {
-      // keep previous photo if upload fails
+    } catch (error) {
+      setLocalError(
+        error instanceof ApiError && error.status === 413
+          ? "Ce fichier est trop volumineux (max 5 Mo)."
+          : "Impossible d’enregistrer l’image. PNG, JPG ou WEBP, max 5 Mo.",
+      );
     } finally {
       setBusy(false);
     }
   }
 
+  const addLabel = field.fieldKey === "organization_logo" ? "Ajouter un logo" : "Ajouter une photo";
+  const changeLabel = field.fieldKey === "organization_logo" ? "Changer le logo" : "Changer la photo";
+
   return (
     <div className="photo-hero">
       <div className="photo-avatar" style={preview ? { backgroundImage: `url(${preview})` } : undefined}>
-        {preview ? null : <span className="material-symbols-outlined">person</span>}
+        {preview ? null : <span className="material-symbols-outlined">{field.fieldKey === "organization_logo" ? "storefront" : "person"}</span>}
       </div>
       <div className="photo-copy">
         <p className="auth-label">{field.label}{field.required ? " *" : ""}</p>
         <p className="font-body-md text-on-surface-variant">{field.helpText ?? "Une photo nette, de face, fond simple."}</p>
         <label className="ob-upload-live">
-          {busy ? "Envoi…" : current ? "Changer la photo" : "Ajouter une photo"}
+          {busy ? "Envoi…" : current ? changeLabel : addLabel}
           <input
             type="file"
             hidden
             accept={field.accept ?? "image/jpeg,image/png,image/webp"}
+            disabled={busy}
             onChange={(event) => {
               void onPick(event.target.files?.[0]);
               event.target.value = "";
             }}
           />
         </label>
+        {localError ? <p className="auth-field-error">{localError}</p> : null}
       </div>
     </div>
   );
