@@ -102,6 +102,66 @@ public class UploadService {
         return resourceOf(upload);
     }
 
+    @Transactional
+    public UserUpload storePdf(UUID userId, String fieldKey, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_FILE_TYPE");
+        }
+        byte[] bytes;
+        try {
+            bytes = file.getBytes();
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
+        }
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        String filename = file.getOriginalFilename() == null ? "contract.pdf" : file.getOriginalFilename();
+        if (!"application/pdf".equals(contentType) && !filename.toLowerCase(Locale.ROOT).endsWith(".pdf")) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_FILE_TYPE");
+        }
+        return storePdfBytes(userId, fieldKey, filename, bytes);
+    }
+
+    @Transactional
+    public UserUpload storePdfBytes(UUID userId, String fieldKey, String filename, byte[] bytes) {
+        if (bytes == null || bytes.length < 5 || bytes[0] != '%' || bytes[1] != 'P' || bytes[2] != 'D' || bytes[3] != 'F') {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_FILE_TYPE");
+        }
+        long max = 10L * 1024 * 1024;
+        if (bytes.length > max) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "FILE_TOO_LARGE");
+        }
+        UUID id = UUID.randomUUID();
+        Path directory = Path.of(uploadProperties.dir(), userId.toString(), "contracts").toAbsolutePath().normalize();
+        Path target = directory.resolve(id + ".pdf");
+        try {
+            Files.createDirectories(directory);
+            Files.write(target, bytes);
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to store file");
+        }
+        UserUpload upload = UserUpload.builder()
+                .id(id)
+                .userId(userId)
+                .fieldKey(fieldKey)
+                .originalFilename(safeName(filename.endsWith(".pdf") ? filename : filename + ".pdf"))
+                .contentType("application/pdf")
+                .sizeBytes(bytes.length)
+                .storagePath(target.toString())
+                .createdAt(Instant.now())
+                .build();
+        return userUploadRepository.save(upload);
+    }
+
+    public byte[] readBytes(UUID uploadId) {
+        UserUpload upload = userUploadRepository.findById(uploadId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "File not found"));
+        try {
+            return Files.readAllBytes(Path.of(upload.getStoragePath()));
+        } catch (IOException ex) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "File not found");
+        }
+    }
+
     private LoadedUpload resourceOf(UserUpload upload) {
         Resource resource = new FileSystemResource(upload.getStoragePath());
         if (!resource.exists()) {

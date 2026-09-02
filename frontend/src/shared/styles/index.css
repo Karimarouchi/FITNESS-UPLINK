@@ -1721,8 +1721,39 @@
     color: inherit;
   }
 
+  .pipeline-card-status {
+    display: grid;
+    gap: 8px;
+  }
+
   .pipeline-card-status .pipeline-badge {
-    display: none;
+    display: inline-flex;
+  }
+
+  .pipeline-contract-state {
+    display: grid;
+    gap: 4px;
+    font-size: 13px;
+  }
+
+  .pipeline-hired-mark {
+    font-weight: 600;
+    color: #0040e0;
+    margin: 0;
+  }
+
+  .fu-dropzone {
+    border: 1px dashed #c6c6ce;
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+    background: #f0edef;
+  }
+
+  .fu-dropzone.is-over {
+    border-color: #0040e0;
+    background: #dde1ff;
   }
 
   .pipeline-exit {

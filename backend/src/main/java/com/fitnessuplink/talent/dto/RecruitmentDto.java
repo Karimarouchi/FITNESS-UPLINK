@@ -1,5 +1,6 @@
 package com.fitnessuplink.talent.dto;
 
+import com.fitnessuplink.contracts.dto.ContractSummaryDto;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
 import com.fitnessuplink.talent.PipelineStatus;
 
@@ -15,6 +16,7 @@ public record RecruitmentDto(
         String internalNote,
         Instant createdAt,
         Instant updatedAt,
-        Instant statusUpdatedAt
+        Instant statusUpdatedAt,
+        ContractSummaryDto contract
 ) {
 }

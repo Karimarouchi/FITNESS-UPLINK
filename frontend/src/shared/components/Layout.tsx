@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
-import { isBusiness, isSuperAdmin, isVerified } from "@/features/auth/types";
+import { isBusiness, isCandidate, isSuperAdmin, isVerified } from "@/features/auth/types";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 
 type LayoutProps = {
@@ -34,6 +34,9 @@ export function Layout({ children }: LayoutProps) {
               <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/job-offers">
                 Offres d’emploi
               </NavLink>
+              <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/contracts">
+                Contrats
+              </NavLink>
             </>
           ) : null}
           {isSuperAdmin(user) ? (
@@ -41,6 +44,14 @@ export function Layout({ children }: LayoutProps) {
                 Candidats & employeurs
               </NavLink>
           ) : null}
+          {isCandidate(user) ? (
+            <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/contracts">
+              Mes contrats
+            </NavLink>
+          ) : null}
+          <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/notifications">
+            Notifications
+          </NavLink>
           <NavLink to="/profile" className="app-avatar-link" title="Mon profil" aria-label="Voir et modifier mon profil">
             <span className="app-avatar-wrap">
               <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={40} />

@@ -4,6 +4,7 @@ import com.fitnessuplink.auth.config.SecurityProperties;
 import com.fitnessuplink.auth.security.AuthRateLimitFilter;
 import com.fitnessuplink.auth.security.JsonAuthHandlers;
 import com.fitnessuplink.auth.security.JwtAuthenticationFilter;
+import com.fitnessuplink.contracts.signature.SignatureProperties;
 import com.fitnessuplink.onboarding.UploadProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,7 +26,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableConfigurationProperties({SecurityProperties.class, UploadProperties.class})
+@EnableConfigurationProperties({SecurityProperties.class, UploadProperties.class, SignatureProperties.class})
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -48,6 +49,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/v1/auth/login", "/v1/auth/signup", "/v1/auth/refresh", "/v1/auth/logout").permitAll()
                         .requestMatchers("/v1/health", "/actuator/health").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/webhooks/signature").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions

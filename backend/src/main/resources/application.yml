@@ -66,3 +66,7 @@ app:
   uploads:
     dir: ${UPLOADS_DIR:uploads}
     max-bytes: 52428800
+  signature:
+    provider: ${SIGNATURE_PROVIDER:mock}
+    webhook-secret: ${SIGNATURE_WEBHOOK_SECRET:fitness-uplink-local-webhook-secret}
+    fail-send: ${SIGNATURE_FAIL_SEND:false}

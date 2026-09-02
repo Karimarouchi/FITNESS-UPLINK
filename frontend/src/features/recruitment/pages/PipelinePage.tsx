@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness } from "@/features/auth/types";
 import { ApiError } from "@/shared/api/client";
 import { fetchJobOffers, type JobOffer } from "@/features/jobs/api";
+import { PrepareContractDrawer } from "@/features/contracts/PrepareContractDrawer";
 import { PipelineBoard } from "../PipelineBoard";
 import { PipelineCandidateCard } from "../PipelineCandidateCard";
 import { PipelineDrawer } from "../PipelineDrawer";
@@ -13,6 +14,7 @@ import {
   BOARD_COLUMNS,
   PIPELINE_STATUSES,
   archiveRecruitment,
+  fetchRecruitment,
   fetchRecruitments,
   recruitmentError,
   statusLabel,
@@ -24,6 +26,7 @@ import {
 
 export function PipelinePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [items, setItems] = useState<Recruitment[]>([]);
   const [offers, setOffers] = useState<JobOffer[]>([]);
   const [offerFilter, setOfferFilter] = useState("");
@@ -36,6 +39,8 @@ export function PipelinePage() {
   const [noteDraft, setNoteDraft] = useState("");
   const [startFor, setStartFor] = useState<Recruitment | null>(null);
   const [contactPrompt, setContactPrompt] = useState<Recruitment | null>(null);
+  const [prepareFor, setPrepareFor] = useState<Recruitment | null>(null);
+  const [confirmPrepare, setConfirmPrepare] = useState<Recruitment | null>(null);
 
   const filters = useMemo(() => parseOfferFilter(offerFilter), [offerFilter]);
 
@@ -79,15 +84,31 @@ export function PipelinePage() {
   }
 
   async function changeStatus(item: Recruitment, status: PipelineStatus) {
+    if (status === "CONTRACT_SENT") {
+      setConfirmPrepare(item);
+      return;
+    }
     const previous = item.status;
     replaceItem({ ...item, status });
     try {
       const updated = await updateRecruitmentStatus(item.id, status);
       replaceItem(updated);
       setFlash(`Statut de ${updated.candidate.displayName} mis à jour : ${statusLabel(status)}.`);
-    } catch {
+    } catch (err) {
       replaceItem({ ...item, status: previous });
-      setFlash("Le statut n’a pas pu être mis à jour.");
+      setFlash(err instanceof ApiError ? recruitmentError(err.message) : "Le statut n’a pas pu être mis à jour.");
+    }
+  }
+
+  function openPrepare(item: Recruitment) {
+    setSelected(null);
+    setConfirmPrepare(null);
+    setPrepareFor(item);
+  }
+
+  function viewContract(item: Recruitment) {
+    if (item.contract?.id) {
+      navigate(`/contracts/${item.contract.id}`);
     }
   }
 
@@ -162,13 +183,28 @@ export function PipelinePage() {
       ) : (
         <>
           <div className="pipeline-desktop">
-            <PipelineBoard items={items.filter((item) => BOARD_COLUMNS.includes(item.status))} onOpen={openItem} onStatus={changeStatus} />
+            <PipelineBoard
+              items={items.filter((item) => BOARD_COLUMNS.includes(item.status))}
+              onOpen={openItem}
+              onStatus={changeStatus}
+              onPrepareContract={openPrepare}
+              onViewContract={viewContract}
+              onMarkHired={(item) => void changeStatus(item, "HIRED")}
+            />
             {statusFilter === "REJECTED" || statusFilter === "ARCHIVED" || exitItems.length ? (
               <div className="pipeline-exit">
                 <h2>Refusé / Archivé</h2>
                 <div className="pipeline-exit-list">
                   {exitItems.map((item) => (
-                    <PipelineCandidateCard key={item.id} item={item} onOpen={() => openItem(item)} onStatus={(status) => void changeStatus(item, status)} />
+                    <PipelineCandidateCard
+                      key={item.id}
+                      item={item}
+                      onOpen={() => openItem(item)}
+                      onStatus={(status) => void changeStatus(item, status)}
+                      onPrepareContract={() => openPrepare(item)}
+                      onViewContract={() => viewContract(item)}
+                      onMarkHired={() => void changeStatus(item, "HIRED")}
+                    />
                   ))}
                 </div>
               </div>
@@ -189,7 +225,15 @@ export function PipelinePage() {
               <p className="text-on-surface-variant">Aucun candidat dans ce statut.</p>
             ) : (
               mobileItems.map((item) => (
-                <PipelineCandidateCard key={item.id} item={item} onOpen={() => openItem(item)} onStatus={(status) => void changeStatus(item, status)} />
+                <PipelineCandidateCard
+                  key={item.id}
+                  item={item}
+                  onOpen={() => openItem(item)}
+                  onStatus={(status) => void changeStatus(item, status)}
+                  onPrepareContract={() => openPrepare(item)}
+                  onViewContract={() => viewContract(item)}
+                  onMarkHired={() => void changeStatus(item, "HIRED")}
+                />
               ))
             )}
           </div>
@@ -206,6 +250,9 @@ export function PipelinePage() {
           onArchive={() => void archive()}
           onContact={() => contact(selected)}
           onNewRecruitment={() => setStartFor(selected)}
+          onPrepareContract={() => openPrepare(selected)}
+          onViewContract={() => viewContract(selected)}
+          onMarkHired={() => void changeStatus(selected, "HIRED")}
         />
       ) : null}
       {startFor ? (
@@ -243,6 +290,41 @@ export function PipelinePage() {
             </div>
           </div>
         </div>
+      ) : null}
+      {confirmPrepare ? (
+        <div className="fu-backdrop" role="presentation" onClick={() => setConfirmPrepare(null)}>
+          <div className="fu-modal" role="dialog" onClick={(event) => event.stopPropagation()}>
+            <h2 className="font-headline-md text-primary">Préparer le contrat</h2>
+            <p>
+              Vous devez créer ou importer un contrat avant de pouvoir passer {confirmPrepare.candidate.displayName} au
+              statut « Contrat envoyé ».
+            </p>
+            <div className="ob-country-actions">
+              <button className="ob-secondary" type="button" onClick={() => setConfirmPrepare(null)}>
+                Annuler
+              </button>
+              <button className="ob-primary" type="button" onClick={() => openPrepare(confirmPrepare)}>
+                Préparer le contrat
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {prepareFor ? (
+        <PrepareContractDrawer
+          item={prepareFor}
+          employerName={user?.displayName || "Employeur"}
+          onClose={() => setPrepareFor(null)}
+          onSent={(updated) => {
+            void fetchRecruitment(updated.id)
+              .then((fresh) => {
+                replaceItem(fresh);
+                setFlash(`Contrat envoyé à ${fresh.candidate.displayName}.`);
+              })
+              .catch(() => replaceItem(updated));
+            setPrepareFor(null);
+          }}
+        />
       ) : null}
     </section>
   );

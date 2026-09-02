@@ -2,6 +2,7 @@ package com.fitnessuplink.talent;
 
 import com.fitnessuplink.catalog.AppRole;
 import com.fitnessuplink.common.exception.ApiException;
+import com.fitnessuplink.contracts.ContractRepository;
 import com.fitnessuplink.jobs.JobOffer;
 import com.fitnessuplink.jobs.JobOfferRepository;
 import com.fitnessuplink.jobs.JobOfferService;
@@ -51,6 +52,8 @@ class RecruitmentServiceTest {
     private UserRepository userRepository;
     @Mock
     private UserProfileValueRepository userProfileValueRepository;
+    @Mock
+    private ContractRepository contractRepository;
 
     @InjectMocks
     private RecruitmentService recruitmentService;
@@ -189,6 +192,41 @@ class RecruitmentServiceTest {
 
         assertEquals(PipelineStatus.CONTACTED, dto.status());
         assertEquals(PipelineStatus.CONTACTED, entry.getStatus());
+    }
+
+    @Test
+    void directContractSentStatusIsRejected() {
+        ApiException error = assertThrows(ApiException.class,
+                () -> recruitmentService.updateStatus(employer, UUID.randomUUID(), PipelineStatus.CONTRACT_SENT));
+        assertEquals(HttpStatus.CONFLICT, error.getStatus());
+        assertEquals("CONTRACT_REQUIRED", error.getMessage());
+        verify(talentPipelineRepository, never()).save(any());
+    }
+
+    @Test
+    void hiredWithoutCompletedContractIsRejected() {
+        TalentPipeline entry = entry(PipelineStatus.CONTRACT_SENT, null);
+        when(talentPipelineRepository.findByIdAndEmployerId(entry.getId(), employerId)).thenReturn(Optional.of(entry));
+        when(contractRepository.existsByRecruitmentIdAndStatus(entry.getId(), com.fitnessuplink.contracts.ContractStatus.COMPLETED)).thenReturn(false);
+
+        ApiException error = assertThrows(ApiException.class,
+                () -> recruitmentService.updateStatus(employer, entry.getId(), PipelineStatus.HIRED));
+        assertEquals(HttpStatus.CONFLICT, error.getStatus());
+        assertEquals("CONTRACT_NOT_COMPLETED", error.getMessage());
+    }
+
+    @Test
+    void hiredAfterCompletedContractIsAllowed() {
+        TalentPipeline entry = entry(PipelineStatus.CONTRACT_SENT, null);
+        when(talentPipelineRepository.findByIdAndEmployerId(entry.getId(), employerId)).thenReturn(Optional.of(entry));
+        when(contractRepository.existsByRecruitmentIdAndStatus(entry.getId(), com.fitnessuplink.contracts.ContractStatus.COMPLETED)).thenReturn(true);
+        when(talentPipelineRepository.save(entry)).thenReturn(entry);
+        when(userRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
+        when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
+        when(contractRepository.findByRecruitmentIdOrderByCreatedAtDesc(entry.getId())).thenReturn(List.of());
+
+        RecruitmentDto dto = recruitmentService.updateStatus(employer, entry.getId(), PipelineStatus.HIRED);
+        assertEquals(PipelineStatus.HIRED, dto.status());
     }
 
     @Test
