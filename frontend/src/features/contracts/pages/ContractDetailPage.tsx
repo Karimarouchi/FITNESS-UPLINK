@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isCandidate } from "@/features/auth/types";
 import { ApiError } from "@/shared/api/client";
-import { updateRecruitmentStatus } from "@/features/recruitment/api";
+import { formatPipelineDate, updateRecruitmentStatus } from "@/features/recruitment/api";
 import {
   contractError,
   contractStatusLabel,
+  contractStatusTone,
   fetchContract,
   fetchContractDocument,
   fetchContractHistory,
@@ -15,6 +19,16 @@ import {
   type Contract,
   type ContractHistory,
 } from "../api";
+
+function formatWhen(value: string) {
+  return new Date(value).toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export function ContractDetailPage() {
   const { id } = useParams();
@@ -96,60 +110,128 @@ export function ContractDetailPage() {
     contract &&
     (contract.status === "SENT" || contract.status === "CANDIDATE_SIGNED" || contract.status === "EMPLOYER_SIGNED") &&
     ((candidate && !contract.candidateSignedAt) || (employer && !contract.employerSignedAt));
+  const position = contract?.jobOffer?.title || contract?.terms?.position || "Recrutement direct";
 
   return (
-    <section className="talent-page">
-      <Link className="ob-link fiche-back" to="/contracts">
+    <section className="contract-detail">
+      <Link className="contract-back" to="/contracts">
+        <span className="material-symbols-outlined" aria-hidden="true">
+          arrow_back
+        </span>
         Retour aux contrats
       </Link>
       {error ? <p className="auth-error">{error}</p> : null}
       {flash ? <p className="fu-flash">{flash}</p> : null}
       {!contract ? (
-        <p className="font-body-md text-on-surface-variant">Chargement…</p>
+        <p className="empty-hint">Chargement du contrat…</p>
       ) : (
         <>
-          <p className="font-label-caps uppercase text-on-surface-variant">Contrat</p>
-          <h1 className="font-display-lg-mobile text-primary mb-4">{contract.title}</h1>
-          <p>Candidat : {contract.candidateName}</p>
-          <p>Employeur : {contract.employerName}</p>
-          <p>Poste : {contract.jobOffer?.title || contract.terms?.position || "Recrutement direct"}</p>
-          <p>
-            Statut : <strong>{contractStatusLabel(contract.status)}</strong>
-          </p>
-          {contract.templateNotice ? <p className="talent-meta">{contract.templateNotice}</p> : null}
-          <div className="pipeline-contract-state">
-            <p>{contract.candidateSignedAt ? "✓ Candidat signé" : "○ Signature candidat en attente"}</p>
-            <p>{contract.employerSignedAt ? "✓ Employeur signé" : "○ Signature employeur en attente"}</p>
-            {contract.status === "COMPLETED" ? <p>✓ Contrat finalisé</p> : null}
+          <div className="page-head">
+            <div>
+              <h1>{contract.title}</h1>
+              <p className="sub">
+                {contract.candidateName} · {position}
+              </p>
+            </div>
+            <StatusPill tone={contractStatusTone(contract.status)}>{contractStatusLabel(contract.status)}</StatusPill>
           </div>
-          <div className="fiche-actions">
-            <button className="ob-secondary" type="button" onClick={() => void openPdf(false)}>
-              Voir le contrat
-            </button>
-            {contract.signedUploadId ? (
-              <button className="ob-secondary" type="button" onClick={() => void openPdf(true)}>
-                Télécharger le PDF
-              </button>
-            ) : null}
-            {canSign ? (
-              <button className="ob-primary" type="button" disabled={busy} onClick={() => void sign()}>
-                {busy ? "Signature…" : "Signer le contrat"}
-              </button>
-            ) : null}
-            {employer && contract.status === "COMPLETED" ? (
-              <button className="ob-primary" type="button" disabled={busy} onClick={() => void markHired()}>
-                Marquer comme recruté
-              </button>
-            ) : null}
+
+          <div className="jobs-layout">
+            <Panel title="Informations">
+              <div className="info-grid">
+                <div className="info-cell">
+                  <div className="k">Candidat</div>
+                  <div className="v">{contract.candidateName}</div>
+                </div>
+                <div className="info-cell">
+                  <div className="k">Employeur</div>
+                  <div className="v">{contract.employerName}</div>
+                </div>
+                <div className="info-cell">
+                  <div className="k">Poste</div>
+                  <div className="v">{position}</div>
+                </div>
+                <div className="info-cell">
+                  <div className="k">Créé le</div>
+                  <div className="v">{formatPipelineDate(contract.createdAt)}</div>
+                </div>
+                <div className="info-cell">
+                  <div className="k">Envoyé le</div>
+                  <div className="v">{contract.sentAt ? formatPipelineDate(contract.sentAt) : "—"}</div>
+                </div>
+                <div className="info-cell">
+                  <div className="k">Source</div>
+                  <div className="v">{contract.source === "IMPORT" ? "PDF importé" : "Modèle de contrat"}</div>
+                </div>
+              </div>
+              {contract.templateNotice ? <p className="empty-hint">{contract.templateNotice}</p> : null}
+            </Panel>
+
+            <Panel title="Signatures" body>
+              <div className="sign-list">
+                <div className={`sign-step${contract.candidateSignedAt ? " is-done" : ""}`}>
+                  <span className="sign-mark material-symbols-outlined" aria-hidden="true">
+                    {contract.candidateSignedAt ? "check_circle" : "radio_button_unchecked"}
+                  </span>
+                  <div>
+                    <strong>Candidat</strong>
+                    <p>{contract.candidateSignedAt ? `Signé le ${formatWhen(contract.candidateSignedAt)}` : "Signature en attente"}</p>
+                  </div>
+                </div>
+                <div className={`sign-step${contract.employerSignedAt ? " is-done" : ""}`}>
+                  <span className="sign-mark material-symbols-outlined" aria-hidden="true">
+                    {contract.employerSignedAt ? "check_circle" : "radio_button_unchecked"}
+                  </span>
+                  <div>
+                    <strong>Employeur</strong>
+                    <p>{contract.employerSignedAt ? `Signé le ${formatWhen(contract.employerSignedAt)}` : "Signature en attente"}</p>
+                  </div>
+                </div>
+              </div>
+              {contract.status === "COMPLETED" ? <p className="sign-complete">Contrat finalisé des deux côtés.</p> : null}
+              <div className="jobs-actions">
+                <Button variant="outline" type="button" onClick={() => void openPdf(false)}>
+                  Voir le contrat
+                </Button>
+                {contract.signedUploadId ? (
+                  <Button variant="outline" type="button" onClick={() => void openPdf(true)}>
+                    Télécharger le PDF
+                  </Button>
+                ) : null}
+                {canSign ? (
+                  <Button variant="primary" type="button" disabled={busy} onClick={() => void sign()}>
+                    {busy ? "Signature…" : "Signer le contrat"}
+                  </Button>
+                ) : null}
+                {employer && contract.status === "COMPLETED" ? (
+                  <Button variant="primary" type="button" disabled={busy} onClick={() => void markHired()}>
+                    Marquer comme recruté
+                  </Button>
+                ) : null}
+              </div>
+            </Panel>
           </div>
-          <h2 className="font-headline-md text-primary mt-8 mb-3">Historique</h2>
-          <ul className="fiche-list">
-            {history.map((event) => (
-              <li key={event.id}>
-                {new Date(event.createdAt).toLocaleString("fr-FR")} — {historyLabel(event.event)}
-              </li>
-            ))}
-          </ul>
+
+          <Panel title="Historique">
+            {history.length === 0 ? (
+              <p className="jobs-empty">
+                <strong>Aucun événement</strong>
+                <span>L’historique de ce contrat est vide.</span>
+              </p>
+            ) : (
+              <ol className="contract-timeline">
+                {history.map((event) => (
+                  <li key={event.id}>
+                    <span className="contract-timeline-dot" />
+                    <div>
+                      <strong>{historyLabel(event.event)}</strong>
+                      <time dateTime={event.createdAt}>{formatWhen(event.createdAt)}</time>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Panel>
         </>
       )}
     </section>

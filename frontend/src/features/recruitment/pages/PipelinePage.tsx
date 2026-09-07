@@ -88,6 +88,10 @@ export function PipelinePage() {
       setConfirmPrepare(item);
       return;
     }
+    if (status === "HIRED" && !item.contract?.completed) {
+      setFlash(recruitmentError("CONTRACT_NOT_COMPLETED"));
+      return;
+    }
     const previous = item.status;
     replaceItem({ ...item, status });
     try {
@@ -160,6 +164,7 @@ export function PipelinePage() {
         <div>
           <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
           <h1 className="font-display-lg-mobile text-primary">Pipeline de recrutement</h1>
+          <p className="font-body-md text-on-surface-variant">Glissez une carte d’une colonne à une autre pour changer son statut.</p>
         </div>
       </div>
       <PipelineFilters

@@ -95,15 +95,37 @@ class AdminVerificationServiceTest {
         User candidate = candidate();
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
-                value(candidate.getId(), "professional_photo", fileJson())
+                value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912")
         ));
 
         VerificationDossierDto dossier = service.updateCheck(candidate.getId(), "identity", "verified");
 
         assertEquals("verified", dossier.account().verificationStatus());
         assertEquals("verified", review(dossier, "identity"));
+        assertEquals("pending", review(dossier, "cv"));
         assertEquals("pending", review(dossier, "diplomas"));
         assertEquals("pending", review(dossier, "certifications"));
+    }
+
+    @Test
+    void candidateCvMustBeValidatedWhenPresent() {
+        User candidate = candidate();
+        when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
+        when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
+                value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912"),
+                value(candidate.getId(), "cv", fileJson())
+        ));
+
+        VerificationDossierDto afterIdentity = service.updateCheck(candidate.getId(), "identity", "verified");
+        assertEquals("pending", afterIdentity.account().verificationStatus());
+
+        VerificationDossierDto afterCv = service.updateCheck(candidate.getId(), "cv", "verified");
+        assertEquals("verified", afterCv.account().verificationStatus());
+        assertEquals("verified", review(afterCv, "cv"));
     }
 
     @Test
@@ -112,6 +134,8 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912"),
                 value(candidate.getId(), "diplomas", fileJson())
         ));
 
@@ -128,7 +152,9 @@ class AdminVerificationServiceTest {
         User candidate = candidate();
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
-                value(candidate.getId(), "professional_photo", fileJson())
+                value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912")
         ));
 
         ApiException error = assertThrows(
@@ -144,6 +170,8 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912"),
                 value(candidate.getId(), "certifications", fileJson())
         ));
 

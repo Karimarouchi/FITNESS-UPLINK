@@ -27,6 +27,13 @@ export function completeProfile(values: Record<string, string>) {
   return api.post<AuthUser>("/v1/onboarding/profile", { values });
 }
 
+export function parseCv(uploadId: string) {
+  return api.post<{ values: Record<string, string>; filledKeys: string[]; message: string }>(
+    "/v1/onboarding/profile/parse-cv",
+    { uploadId },
+  );
+}
+
 export function fetchProfileValues() {
   return api.get<{ values: Record<string, string> }>("/v1/onboarding/profile");
 }

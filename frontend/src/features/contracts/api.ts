@@ -91,6 +91,26 @@ export function contractStatusLabel(status: ContractStatus) {
   }
 }
 
+export function contractStatusTone(status: ContractStatus): "new" | "interview" | "sent" | "refused" | "verified" | "pending" {
+  switch (status) {
+    case "DRAFT":
+      return "pending";
+    case "SENT":
+      return "new";
+    case "CANDIDATE_SIGNED":
+    case "EMPLOYER_SIGNED":
+      return "interview";
+    case "COMPLETED":
+      return "verified";
+    case "DECLINED":
+    case "CANCELLED":
+    case "EXPIRED":
+      return "refused";
+    default:
+      return "pending";
+  }
+}
+
 export function createContract(body: { recruitmentId: string; source: ContractSource; terms?: Partial<ContractTerms> }) {
   return api.post<Contract>("/v1/contracts", body);
 }

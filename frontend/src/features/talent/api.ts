@@ -62,6 +62,11 @@ export type CandidateDetail = CandidateCard & {
   canViewMedia: boolean;
 };
 
+export function candidateLocation(item: { city: string | null; country: CountrySummary | null }) {
+  const parts = [item.city?.trim() || null, item.country ? `${item.country.flagEmoji} ${item.country.name}` : null].filter(Boolean);
+  return parts.join(" · ");
+}
+
 export function fetchCandidates(query = "") {
   const q = query.trim();
   const path = q ? `/v1/candidates?q=${encodeURIComponent(q)}` : "/v1/candidates";

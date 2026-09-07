@@ -1,0 +1,4 @@
+UPDATE role_profile_fields
+SET required_override = TRUE
+WHERE role_id = '11111111-1111-1111-1111-111111111003'
+  AND field_id = '22222222-2222-2222-2222-222222222006';

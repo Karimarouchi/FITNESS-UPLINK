@@ -136,10 +136,13 @@ public class OnboardingService {
                 value = previous == null || previous.isBlank() ? "pending" : previous;
             } else {
                 value = sanitize(incoming.get(field.getFieldKey()));
+                if (UserService.isMissing(field.getFieldType(), value)) {
+                    value = sanitize(existing.get(field.getFieldKey()));
+                }
             }
-            if (value == null || value.isBlank()) {
+            if (UserService.isMissing(field.getFieldType(), value)) {
                 if (required) {
-                    throw new ApiException(HttpStatus.BAD_REQUEST, field.getLabel() + " is required");
+                    throw new ApiException(HttpStatus.BAD_REQUEST, field.getLabel() + " est obligatoire");
                 }
                 continue;
             }
@@ -150,7 +153,7 @@ public class OnboardingService {
 
         userProfileValueRepository.deleteByUserId(user.getId());
         userProfileValueRepository.saveAll(stored);
-        user.setOnboardingCompleted(true);
+        user.setOnboardingCompleted(userService.hasRequiredProfile(user));
         userRepository.save(user);
         return userService.toResponse(user);
     }
@@ -260,8 +263,8 @@ public class OnboardingService {
             case "TAGS" -> validateTags(field, value);
             case "MONEY" -> validateMoney(field, value);
             case "REPEATABLE" -> validateRepeatable(field, value);
-            case "PHOTO", "FILE" -> validateUploads(userId, field, value, 1);
-            case "FILES" -> validateUploads(userId, field, value, 8);
+            case "PHOTO", "FILE" -> validateUploads(userId, field, value, 1, true);
+            case "FILES" -> validateUploads(userId, field, value, 8, false);
             case "TEXTAREA" -> {
                 if (CONTROL_EXCEPT_NEWLINE.matcher(value).find()) {
                     throw new ApiException(HttpStatus.BAD_REQUEST, field.getLabel() + " contains invalid characters");
@@ -381,12 +384,15 @@ public class OnboardingService {
         }
     }
 
-    private void validateUploads(UUID userId, ProfileField field, String value, int maxFiles) {
+    private void validateUploads(UUID userId, ProfileField field, String value, int maxFiles, boolean requireOne) {
         try {
             JsonNode node = objectMapper.readTree(value);
             JsonNode array = node.isArray() ? node : objectMapper.createArrayNode().add(node);
             if (array.size() > maxFiles) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "Too many files for " + field.getLabel());
+            }
+            if (requireOne && array.isEmpty()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, field.getLabel() + " est obligatoire");
             }
             for (JsonNode item : array) {
                 UUID id = UUID.fromString(item.path("id").asText());

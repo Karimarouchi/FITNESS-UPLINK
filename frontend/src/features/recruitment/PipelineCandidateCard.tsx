@@ -1,10 +1,14 @@
+import { useRef } from "react";
 import { CandidatePhoto } from "@/features/talent/CandidatePhoto";
 import { VerificationBadge } from "@/shared/components/VerificationBadge";
 import { PIPELINE_STATUSES, formatPipelineDate, opportunityLabel, type PipelineStatus, type Recruitment } from "./api";
 import { PipelineStatusBadge } from "./PipelineStatusBadge";
 
+const DRAG_TYPE = "application/x-fitness-recruitment";
+
 export function PipelineCandidateCard({
   item,
+  draggable = false,
   onOpen,
   onStatus,
   onPrepareContract,
@@ -12,6 +16,7 @@ export function PipelineCandidateCard({
   onMarkHired,
 }: {
   item: Recruitment;
+  draggable?: boolean;
   onOpen: () => void;
   onStatus: (status: PipelineStatus) => void;
   onPrepareContract: () => void;
@@ -21,6 +26,7 @@ export function PipelineCandidateCard({
   const candidate = item.candidate;
   const contract = item.contract;
   const canHire = Boolean(contract?.completed);
+  const dragged = useRef(false);
 
   function changeStatus(next: PipelineStatus) {
     if (next === "HIRED" && !canHire) {
@@ -30,8 +36,45 @@ export function PipelineCandidateCard({
   }
 
   return (
-    <article className="pipeline-card">
-      <button className="pipeline-card-main" type="button" onClick={onOpen}>
+    <article
+      className={`pipeline-card${draggable ? " is-movable" : ""}`}
+      draggable={draggable}
+      onDragStart={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest("select, input, textarea, a, .pipeline-card-status button, .pipeline-card-status label")) {
+          event.preventDefault();
+          return;
+        }
+        dragged.current = true;
+        event.dataTransfer.setData(DRAG_TYPE, item.id);
+        event.dataTransfer.setData("text/plain", item.id);
+        event.dataTransfer.effectAllowed = "move";
+        event.currentTarget.classList.add("is-dragging");
+      }}
+      onDragEnd={(event) => {
+        event.currentTarget.classList.remove("is-dragging");
+        window.setTimeout(() => {
+          dragged.current = false;
+        }, 0);
+      }}
+    >
+      {draggable ? <p className="pipeline-drag-hint">Glisser pour déplacer</p> : null}
+      <div
+        className="pipeline-card-main"
+        role="button"
+        tabIndex={0}
+        onClick={() => {
+          if (!dragged.current) {
+            onOpen();
+          }
+        }}
+        onKeyDown={(event) => {
+          if ((event.key === "Enter" || event.key === " ") && !dragged.current) {
+            event.preventDefault();
+            onOpen();
+          }
+        }}
+      >
         <CandidatePhoto candidateId={candidate.id} uploadId={candidate.photoUploadId} name={candidate.displayName} size={48} />
         <div>
           <div className="talent-card-title">
@@ -46,7 +89,7 @@ export function PipelineCandidateCard({
           <p className="talent-meta">{opportunityLabel(item)}</p>
           <p className="text-on-surface-variant">Ajoutée le {formatPipelineDate(item.createdAt)}</p>
         </div>
-      </button>
+      </div>
       <div className="pipeline-card-status">
         <p>
           Statut : <PipelineStatusBadge status={item.status} />

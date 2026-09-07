@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness } from "@/features/auth/types";
 import { ApiError } from "@/shared/api/client";
@@ -29,6 +32,10 @@ const EMPTY: UpsertJobOffer = {
   status: "DRAFT",
 };
 
+function contractLabel(value: string | null | undefined) {
+  return CONTRACT_TYPES.find((item) => item.value === value)?.label ?? null;
+}
+
 export function JobOffersPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<JobOffer[]>([]);
@@ -56,8 +63,17 @@ export function JobOffersPage() {
     return <Navigate to="/app/dashboard" replace />;
   }
 
+  function resetForm() {
+    setEditingId(null);
+    setForm(EMPTY);
+    setLangInput("");
+    setCertInput("");
+  }
+
   function fill(offer: JobOffer) {
     setEditingId(offer.id);
+    setLangInput("");
+    setCertInput("");
     setForm({
       title: offer.title,
       position: offer.position ?? "",
@@ -71,6 +87,18 @@ export function JobOffersPage() {
       description: offer.description ?? "",
       status: offer.status,
     });
+  }
+
+  function addChip(kind: "languages" | "certifications", raw: string) {
+    const value = raw.trim();
+    if (!value) {
+      return;
+    }
+    const current = form[kind] ?? [];
+    if (current.includes(value)) {
+      return;
+    }
+    setForm({ ...form, [kind]: [...current, value] });
   }
 
   async function save() {
@@ -93,8 +121,7 @@ export function JobOffersPage() {
         await createJobOffer(payload);
         setFlash("Offre créée.");
       }
-      setForm(EMPTY);
-      setEditingId(null);
+      resetForm();
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? recruitmentError(err.message) : "Enregistrement impossible.");
@@ -107,6 +134,9 @@ export function JobOffersPage() {
     try {
       await deleteJobOffer(id);
       setFlash("Offre supprimée.");
+      if (editingId === id) {
+        resetForm();
+      }
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? recruitmentError(err.message) : "Suppression impossible.");
@@ -114,183 +144,222 @@ export function JobOffersPage() {
   }
 
   return (
-    <section className="talent-page">
-      <div className="talent-head">
+    <section className="jobs-page">
+      <div className="page-head">
         <div>
-          <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
-          <h1 className="font-display-lg-mobile text-primary">Offres d’emploi</h1>
+          <h1>Offres d’emploi</h1>
+          <p className="sub">Publiez une offre, puis rattachez-la à un recrutement dans le pipeline.</p>
         </div>
       </div>
       {flash ? <p className="fu-flash">{flash}</p> : null}
       {error ? <p className="auth-error">{error}</p> : null}
 
-      <form
-        className="fu-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void save();
-        }}
-      >
-        <h2>{editingId ? "Modifier l’offre" : "Créer une offre"}</h2>
-        <label className="fu-field">
-          Titre
-          <input className="custom-input" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
-        </label>
-        <label className="fu-field">
-          Poste
-          <input className="custom-input" value={form.position} onChange={(event) => setForm({ ...form, position: event.target.value })} />
-        </label>
-        <label className="fu-field">
-          Lieu
-          <input className="custom-input" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} />
-        </label>
-        <label className="fu-field">
-          Type de contrat
-          <select className="custom-input" value={form.contractType} onChange={(event) => setForm({ ...form, contractType: event.target.value })}>
-            <option value="">Non précisé</option>
-            {CONTRACT_TYPES.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="fu-inline">
-          <label className="fu-field">
-            Salaire
-            <input className="custom-input" value={form.salaryAmount} onChange={(event) => setForm({ ...form, salaryAmount: event.target.value })} />
-          </label>
-          <label className="fu-field">
-            Devise
-            <select className="custom-input" value={form.salaryCurrency} onChange={(event) => setForm({ ...form, salaryCurrency: event.target.value })}>
-              {["TND", "EUR", "USD", "GBP", "MAD"].map((code) => (
-                <option key={code} value={code}>
-                  {code}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <label className="fu-field">
-          Expérience
-          <input className="custom-input" value={form.experience} onChange={(event) => setForm({ ...form, experience: event.target.value })} />
-        </label>
-        <label className="fu-field">
-          Langues
-          <input
-            className="custom-input"
-            value={langInput}
-            placeholder="Ajouter une langue puis Entrée"
-            onChange={(event) => setLangInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                const value = langInput.trim();
-                if (value) {
-                  setForm({ ...form, languages: [...(form.languages ?? []), value] });
-                  setLangInput("");
-                }
-              }
+      <div className="jobs-layout">
+        <Panel title={editingId ? "Modifier l’offre" : "Créer une offre"} body>
+          <form
+            className="jobs-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void save();
             }}
-          />
-          <div className="talent-chips">
-            {(form.languages ?? []).map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="talent-chip"
-                onClick={() => setForm({ ...form, languages: (form.languages ?? []).filter((lang) => lang !== item) })}
-              >
-                {item} ×
-              </button>
-            ))}
-          </div>
-        </label>
-        <label className="fu-field">
-          Certifications
-          <input
-            className="custom-input"
-            value={certInput}
-            placeholder="Ajouter une certification puis Entrée"
-            onChange={(event) => setCertInput(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                const value = certInput.trim();
-                if (value) {
-                  setForm({ ...form, certifications: [...(form.certifications ?? []), value] });
-                  setCertInput("");
-                }
-              }
-            }}
-          />
-          <div className="talent-chips">
-            {(form.certifications ?? []).map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="talent-chip"
-                onClick={() => setForm({ ...form, certifications: (form.certifications ?? []).filter((cert) => cert !== item) })}
-              >
-                {item} ×
-              </button>
-            ))}
-          </div>
-        </label>
-        <label className="fu-field">
-          Description
-          <textarea className="custom-input custom-textarea" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-        </label>
-        <label className="fu-field">
-          Statut
-          <select
-            className="custom-input"
-            value={form.status}
-            onChange={(event) => setForm({ ...form, status: event.target.value as JobOfferStatus })}
           >
-            <option value="DRAFT">Brouillon</option>
-            <option value="PUBLISHED">Publiée</option>
-          </select>
-        </label>
-        <div className="ob-country-actions">
-          {editingId ? (
-            <button
-              className="ob-secondary"
-              type="button"
-              onClick={() => {
-                setEditingId(null);
-                setForm(EMPTY);
-              }}
-            >
-              Annuler
-            </button>
-          ) : null}
-          <button className="ob-primary" type="submit" disabled={saving}>
-            {saving ? "Enregistrement…" : editingId ? "Mettre à jour" : "Créer l’offre"}
-          </button>
-        </div>
-      </form>
+            <div className="jobs-fields">
+              <div className="field">
+                <label htmlFor="job-title">Titre</label>
+                <input
+                  id="job-title"
+                  value={form.title}
+                  placeholder="Coach musculation — salle de Tunis"
+                  onChange={(event) => setForm({ ...form, title: event.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="job-position">Poste</label>
+                <input
+                  id="job-position"
+                  value={form.position}
+                  placeholder="Coach sportif, préparateur physique…"
+                  onChange={(event) => setForm({ ...form, position: event.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="job-location">Lieu</label>
+                <input
+                  id="job-location"
+                  value={form.location}
+                  placeholder="Tunis, hybride, à distance…"
+                  onChange={(event) => setForm({ ...form, location: event.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="job-contract">Type de contrat</label>
+                <select
+                  id="job-contract"
+                  value={form.contractType}
+                  onChange={(event) => setForm({ ...form, contractType: event.target.value })}
+                >
+                  <option value="">Non précisé</option>
+                  {CONTRACT_TYPES.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="job-salary">Salaire</label>
+                <div className="jobs-salary">
+                  <input
+                    id="job-salary"
+                    value={form.salaryAmount}
+                    placeholder="Ex. 1800"
+                    onChange={(event) => setForm({ ...form, salaryAmount: event.target.value })}
+                  />
+                  <select
+                    aria-label="Devise"
+                    value={form.salaryCurrency}
+                    onChange={(event) => setForm({ ...form, salaryCurrency: event.target.value })}
+                  >
+                    {["TND", "EUR", "USD", "GBP", "MAD"].map((code) => (
+                      <option key={code} value={code}>
+                        {code}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="job-experience">Expérience</label>
+                <input
+                  id="job-experience"
+                  value={form.experience}
+                  placeholder="Ex. 3 ans minimum"
+                  onChange={(event) => setForm({ ...form, experience: event.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="job-languages">Langues</label>
+                <input
+                  id="job-languages"
+                  value={langInput}
+                  placeholder="Français, puis Entrée"
+                  onChange={(event) => setLangInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addChip("languages", langInput);
+                      setLangInput("");
+                    }
+                  }}
+                />
+                <div className="jobs-chips">
+                  {(form.languages ?? []).map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      className="tag"
+                      onClick={() => setForm({ ...form, languages: (form.languages ?? []).filter((lang) => lang !== item) })}
+                    >
+                      {item} ×
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="job-certs">Certifications</label>
+                <input
+                  id="job-certs"
+                  value={certInput}
+                  placeholder="BPJEPS, puis Entrée"
+                  onChange={(event) => setCertInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addChip("certifications", certInput);
+                      setCertInput("");
+                    }
+                  }}
+                />
+                <div className="jobs-chips">
+                  {(form.certifications ?? []).map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      className="tag"
+                      onClick={() =>
+                        setForm({ ...form, certifications: (form.certifications ?? []).filter((cert) => cert !== item) })
+                      }
+                    >
+                      {item} ×
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="field field--full">
+                <label htmlFor="job-description">Description</label>
+                <textarea
+                  id="job-description"
+                  value={form.description}
+                  placeholder="Missions, horaires, public visé, avantages…"
+                  onChange={(event) => setForm({ ...form, description: event.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="job-status">Statut</label>
+                <select
+                  id="job-status"
+                  value={form.status}
+                  onChange={(event) => setForm({ ...form, status: event.target.value as JobOfferStatus })}
+                >
+                  <option value="DRAFT">Brouillon</option>
+                  <option value="PUBLISHED">Publiée</option>
+                </select>
+              </div>
+            </div>
+            <div className="jobs-actions">
+              {editingId ? (
+                <Button variant="outline" type="button" onClick={resetForm}>
+                  Annuler
+                </Button>
+              ) : null}
+              <Button variant="primary" type="submit" disabled={saving}>
+                {saving ? "Enregistrement…" : editingId ? "Mettre à jour" : "Créer l’offre"}
+              </Button>
+            </div>
+          </form>
+        </Panel>
 
-      <ul className="verify-list">
-        {items.map((offer) => (
-          <li key={offer.id} className="verify-row">
-            <div className="verify-copy">
-              <strong>{offer.title}</strong>
-              <p className="text-on-surface-variant">
-                {[offer.position, offer.location, offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"].filter(Boolean).join(" · ")}
-              </p>
-            </div>
-            <div className="verify-actions">
-              <button className="ob-secondary" type="button" onClick={() => fill(offer)}>
-                Modifier
-              </button>
-              <button className="ob-secondary" type="button" onClick={() => void remove(offer.id)}>
-                Supprimer
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+        <Panel title="Vos offres" actionLabel={items.length ? `${items.length}` : undefined}>
+          {items.length === 0 ? (
+            <p className="jobs-empty">
+              <strong>Aucune offre</strong>
+              <span>Cette liste est vide. Créez une offre avec le formulaire ci-contre.</span>
+            </p>
+          ) : (
+            items.map((offer) => (
+              <div key={offer.id} className="contract-item">
+                <div>
+                  <div className="t">{offer.title}</div>
+                  <div className="s">
+                    {[offer.position, offer.location, contractLabel(offer.contractType)].filter(Boolean).join(" · ") || "Détails non renseignés"}
+                  </div>
+                </div>
+                <div className="jobs-offer-actions">
+                  <StatusPill tone={offer.status === "PUBLISHED" ? "verified" : "pending"}>
+                    {offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"}
+                  </StatusPill>
+                  <Button variant="mini" type="button" onClick={() => fill(offer)}>
+                    Modifier
+                  </Button>
+                  <Button variant="outline" type="button" onClick={() => void remove(offer.id)}>
+                    Supprimer
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </Panel>
+      </div>
     </section>
   );
 }

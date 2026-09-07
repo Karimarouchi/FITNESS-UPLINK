@@ -1,8 +1,8 @@
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
-import type { CountrySummary, ProfileField } from "@/features/auth/types";
+import { destinationFor, type CountrySummary, type ProfileField } from "@/features/auth/types";
 import {
   trimValue,
   validateCity,
@@ -14,7 +14,7 @@ import {
   validateTextarea,
   validateUrl,
 } from "@/features/auth/validation";
-import { completeProfile, fetchCountries, fetchProfileFields, fetchProfileValues } from "../api";
+import { completeProfile, fetchCountries, fetchProfileFields, fetchProfileValues, parseCv } from "../api";
 import {
   BooleanToggle,
   CountryMultiField,
@@ -35,16 +35,68 @@ function parseJson<T>(value: string, fallback: T): T {
   }
 }
 
+function hasUploadId(value: string) {
+  const parsed = parseJson<unknown>(value, []);
+  if (Array.isArray(parsed)) {
+    return parsed.some((item) => item && typeof item === "object" && "id" in item && Boolean((item as { id?: string }).id));
+  }
+  return Boolean(parsed && typeof parsed === "object" && "id" in parsed && (parsed as { id?: string }).id);
+}
+
+function firstUploadId(value: string | undefined) {
+  const parsed = parseJson<unknown>(value ?? "", []);
+  const list = Array.isArray(parsed) ? parsed : parsed && typeof parsed === "object" ? [parsed] : [];
+  for (const item of list) {
+    if (item && typeof item === "object" && "id" in item && typeof (item as { id?: string }).id === "string") {
+      return (item as { id: string }).id;
+    }
+  }
+  return null;
+}
+
+const CV_OVERWRITE = new Set(["first_name", "last_name", "phone", "city", "professional_title"]);
+
+function mergeFromCv(
+  current: Record<string, string>,
+  incoming: Record<string, string>,
+  fields: ProfileField[],
+) {
+  const next = { ...current };
+  const applied: string[] = [];
+  const opened = new Set<string>();
+  for (const field of fields) {
+    const value = incoming[field.fieldKey];
+    if (!value) {
+      continue;
+    }
+    const already = current[field.fieldKey] ?? "";
+    const empty = isBlankJson(field.fieldType.toUpperCase(), already);
+    if (!empty && !CV_OVERWRITE.has(field.fieldKey)) {
+      continue;
+    }
+    if (!empty && already.trim() === value.trim()) {
+      continue;
+    }
+    next[field.fieldKey] = value;
+    applied.push(field.label);
+    opened.add(field.sectionKey || "profile");
+  }
+  return { next, applied, opened };
+}
+
 function isBlankJson(type: string, value: string) {
   if (!value || !value.trim()) {
     return true;
   }
-  if (["TAGS", "MULTISELECT", "REPEATABLE", "FILES", "PHOTO", "FILE", "COUNTRY_MULTI"].includes(type)) {
+  if (["PHOTO", "FILE", "FILES"].includes(type)) {
+    return !hasUploadId(value);
+  }
+  if (["TAGS", "MULTISELECT", "REPEATABLE", "COUNTRY_MULTI"].includes(type)) {
     const parsed = parseJson<unknown>(value, []);
     if (Array.isArray(parsed)) {
       return parsed.length === 0;
     }
-    return !(parsed && typeof parsed === "object" && "id" in parsed);
+    return true;
   }
   if (type === "MONEY") {
     const parsed = parseJson<{ amount?: string }>(value, {});
@@ -53,31 +105,38 @@ function isBlankJson(type: string, value: string) {
   return false;
 }
 
-function fieldError(field: ProfileField, value: string): string | null {
+const ONBOARDING_REQUIRED = new Set(["professional_photo", "organization_logo", "first_name", "last_name", "city", "phone"]);
+
+function isFieldRequired(field: ProfileField, onboarding: boolean) {
+  return field.required || (onboarding && ONBOARDING_REQUIRED.has(field.fieldKey));
+}
+
+function fieldError(field: ProfileField, value: string, onboarding: boolean) {
   const type = field.fieldType.toUpperCase();
+  const required = isFieldRequired(field, onboarding);
   if (isBlankJson(type, value)) {
-    return field.required ? `${field.label} est obligatoire` : null;
+    return required ? `${field.label} est obligatoire` : null;
   }
   if (field.fieldKey === "first_name" || field.fieldKey === "last_name") {
     return validateName(value);
   }
   if (type === "CITY") {
-    return validateCity(value, field.required);
+    return validateCity(value, required);
   }
   if (type === "TEL") {
-    return validatePhone(value, field.required);
+    return validatePhone(value, required);
   }
   if (type === "EMAIL") {
-    return validateContactEmail(value, field.required);
+    return validateContactEmail(value, required);
   }
   if (type === "URL") {
-    return validateUrl(value, field.required);
+    return validateUrl(value, required);
   }
   if (type === "DATE") {
-    return validateDateOfBirth(value, field.required);
+    return validateDateOfBirth(value, required);
   }
   if (type === "TEXTAREA") {
-    return validateTextarea(value, field.required, field.maxLength);
+    return validateTextarea(value, required, field.maxLength);
   }
   if (type === "MONEY") {
     const money = parseJson<{ amount?: string }>(value, {});
@@ -130,6 +189,9 @@ export function CompleteProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [attempted, setAttempted] = useState(false);
+  const [cvStatus, setCvStatus] = useState<"idle" | "loading" | "done" | "empty" | "error">("idle");
+  const [cvMessage, setCvMessage] = useState<string | null>(null);
+  const parsedCvId = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -179,6 +241,9 @@ export function CompleteProfilePage() {
     const order: Section[] = [];
     const index = new Map<string, Section>();
     for (const field of fields) {
+      if (field.fieldKey === "cv") {
+        continue;
+      }
       const key = field.sectionKey || "profile";
       let section = index.get(key);
       if (!section) {
@@ -191,9 +256,88 @@ export function CompleteProfilePage() {
     return order;
   }, [fields]);
 
+  function issueFor(field: ProfileField) {
+    return fieldError(field, values[field.fieldKey] ?? "", true);
+  }
+
   function filledCount(sectionFields: ProfileField[]) {
     return sectionFields.filter((field) => !isBlankJson(field.fieldType.toUpperCase(), values[field.fieldKey] ?? "")).length;
   }
+
+  function sectionMeta(section: Section) {
+    const requiredFields = section.fields.filter((field) => isFieldRequired(field, true));
+    if (requiredFields.length) {
+      const done = requiredFields.filter((field) => !issueFor(field)).length;
+      return `${done}/${requiredFields.length} obligatoire${requiredFields.length > 1 ? "s" : ""}`;
+    }
+    const filled = filledCount(section.fields);
+    return filled > 0 ? `${filled} renseigné${filled > 1 ? "s" : ""}` : "Optionnel";
+  }
+
+  const requiredBlocking = fields.some((field) => issueFor(field));
+  const cvField = fields.find((field) => field.fieldKey === "cv") ?? null;
+  const cvUploadId = cvField ? firstUploadId(values.cv) : null;
+
+  useEffect(() => {
+    if (!cvField || !cvUploadId) {
+      if (!cvUploadId) {
+        parsedCvId.current = null;
+      }
+      return;
+    }
+    if (parsedCvId.current === cvUploadId) {
+      return;
+    }
+    let cancelled = false;
+    setCvStatus("loading");
+    setCvMessage("Analyse du CV en cours…");
+    parseCv(cvUploadId)
+      .then((result) => {
+        if (cancelled) {
+          return;
+        }
+        parsedCvId.current = cvUploadId;
+        let applied: string[] = [];
+        let opened = new Set<string>();
+        setValues((current) => {
+          const merged = mergeFromCv(current, result.values, fields);
+          applied = merged.applied;
+          opened = merged.opened;
+          return merged.next;
+        });
+        if (opened.size) {
+          setCollapsed((current) => {
+            const next = { ...current };
+            for (const key of opened) {
+              next[key] = false;
+            }
+            return next;
+          });
+        }
+        if (applied.length) {
+          setCvStatus("done");
+          setCvMessage(
+            applied.length === 1
+              ? `${applied[0]} a été prérempli depuis le CV. Vérifiez ce champ.`
+              : `${applied.length} champs ont été préremplis : ${applied.slice(0, 6).join(", ")}${applied.length > 6 ? "…" : ""}. Vérifiez-les avant de continuer.`,
+          );
+        } else {
+          setCvStatus("empty");
+          setCvMessage(result.message || "CV enregistré. Complétez le formulaire, la photo reste obligatoire.");
+        }
+      })
+      .catch((err) => {
+        if (cancelled) {
+          return;
+        }
+        parsedCvId.current = cvUploadId;
+        setCvStatus("error");
+        setCvMessage(err instanceof ApiError ? err.message : "Impossible d’analyser ce CV. Remplissez le formulaire à la main.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [cvField, cvUploadId, fields]);
 
   function toggleSection(key: string) {
     setCollapsed((current) => ({ ...current, [key]: !current[key] }));
@@ -208,7 +352,7 @@ export function CompleteProfilePage() {
     setAttempted(true);
     const nextErrors: Record<string, string | undefined> = {};
     for (const field of fields) {
-      nextErrors[field.fieldKey] = fieldError(field, values[field.fieldKey] ?? "") ?? undefined;
+      nextErrors[field.fieldKey] = issueFor(field) ?? undefined;
     }
     const firstInvalid = fields.find((field) => nextErrors[field.fieldKey]);
     if (firstInvalid) {
@@ -260,7 +404,12 @@ export function CompleteProfilePage() {
       }
       const next = await completeProfile(payload);
       updateUser(next);
-      navigate(editing ? "/app/profile" : "/app/dashboard", { replace: true });
+      if (next.onboardingStep !== "DONE") {
+        setAttempted(true);
+        setError("Complétez les champs obligatoires marqués d’une * pour continuer.");
+        return;
+      }
+      navigate(editing ? "/app/profile" : destinationFor(next), { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Impossible d’enregistrer le profil");
     } finally {
@@ -271,20 +420,22 @@ export function CompleteProfilePage() {
   function renderField(field: ProfileField) {
     const value = values[field.fieldKey] ?? "";
     const type = field.fieldType.toUpperCase();
-    const issue = fieldError(field, value);
-    const showIssue = Boolean(issue) && (attempted || !isBlankJson(type, value));
+    const required = isFieldRequired(field, true);
+    const displayField = { ...field, required };
+    const issue = issueFor(field);
+    const showIssue = Boolean(issue) && (attempted || required || !isBlankJson(type, value));
     const invalid = showIssue;
     const wide = ["TEXTAREA", "TAGS", "MULTISELECT", "REPEATABLE", "FILES", "FILE", "PHOTO", "COUNTRY_MULTI", "MONEY"].includes(type);
     const label = type === "PHOTO" ? null : (
       <label className="auth-label" htmlFor={field.fieldKey}>
         {field.label}
-        {field.required ? " *" : ""}
+        {required ? " *" : ""}
       </label>
     );
 
     let control = null;
     if (type === "PHOTO") {
-      control = <PhotoField field={field} value={value} onChange={(next) => setField(field.fieldKey, next)} />;
+      control = <PhotoField field={displayField} value={value} invalid={invalid} onChange={(next) => setField(field.fieldKey, next)} />;
     } else if (type === "FILE" || type === "FILES") {
       control = (
         <FileField
@@ -419,10 +570,30 @@ export function CompleteProfilePage() {
             )}
           </div>
           )}
+          {cvField ? (
+            <section className="ob-cv-import">
+              <div className="ob-cv-import-head">
+                <span className="material-symbols-outlined">upload_file</span>
+                <div>
+                  <h2>Votre CV</h2>
+                  <p>
+                    Déposez un PDF ou un Word. Nous préremplissons les champs vides. Vérifiez-les, puis ajoutez la photo
+                    obligatoire.
+                  </p>
+                </div>
+              </div>
+              <FileField
+                field={cvField}
+                value={values.cv ?? "[]"}
+                multiple={false}
+                onChange={(next) => setField("cv", next)}
+              />
+              {cvMessage ? <p className={`ob-cv-import-status is-${cvStatus}`}>{cvMessage}</p> : null}
+            </section>
+          ) : null}
           {loading ? <p className="font-body-md text-on-surface-variant">Chargement du formulaire…</p> : null}
           {sections.map((section, index) => {
             const folded = Boolean(collapsed[section.key]);
-            const filled = filledCount(section.fields);
             return (
               <section key={section.key} className={`ob-section${folded ? " is-collapsed" : ""}`}>
                 <button
@@ -434,9 +605,7 @@ export function CompleteProfilePage() {
                   <span className="ob-section-index">{String(index + 1).padStart(2, "0")}</span>
                   <span className="material-symbols-outlined">{section.icon}</span>
                   <h2>{section.label}</h2>
-                  <span className="ob-section-meta">
-                    {filled > 0 ? `${filled} renseigné${filled > 1 ? "s" : ""}` : "Optionnel"}
-                  </span>
+                  <span className="ob-section-meta">{sectionMeta(section)}</span>
                   <span className={`material-symbols-outlined ob-chevron${folded ? " is-folded" : ""}`}>expand_less</span>
                 </button>
                 <div className="ob-fields" hidden={folded}>
@@ -448,13 +617,15 @@ export function CompleteProfilePage() {
           {error ? <p className="auth-error">{error}</p> : null}
           <div className="ob-profile-footer">
             <p className="font-mono-data text-[12px] text-on-surface-variant">
-              Vos informations sont traitées conformément à la politique de confidentialité Fitness Uplink.
+              {editing
+                ? "Vos informations sont traitées conformément à la politique de confidentialité Fitness Uplink."
+                : "Tous les champs marqués * doivent être renseignés pour accéder à l’application."}
             </p>
             <div className="ob-profile-actions">
               <button className="ob-secondary" type="button" onClick={goBack}>
                 Retour
               </button>
-              <button className="ob-primary" type="submit" disabled={submitting || loading}>
+              <button className="ob-primary" type="submit" disabled={submitting || loading || requiredBlocking}>
                 {submitting ? "Enregistrement..." : editing ? "Enregistrer" : "Terminer"}
                 <span className="material-symbols-outlined text-[16px]">{editing ? "check" : "arrow_forward"}</span>
               </button>
@@ -499,7 +670,7 @@ export function CompleteProfilePage() {
           </h1>
           <p className="font-body-lg text-on-surface-variant">
             {candidate
-              ? "Présentez votre parcours, vos pièces et vos préférences. Vous pourrez affiner plus tard."
+              ? "Déposez d’abord votre CV pour préremplir le dossier. Photo, nom, téléphone et ville restent obligatoires."
               : business
                 ? "Renseignez l’identité, les pièces juridiques et les coordonnées de votre structure. Vous pourrez affiner plus tard."
                 : "Tell us a little more about yourself to personalize your Fitness Uplink experience."}

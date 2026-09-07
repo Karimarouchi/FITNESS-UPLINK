@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 public class AdminVerificationService {
 
     private static final Set<String> STATUSES = Set.of("pending", "verified", "rejected");
+    private static final Pattern UPLOAD_ID = Pattern.compile("\"id\"\\s*:\\s*\"([0-9a-fA-F-]{36})\"");
 
     private static final Map<String, String> ESTABLISHMENT_TYPES = Map.of(
             "gym", "Salle de sport / Gym",
@@ -175,8 +178,13 @@ public class AdminVerificationService {
         }
         addFact(identityFacts, "Titre", text(values, "professional_title"));
         List<VerificationFileDto> photo = files(values.get("professional_photo"));
-        boolean identityOk = hasText(user.getFirstName()) && hasText(user.getLastName()) && !photo.isEmpty();
+        boolean identityOk = hasText(user.getFirstName())
+                && hasText(user.getLastName())
+                && hasText(text(values, "city"))
+                && hasText(text(values, "phone"))
+                && !photo.isEmpty();
 
+        List<VerificationFileDto> cv = files(values.get("cv"));
         List<VerificationFileDto> diplomas = files(values.get("diplomas"));
         List<VerificationFileDto> certifications = files(values.get("certifications"));
 
@@ -184,12 +192,25 @@ public class AdminVerificationService {
                 section(
                         "identity",
                         "Identité",
-                        "Photo, nom et coordonnées du professionnel.",
+                        identityOk
+                                ? "Photo, nom, téléphone, ville et coordonnées du professionnel."
+                                : "Photo professionnelle, téléphone et ville sont obligatoires pour valider l’identité.",
                         identityOk,
                         true,
                         reviews,
                         identityFacts,
                         photo,
+                        List.of()
+                ),
+                section(
+                        "cv",
+                        "CV",
+                        "À valider seulement si le candidat a transmis un CV.",
+                        !cv.isEmpty(),
+                        false,
+                        reviews,
+                        cv.isEmpty() ? List.of("Aucun CV transmis.") : List.of(cv.size() + " fichier(s)"),
+                        cv,
                         List.of()
                 ),
                 section(
@@ -376,24 +397,38 @@ public class AdminVerificationService {
 
     private List<VerificationFileDto> files(String json) {
         JsonNode node = tree(json);
-        if (node == null) {
-            return List.of();
-        }
-        JsonNode array = node.isArray() ? node : objectMapper.createArrayNode().add(node);
         List<VerificationFileDto> items = new ArrayList<>();
-        for (JsonNode item : array) {
-            if (item == null || !item.has("id")) {
-                continue;
+        if (node != null) {
+            JsonNode array = node.isArray() ? node : objectMapper.createArrayNode().add(node);
+            for (JsonNode item : array) {
+                if (item == null || !item.has("id")) {
+                    continue;
+                }
+                try {
+                    items.add(new VerificationFileDto(
+                            UUID.fromString(item.path("id").asText()),
+                            item.path("name").asText(item.path("originalFilename").asText("")),
+                            item.path("contentType").asText(""),
+                            item.path("size").asLong(item.path("sizeBytes").asLong(0))
+                    ));
+                } catch (IllegalArgumentException ignored) {
+                    // skip malformed upload refs
+                }
             }
-            try {
-                items.add(new VerificationFileDto(
-                        UUID.fromString(item.path("id").asText()),
-                        item.path("name").asText(item.path("originalFilename").asText("")),
-                        item.path("contentType").asText(""),
-                        item.path("size").asLong(item.path("sizeBytes").asLong(0))
-                ));
-            } catch (IllegalArgumentException ignored) {
-                // skip malformed upload refs
+        }
+        if (items.isEmpty() && json != null) {
+            Matcher matcher = UPLOAD_ID.matcher(json);
+            if (matcher.find()) {
+                try {
+                    items.add(new VerificationFileDto(
+                            UUID.fromString(matcher.group(1)),
+                            "Document",
+                            "",
+                            0
+                    ));
+                } catch (IllegalArgumentException ignored) {
+                    // skip malformed upload refs
+                }
             }
         }
         return items;

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, useSearchParams } from "react-router-dom";
-import { favoriteCandidate, fetchCandidates, unfavoriteCandidate, type CandidateCard } from "../api";
-import { CandidatePhoto } from "../CandidatePhoto";
-import { VerificationBadge } from "@/shared/components/VerificationBadge";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { StatusPill } from "@/components/ui/StatusPill";
+import { Tag } from "@/components/ui/Tag";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isSuperAdmin } from "@/features/auth/types";
+import { pipelineTone, statusLabel } from "@/features/recruitment/api";
+import { candidateLocation, favoriteCandidate, fetchCandidates, unfavoriteCandidate, type CandidateCard } from "../api";
+import { CandidatePhoto } from "../CandidatePhoto";
 
 export function CandidatesPage() {
   const { user } = useAuth();
@@ -50,58 +54,70 @@ export function CandidatesPage() {
   }
 
   return (
-    <section className="talent-page">
-      <div className="talent-head">
+    <section>
+      <div className="page-head">
         <div>
-          <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
-          <h1 className="font-display-lg-mobile text-primary">Recherche de talents</h1>
+          <h1>Recherche de talents</h1>
+          <p className="sub">Trouvez un coach, un préparateur ou un expert à recruter.</p>
         </div>
       </div>
-      <input
-        className="custom-input talent-search"
-        value={query}
-        placeholder="Rechercher un nom, une ville, une spécialité…"
-        onChange={(event) => setQuery(event.target.value)}
-      />
+      <label className="page-search">
+        <span className="material-symbols-outlined" aria-hidden="true">
+          search
+        </span>
+        <input
+          value={query}
+          placeholder="Nom, ville ou spécialité"
+          onChange={(event) => setQuery(event.target.value)}
+        />
+      </label>
       {error ? <p className="auth-error">{error}</p> : null}
       {items.length === 0 ? (
-        <p className="font-body-md text-on-surface-variant">Aucun candidat pour le moment.</p>
+        <p className="jobs-empty">
+          <strong>Aucun talent</strong>
+          <span>
+            {query.trim()
+              ? "Aucun profil ne correspond à cette recherche."
+              : "Aucun candidat n’est visible pour le moment."}
+          </span>
+        </p>
       ) : (
-        <div className="talent-grid">
-          {items.map((item) => (
-            <article key={item.id} className="talent-card talent-card--static">
-              <CandidatePhoto candidateId={item.id} uploadId={item.photoUploadId} name={item.displayName} size={64} />
-              <div className="talent-card-copy">
-                <div className="talent-card-title">
-                  <h2>{item.displayName}</h2>
-                  <VerificationBadge verified={item.verified} compact />
+        <div className="fu-talent-grid">
+          {items.map((item) => {
+            const place = candidateLocation(item);
+            return (
+              <article key={item.id} className="fu-talent-card">
+                <div className="fu-talent-card-top">
+                  <CandidatePhoto candidateId={item.id} uploadId={item.photoUploadId} name={item.displayName} size={56} />
+                  <div>
+                    <div className="pn">{item.displayName}</div>
+                    {item.verified ? <Badge>Compte vérifié</Badge> : null}
+                    <div className="pt">{item.title || "Candidat"}</div>
+                    <div className="ploc">{place || "Lieu non renseigné"}</div>
+                  </div>
                 </div>
-                <p>{item.title || "Candidat"}</p>
-                <p className="text-on-surface-variant">
-                  {item.city || "—"}
-                  {item.country ? ` · ${item.country.flagEmoji} ${item.country.name}` : ""}
-                </p>
-                {item.availabilityLabel ? <p className="talent-meta">{item.availabilityLabel}</p> : null}
-                <div className="talent-chips">
-                  {(item.specialties ?? []).slice(0, 3).map((tag) => (
-                    <span key={tag} className="talent-chip">
-                      {tag}
-                    </span>
+                {item.availabilityLabel ? <p className="fu-talent-meta">{item.availabilityLabel}</p> : null}
+                {item.inPipeline && item.pipelineStatus ? (
+                  <StatusPill tone={pipelineTone(item.pipelineStatus)}>{statusLabel(item.pipelineStatus)}</StatusPill>
+                ) : null}
+                <div className="tag-row">
+                  {(item.specialties ?? []).slice(0, 4).map((tag) => (
+                    <Tag key={tag}>{tag}</Tag>
                   ))}
                 </div>
-                <div className="fiche-actions">
+                <div className="fu-talent-card-actions">
                   {isBusiness(user) ? (
-                    <button className={item.favorite ? "ob-primary" : "ob-secondary"} type="button" onClick={() => void toggleFavorite(item)}>
-                      {item.favorite ? "♥ Favori" : "♡ Favori"}
-                    </button>
+                    <Button variant={item.favorite ? "primary" : "outline"} type="button" onClick={() => void toggleFavorite(item)}>
+                      {item.favorite ? "Favori" : "Ajouter aux favoris"}
+                    </Button>
                   ) : null}
-                  <Link className="ob-secondary" to={`/candidates/${item.id}`}>
+                  <Button variant="mini" to={`/candidates/${item.id}`}>
                     Voir le profil
-                  </Link>
+                  </Button>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

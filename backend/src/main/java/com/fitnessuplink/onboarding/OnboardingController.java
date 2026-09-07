@@ -1,7 +1,10 @@
 package com.fitnessuplink.onboarding;
 
 import com.fitnessuplink.auth.security.UserPrincipal;
+import com.fitnessuplink.onboarding.cv.CvImportService;
 import com.fitnessuplink.onboarding.dto.CompleteProfileRequest;
+import com.fitnessuplink.onboarding.dto.ParseCvRequest;
+import com.fitnessuplink.onboarding.dto.ParseCvResponse;
 import com.fitnessuplink.onboarding.dto.ProfileFieldResponse;
 import com.fitnessuplink.onboarding.dto.ProfileValuesResponse;
 import com.fitnessuplink.onboarding.dto.SelectCountryRequest;
@@ -36,6 +39,7 @@ public class OnboardingController {
 
     private final OnboardingService onboardingService;
     private final UploadService uploadService;
+    private final CvImportService cvImportService;
 
     @PostMapping("/role")
     public UserResponse selectRole(
@@ -69,6 +73,14 @@ public class OnboardingController {
             @Valid @RequestBody CompleteProfileRequest request
     ) {
         return onboardingService.completeProfile(principal.getId(), request);
+    }
+
+    @PostMapping("/profile/parse-cv")
+    public ParseCvResponse parseCv(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ParseCvRequest request
+    ) {
+        return cvImportService.parse(principal.getId(), request.uploadId());
     }
 
     @PostMapping(path = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

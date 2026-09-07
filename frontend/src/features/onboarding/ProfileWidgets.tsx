@@ -369,7 +369,14 @@ export function FileField({
 
   return (
     <div className="file-block">
-      <label className="file-drop">
+      <label
+        className="file-drop"
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          void onPick(event.dataTransfer.files);
+        }}
+      >
         <span className="material-symbols-outlined">{field.fieldType === "PHOTO" ? "add_a_photo" : "upload_file"}</span>
         <span>{busy ? "Envoi en cours…" : multiple ? "Ajouter des fichiers" : "Choisir un fichier"}</span>
         <small>{field.helpText}</small>
@@ -407,10 +414,12 @@ export function PhotoField({
   field,
   value,
   onChange,
+  invalid,
 }: {
   field: ProfileField;
   value: string;
   onChange: (value: string) => void;
+  invalid?: boolean;
 }) {
   const files = toFileItems(value);
   const current = files[0];
@@ -470,7 +479,7 @@ export function PhotoField({
   const changeLabel = field.fieldKey === "organization_logo" ? "Changer le logo" : "Changer la photo";
 
   return (
-    <div className="photo-hero">
+    <div className={`photo-hero${invalid ? " is-invalid" : ""}`}>
       <div className="photo-avatar" style={preview ? { backgroundImage: `url(${preview})` } : undefined}>
         {preview ? null : <span className="material-symbols-outlined">{field.fieldKey === "organization_logo" ? "storefront" : "person"}</span>}
       </div>

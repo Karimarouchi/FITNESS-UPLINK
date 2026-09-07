@@ -916,6 +916,57 @@
     gap: 20px;
   }
 
+  .ob-cv-import {
+    background: #ffffff;
+    border: 1px solid #c6c6ce;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(10, 17, 40, 0.04);
+  }
+
+  .ob-cv-import-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .ob-cv-import-head .material-symbols-outlined {
+    font-size: 28px;
+    color: #0040e0;
+  }
+
+  .ob-cv-import-head h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .ob-cv-import-head p {
+    margin: 6px 0 0;
+    color: #5c5c66;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .ob-cv-import-status {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .ob-cv-import-status.is-loading {
+    color: #0040e0;
+  }
+
+  .ob-cv-import-status.is-done {
+    color: #1f7a3a;
+  }
+
+  .ob-cv-import-status.is-empty,
+  .ob-cv-import-status.is-error {
+    color: #8a6200;
+  }
+
   .ob-section {
     background: #ffffff;
     border: 1px solid #c6c6ce;
@@ -1684,6 +1735,12 @@
     border-radius: 16px;
     padding: 12px;
     min-height: 320px;
+    border: 2px solid transparent;
+  }
+
+  .pipeline-column.is-drop {
+    border-color: #0040e0;
+    background: #dde1ff;
   }
 
   .pipeline-column header {
@@ -1703,6 +1760,37 @@
   .pipeline-column-body {
     display: grid;
     gap: 10px;
+    min-height: 180px;
+    align-content: start;
+  }
+
+  .pipeline-column-empty {
+    margin: 0;
+    min-height: 180px;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 4px;
+    border: 1px dashed #c6c6ce;
+    border-radius: 12px;
+    padding: 16px;
+    color: #76767e;
+    font-size: 13px;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .pipeline-column-empty strong {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #46464d;
+  }
+
+  .pipeline-column.is-drop .pipeline-column-empty {
+    border-color: #0040e0;
+    background: #e8ebff;
+    color: #0040e0;
   }
 
   .pipeline-card {
@@ -1711,6 +1799,23 @@
     padding: 12px;
     display: grid;
     gap: 8px;
+  }
+
+  .pipeline-card.is-movable {
+    cursor: grab;
+  }
+
+  .pipeline-card.is-dragging {
+    opacity: 0.45;
+    cursor: grabbing;
+  }
+
+  .pipeline-drag-hint {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #46464d;
   }
 
   .pipeline-card-main {
@@ -1723,6 +1828,10 @@
     font-family: inherit;
     padding: 0;
     color: inherit;
+  }
+
+  .pipeline-card.is-movable .pipeline-card-main {
+    cursor: grab;
   }
 
   .pipeline-card-status {

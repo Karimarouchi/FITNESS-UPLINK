@@ -2,6 +2,9 @@ package com.fitnessuplink.user;
 
 import com.fitnessuplink.catalog.AppRole;
 import com.fitnessuplink.catalog.Country;
+import com.fitnessuplink.catalog.ProfileField;
+import com.fitnessuplink.catalog.RoleProfileField;
+import com.fitnessuplink.catalog.RoleProfileFieldRepository;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.common.exception.ResourceNotFoundException;
 import com.fitnessuplink.onboarding.UserProfileValue;
@@ -16,8 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +35,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
+    private final RoleProfileFieldRepository roleProfileFieldRepository;
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAll() {
@@ -89,6 +95,9 @@ public class UserService {
     }
 
     public UserResponse toResponse(User user) {
+        List<UserProfileValue> values = user.isSuperAdmin()
+                ? List.of()
+                : userProfileValueRepository.findByUserId(user.getId());
         return new UserResponse(
                 user.getId(),
                 user.getEmail(),
@@ -98,16 +107,23 @@ public class UserService {
                 toRoleSummary(user.getAppRole()),
                 toCountrySummary(user.getCountry()),
                 user.isOnboardingCompleted(),
-                resolveStep(user),
+                resolveStep(user, values),
                 user.getCreatedAt(),
-                avatarUploadId(user.getId()),
+                avatarUploadId(values),
                 user.getVerificationStatus() == null ? "pending" : user.getVerificationStatus()
         );
     }
 
-    public static OnboardingStep resolveStep(User user) {
+    public OnboardingStep resolveStep(User user) {
+        List<UserProfileValue> values = user.isSuperAdmin()
+                ? List.of()
+                : userProfileValueRepository.findByUserId(user.getId());
+        return resolveStep(user, values);
+    }
+
+    private OnboardingStep resolveStep(User user, List<UserProfileValue> values) {
         AppRole role = user.getAppRole();
-        if (user.isOnboardingCompleted() || (role != null && SUPER_ADMIN_CODE.equals(role.getCode()))) {
+        if (role != null && SUPER_ADMIN_CODE.equals(role.getCode())) {
             return OnboardingStep.DONE;
         }
         if (role == null) {
@@ -116,11 +132,67 @@ public class UserService {
         if (user.getCountry() == null) {
             return OnboardingStep.COUNTRY;
         }
+        if (!requiredProfileComplete(role.getId(), values)) {
+            return OnboardingStep.PROFILE;
+        }
+        if (user.isOnboardingCompleted()) {
+            return OnboardingStep.DONE;
+        }
         return OnboardingStep.PROFILE;
     }
 
-    private UUID avatarUploadId(UUID userId) {
-        return userProfileValueRepository.findByUserId(userId).stream()
+    public boolean hasRequiredProfile(User user) {
+        if (user.getAppRole() == null) {
+            return false;
+        }
+        return requiredProfileComplete(
+                user.getAppRole().getId(),
+                userProfileValueRepository.findByUserId(user.getId())
+        );
+    }
+
+    private boolean requiredProfileComplete(UUID roleId, List<UserProfileValue> values) {
+        Map<String, String> byKey = values.stream()
+                .filter(item -> item.getValue() != null)
+                .collect(Collectors.toMap(UserProfileValue::getFieldKey, UserProfileValue::getValue, (left, right) -> left));
+        for (RoleProfileField mapping : roleProfileFieldRepository.findByRole_IdOrderBySortOrderAsc(roleId)) {
+            ProfileField field = mapping.getField();
+            if ("verification_status".equals(field.getFieldKey())) {
+                continue;
+            }
+            boolean required = mapping.getRequiredOverride() != null
+                    ? mapping.getRequiredOverride()
+                    : field.isRequired();
+            if (!required) {
+                continue;
+            }
+            if (isMissing(field.getFieldType(), byKey.get(field.getFieldKey()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isMissing(String fieldType, String value) {
+        if (value == null || value.isBlank()) {
+            return true;
+        }
+        String type = fieldType == null ? "TEXT" : fieldType.toUpperCase();
+        String trimmed = value.trim();
+        if (Set.of("FILES", "PHOTO", "FILE").contains(type)) {
+            return !UPLOAD_ID.matcher(trimmed).find();
+        }
+        if (Set.of("TAGS", "MULTISELECT", "REPEATABLE", "COUNTRY_MULTI").contains(type)) {
+            return trimmed.equals("[]") || trimmed.equals("null") || trimmed.equals("{}");
+        }
+        if ("MONEY".equals(type)) {
+            return !trimmed.contains("\"amount\"") || trimmed.contains("\"amount\":\"\"") || trimmed.contains("\"amount\": \"\"");
+        }
+        return false;
+    }
+
+    private UUID avatarUploadId(List<UserProfileValue> values) {
+        return values.stream()
                 .filter(item -> {
                     String key = item.getFieldKey();
                     return key != null && (key.contains("photo") || key.contains("logo"));

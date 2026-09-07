@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
+import { StatusPill } from "@/components/ui/StatusPill";
+import { Tag } from "@/components/ui/Tag";
+import { useAuth } from "@/features/auth/AuthContext";
+import { isBusiness, isSuperAdmin, isVerified } from "@/features/auth/types";
+import { StartRecruitmentModal } from "@/features/recruitment/StartRecruitmentModal";
+import { pipelineTone, statusLabel, updateRecruitmentStatus, type RecruitmentSummary } from "@/features/recruitment/api";
 import {
+  candidateLocation,
   favoriteCandidate,
   fetchCandidate,
-  fetchCandidateFile,
   unfavoriteCandidate,
   type CandidateDetail,
 } from "../api";
 import { CandidatePhoto } from "../CandidatePhoto";
-import { VerificationBadge } from "@/shared/components/VerificationBadge";
-import { useAuth } from "@/features/auth/AuthContext";
-import { isBusiness, isSuperAdmin, isVerified } from "@/features/auth/types";
-import { StartRecruitmentModal } from "@/features/recruitment/StartRecruitmentModal";
-import { PipelineStatusBadge } from "@/features/recruitment/PipelineStatusBadge";
-import { statusLabel, updateRecruitmentStatus, type RecruitmentSummary } from "@/features/recruitment/api";
+import { DocumentPreview } from "@/shared/components/DocumentPreview";
 
 const LEVELS: Record<string, string> = {
   a1: "A1",
@@ -24,17 +28,6 @@ const LEVELS: Record<string, string> = {
   c2: "C2",
   native: "Natif",
 };
-
-async function openFile(candidateId: string, uploadId: string, name: string) {
-  const blob = await fetchCandidateFile(candidateId, uploadId);
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.target = "_blank";
-  link.download = name;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 30_000);
-}
 
 function latestRecruitment(item: CandidateDetail): RecruitmentSummary | null {
   return item.recruitments?.[0] ?? null;
@@ -99,165 +92,160 @@ export function CandidateDetailPage() {
   }
 
   if (error) {
-    return <p className="auth-error">{error}</p>;
+    return (
+      <section>
+        <Link className="contract-back" to="/candidates">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_back
+          </span>
+          Tous les talents
+        </Link>
+        <p className="auth-error">{error}</p>
+      </section>
+    );
   }
   if (!item) {
-    return <p className="font-body-md text-on-surface-variant">Chargement de la fiche…</p>;
+    return <p className="empty-hint">Chargement de la fiche…</p>;
   }
 
   const current = latestRecruitment(item);
   const canRecruit = isBusiness(user);
+  const place = candidateLocation(item);
+  const files = [
+    item.cv ? { ...item.cv, kind: "CV" } : null,
+    ...item.certifications.map((file) => ({ ...file, kind: "Certification" })),
+    ...item.videos.map((file) => ({ ...file, kind: "Vidéo" })),
+  ].filter(Boolean) as { id: string; name: string; kind: string }[];
 
   return (
-    <article className="fiche">
-      <Link to="/candidates" className="ob-link fiche-back">
-        ← Tous les candidats
+    <section>
+      <Link className="contract-back" to="/candidates">
+        <span className="material-symbols-outlined" aria-hidden="true">
+          arrow_back
+        </span>
+        Tous les talents
       </Link>
       {flash ? <p className="fu-flash">{flash}</p> : null}
-      <header className="fiche-hero">
-        <CandidatePhoto candidateId={item.id} uploadId={item.photoUploadId} name={item.displayName} size={112} />
-        <div>
-          <div className="talent-card-title">
-            <h1 className="font-display-lg-mobile text-primary">{item.displayName}</h1>
-            <VerificationBadge verified={item.verified} />
+
+      <div className="profile-banner">
+        <CandidatePhoto candidateId={item.id} uploadId={item.photoUploadId} name={item.displayName} size={76} />
+        <div className="profile-banner-copy">
+          <div className="pn">{item.displayName}</div>
+          <div className="pt">{item.title || "Candidat"}</div>
+          <div className="ploc">{place || "Lieu non renseigné"}</div>
+          <div className="tag-row">
+            {item.verified ? <Badge>Compte vérifié</Badge> : <Badge variant="pending">Compte non vérifié</Badge>}
+            {current ? <StatusPill tone={pipelineTone(current.status)}>{statusLabel(current.status)}</StatusPill> : null}
+            {item.specialties.map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
           </div>
-          <p className="font-body-lg">{item.title || "Candidat"}</p>
-          <p className="font-body-md text-on-surface-variant">
-            {item.city || "—"}
-            {item.country ? ` · ${item.country.flagEmoji} ${item.country.name}` : ""}
-          </p>
           {canRecruit ? (
-            <div className="fiche-actions">
-              <button className={item.favorite ? "ob-primary" : "ob-secondary"} type="button" onClick={() => void toggleFavorite()}>
-                {item.favorite ? "♥ Favori" : "♡ Favori"}
-              </button>
-              <button className="ob-secondary" type="button" onClick={contact}>
+            <div className="profile-banner-actions">
+              <Button variant={item.favorite ? "primary" : "outline"} type="button" onClick={() => void toggleFavorite()}>
+                {item.favorite ? "Favori" : "Ajouter aux favoris"}
+              </Button>
+              <Button variant="outline" type="button" onClick={contact}>
                 Contacter
-              </button>
+              </Button>
               {current ? (
-                <Link className="ob-primary" to="/pipeline">
-                  ✓ Recrutement en cours
-                  {current.status ? ` · ${statusLabel(current.status)}` : ""}
-                </Link>
+                <Button variant="primary" to="/pipeline">
+                  Voir le recrutement
+                </Button>
               ) : (
-                <button className="ob-primary" type="button" onClick={() => setModalOpen(true)}>
+                <Button variant="primary" type="button" onClick={() => setModalOpen(true)}>
                   Démarrer le recrutement
-                </button>
+                </Button>
               )}
             </div>
           ) : null}
-          {current ? (
-            <p className="talent-meta">
-              Recrutement en cours <PipelineStatusBadge status={current.status} />
-            </p>
-          ) : null}
         </div>
-      </header>
+      </div>
 
       {item.biography ? (
-        <section className="fiche-block">
-          <h2>Résumé</h2>
-          <p>{item.biography}</p>
-        </section>
+        <Panel title="Résumé" body>
+          <p className="bio-copy">{item.biography}</p>
+        </Panel>
       ) : null}
 
-      <section className="fiche-block">
-        <h2>Localisation</h2>
-        <p>
-          {item.city || "—"}
-          {item.country ? ` · ${item.country.flagEmoji} ${item.country.name}` : ""}
-        </p>
-      </section>
+      <Panel title="Profil">
+        <div className="info-grid">
+          <div className="info-cell">
+            <div className="k">Localisation</div>
+            <div className="v">{place || "Non renseigné"}</div>
+          </div>
+          <div className="info-cell">
+            <div className="k">Disponibilité</div>
+            <div className="v">{item.availabilityLabel || "Non renseigné"}</div>
+          </div>
+          <div className="info-cell">
+            <div className="k">Salaire</div>
+            <div className="v">{item.salary ? `${item.salary.amount} ${item.salary.currency}` : "Non renseigné"}</div>
+          </div>
+          <div className="info-cell">
+            <div className="k">E-mail</div>
+            <div className="v">{item.email}</div>
+          </div>
+          <div className="info-cell">
+            <div className="k">Téléphone</div>
+            <div className="v">{item.phone || "Non renseigné"}</div>
+          </div>
+          <div className="info-cell">
+            <div className="k">Langues</div>
+            <div className="v">
+              {item.languages.length
+                ? item.languages
+                    .map((language) => [language.language, language.level ? LEVELS[language.level] ?? language.level : null].filter(Boolean).join(" "))
+                    .join(" · ")
+                : "Non renseigné"}
+            </div>
+          </div>
+        </div>
+      </Panel>
 
-      <section className="fiche-block">
-        <h2>Expérience</h2>
+      <Panel title="Expérience">
         {item.experiences.length ? (
-          <ul className="fiche-list">
+          <ul className="experience-list">
             {item.experiences.map((experience, index) => (
               <li key={index}>
-                <strong>{experience.title}</strong>
-                {experience.company ? ` · ${experience.company}` : ""}
-                <div className="text-on-surface-variant">
-                  {[experience.start, experience.end].filter(Boolean).join(" → ")}
+                <strong>{experience.title || "Expérience"}</strong>
+                <div className="s">
+                  {[experience.company, [experience.start, experience.end].filter(Boolean).join(" → ")].filter(Boolean).join(" · ")}
                 </div>
                 {experience.description ? <p>{experience.description}</p> : null}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-on-surface-variant">Non renseigné</p>
+          <p className="jobs-empty">
+            <strong>Vide</strong>
+            <span>Aucune expérience n’est renseignée sur ce profil.</span>
+          </p>
         )}
-      </section>
+      </Panel>
 
-      <section className="fiche-block">
-        <h2>Spécialités</h2>
-        <div className="talent-chips">
-          {item.specialties.length ? item.specialties.map((tag) => (
-            <span key={tag} className="talent-chip">
-              {tag}
-            </span>
-          )) : <p className="text-on-surface-variant">Non renseigné</p>}
-        </div>
-      </section>
-
-      <section className="fiche-block">
-        <h2>Langues</h2>
-        {item.languages.length ? (
-          <ul className="fiche-list">
-            {item.languages.map((language, index) => (
-              <li key={index}>
-                {language.language} {language.level ? `· ${LEVELS[language.level] ?? language.level}` : ""}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-on-surface-variant">Non renseigné</p>
-        )}
-      </section>
-
-      <section className="fiche-block">
-        <h2>Disponibilité & salaire</h2>
-        <p>{item.availabilityLabel || "Non renseigné"}</p>
-        <p>{item.salary ? `${item.salary.amount} ${item.salary.currency}` : "Salaire non renseigné"}</p>
-      </section>
-
-      <section className="fiche-block">
-        <h2>CV, certifications et vidéos</h2>
+      <Panel title="Documents">
         {item.canViewMedia ? (
-          <div className="fiche-files">
-            {item.cv ? (
-              <button type="button" className="ob-secondary" onClick={() => void openFile(item.id, item.cv!.id, item.cv!.name)}>
-                Télécharger le CV
-              </button>
-            ) : null}
-            {item.certifications.map((file) => (
-              <button key={file.id} type="button" className="ob-secondary" onClick={() => void openFile(item.id, file.id, file.name)}>
-                {file.name}
-              </button>
-            ))}
-            {item.videos.map((file) => (
-              <button key={file.id} type="button" className="ob-secondary" onClick={() => void openFile(item.id, file.id, file.name)}>
-                Vidéo · {file.name}
-              </button>
-            ))}
-            {!item.cv && !item.certifications.length && !item.videos.length ? (
-              <p className="text-on-surface-variant">Aucun fichier transmis.</p>
-            ) : null}
-          </div>
+          files.length ? (
+            <div className="verify-files is-padded">
+              {files.map((file) => (
+                <DocumentPreview key={file.id} file={file} candidateId={item.id} />
+              ))}
+            </div>
+          ) : (
+            <p className="jobs-empty">
+              <strong>Aucun fichier</strong>
+              <span>Ce candidat n’a pas encore transmis de CV, certification ou vidéo.</span>
+            </p>
+          )
         ) : (
-          <p className="text-on-surface-variant">
+          <p className="empty-hint">
             {viewerVerified
               ? "Aucun fichier disponible."
               : "Le CV et les vidéos s’affichent une fois votre compte établissement vérifié par l’admin."}
           </p>
         )}
-      </section>
-
-      <section className="fiche-block">
-        <h2>Contact</h2>
-        <p>{item.email}</p>
-        {item.phone ? <p>{item.phone}</p> : null}
-      </section>
+      </Panel>
 
       {modalOpen ? (
         <StartRecruitmentModal
@@ -293,11 +281,11 @@ export function CandidateDetailPage() {
           <div className="fu-modal" role="dialog" onClick={(event) => event.stopPropagation()}>
             <p>Le candidat est actuellement au statut Nouveau. Voulez-vous le passer à Contacté ?</p>
             <div className="ob-country-actions">
-              <button className="ob-secondary" type="button" onClick={() => setContactPrompt(false)}>
+              <Button variant="outline" type="button" onClick={() => setContactPrompt(false)}>
                 Non
-              </button>
-              <button
-                className="ob-primary"
+              </Button>
+              <Button
+                variant="primary"
                 type="button"
                 onClick={() => {
                   void updateRecruitmentStatus(current.id, "CONTACTED").then((updated) => {
@@ -312,11 +300,11 @@ export function CandidateDetailPage() {
                 }}
               >
                 Passer à Contacté
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       ) : null}
-    </article>
+    </section>
   );
 }

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
+import { Panel } from "@/components/ui/Panel";
+import { StatusPill } from "@/components/ui/StatusPill";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isCandidate } from "@/features/auth/types";
-import { contractStatusLabel, fetchContracts, type Contract } from "../api";
+import { contractStatusLabel, contractStatusTone, fetchContracts, type Contract } from "../api";
 import { formatPipelineDate } from "@/features/recruitment/api";
 
 export function ContractsPage() {
@@ -42,32 +45,58 @@ export function ContractsPage() {
   }
 
   return (
-    <section className="talent-page talent-page--wide">
-      <p className="font-label-caps uppercase text-on-surface-variant">{candidate ? "My Uplink" : "Recrutement"}</p>
-      <h1 className="font-display-lg-mobile text-primary mb-4">{candidate ? "Mes contrats" : "Contrats"}</h1>
+    <section>
+      <div className="page-head">
+        <div>
+          <h1>{candidate ? "Mes contrats" : "Contrats"}</h1>
+          <p className="sub">
+            {candidate
+              ? "Consultez et signez les contrats envoyés par les employeurs."
+              : "Suivez les signatures et ouvrez le document de chaque recrutement."}
+          </p>
+        </div>
+      </div>
       {error ? <p className="auth-error">{error}</p> : null}
-      {items.length === 0 && !error ? (
-        <p className="font-body-md text-on-surface-variant">Aucun contrat pour le moment.</p>
-      ) : (
-        <ul className="verify-list">
-          {items.map((item) => (
-            <li key={item.id} className="verify-row">
-              <div className="verify-copy">
-                <strong>{candidate ? item.employerName : item.candidateName}</strong>
-                <p>
-                  {item.jobOffer?.title || item.terms?.position || "Recrutement direct"} · {formatPipelineDate(item.createdAt)}
-                </p>
-                <p className={item.status === "COMPLETED" ? "verify-check is-ok" : "verify-check is-ready"}>{statusCopy(item)}</p>
-              </div>
-              <div className="verify-actions">
-                <Link className="ob-secondary" to={`/contracts/${item.id}`}>
-                  Consulter
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Panel title="Tous les contrats" actionLabel={items.length ? String(items.length) : undefined}>
+        {items.length === 0 && !error ? (
+          <p className="jobs-empty">
+            <strong>Aucun contrat</strong>
+            <span>Cette liste est vide. Un contrat apparaîtra ici dès qu’il sera envoyé depuis le pipeline.</span>
+          </p>
+        ) : items.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>{candidate ? "Employeur" : "Candidat"}</th>
+                <th>Poste</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <strong>{candidate ? item.employerName : item.candidateName}</strong>
+                    <div className="muted-line">{statusCopy(item)}</div>
+                  </td>
+                  <td>{item.jobOffer?.title || item.terms?.position || "Recrutement direct"}</td>
+                  <td>{formatPipelineDate(item.createdAt)}</td>
+                  <td>
+                    <StatusPill tone={contractStatusTone(item.status)}>{contractStatusLabel(item.status)}</StatusPill>
+                  </td>
+                  <td>
+                    <Button variant="mini" to={`/contracts/${item.id}`}>
+                      Consulter
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+      </Panel>
     </section>
   );
 }
