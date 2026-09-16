@@ -12,6 +12,7 @@ export function signup(payload: {
   password: string;
   confirmPassword: string;
   acceptedTerms: boolean;
+  recaptchaToken?: string;
 }) {
   return api.post<AuthResponse>("/v1/auth/signup", payload, { skipRefresh: true });
 }
@@ -24,4 +25,33 @@ export function logout() {
 
 export function fetchMe() {
   return api.get<AuthUser>("/v1/auth/me");
+}
+
+export function verifyEmail(code: string) {
+  return api.post<AuthUser>("/v1/auth/verify-email", { code });
+}
+
+export function resendVerification() {
+  return api.post<void>("/v1/auth/resend-verification");
+}
+
+export function changeEmail(email: string) {
+  return api.post<AuthUser>("/v1/auth/change-email", { email });
+}
+
+export function forgotPassword(email: string) {
+  return api.post<void>("/v1/auth/forgot-password", { email }, { skipRefresh: true });
+}
+
+export function verifyResetCode(email: string, code: string) {
+  return api.post<void>("/v1/auth/verify-reset-code", { email, code }, { skipRefresh: true });
+}
+
+export function resetPassword(payload: {
+  email: string;
+  code: string;
+  password: string;
+  confirmPassword: string;
+}) {
+  return api.post<void>("/v1/auth/reset-password", payload, { skipRefresh: true });
 }

@@ -35,6 +35,9 @@ public class UserVerificationCheck {
     @Column(nullable = false, length = 16)
     private String status = "pending";
 
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 

@@ -78,6 +78,7 @@ export type Opportunity = {
   experience: string | null;
   description: string | null;
   employerName: string;
+  employerLogoUploadId: string | null;
   employerCountry: CountrySummary | null;
   applied: boolean;
   expiresAt: string | null;
@@ -90,6 +91,16 @@ export function fetchOpportunities(query = "") {
   return api.get<Opportunity[]>(path);
 }
 
-export function applyToOpportunity(id: string) {
-  return api.post<void>(`/v1/opportunities/${id}/apply`);
+export function fetchOpportunity(id: string) {
+  return api.get<Opportunity>(`/v1/opportunities/${id}`);
+}
+
+export function uploadCoverLetter(file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return api.postForm<{ id: string; originalFilename: string }>(`/v1/opportunities/cover-letter`, body);
+}
+
+export function applyToOpportunity(id: string, body?: { coverLetter?: string; coverLetterUploadId?: string }) {
+  return api.post<void>(`/v1/opportunities/${id}/apply`, body ?? {});
 }

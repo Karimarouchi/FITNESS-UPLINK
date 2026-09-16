@@ -14,6 +14,7 @@ public class StrongPasswordValidator implements ConstraintValidator<StrongPasswo
                 && value.length() <= 128
                 && value.chars().noneMatch(Character::isWhitespace)
                 && value.chars().anyMatch(Character::isUpperCase)
+                && value.chars().anyMatch(Character::isLowerCase)
                 && value.chars().anyMatch(Character::isDigit)
                 && value.chars().anyMatch(ch -> !Character.isLetterOrDigit(ch));
     }

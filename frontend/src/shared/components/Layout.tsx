@@ -28,8 +28,8 @@ export function Layout({ children }: LayoutProps) {
               <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/favorites">
                 Favoris
               </NavLink>
-              <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/pipeline">
-                Pipeline de recrutement
+              <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/applications">
+                Candidatures
               </NavLink>
               <NavLink className={({ isActive }) => (isActive ? "text-secondary font-semibold" : "text-on-surface-variant")} to="/job-offers">
                 Offres d’emploi

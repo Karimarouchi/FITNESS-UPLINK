@@ -7,13 +7,7 @@ import { VerificationBadge } from "@/shared/components/VerificationBadge";
 import { unfavoriteCandidate } from "@/features/talent/api";
 import { StartRecruitmentModal } from "../StartRecruitmentModal";
 import { PipelineStatusBadge } from "../PipelineStatusBadge";
-import {
-  fetchFavorites,
-  statusLabel,
-  updateRecruitmentStatus,
-  type FavoriteCard,
-  type Recruitment,
-} from "../api";
+import { fetchFavorites, type FavoriteCard, type Recruitment } from "../api";
 
 export function FavoritesPage() {
   const { user } = useAuth();
@@ -21,7 +15,6 @@ export function FavoritesPage() {
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [startFor, setStartFor] = useState<FavoriteCard | null>(null);
-  const [contactPrompt, setContactPrompt] = useState<FavoriteCard | null>(null);
 
   useEffect(() => {
     fetchFavorites()
@@ -37,13 +30,6 @@ export function FavoritesPage() {
     await unfavoriteCandidate(item.id);
     setItems((current) => current.filter((row) => row.id !== item.id));
     setFlash(`${item.displayName} a été retiré des favoris.`);
-  }
-
-  function contact(item: FavoriteCard) {
-    window.location.href = `mailto:${item.email}`;
-    if (item.inPipeline && item.pipelineStatus === "NEW") {
-      setContactPrompt(item);
-    }
   }
 
   function onStarted(entry: Recruitment) {
@@ -104,16 +90,13 @@ export function FavoritesPage() {
                   <Link className="ob-secondary" to={`/candidates/${item.id}`}>
                     Voir le profil
                   </Link>
-                  <button className="ob-secondary" type="button" onClick={() => contact(item)}>
-                    Contacter
-                  </button>
                   {item.inPipeline ? (
-                    <Link className="ob-primary" to="/pipeline">
-                      Voir le recrutement
+                    <Link className="ob-primary" to="/applications">
+                      {item.pipelineStatus === "APPLIED" ? "Voir la candidature" : "Voir le recrutement"}
                     </Link>
                   ) : (
                     <button className="ob-primary" type="button" onClick={() => setStartFor(item)}>
-                      Démarrer le recrutement
+                      Ajouter au pipeline
                     </button>
                   )}
                   <button className="ob-secondary" type="button" onClick={() => void remove(item)}>
@@ -132,39 +115,6 @@ export function FavoritesPage() {
           onClose={() => setStartFor(null)}
           onStarted={onStarted}
         />
-      ) : null}
-      {contactPrompt ? (
-        <div className="fu-backdrop" role="presentation" onClick={() => setContactPrompt(null)}>
-          <div className="fu-modal" role="dialog" onClick={(event) => event.stopPropagation()}>
-            <p>
-              {contactPrompt.displayName} est actuellement au statut Nouveau. Voulez-vous le passer à Contacté ?
-            </p>
-            <div className="ob-country-actions">
-              <button className="ob-secondary" type="button" onClick={() => setContactPrompt(null)}>
-                Non
-              </button>
-              <button
-                className="ob-primary"
-                type="button"
-                onClick={() => {
-                  if (contactPrompt.recruitmentId) {
-                    void updateRecruitmentStatus(contactPrompt.recruitmentId, "CONTACTED").then(() => {
-                      setItems((current) =>
-                        current.map((row) =>
-                          row.id === contactPrompt.id ? { ...row, pipelineStatus: "CONTACTED" } : row,
-                        ),
-                      );
-                      setFlash(`Statut de ${contactPrompt.displayName} mis à jour : ${statusLabel("CONTACTED")}.`);
-                    });
-                  }
-                  setContactPrompt(null);
-                }}
-              >
-                Passer à Contacté
-              </button>
-            </div>
-          </div>
-        </div>
       ) : null}
     </section>
   );

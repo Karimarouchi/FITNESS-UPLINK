@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
-import { initialsOf, isBusiness, isCandidate, isSuperAdmin, shortNameOf } from "@/features/auth/types";
+import { hasPermission, isSuperAdmin, isVerified, shortNameOf } from "@/features/auth/types";
+import { PERMS } from "@/features/auth/permissions";
 import { fetchNotifications } from "@/features/notifications/api";
+import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 
 export function AppTopbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const showUserSearch = location.pathname.startsWith("/users");
   const [query, setQuery] = useState("");
   const [unread, setUnread] = useState(false);
   const [open, setOpen] = useState(false);
@@ -56,38 +60,30 @@ export function AppTopbar() {
   function onSearch(event: FormEvent) {
     event.preventDefault();
     const q = query.trim();
-    if (isSuperAdmin(user)) {
-      navigate(q ? `/users?q=${encodeURIComponent(q)}` : "/users");
-      return;
-    }
-    if (isBusiness(user)) {
-      navigate(q ? `/candidates?q=${encodeURIComponent(q)}` : "/candidates");
-      return;
-    }
-    if (isCandidate(user)) {
-      navigate(q ? `/app/opportunities?q=${encodeURIComponent(q)}` : "/app/opportunities");
-    }
+    navigate(q ? `/users?q=${encodeURIComponent(q)}` : "/users");
   }
 
   return (
     <div className="topbar">
-      <form className="search" onSubmit={onSearch} role="search">
-        <span className="material-symbols-outlined search-icon" aria-hidden="true">
-          search
-        </span>
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={
-            isSuperAdmin(user)
-              ? "Rechercher un utilisateur…"
-              : isBusiness(user)
-                ? "Rechercher un talent…"
-                : "Rechercher une opportunité, un contrat…"
-          }
-          aria-label="Recherche"
-        />
-      </form>
+      {showUserSearch ? (
+        <form className="search" onSubmit={onSearch} role="search">
+          <span className="material-symbols-outlined search-icon" aria-hidden="true">
+            search
+          </span>
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={
+              isSuperAdmin(user) || hasPermission(user, PERMS.ADMIN_USERS)
+                ? "Rechercher un utilisateur…"
+                : "Rechercher…"
+            }
+            aria-label="Recherche"
+          />
+        </form>
+      ) : (
+        <div />
+      )}
       <div className="top-actions">
         <Link className={unread ? "bell unread" : "bell"} to="/notifications" aria-label="Notifications">
           <span className="material-symbols-outlined" aria-hidden="true">
@@ -97,13 +93,18 @@ export function AppTopbar() {
         <div className="account-menu" ref={menuRef}>
           <button
             type="button"
-            className="sb-avatar sm"
+            className="app-navbar-avatar"
             aria-haspopup="menu"
             aria-expanded={open}
             aria-label="Menu du compte"
             onClick={() => setOpen((value) => !value)}
           >
-            {initialsOf(displayName)}
+            <span className="app-avatar-wrap">
+              <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={40} />
+              {isVerified(user) ? (
+                <span className="avatar-verified material-symbols-outlined">verified</span>
+              ) : null}
+            </span>
           </button>
           {open ? (
             <div className="account-dropdown" role="menu">

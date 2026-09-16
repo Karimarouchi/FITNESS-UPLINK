@@ -43,6 +43,21 @@ public class TalentPipeline {
     @Column(name = "internal_note", columnDefinition = "TEXT")
     private String internalNote;
 
+    @Column(name = "cover_letter_text", columnDefinition = "TEXT")
+    private String coverLetterText;
+
+    @Column(name = "cover_letter_upload_id")
+    private UUID coverLetterUploadId;
+
+    @Column(name = "interview_at")
+    private Instant interviewAt;
+
+    @Column(name = "interview_mode", length = 16)
+    private String interviewMode;
+
+    @Column(name = "interview_place", length = 400)
+    private String interviewPlace;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

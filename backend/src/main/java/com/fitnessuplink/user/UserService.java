@@ -1,5 +1,9 @@
 package com.fitnessuplink.user;
 
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.audit.AuditAction;
+import com.fitnessuplink.audit.AuditLogService;
+import com.fitnessuplink.auth.token.RefreshTokenRepository;
 import com.fitnessuplink.catalog.AppRole;
 import com.fitnessuplink.catalog.Country;
 import com.fitnessuplink.catalog.ProfileField;
@@ -9,6 +13,7 @@ import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.common.exception.ResourceNotFoundException;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
+import com.fitnessuplink.user.dto.BulkUserActionResponse;
 import com.fitnessuplink.user.dto.CountrySummary;
 import com.fitnessuplink.user.dto.OnboardingStep;
 import com.fitnessuplink.user.dto.RoleSummary;
@@ -36,6 +41,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
     private final RoleProfileFieldRepository roleProfileFieldRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final PermissionService permissionService;
+    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAll() {
@@ -81,6 +89,65 @@ public class UserService {
         return toResponse(userRepository.save(user));
     }
 
+    @Transactional
+    public UserResponse setEnabled(UUID actorId, UUID targetId, boolean enabled) {
+        User target = requireManageableUser(actorId, targetId);
+        target.setEnabled(enabled);
+        if (!enabled) {
+            target.setLockedUntil(null);
+            refreshTokenRepository.revokeAllActiveByUserId(target.getId());
+        }
+        UserResponse response = toResponse(userRepository.save(target));
+        auditLogService.recordForUser(actorId, targetId, enabled ? AuditAction.ACCOUNT_UNBLOCKED : AuditAction.ACCOUNT_BLOCKED);
+        return response;
+    }
+
+    @Transactional
+    public void deleteUser(UUID actorId, UUID targetId) {
+        User target = requireManageableUser(actorId, targetId);
+        refreshTokenRepository.revokeAllActiveByUserId(target.getId());
+        auditLogService.recordForUser(actorId, targetId, AuditAction.ACCOUNT_DELETED);
+        userRepository.delete(target);
+    }
+
+    @Transactional
+    public BulkUserActionResponse bulkAction(UUID actorId, List<UUID> ids, String action) {
+        String normalized = action == null ? "" : action.trim().toUpperCase();
+        if (!Set.of("BLOCK", "UNBLOCK", "DELETE").contains(normalized)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid user action");
+        }
+        int processed = 0;
+        int skipped = 0;
+        for (UUID id : ids.stream().distinct().toList()) {
+            try {
+                if ("DELETE".equals(normalized)) {
+                    deleteUser(actorId, id);
+                } else {
+                    setEnabled(actorId, id, "UNBLOCK".equals(normalized));
+                }
+                processed++;
+            } catch (ApiException ex) {
+                skipped++;
+            }
+        }
+        if (processed == 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "No eligible users for this action");
+        }
+        return new BulkUserActionResponse(processed, skipped);
+    }
+
+    private User requireManageableUser(UUID actorId, UUID targetId) {
+        if (actorId.equals(targetId)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cannot manage your own account");
+        }
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if (target.isSuperAdmin()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cannot manage a super admin account");
+        }
+        return target;
+    }
+
     private boolean matchesGroup(User user, String group) {
         if (group == null || group.isBlank() || "all".equals(group)) {
             return user.isCandidate() || user.isBusiness();
@@ -110,7 +177,16 @@ public class UserService {
                 resolveStep(user, values),
                 user.getCreatedAt(),
                 avatarUploadId(values),
-                user.getVerificationStatus() == null ? "pending" : user.getVerificationStatus()
+                user.getVerificationStatus() == null ? "pending" : user.getVerificationStatus(),
+                user.isEnabled(),
+                permissionService.codesFor(user),
+                user.getProfessionalIntent(),
+                user.isProfileVisible(),
+                user.isEmailVerified(),
+                user.getSelectedPlan(),
+                user.getSelectedPlanInterval(),
+                user.getPendingPlan(),
+                user.getPendingPlanInterval()
         );
     }
 
@@ -129,11 +205,20 @@ public class UserService {
         if (role == null) {
             return OnboardingStep.ROLE;
         }
+        if (needsIntent(role) && isBlank(user.getProfessionalIntent())) {
+            return OnboardingStep.INTENT;
+        }
         if (user.getCountry() == null) {
             return OnboardingStep.COUNTRY;
         }
         if (!requiredProfileComplete(role.getId(), values)) {
             return OnboardingStep.PROFILE;
+        }
+        if (!user.hasSelectedPlan()) {
+            return OnboardingStep.PLAN;
+        }
+        if (user.hasSelectedPlan() && !user.isOnboardingCompleted()) {
+            return OnboardingStep.PAYMENT;
         }
         if (user.isOnboardingCompleted()) {
             return OnboardingStep.DONE;
@@ -171,6 +256,34 @@ public class UserService {
             }
         }
         return true;
+    }
+
+    public boolean isProfileVisibleComplete(User user) {
+        if (user.getAppRole() == null) {
+            return false;
+        }
+        List<UserProfileValue> values = userProfileValueRepository.findByUserId(user.getId());
+        Map<String, String> byKey = values.stream()
+                .filter(item -> item.getValue() != null)
+                .collect(Collectors.toMap(UserProfileValue::getFieldKey, UserProfileValue::getValue, (left, right) -> left));
+        for (RoleProfileField mapping : roleProfileFieldRepository.findByRole_IdOrderBySortOrderAsc(user.getAppRole().getId())) {
+            if (!mapping.isVisibilityRequired()) {
+                continue;
+            }
+            ProfileField field = mapping.getField();
+            if (isMissing(field.getFieldType(), byKey.get(field.getFieldKey()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean needsIntent(AppRole role) {
+        return role != null && "CANDIDATE".equals(role.getCode());
+    }
+
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     public static boolean isMissing(String fieldType, String value) {

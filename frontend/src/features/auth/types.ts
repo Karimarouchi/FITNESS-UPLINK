@@ -1,4 +1,4 @@
-export type OnboardingStep = "ROLE" | "COUNTRY" | "PROFILE" | "DONE";
+export type OnboardingStep = "ROLE" | "INTENT" | "COUNTRY" | "PROFILE" | "PLAN" | "PAYMENT" | "DONE";
 
 export type RoleSummary = {
   id: string;
@@ -30,6 +30,15 @@ export type AuthUser = {
   createdAt: string;
   avatarUploadId: string | null;
   verificationStatus: "pending" | "verified" | "rejected";
+  enabled?: boolean;
+  permissions?: string[];
+  professionalIntent?: string | null;
+  profileVisible?: boolean;
+  emailVerified?: boolean;
+  selectedPlan?: string | null;
+  selectedPlanInterval?: string | null;
+  pendingPlan?: string | null;
+  pendingPlanInterval?: string | null;
 };
 
 export type AuthResponse = {
@@ -67,6 +76,7 @@ export type ProfileField = {
   sectionIcon: string;
   helpText: string | null;
   accept: string | null;
+  visibilityRequired: boolean;
 };
 
 export type UploadMeta = {
@@ -91,6 +101,28 @@ export function isCandidate(user: AuthUser | null | undefined) {
 
 export function isMember(user: AuthUser | null | undefined) {
   return user?.role?.code === "MEMBER";
+}
+
+export function isBackOfficeUser(user: AuthUser | null | undefined) {
+  return (
+    isSuperAdmin(user) ||
+    hasPermission(user, "admin.users") ||
+    hasPermission(user, "admin.roles")
+  );
+}
+
+export function hasPermission(user: AuthUser | null | undefined, code: string) {
+  if (!user) {
+    return false;
+  }
+  if (isSuperAdmin(user)) {
+    return true;
+  }
+  return Boolean(user.permissions?.includes(code));
+}
+
+export function hasAnyPermission(user: AuthUser | null | undefined, codes: string[]) {
+  return codes.some((code) => hasPermission(user, code));
 }
 
 export function isVerified(user: AuthUser | null | undefined) {
@@ -127,14 +159,29 @@ export function verificationLabel(user: AuthUser | null | undefined) {
 }
 
 export function destinationFor(user: AuthUser) {
+  if (!user.emailVerified) {
+    return "/verify-email";
+  }
   switch (user.onboardingStep) {
     case "ROLE":
       return "/onboarding/role";
+    case "INTENT":
+      return "/onboarding/intent";
     case "COUNTRY":
       return "/onboarding/country";
     case "PROFILE":
       return "/onboarding/profile";
+    case "PLAN":
+      return "/onboarding/plans";
+    case "PAYMENT":
+      return "/onboarding/payment";
     default:
       return "/app/dashboard";
   }
+}
+
+export function safeRedirectTarget(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (!path.startsWith("/") || path.startsWith("//")) return null;
+  return path;
 }

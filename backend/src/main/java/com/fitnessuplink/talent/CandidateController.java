@@ -2,7 +2,8 @@ package com.fitnessuplink.talent;
 
 import com.fitnessuplink.auth.security.UserPrincipal;
 import com.fitnessuplink.onboarding.UploadService;
-import com.fitnessuplink.talent.dto.CandidateCardResponse;
+import com.fitnessuplink.talent.dto.CandidatePageDto;
+import com.fitnessuplink.talent.dto.CandidateSearchQuery;
 import com.fitnessuplink.talent.dto.CandidateDetailResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,11 +31,42 @@ public class CandidateController {
     private final CandidateService candidateService;
 
     @GetMapping
-    public List<CandidateCardResponse> list(
+    public CandidatePageDto list(
             @AuthenticationPrincipal UserPrincipal principal,
-            @RequestParam(required = false) String q
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) UUID countryId,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String specialty,
+            @RequestParam(required = false) String availability,
+            @RequestParam(required = false) String contractType,
+            @RequestParam(required = false) String language,
+            @RequestParam(required = false) Boolean relocate,
+            @RequestParam(required = false) Boolean hasDiploma,
+            @RequestParam(required = false) Boolean hasCertification,
+            @RequestParam(defaultValue = "date") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
     ) {
-        return candidateService.list(principal.getUser(), q);
+        return candidateService.list(
+                principal.getUser(),
+                CandidateSearchQuery.of(
+                        q,
+                        countryId,
+                        city,
+                        title,
+                        specialty,
+                        availability,
+                        contractType,
+                        language,
+                        relocate,
+                        hasDiploma,
+                        hasCertification,
+                        sort,
+                        page,
+                        size
+                )
+        );
     }
 
     @GetMapping("/{id}")
@@ -72,6 +103,7 @@ public class CandidateController {
     ) {
         UploadService.LoadedUpload loaded = candidateService.file(principal.getUser(), id, uploadId);
         return ResponseEntity.ok()
+                .header("X-Robots-Tag", "noindex, nofollow")
                 .contentType(MediaType.parseMediaType(loaded.upload().getContentType()))
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,

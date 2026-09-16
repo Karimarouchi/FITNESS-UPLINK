@@ -1,16 +1,20 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isSuperAdmin, isVerified, verificationLabel, type AuthUser } from "@/features/auth/types";
+import { useBilling } from "@/features/billing/useBilling";
 import type { CountrySummary, ProfileField } from "@/features/auth/types";
+import { fetchUploadBlob } from "@/features/onboarding/api";
 import {
   formatBytes,
   groupProfileSections,
   useOwnProfile,
   viewProfileField,
 } from "@/features/me/ownProfile";
+import type { FileRef } from "@/features/talent/api";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 
 const EDIT_TO = "/app/profile/edit";
@@ -74,6 +78,8 @@ export function ProfilePage() {
         </div>
       </Panel>
 
+      {user && !isSuperAdmin(user) ? <OfferPanel /> : null}
+
       {sections.map((section) => (
         <Panel key={section.key} title={section.label} actionLabel={isSuperAdmin(user) ? undefined : "Modifier"} actionTo={isSuperAdmin(user) ? undefined : EDIT_TO}>
           <div className="info-grid">
@@ -84,6 +90,23 @@ export function ProfilePage() {
         </Panel>
       ))}
     </section>
+  );
+}
+
+function OfferPanel() {
+  const billing = useBilling();
+  const sub = billing?.subscription;
+  return (
+    <Panel title="Offre" actionLabel="Gérer" actionTo="/app/billing">
+      <div className="info-grid">
+        <InfoCell label="Offre actuelle" value={sub?.planName ?? "Aucune offre"} />
+        <InfoCell label="Statut" value={sub?.status ?? "—"} />
+        <InfoCell
+          label="Devise"
+          value={sub ? `${sub.currency} · ${sub.interval === "YEARLY" ? "Annuel" : "Mensuel"}` : "—"}
+        />
+      </div>
+    </Panel>
   );
 }
 
@@ -111,17 +134,25 @@ function FieldCell({
     );
   }
   if (view.kind === "files") {
+    const videos = view.files.filter((file) => file.contentType?.startsWith("video/"));
+    const documents = view.files.filter((file) => !file.contentType?.startsWith("video/"));
     return (
       <div className="info-cell span-3">
         <div className="k">{field.label}</div>
-        <ul className="profile-files">
-          {view.files.map((file) => (
-            <li key={file.id}>
-              {file.name}
-              {file.size ? ` · ${formatBytes(file.size)}` : ""}
-            </li>
-          ))}
-        </ul>
+        {videos.length > 0 ? (
+          <div className="video-grid">
+            {videos.map((file) => (
+              <ProfileVideoCard key={file.id} file={file} />
+            ))}
+          </div>
+        ) : null}
+        {documents.length > 0 ? (
+          <ul className="profile-files">
+            {documents.map((file) => (
+              <ProfileFileRow key={file.id} file={file} />
+            ))}
+          </ul>
+        ) : null}
       </div>
     );
   }
@@ -161,6 +192,55 @@ function InfoCell({ label, value, wide }: { label: string; value?: string | null
     <div className={`info-cell${wide ? " span-3" : ""}`}>
       <div className="k">{label}</div>
       <div className="v">{value || "—"}</div>
+    </div>
+  );
+}
+
+function ProfileFileRow({ file }: { file: FileRef }) {
+  async function open() {
+    const blob = await fetchUploadBlob(file.id);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener");
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  return (
+    <li>
+      <button className="btn-mini" type="button" onClick={() => void open()}>
+        {file.name}
+        {file.size ? ` · ${formatBytes(file.size)}` : ""}
+      </button>
+    </li>
+  );
+}
+
+function ProfileVideoCard({ file }: { file: FileRef }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let url: string | null = null;
+    let cancelled = false;
+    fetchUploadBlob(file.id)
+      .then((blob) => {
+        if (cancelled) {
+          return;
+        }
+        url = URL.createObjectURL(blob);
+        setSrc(url);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [file.id]);
+
+  return (
+    <div className="video-card">
+      {src ? <video src={src} controls preload="metadata" /> : <div className="play">▶</div>}
+      <div className="cap">{file.name}</div>
     </div>
   );
 }

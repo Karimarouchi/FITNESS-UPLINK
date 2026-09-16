@@ -15,6 +15,10 @@ export function selectRole(roleId: string) {
   return api.post<AuthUser>("/v1/onboarding/role", { roleId });
 }
 
+export function selectIntent(intent: string) {
+  return api.post<AuthUser>("/v1/onboarding/intent", { intent });
+}
+
 export function selectCountry(countryId: string) {
   return api.post<AuthUser>("/v1/onboarding/country", { countryId });
 }
@@ -25,6 +29,14 @@ export function fetchProfileFields() {
 
 export function completeProfile(values: Record<string, string>) {
   return api.post<AuthUser>("/v1/onboarding/profile", { values });
+}
+
+export function selectPlan(plan: string, interval: "MONTHLY" | "YEARLY") {
+  return api.post<AuthUser>("/v1/onboarding/plan", { plan, interval });
+}
+
+export function confirmPayment() {
+  return api.post<AuthUser>("/v1/onboarding/payment");
 }
 
 export function parseCv(uploadId: string) {

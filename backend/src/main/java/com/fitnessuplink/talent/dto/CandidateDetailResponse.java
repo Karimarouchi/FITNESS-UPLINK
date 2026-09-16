@@ -29,7 +29,7 @@ public record CandidateDetailResponse(
         String email,
         String phone,
         FileRef cv,
-        List<FileRef> videos,
+        List<String> videos,
         boolean canViewMedia
 ) {
 }

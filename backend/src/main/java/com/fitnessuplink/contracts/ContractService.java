@@ -1,6 +1,8 @@
 package com.fitnessuplink.contracts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.contracts.dto.ContractDto;
 import com.fitnessuplink.contracts.dto.ContractHistoryDto;
@@ -15,9 +17,9 @@ import com.fitnessuplink.contracts.signature.SignatureProviderException;
 import com.fitnessuplink.contracts.signature.SignatureRequest;
 import com.fitnessuplink.contracts.signature.SignatureSendResult;
 import com.fitnessuplink.jobs.JobOfferRepository;
-import com.fitnessuplink.jobs.JobOfferService;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
 import com.fitnessuplink.notifications.NotificationService;
+import com.fitnessuplink.notifications.NotifyCategory;
 import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
@@ -61,10 +63,13 @@ public class ContractService {
     private final NotificationService notificationService;
     private final ElectronicSignatureProvider signatureProvider;
     private final ObjectMapper objectMapper;
+    private final PermissionService permissionService;
+    private final com.fitnessuplink.billing.EntitlementService entitlementService;
 
     @Transactional
     public ContractDto create(User employer, CreateContractRequest request) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_CONTRACTS_EMPLOYER);
+        entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.CONTRACTS);
         TalentPipeline recruitment = requireOwnedRecruitment(employer.getId(), request.recruitmentId());
         if (recruitment.getStatus() != PipelineStatus.NEGOTIATION) {
             throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
@@ -122,7 +127,7 @@ public class ContractService {
 
     @Transactional
     public ContractDto upload(User employer, UUID id, MultipartFile file) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_CONTRACTS_EMPLOYER);
         Contract contract = requireEmployerDraft(employer.getId(), id);
         if (contract.getSource() != ContractSource.IMPORT) {
             throw new ApiException(HttpStatus.CONFLICT, "INVALID_CONTRACT_STATUS");
@@ -136,7 +141,7 @@ public class ContractService {
 
     @Transactional
     public ContractDto send(User employer, UUID id) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_CONTRACTS_EMPLOYER);
         Contract contract = requireEmployerDraft(employer.getId(), id);
         if (contract.getOriginalUploadId() == null) {
             throw new ApiException(HttpStatus.CONFLICT, "CONTRACT_REQUIRED");
@@ -175,6 +180,7 @@ public class ContractService {
         String position = positionOf(contract);
         notificationService.notify(
                 contract.getCandidateId(),
+                NotifyCategory.CONTRACT,
                 "Nouveau contrat à signer",
                 company + " vous a envoyé un contrat pour le poste " + position + ".",
                 "Consulter le contrat",
@@ -217,7 +223,7 @@ public class ContractService {
 
     @Transactional
     public ContractDto cancel(User employer, UUID id) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_CONTRACTS_EMPLOYER);
         Contract contract = contractRepository.findByIdAndEmployerId(id, employer.getId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND"));
         if (contract.getStatus() == ContractStatus.COMPLETED) {
@@ -241,9 +247,9 @@ public class ContractService {
     @Transactional(readOnly = true)
     public List<ContractDto> list(User user) {
         List<Contract> rows;
-        if (user.isBusiness() && user.isOnboardingCompleted()) {
+        if (permissionService.has(user, Permissions.HIRE_CONTRACTS_EMPLOYER) && user.isOnboardingCompleted()) {
             rows = contractRepository.findByEmployerIdOrderByUpdatedAtDesc(user.getId());
-        } else if (user.isCandidate()) {
+        } else if (permissionService.has(user, Permissions.HIRE_CONTRACTS_CANDIDATE) && user.isOnboardingCompleted()) {
             rows = contractRepository.findByCandidateIdOrderByUpdatedAtDesc(user.getId());
         } else {
             throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
@@ -344,6 +350,7 @@ public class ContractService {
             history(contract, "CANDIDATE_SIGNED", actor.getId(), "CANDIDATE", previous, result.status(), null);
             notificationService.notify(
                     contract.getEmployerId(),
+                    NotifyCategory.CONTRACT,
                     "Contrat signé par le candidat",
                     actor.getDisplayName() + " a signé son contrat.",
                     "Voir le contrat",
@@ -356,6 +363,7 @@ public class ContractService {
             history(contract, "EMPLOYER_SIGNED", actor.getId(), "EMPLOYER", previous, result.status(), null);
             notificationService.notify(
                     contract.getCandidateId(),
+                    NotifyCategory.CONTRACT,
                     "Contrat signé par l’employeur",
                     employerName(actor) + " a signé le contrat.",
                     "Consulter le contrat",
@@ -413,6 +421,7 @@ public class ContractService {
         history(contract, "COMPLETED", null, "SYSTEM", previous, ContractStatus.COMPLETED, externalId);
         notificationService.notify(
                 contract.getCandidateId(),
+                NotifyCategory.CONTRACT,
                 "Contrat finalisé",
                 "Le contrat a été signé par les deux parties.",
                 "Télécharger le PDF",
@@ -420,6 +429,7 @@ public class ContractService {
         );
         notificationService.notify(
                 contract.getEmployerId(),
+                NotifyCategory.CONTRACT,
                 "Contrat finalisé",
                 "Le contrat a été signé par les deux parties.",
                 "Marquer comme recruté",
@@ -516,11 +526,11 @@ public class ContractService {
             return contractRepository.findById(id)
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND"));
         }
-        if (user.isBusiness()) {
+        if (permissionService.has(user, Permissions.HIRE_CONTRACTS_EMPLOYER)) {
             return contractRepository.findByIdAndEmployerId(id, user.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND"));
         }
-        if (user.isCandidate()) {
+        if (permissionService.has(user, Permissions.HIRE_CONTRACTS_CANDIDATE)) {
             return contractRepository.findByIdAndCandidateId(id, user.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND"));
         }

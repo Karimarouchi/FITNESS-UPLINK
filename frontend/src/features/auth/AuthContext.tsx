@@ -14,6 +14,7 @@ type AuthContextValue = {
     password: string;
     confirmPassword: string;
     acceptedTerms: boolean;
+    recaptchaToken?: string;
   }) => Promise<AuthUser>;
   logout: () => Promise<void>;
   updateUser: (user: AuthUser) => void;

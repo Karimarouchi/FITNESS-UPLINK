@@ -68,7 +68,7 @@ public class Contract {
     @Column(name = "external_signature_request_id", length = 120)
     private String externalSignatureRequestId;
 
-    @Column(name = "created_by", nullable = false)
+    @Column(name = "created_by")
     private UUID createdBy;
 
     @Column(name = "created_at", nullable = false)

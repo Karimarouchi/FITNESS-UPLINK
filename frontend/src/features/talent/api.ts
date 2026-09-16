@@ -58,7 +58,7 @@ export type CandidateDetail = CandidateCard & {
   email: string;
   phone: string | null;
   cv: FileRef | null;
-  videos: FileRef[];
+  videos: string[];
   canViewMedia: boolean;
 };
 
@@ -67,10 +67,48 @@ export function candidateLocation(item: { city: string | null; country: CountryS
   return parts.join(" · ");
 }
 
-export function fetchCandidates(query = "") {
-  const q = query.trim();
-  const path = q ? `/v1/candidates?q=${encodeURIComponent(q)}` : "/v1/candidates";
-  return api.get<CandidateCard[]>(path);
+export type CandidatePage = {
+  items: CandidateCard[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export type CandidateSearchParams = {
+  q?: string;
+  countryId?: string;
+  city?: string;
+  title?: string;
+  specialty?: string;
+  availability?: string;
+  contractType?: string;
+  language?: string;
+  relocate?: boolean;
+  hasDiploma?: boolean;
+  hasCertification?: boolean;
+  sort?: "date" | "relevance" | "experience";
+  page?: number;
+  size?: number;
+};
+
+export function fetchCandidates(params: CandidateSearchParams | string = {}) {
+  const filters: CandidateSearchParams = typeof params === "string" ? { q: params } : params;
+  const query = new URLSearchParams();
+  if (filters.q?.trim()) query.set("q", filters.q.trim());
+  if (filters.countryId) query.set("countryId", filters.countryId);
+  if (filters.city?.trim()) query.set("city", filters.city.trim());
+  if (filters.title?.trim()) query.set("title", filters.title.trim());
+  if (filters.specialty) query.set("specialty", filters.specialty);
+  if (filters.availability) query.set("availability", filters.availability);
+  if (filters.contractType) query.set("contractType", filters.contractType);
+  if (filters.language?.trim()) query.set("language", filters.language.trim());
+  if (filters.relocate) query.set("relocate", "true");
+  if (filters.hasDiploma) query.set("hasDiploma", "true");
+  if (filters.hasCertification) query.set("hasCertification", "true");
+  query.set("sort", filters.sort ?? "date");
+  query.set("page", String(filters.page ?? 0));
+  query.set("size", String(filters.size ?? 12));
+  return api.get<CandidatePage>(`/v1/candidates?${query.toString()}`);
 }
 
 export function fetchCandidate(id: string) {

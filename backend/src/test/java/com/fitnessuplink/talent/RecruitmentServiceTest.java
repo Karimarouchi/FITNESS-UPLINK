@@ -1,5 +1,7 @@
 package com.fitnessuplink.talent;
 
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.catalog.AppRole;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.contracts.ContractRepository;
@@ -9,6 +11,7 @@ import com.fitnessuplink.jobs.JobOfferService;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
 import com.fitnessuplink.talent.dto.CreateRecruitmentRequest;
+import com.fitnessuplink.notifications.NotifyCategory;
 import com.fitnessuplink.talent.dto.RecruitmentDto;
 import com.fitnessuplink.user.User;
 import com.fitnessuplink.user.UserRepository;
@@ -35,6 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +60,22 @@ class RecruitmentServiceTest {
     private UserProfileValueRepository userProfileValueRepository;
     @Mock
     private ContractRepository contractRepository;
+    @Mock
+    private PermissionService permissionService;
+    @Mock
+    private com.fitnessuplink.onboarding.UploadService uploadService;
+    @Mock
+    private com.fitnessuplink.talent.RecruitmentMessageRepository recruitmentMessageRepository;
+    @Mock
+    private com.fitnessuplink.notifications.NotificationService notificationService;
+    @Mock
+    private com.fitnessuplink.auth.mail.HireMailService hireMailService;
+    @Mock
+    private HireReportRepository hireReportRepository;
+    @Mock
+    private HireAbuseGuard hireAbuseGuard;
+    @Mock
+    private com.fitnessuplink.billing.EntitlementService entitlementService;
 
     @InjectMocks
     private RecruitmentService recruitmentService;
@@ -76,6 +98,34 @@ class RecruitmentServiceTest {
         candidate = user(candidateId, "CANDIDATE", "TALENT", true);
         otherEmployer = user(UUID.randomUUID(), "EMPLOYER", "BUSINESS", true);
         fitnessPro = user(UUID.randomUUID(), "CANDIDATE", "TALENT", true);
+        lenient().when(permissionService.has(any(User.class), anyString())).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            String code = invocation.getArgument(1);
+            if (user == null || code == null) {
+                return false;
+            }
+            if (user.isCandidate()) {
+                return code.equals(Permissions.HIRE_APPLICATIONS_VIEW)
+                        || code.equals(Permissions.HIRE_JOBS_APPLY)
+                        || code.equals(Permissions.HIRE_CONTRACTS_CANDIDATE);
+            }
+            if (user.isBusiness()) {
+                return code.equals(Permissions.HIRE_PIPELINE)
+                        || code.equals(Permissions.HIRE_JOBS_MANAGE)
+                        || code.equals(Permissions.HIRE_CANDIDATES_SEARCH)
+                        || code.equals(Permissions.HIRE_FAVORITES)
+                        || code.equals(Permissions.HIRE_CONTRACTS_EMPLOYER);
+            }
+            return false;
+        });
+        lenient().doAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            String code = invocation.getArgument(1);
+            if (user == null || !user.isOnboardingCompleted() || !permissionService.has(user, code)) {
+                throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+            }
+            return null;
+        }).when(permissionService).require(any(User.class), anyString());
         offer = JobOffer.builder()
                 .id(offerId)
                 .employerId(employerId)
@@ -193,6 +243,14 @@ class RecruitmentServiceTest {
 
         assertEquals(PipelineStatus.CONTACTED, dto.status());
         assertEquals(PipelineStatus.CONTACTED, entry.getStatus());
+        verify(notificationService).notify(
+                eq(candidateId),
+                eq(NotifyCategory.CONTACT),
+                eq("Vous êtes contacté"),
+                anyString(),
+                eq("Ouvrir"),
+                eq("/app/applications")
+        );
     }
 
     @Test
@@ -290,11 +348,52 @@ class RecruitmentServiceTest {
         when(jobOfferService.toSummary(offer)).thenReturn(new JobOfferSummaryDto(offerId, offer.getTitle(), offer.getPosition(), offer.getLocation()));
         when(talentPipelineRepository.saveAndFlush(any(TalentPipeline.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        RecruitmentDto dto = recruitmentService.apply(candidate, offerId);
+        RecruitmentDto dto = recruitmentService.apply(candidate, offerId, null);
 
-        assertEquals(PipelineStatus.NEW, dto.status());
+        assertEquals(PipelineStatus.APPLIED, dto.status());
         assertNull(dto.internalNote());
         assertEquals(offerId, dto.jobOffer().id());
+        ArgumentCaptor<TalentPipeline> captor = ArgumentCaptor.forClass(TalentPipeline.class);
+        verify(talentPipelineRepository).saveAndFlush(captor.capture());
+        assertEquals(PipelineStatus.APPLIED, captor.getValue().getStatus());
+    }
+
+    @Test
+    void employerCanAcceptAppliedIntoPipeline() {
+        TalentPipeline entry = entry(PipelineStatus.APPLIED, offerId);
+        when(talentPipelineRepository.findByIdAndEmployerId(entry.getId(), employerId)).thenReturn(Optional.of(entry));
+        when(talentPipelineRepository.save(entry)).thenReturn(entry);
+        when(userRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
+        when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
+        when(jobOfferRepository.findById(offerId)).thenReturn(Optional.of(offer));
+        when(jobOfferService.toSummary(offer)).thenReturn(new JobOfferSummaryDto(offerId, offer.getTitle(), offer.getPosition(), offer.getLocation()));
+
+        RecruitmentDto dto = recruitmentService.updateStatus(employer, entry.getId(), PipelineStatus.CONTACTED);
+
+        assertEquals(PipelineStatus.CONTACTED, dto.status());
+        verify(notificationService).notify(
+                eq(candidateId),
+                eq(NotifyCategory.CONTACT),
+                eq("Vous êtes contacté"),
+                anyString(),
+                eq("Ouvrir"),
+                eq("/app/applications")
+        );
+    }
+
+    @Test
+    void employerCanRejectAppliedFromInbox() {
+        TalentPipeline entry = entry(PipelineStatus.APPLIED, offerId);
+        when(talentPipelineRepository.findByIdAndEmployerId(entry.getId(), employerId)).thenReturn(Optional.of(entry));
+        when(talentPipelineRepository.save(entry)).thenReturn(entry);
+        when(userRepository.findById(candidateId)).thenReturn(Optional.of(candidate));
+        when(userProfileValueRepository.findByUserIdIn(anyCollection())).thenReturn(List.of());
+        when(jobOfferRepository.findById(offerId)).thenReturn(Optional.of(offer));
+        when(jobOfferService.toSummary(offer)).thenReturn(new JobOfferSummaryDto(offerId, offer.getTitle(), offer.getPosition(), offer.getLocation()));
+
+        RecruitmentDto dto = recruitmentService.updateStatus(employer, entry.getId(), PipelineStatus.REJECTED);
+
+        assertEquals(PipelineStatus.REJECTED, dto.status());
     }
 
     @Test

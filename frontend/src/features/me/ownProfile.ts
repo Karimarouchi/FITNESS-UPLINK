@@ -30,7 +30,7 @@ export type OwnProfile = {
   cv: FileRef | null;
   diplomas: FileRef[];
   certifications: FileRef[];
-  videos: FileRef[];
+  videos: string[];
   logoUploadId: string | null;
   orgType: string | null;
 };
@@ -257,7 +257,7 @@ export function parseOwnProfile(values: Record<string, string>, fields: ProfileF
     cv: files(values.cv)[0] ?? null,
     diplomas: files(values.diplomas),
     certifications: files(values.certifications),
-    videos: files(values.presentation_videos),
+    videos: stringList(values.presentation_videos),
     logoUploadId: files(values.organization_logo)[0]?.id ?? files(values.professional_photo)[0]?.id ?? null,
     orgType: establishment ? optionLabel(fields, "establishment_type", establishment) : null,
   };

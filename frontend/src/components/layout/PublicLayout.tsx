@@ -6,7 +6,9 @@ export function PublicLayout() {
   return (
     <div className="fu-public" lang="fr">
       <PublicNavbar />
-      <Outlet />
+      <main className="fu-public-main">
+        <Outlet />
+      </main>
       <PublicFooter />
     </div>
   );

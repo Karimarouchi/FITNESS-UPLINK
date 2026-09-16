@@ -1,0 +1,30 @@
+UPDATE profile_fields
+SET field_type = 'MULTISELECT',
+    placeholder = NULL,
+    options_json = '[
+        {"value":"tunis","label":"Tunis"},
+        {"value":"ariana","label":"Ariana"},
+        {"value":"ben_arous","label":"Ben Arous"},
+        {"value":"manouba","label":"Manouba"},
+        {"value":"nabeul","label":"Nabeul"},
+        {"value":"zaghouan","label":"Zaghouan"},
+        {"value":"bizerte","label":"Bizerte"},
+        {"value":"beja","label":"Béja"},
+        {"value":"jendouba","label":"Jendouba"},
+        {"value":"kef","label":"Le Kef"},
+        {"value":"siliana","label":"Siliana"},
+        {"value":"sousse","label":"Sousse"},
+        {"value":"monastir","label":"Monastir"},
+        {"value":"mahdia","label":"Mahdia"},
+        {"value":"sfax","label":"Sfax"},
+        {"value":"kairouan","label":"Kairouan"},
+        {"value":"kasserine","label":"Kasserine"},
+        {"value":"sidi_bouzid","label":"Sidi Bouzid"},
+        {"value":"gabes","label":"Gabès"},
+        {"value":"medenine","label":"Médenine"},
+        {"value":"tataouine","label":"Tataouine"},
+        {"value":"gafsa","label":"Gafsa"},
+        {"value":"tozeur","label":"Tozeur"},
+        {"value":"kebili","label":"Kébili"}
+    ]'
+WHERE field_key = 'preferred_zones';

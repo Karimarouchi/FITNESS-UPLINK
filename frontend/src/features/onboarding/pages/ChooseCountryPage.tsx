@@ -4,9 +4,12 @@ import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import type { CountrySummary } from "@/features/auth/types";
 import { fetchCountries, selectCountry } from "../api";
+import { OnboardingBrand } from "../OnboardingFrame";
+import { LocaleSwitch, useOnboardingLocale } from "../LocaleContext";
 
 export function ChooseCountryPage() {
   const { user, updateUser } = useAuth();
+  const { t } = useOnboardingLocale();
   const navigate = useNavigate();
   const [countries, setCountries] = useState<CountrySummary[]>([]);
   const [query, setQuery] = useState("");
@@ -14,6 +17,8 @@ export function ChooseCountryPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const longFlow = user?.role?.code === "CANDIDATE";
+  const memberFlow = user?.role?.code === "MEMBER";
 
   useEffect(() => {
     let cancelled = false;
@@ -25,7 +30,7 @@ export function ChooseCountryPage() {
       })
       .catch(() => {
         if (!cancelled) {
-          setError("Unable to load countries.");
+          setError(t.countryError);
         }
       })
       .finally(() => {
@@ -36,7 +41,7 @@ export function ChooseCountryPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t.countryError]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -50,7 +55,7 @@ export function ChooseCountryPage() {
 
   async function onContinue() {
     if (!selectedId) {
-      setError("Select the country you are based in.");
+      setError(t.countryError);
       return;
     }
     setError(null);
@@ -60,39 +65,33 @@ export function ChooseCountryPage() {
       updateUser(next);
       navigate("/onboarding/profile", { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Unable to save your country");
+      setError(err instanceof ApiError ? err.message : t.roleSaveError);
     } finally {
       setSubmitting(false);
     }
   }
 
+  const backTo = longFlow ? "/onboarding/intent" : "/onboarding/role";
+
   return (
-    <div className="ob-shell ob-shell--narrow">
+    <div className="fu-public ob-shell ob-shell--narrow">
       <main className="ob-country">
         <header className="ob-country-header">
           <div className="ob-country-brand">
-            <span className="font-headline-md text-primary">FITNESS UPLINK</span>
-            <span className="font-mono-data text-on-surface-variant">
-              STEP 2 <span className="text-outline">/</span> 3
-            </span>
+            <OnboardingBrand />
+            <span className="ob-step-label">{memberFlow ? t.stepCountryMember : longFlow ? t.stepCountryLong : t.stepCountry}</span>
           </div>
-          <div className="ob-bars">
-            <span className="ob-bar is-done" />
-            <span className="ob-bar is-active" />
-            <span className="ob-bar" />
-          </div>
+          <LocaleSwitch />
         </header>
         <div className="ob-heading">
-          <h1 className="font-display-lg-mobile md:font-display-lg text-primary">Where are you based?</h1>
-          <p className="font-body-lg text-on-surface-variant">
-            Fitness Uplink personalizes opportunities, content and services by country.
-          </p>
+          <h1>{t.countryTitle}</h1>
+          <p>{t.countrySubtitle}</p>
         </div>
         <div className="ob-search">
           <span className="material-symbols-outlined">search</span>
           <input
             type="search"
-            placeholder="Search countries..."
+            placeholder={t.countrySearch}
             value={query}
             maxLength={80}
             autoComplete="off"
@@ -100,8 +99,8 @@ export function ChooseCountryPage() {
           />
         </div>
         <div className="country-list custom-scrollbar">
-          {loading ? <p className="country-empty">Loading countries…</p> : null}
-          {!loading && filtered.length === 0 ? <p className="country-empty">No country matches your search.</p> : null}
+          {loading ? <p className="country-empty">{t.countryLoading}</p> : null}
+          {!loading && filtered.length === 0 ? <p className="country-empty">{t.countryEmpty}</p> : null}
           {filtered.map((country) => {
             const active = selectedId === country.id;
             return (
@@ -115,7 +114,7 @@ export function ChooseCountryPage() {
                 }}
               >
                 <span className="country-row-main">
-                  <span className="country-flag" role="img" aria-label={`Flag of ${country.name}`}>
+                  <span className="country-flag" role="img" aria-label={country.name}>
                     {country.flagEmoji}
                   </span>
                   <span className="country-name">{country.name}</span>
@@ -127,11 +126,11 @@ export function ChooseCountryPage() {
         </div>
         {error ? <p className="auth-error mt-4">{error}</p> : null}
         <div className="ob-country-actions">
-          <button className="ob-ghost" type="button" onClick={() => navigate("/onboarding/role")}>
-            Back
+          <button className="ob-ghost" type="button" onClick={() => navigate(backTo)}>
+            {t.back}
           </button>
           <button className="ob-primary" type="button" onClick={() => void onContinue()} disabled={submitting || !selectedId}>
-            {submitting ? "Saving..." : "Continue"}
+            {submitting ? t.saving : t.continue}
             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </div>

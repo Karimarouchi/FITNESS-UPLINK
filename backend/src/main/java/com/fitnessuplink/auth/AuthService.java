@@ -2,17 +2,28 @@ package com.fitnessuplink.auth;
 
 import com.fitnessuplink.auth.config.SecurityProperties;
 import com.fitnessuplink.auth.dto.AuthResponse;
+import com.fitnessuplink.auth.dto.ForgotPasswordRequest;
 import com.fitnessuplink.auth.dto.LoginRequest;
+import com.fitnessuplink.auth.dto.ResetPasswordRequest;
 import com.fitnessuplink.auth.dto.SignupRequest;
+import com.fitnessuplink.auth.dto.ChangeEmailRequest;
+import com.fitnessuplink.auth.dto.VerifyResetCodeRequest;
 import com.fitnessuplink.auth.jwt.JwtService;
+import com.fitnessuplink.auth.mail.MailAddressMasker;
+import com.fitnessuplink.auth.mail.MailService;
+import com.fitnessuplink.auth.recaptcha.RecaptchaService;
 import com.fitnessuplink.auth.token.RefreshToken;
 import com.fitnessuplink.auth.token.RefreshTokenRepository;
 import com.fitnessuplink.auth.token.TokenHasher;
+import com.fitnessuplink.audit.AuditAction;
+import com.fitnessuplink.audit.AuditLogService;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.user.User;
 import com.fitnessuplink.user.UserRepository;
 import com.fitnessuplink.user.UserService;
+import com.fitnessuplink.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.annotation.PostConstruct;
@@ -24,6 +35,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -37,6 +49,10 @@ public class AuthService {
     private final TokenHasher tokenHasher;
     private final UserService userService;
     private final SecurityProperties securityProperties;
+    private final EmailCodeService emailCodeService;
+    private final RecaptchaService recaptchaService;
+    private final MailService mailService;
+    private final AuditLogService auditLogService;
     private String dummyHash;
 
     @PostConstruct
@@ -46,6 +62,7 @@ public class AuthService {
 
     @Transactional
     public IssuedAuth signup(SignupRequest request) {
+        recaptchaService.verify(request.recaptchaToken(), "signup");
         String email = normalizeEmail(request.email());
         if (email.equals(normalizeEmail(securityProperties.superAdmin().email()))) {
             throw new ApiException(HttpStatus.CONFLICT, "Unable to create this account");
@@ -61,8 +78,10 @@ public class AuthService {
                 .lastName(request.lastName().trim())
                 .enabled(true)
                 .onboardingCompleted(false)
+                .emailVerified(false)
                 .build();
         userRepository.save(user);
+        sendCodeQuietly(user, EmailCodePurpose.VERIFY_EMAIL);
         return issueTokens(user, false);
     }
 
@@ -90,7 +109,100 @@ public class AuthService {
         user.setLockedUntil(null);
         user.setLastLoginAt(now);
         userRepository.save(user);
+        auditLogService.recordForUser(user.getId(), user.getId(), AuditAction.LOGIN_SUCCESS);
         return issueTokens(user, request.rememberMe());
+    }
+
+    @Transactional
+    public UserResponse verifyEmail(UUID userId, String code) {
+        User user = requireUser(userId);
+        if (user.isEmailVerified()) {
+            return userService.toResponse(user);
+        }
+        emailCodeService.consume(user, EmailCodePurpose.VERIFY_EMAIL, code);
+        user.setEmailVerified(true);
+        User saved = userRepository.save(user);
+        mailService.enqueueWelcome(saved);
+        return userService.toResponse(saved);
+    }
+
+    @Transactional
+    public void resendVerification(UUID userId) {
+        User user = requireUser(userId);
+        if (user.isEmailVerified()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email déjà vérifié");
+        }
+        emailCodeService.issueAndSend(user, EmailCodePurpose.VERIFY_EMAIL);
+    }
+
+    @Transactional
+    public UserResponse changeUnverifiedEmail(UUID userId, ChangeEmailRequest request) {
+        User user = requireUser(userId);
+        if (user.isEmailVerified()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email déjà vérifié");
+        }
+        String email = normalizeEmail(request.email());
+        if (email.equals(normalizeEmail(securityProperties.superAdmin().email()))) {
+            throw new ApiException(HttpStatus.CONFLICT, "Unable to use this email");
+        }
+        if (email.equals(user.getEmail())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "C'est déjà votre email actuel.");
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new ApiException(HttpStatus.CONFLICT, "An account with this email already exists");
+        }
+        user.setEmail(email);
+        userRepository.save(user);
+        emailCodeService.issueAndSend(user, EmailCodePurpose.VERIFY_EMAIL);
+        return userService.toResponse(user);
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String email = normalizeEmail(request.email());
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null || !user.isEnabled()) {
+            return;
+        }
+        try {
+            emailCodeService.issueAndSend(user, EmailCodePurpose.RESET_PASSWORD);
+        } catch (ApiException ex) {
+            if (ex.getStatus() != HttpStatus.TOO_MANY_REQUESTS && ex.getStatus() != HttpStatus.SERVICE_UNAVAILABLE) {
+                throw ex;
+            }
+            log.warn(
+                    "event=mail_code_skipped purpose={} recipient={}",
+                    EmailCodePurpose.RESET_PASSWORD,
+                    MailAddressMasker.mask(email)
+            );
+        }
+    }
+
+    @Transactional
+    public void verifyResetCode(VerifyResetCodeRequest request) {
+        String email = normalizeEmail(request.email());
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE));
+        if (!user.isEnabled()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE);
+        }
+        emailCodeService.assertValid(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        String email = normalizeEmail(request.email());
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE));
+        if (!user.isEnabled()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE);
+        }
+        emailCodeService.consume(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setFailedLoginAttempts(0);
+        user.setLockedUntil(null);
+        userRepository.save(user);
+        refreshTokenRepository.revokeAllActiveByUserId(user.getId());
     }
 
     @Transactional
@@ -133,6 +245,19 @@ public class AuthService {
                 });
     }
 
+    private void sendCodeQuietly(User user, EmailCodePurpose purpose) {
+        try {
+            emailCodeService.issueAndSend(user, purpose);
+        } catch (Exception ex) {
+            log.warn("event=mail_code_skipped purpose={} recipient={}", purpose, MailAddressMasker.mask(user.getEmail()));
+        }
+    }
+
+    private User requireUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session expired"));
+    }
+
     private IssuedAuth issueTokens(User user, boolean rememberMe) {
         Duration refreshTtl = rememberMe
                 ? securityProperties.refreshToken().rememberMeTtl()
@@ -160,9 +285,11 @@ public class AuthService {
     private void registerFailure(User user, Instant now) {
         int attempts = user.getFailedLoginAttempts() + 1;
         user.setFailedLoginAttempts(attempts);
+        auditLogService.recordForUser(user.getId(), user.getId(), AuditAction.LOGIN_FAILED);
         if (attempts >= securityProperties.lockout().maxAttempts()) {
             user.setLockedUntil(now.plus(securityProperties.lockout().duration()));
             user.setFailedLoginAttempts(0);
+            auditLogService.recordForUser(user.getId(), user.getId(), AuditAction.ACCOUNT_LOCKED);
         }
         userRepository.save(user);
     }

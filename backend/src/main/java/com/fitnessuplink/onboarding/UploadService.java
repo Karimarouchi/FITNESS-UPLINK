@@ -70,6 +70,22 @@ public class UploadService {
         return toResponse(upload);
     }
 
+    @Transactional
+    public UserUpload storeHireFile(UUID userId, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Choose a file");
+        }
+        byte[] bytes = readFileBytes(file);
+        String contentType = resolveContentType(file.getContentType(), file.getOriginalFilename(), bytes);
+        if (!IMAGE_TYPES.contains(contentType) && !"application/pdf".equals(contentType)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_FILE_TYPE");
+        }
+        if (bytes.length > 8L * 1024 * 1024) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "FILE_TOO_LARGE");
+        }
+        return persist(userId, "hire_message", safeName(file.getOriginalFilename()), contentType, bytes);
+    }
+
     @Transactional(readOnly = true)
     public LoadedUpload load(UUID userId, UUID uploadId) {
         UserUpload upload = userUploadRepository.findByIdAndUserId(uploadId, userId)

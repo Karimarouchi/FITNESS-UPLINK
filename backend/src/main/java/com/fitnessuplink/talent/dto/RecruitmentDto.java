@@ -18,6 +18,12 @@ public record RecruitmentDto(
         Instant createdAt,
         Instant updatedAt,
         Instant statusUpdatedAt,
-        ContractSummaryDto contract
+        ContractSummaryDto contract,
+        String coverLetterText,
+        FileRef coverLetterFile,
+        FileRef cvFile,
+        Instant interviewAt,
+        String interviewMode,
+        String interviewPlace
 ) {
 }

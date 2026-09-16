@@ -14,7 +14,8 @@ import {
   type VerificationSection,
   type VerificationStatus,
 } from "../api";
-import { isSuperAdmin } from "@/features/auth/types";
+import { hasPermission } from "@/features/auth/types";
+import { PERMS } from "@/features/auth/permissions";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { DocumentPreview } from "@/shared/components/DocumentPreview";
@@ -93,9 +94,11 @@ export function AdminVerificationsPage() {
   const [dossier, setDossier] = useState<VerificationDossier | null>(null);
   const [loadingDossier, setLoadingDossier] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [rejectKey, setRejectKey] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   useEffect(() => {
-    if (!isSuperAdmin(user)) {
+    if (!hasPermission(user, PERMS.ADMIN_VERIFICATIONS)) {
       return;
     }
     fetchVerifications(group, status)
@@ -117,13 +120,18 @@ export function AdminVerificationsPage() {
     }
   }
 
-  async function changeCheck(key: string, next: VerificationStatus) {
+  async function changeCheck(key: string, next: VerificationStatus, reason?: string) {
     if (!dossier) {
+      return;
+    }
+    if (next === "rejected" && !reason?.trim()) {
+      setRejectKey(key);
+      setRejectReason("");
       return;
     }
     setBusyKey(key);
     try {
-      const updated = await updateVerificationCheck(dossier.account.id, key, next);
+      const updated = await updateVerificationCheck(dossier.account.id, key, next, reason);
       setDossier(updated);
       setItems((current) => current.map((item) => (item.id === updated.account.id ? updated.account : item)));
       const section = updated.sections.find((item) => item.key === key);
@@ -136,14 +144,16 @@ export function AdminVerificationsPage() {
             : `${label} remis en attente pour ${updated.account.displayName}.`,
       );
       setError(null);
+      setRejectKey(null);
+      setRejectReason("");
     } catch {
-      setError("Impossible de mettre à jour ce contrôle.");
+      setError("Impossible de mettre à jour ce contrôle. Le motif est obligatoire pour un refus.");
     } finally {
       setBusyKey(null);
     }
   }
 
-  if (!isSuperAdmin(user)) {
+  if (!hasPermission(user, PERMS.ADMIN_VERIFICATIONS)) {
     return <Navigate to="/app/dashboard" replace />;
   }
 
@@ -319,9 +329,25 @@ export function AdminVerificationsPage() {
                         <DocumentPreview key={file.id} file={file} />
                       ))}
                     </div>
-                  ) : (
+                  ) : section.people.length || section.key === "legal_representative" || section.key === "existence" ? null : (
                     <p className="verify-missing">Aucun document joint.</p>
                   )}
+                  {section.reviewStatus === "rejected" && section.rejectionReason ? (
+                    <p className="auth-error">Motif : {section.rejectionReason}</p>
+                  ) : null}
+                  {rejectKey === section.key ? (
+                    <label className="fu-field">
+                      Motif du refus (obligatoire)
+                      <textarea
+                        className="custom-input custom-textarea"
+                        rows={3}
+                        maxLength={500}
+                        value={rejectReason}
+                        placeholder="Expliquez ce qui doit être corrigé…"
+                        onChange={(event) => setRejectReason(event.target.value)}
+                      />
+                    </label>
+                  ) : null}
                   <div className="jobs-actions">
                     <Button
                       variant="primary"
@@ -335,9 +361,16 @@ export function AdminVerificationsPage() {
                       variant="outline"
                       type="button"
                       disabled={section.reviewStatus === "rejected" || busyKey === section.key}
-                      onClick={() => void changeCheck(section.key, "rejected")}
+                      onClick={() => {
+                        if (rejectKey === section.key) {
+                          void changeCheck(section.key, "rejected", rejectReason);
+                        } else {
+                          setRejectKey(section.key);
+                          setRejectReason("");
+                        }
+                      }}
                     >
-                      Refuser
+                      {rejectKey === section.key ? "Confirmer le refus" : "Refuser"}
                     </Button>
                     {section.reviewStatus !== "pending" ? (
                       <Button variant="mini" type="button" disabled={busyKey === section.key} onClick={() => void changeCheck(section.key, "pending")}>

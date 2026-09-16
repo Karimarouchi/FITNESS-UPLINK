@@ -50,6 +50,7 @@ export type VerificationSection = {
   complete: boolean;
   required: boolean;
   reviewStatus: VerificationStatus;
+  rejectionReason?: string | null;
   facts: string[];
   files: VerificationFile[];
   people: VerificationPerson[];
@@ -80,6 +81,6 @@ export function updateVerification(id: string, status: VerificationStatus) {
   return api.patch<VerificationAccount>(`/v1/admin/verifications/${id}`, { status });
 }
 
-export function updateVerificationCheck(id: string, key: string, status: VerificationStatus) {
-  return api.patch<VerificationDossier>(`/v1/admin/verifications/${id}/checks/${key}`, { status });
+export function updateVerificationCheck(id: string, key: string, status: VerificationStatus, reason?: string) {
+  return api.patch<VerificationDossier>(`/v1/admin/verifications/${id}/checks/${key}`, { status, reason });
 }

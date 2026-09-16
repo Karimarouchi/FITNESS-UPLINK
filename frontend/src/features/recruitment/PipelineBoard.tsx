@@ -8,16 +8,10 @@ export function PipelineBoard({
   items,
   onOpen,
   onStatus,
-  onPrepareContract,
-  onViewContract,
-  onMarkHired,
 }: {
   items: Recruitment[];
   onOpen: (item: Recruitment) => void;
   onStatus: (item: Recruitment, status: PipelineStatus) => void;
-  onPrepareContract: (item: Recruitment) => void;
-  onViewContract: (item: Recruitment) => void;
-  onMarkHired: (item: Recruitment) => void;
 }) {
   function dropOn(column: PipelineStatus, event: DragEvent<HTMLElement>) {
     event.preventDefault();
@@ -59,21 +53,11 @@ export function PipelineBoard({
             <div className="pipeline-column-body">
               {cards.length === 0 ? (
                 <p className="pipeline-column-empty">
-                  <strong>Vide</strong>
-                  <span>Déposez une carte ici</span>
+                  <strong>Aucun dossier</strong>
                 </p>
               ) : (
                 cards.map((item) => (
-                  <PipelineCandidateCard
-                    key={item.id}
-                    item={item}
-                    draggable
-                    onOpen={() => onOpen(item)}
-                    onStatus={(status) => onStatus(item, status)}
-                    onPrepareContract={() => onPrepareContract(item)}
-                    onViewContract={() => onViewContract(item)}
-                    onMarkHired={() => onMarkHired(item)}
-                  />
+                  <PipelineCandidateCard key={item.id} item={item} draggable onOpen={() => onOpen(item)} />
                 ))
               )}
             </div>

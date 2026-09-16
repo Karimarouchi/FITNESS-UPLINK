@@ -4,11 +4,18 @@ spring:
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:Karim123}
   jpa:
-    show-sql: true
+    show-sql: false
+  mail:
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
 
 app:
   cors:
-    allowed-origins: http://localhost:5173,http://localhost:5174
+    allowed-origins: http://localhost:5173,http://localhost:5174,http://localhost:5175
   security:
     cookie:
       secure: false
+  mail:
+    from-email: ${MAIL_FROM:${MAIL_USERNAME:}}
+  recaptcha:
+    secret: ${RECAPTCHA_SECRET:}

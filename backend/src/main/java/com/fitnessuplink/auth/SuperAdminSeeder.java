@@ -40,6 +40,7 @@ public class SuperAdminSeeder implements ApplicationRunner {
                 .appRole(superAdminRole)
                 .onboardingCompleted(true)
                 .verificationStatus("verified")
+                .emailVerified(true)
                 .firstName(admin.firstName())
                 .lastName(admin.lastName())
                 .enabled(true)

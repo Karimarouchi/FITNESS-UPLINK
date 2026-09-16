@@ -1,6 +1,8 @@
 package com.fitnessuplink.contracts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.catalog.AppRole;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.contracts.dto.ContractDto;
@@ -12,6 +14,7 @@ import com.fitnessuplink.contracts.signature.SignatureProviderException;
 import com.fitnessuplink.contracts.signature.SignatureSendResult;
 import com.fitnessuplink.jobs.JobOfferRepository;
 import com.fitnessuplink.notifications.NotificationService;
+import com.fitnessuplink.notifications.NotifyCategory;
 import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
 import com.fitnessuplink.onboarding.UserUpload;
@@ -39,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +61,8 @@ class ContractServiceTest {
     @Mock private RecruitmentService recruitmentService;
     @Mock private NotificationService notificationService;
     @Mock private ElectronicSignatureProvider signatureProvider;
+    @Mock private PermissionService permissionService;
+    @Mock private com.fitnessuplink.billing.EntitlementService entitlementService;
 
     private ContractService service;
     private User employer;
@@ -81,7 +87,9 @@ class ContractServiceTest {
                 recruitmentService,
                 notificationService,
                 signatureProvider,
-                new ObjectMapper()
+                new ObjectMapper(),
+                permissionService,
+                entitlementService
         );
         employer = user(UUID.randomUUID(), "EMPLOYER", "BUSINESS");
         otherEmployer = user(UUID.randomUUID(), "EMPLOYER", "BUSINESS");
@@ -91,6 +99,28 @@ class ContractServiceTest {
         recruitment = pipeline(PipelineStatus.NEGOTIATION);
         pdf = DraftPdfWriter.write("Contrat", List.of("Poste : Personal Trainer"));
         org.mockito.Mockito.lenient().when(signatureProvider.name()).thenReturn("mock");
+        lenient().when(permissionService.has(any(User.class), any())).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            String code = invocation.getArgument(1);
+            if (user == null || code == null) {
+                return false;
+            }
+            if (user.isCandidate()) {
+                return code.equals(Permissions.HIRE_CONTRACTS_CANDIDATE);
+            }
+            if (user.isBusiness()) {
+                return code.equals(Permissions.HIRE_CONTRACTS_EMPLOYER);
+            }
+            return false;
+        });
+        lenient().doAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            String code = invocation.getArgument(1);
+            if (user == null || !user.isOnboardingCompleted() || !permissionService.has(user, code)) {
+                throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+            }
+            return null;
+        }).when(permissionService).require(any(User.class), any());
     }
 
     @Test
@@ -176,7 +206,7 @@ class ContractServiceTest {
         assertEquals(ContractStatus.SENT, dto.status());
         assertEquals("mock-1", contract.getExternalSignatureRequestId());
         verify(recruitmentService).markContractSent(employer, recruitmentId);
-        verify(notificationService).notify(eq(candidate.getId()), eq("Nouveau contrat à signer"), any(), any(), any());
+        verify(notificationService).notify(eq(candidate.getId()), eq(NotifyCategory.CONTRACT), eq("Nouveau contrat à signer"), any(), any(), any());
     }
 
     @Test
@@ -226,7 +256,7 @@ class ContractServiceTest {
         ContractDto dto = service.sign(candidate, contract.getId());
         assertEquals(ContractStatus.CANDIDATE_SIGNED, dto.status());
         assertNotNull(contract.getCandidateSignedAt());
-        verify(notificationService).notify(eq(employer.getId()), eq("Contrat signé par le candidat"), any(), any(), any());
+        verify(notificationService).notify(eq(employer.getId()), eq(NotifyCategory.CONTRACT), eq("Contrat signé par le candidat"), any(), any(), any());
     }
 
     @Test

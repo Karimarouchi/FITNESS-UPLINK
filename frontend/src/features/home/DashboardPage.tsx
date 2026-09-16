@@ -38,11 +38,11 @@ export function DashboardPage() {
               <p className="font-body-md text-on-surface-variant">Consultez les fiches et enregistrez vos favoris.</p>
             </div>
           </Link>
-          <Link to="/pipeline" className="home-profile-card">
-            <span className="home-shortcut-icon material-symbols-outlined">view_kanban</span>
+          <Link to="/applications" className="home-profile-card">
+            <span className="home-shortcut-icon material-symbols-outlined">inbox</span>
             <div className="home-profile-copy">
-              <p className="home-profile-name">Pipeline de recrutement</p>
-              <p className="font-body-md text-on-surface-variant">Suivez les candidats avec lesquels vous avez démarré un recrutement.</p>
+              <p className="home-profile-name">Candidatures</p>
+              <p className="font-body-md text-on-surface-variant">Examinez les postulats, recrutez, puis discutez sur la même page.</p>
             </div>
           </Link>
           <Link to="/favorites" className="home-profile-card">

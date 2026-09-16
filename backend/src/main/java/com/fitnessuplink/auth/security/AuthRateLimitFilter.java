@@ -24,7 +24,24 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return !("/v1/auth/login".equals(path) || "/v1/auth/signup".equals(path));
+        return !(
+                "/v1/auth/login".equals(path)
+                        || "/v1/auth/signup".equals(path)
+                        || "/v1/auth/forgot-password".equals(path)
+                        || "/v1/auth/reset-password".equals(path)
+                        || "/v1/auth/verify-reset-code".equals(path)
+                        || "/v1/auth/verify-email".equals(path)
+                        || "/v1/auth/resend-verification".equals(path)
+                        || "/v1/auth/change-email".equals(path)
+                        || isGuestMarketplacePath(path)
+        );
+    }
+
+    private boolean isGuestMarketplacePath(String path) {
+        if (!path.startsWith("/v1/marketplace/")) {
+            return false;
+        }
+        return path.endsWith("/quote-requests") || path.endsWith("/confirm") || path.endsWith("/resend");
     }
 
     @Override
@@ -52,11 +69,10 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String clientKey(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
-        }
+    String clientKey(HttpServletRequest request) {
+        // Deliberately ignores X-Forwarded-For: this app has no trusted reverse proxy in front of it,
+        // so that header is fully attacker-controlled and would let anyone bypass the limiter by
+        // sending a fresh value on every request. getRemoteAddr() is the real socket peer.
         return request.getRemoteAddr();
     }
 

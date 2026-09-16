@@ -19,6 +19,7 @@ public record OpportunityDto(
         String experience,
         String description,
         String employerName,
+        UUID employerLogoUploadId,
         CountrySummary employerCountry,
         boolean applied,
         Instant expiresAt,

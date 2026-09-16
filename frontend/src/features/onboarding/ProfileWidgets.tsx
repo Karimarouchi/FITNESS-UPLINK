@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CountrySummary, ItemField, ProfileField } from "@/features/auth/types";
 import { ApiError } from "@/shared/api/client";
+import { Select } from "@/components/ui/Select";
 import { fetchUploadBlob, uploadProfileFile } from "./api";
 
 type FileItem = { id: string; name: string; contentType: string; size: number };
@@ -80,7 +81,6 @@ export function TagInput({
         <div className="chip-suggestions">
           {field.options
             .filter((option) => !tags.includes(option.label) && !tags.includes(option.value))
-            .slice(0, 8)
             .map((option) => (
               <button key={option.value} type="button" className="chip-suggest" onClick={() => addTag(option.label)}>
                 {option.label}
@@ -88,6 +88,101 @@ export function TagInput({
             ))}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+const WEEK_DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] as const;
+
+function classTimes() {
+  const items: string[] = [];
+  for (let hour = 6; hour <= 22; hour += 1) {
+    items.push(`${String(hour).padStart(2, "0")}:00`);
+    if (hour < 22) {
+      items.push(`${String(hour).padStart(2, "0")}:30`);
+    }
+  }
+  return items;
+}
+
+const CLASS_TIMES = classTimes();
+
+export function GroupClassSlotsField({
+  value,
+  onChange,
+  invalid,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  invalid: boolean;
+}) {
+  const slots = parseJson<string[]>(value || "[]", []).filter((item) => typeof item === "string");
+  const [days, setDays] = useState<(typeof WEEK_DAYS)[number][]>([]);
+  const [time, setTime] = useState("");
+
+  function toggleDay(item: (typeof WEEK_DAYS)[number]) {
+    setDays((current) => (current.includes(item) ? current.filter((day) => day !== item) : [...current, item]));
+  }
+
+  function addSlot() {
+    if (!time || days.length === 0) {
+      return;
+    }
+    const additions = days.map((day) => `${day} ${time}`).filter((next) => !slots.includes(next));
+    if (additions.length === 0) {
+      return;
+    }
+    const next = [...slots, ...additions].slice(0, 40);
+    onChange(JSON.stringify(next));
+    setTime("");
+    setDays([]);
+  }
+
+  return (
+    <div className={`chip-box slot-picker${invalid ? " is-invalid" : ""}`}>
+      <div className="slot-days" role="group" aria-label="Jours">
+        {WEEK_DAYS.map((item) => (
+          <button
+            key={item}
+            type="button"
+            className={days.includes(item) ? "slot-day is-active" : "slot-day"}
+            onClick={() => toggleDay(item)}
+          >
+            {item.slice(0, 3)}
+          </button>
+        ))}
+      </div>
+      <div className="slot-time-row">
+        <label className="slot-time-label" htmlFor="group-class-time">
+          Heure
+          <Select
+            id="group-class-time"
+            value={time}
+            onChange={setTime}
+            placeholder="Choisir un horaire"
+            options={CLASS_TIMES.map((item) => ({ value: item, label: item }))}
+          />
+        </label>
+        <button className="slot-add" type="button" disabled={!time || days.length === 0} onClick={addSlot}>
+          Ajouter {days.length > 1 ? `(${days.length} jours)` : days.length === 1 ? days[0] : ""}
+        </button>
+      </div>
+      <div className="chip-list">
+        {slots.length === 0 ? (
+          <span className="slot-empty">Aucun créneau. Choisissez un ou plusieurs jours, puis un horaire.</span>
+        ) : null}
+        {slots.map((slot) => (
+          <button
+            key={slot}
+            type="button"
+            className="chip"
+            onClick={() => onChange(JSON.stringify(slots.filter((item) => item !== slot)))}
+          >
+            {slot}
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -139,17 +234,12 @@ export function MoneyField({
         value={money.amount ?? ""}
         onChange={(event) => onChange(JSON.stringify({ amount: event.target.value, currency }))}
       />
-      <select
-        className="custom-input money-currency"
+      <Select
+        className="money-currency"
         value={currency}
-        onChange={(event) => onChange(JSON.stringify({ amount: money.amount ?? "", currency: event.target.value }))}
-      >
-        {field.options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        onChange={(next) => onChange(JSON.stringify({ amount: money.amount ?? "", currency: next }))}
+        options={field.options}
+      />
     </div>
   );
 }
@@ -198,19 +288,14 @@ export function CountrySelectField({
   readOnly?: boolean;
 }) {
   return (
-    <select
-      className={`custom-input${invalid ? " is-invalid" : ""}${readOnly ? " is-readonly" : ""}`}
+    <Select
       value={value}
+      onChange={onChange}
+      invalid={invalid}
       disabled={readOnly}
-      onChange={(event) => onChange(event.target.value)}
-    >
-      <option value="">Choisir un pays</option>
-      {countries.map((country) => (
-        <option key={country.id} value={country.id}>
-          {country.flagEmoji} {country.name}
-        </option>
-      ))}
-    </select>
+      placeholder="Choisir un pays"
+      options={countries.map((country) => ({ value: country.id, label: `${country.flagEmoji} ${country.name}` }))}
+    />
   );
 }
 
@@ -244,6 +329,24 @@ export function CountryMultiField({
   );
 }
 
+const LEGAL_REPRESENTATIVE_FIELDS: ItemField[] = [
+  { key: "name", label: "Nom et prénom", type: "text", required: true, options: [] },
+  { key: "title", label: "Fonction", type: "text", required: true, options: [] },
+  { key: "id_number", label: "N° pièce d’identité", type: "text", required: false, options: [] },
+  { key: "email", label: "E-mail", type: "text", required: false, options: [] },
+  { key: "phone", label: "Téléphone", type: "text", required: false, options: [] },
+];
+
+function repeatableSchema(field: ProfileField): ItemField[] {
+  if (field.itemFields?.length) {
+    return field.itemFields;
+  }
+  if (field.fieldKey === "legal_representative") {
+    return LEGAL_REPRESENTATIVE_FIELDS;
+  }
+  return [];
+}
+
 export function RepeatableField({
   field,
   value,
@@ -253,8 +356,13 @@ export function RepeatableField({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const items = parseJson<Record<string, string>[]>(value || "[]", []);
-  const schema: ItemField[] = field.itemFields ?? [];
+  const parsed = parseJson<unknown>(value || "[]", []);
+  const items = Array.isArray(parsed)
+    ? (parsed as Record<string, string>[])
+    : parsed && typeof parsed === "object"
+      ? [parsed as Record<string, string>]
+      : [];
+  const schema: ItemField[] = repeatableSchema(field);
 
   function update(index: number, key: string, next: string) {
     const copy = items.map((item) => ({ ...item }));
@@ -292,13 +400,11 @@ export function RepeatableField({
                   {spec.required ? " *" : ""}
                 </span>
                 {spec.type === "select" ? (
-                  <select className="custom-input" value={item[spec.key] ?? ""} onChange={(event) => update(index, spec.key, event.target.value)}>
-                    {(spec.options ?? []).map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    value={item[spec.key] ?? ""}
+                    onChange={(next) => update(index, spec.key, next)}
+                    options={spec.options ?? []}
+                  />
                 ) : spec.type === "textarea" ? (
                   <textarea
                     className="custom-input custom-textarea"
@@ -377,7 +483,7 @@ export function FileField({
           void onPick(event.dataTransfer.files);
         }}
       >
-        <span className="material-symbols-outlined">{field.fieldType === "PHOTO" ? "add_a_photo" : "upload_file"}</span>
+        <span className="material-symbols-outlined">{field.fieldType === "PHOTO" ? "add_a_photo" : "cloud_upload"}</span>
         <span>{busy ? "Envoi en cours…" : multiple ? "Ajouter des fichiers" : "Choisir un fichier"}</span>
         <small>{field.helpText}</small>
         <input
@@ -481,11 +587,11 @@ export function PhotoField({
   return (
     <div className={`photo-hero${invalid ? " is-invalid" : ""}`}>
       <div className="photo-avatar" style={preview ? { backgroundImage: `url(${preview})` } : undefined}>
-        {preview ? null : <span className="material-symbols-outlined">{field.fieldKey === "organization_logo" ? "storefront" : "person"}</span>}
+        {preview ? null : <span className="material-symbols-outlined">{field.fieldKey === "organization_logo" ? "stadium" : "sports"}</span>}
       </div>
       <div className="photo-copy">
         <p className="auth-label">{field.label}{field.required ? " *" : ""}</p>
-        <p className="font-body-md text-on-surface-variant">{field.helpText ?? "Une photo nette, de face, fond simple."}</p>
+        <p className="field-hint">{field.helpText ?? "Une photo nette, de face, fond simple."}</p>
         <label className="ob-upload-live">
           {busy ? "Envoi…" : current ? changeLabel : addLabel}
           <input

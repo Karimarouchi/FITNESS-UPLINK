@@ -16,6 +16,7 @@ public record ProfileFieldResponse(
         String sectionLabel,
         String sectionIcon,
         String helpText,
-        String accept
+        String accept,
+        boolean visibilityRequired
 ) {
 }

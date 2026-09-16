@@ -25,4 +25,6 @@ public interface TalentPipelineRepository extends JpaRepository<TalentPipeline, 
     boolean existsByEmployerIdAndCandidateIdAndJobOfferIdIsNull(UUID employerId, UUID candidateId);
 
     long countByJobOfferId(UUID jobOfferId);
+
+    long countByEmployerIdAndStatus(UUID employerId, PipelineStatus status);
 }

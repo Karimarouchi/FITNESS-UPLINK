@@ -17,6 +17,21 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 55MB
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
 
 server:
   port: ${SERVER_PORT:8080}
@@ -27,6 +42,15 @@ server:
   error:
     include-stacktrace: never
     include-message: never
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{36} - %msg%n"
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+    org.springframework.mail: INFO
 
 management:
   endpoints:
@@ -59,8 +83,8 @@ app:
       max-attempts: 5
       duration: 15m
     super-admin:
-      email: Admin@Antigoneagency.com
-      password: "Admin@123456"
+      email: ${SUPER_ADMIN_EMAIL:Admin@Antigoneagency.com}
+      password: ${SUPER_ADMIN_PASSWORD:Admin@123456}
       first-name: Admin
       last-name: Antigone
   uploads:
@@ -70,3 +94,15 @@ app:
     provider: ${SIGNATURE_PROVIDER:mock}
     webhook-secret: ${SIGNATURE_WEBHOOK_SECRET:fitness-uplink-local-webhook-secret}
     fail-send: ${SIGNATURE_FAIL_SEND:false}
+  mail:
+    from-name: Fitness Uplink
+    from-email: ${MAIL_FROM:${MAIL_USERNAME:}}
+    code-ttl: 10m
+    resend-cooldown: 60s
+    max-attempts: 5
+    settings-secret: ${MAIL_SETTINGS_SECRET:${JWT_SECRET:}}
+  recaptcha:
+    secret: ${RECAPTCHA_SECRET:}
+    min-score: 0.5
+  frontend:
+    base-url: ${FRONTEND_URL:http://localhost:5173}

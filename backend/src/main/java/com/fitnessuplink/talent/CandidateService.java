@@ -2,11 +2,15 @@ package com.fitnessuplink.talent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
 import com.fitnessuplink.talent.dto.CandidateCardResponse;
+import com.fitnessuplink.talent.dto.CandidatePageDto;
+import com.fitnessuplink.talent.dto.CandidateSearchQuery;
 import com.fitnessuplink.talent.dto.CandidateDetailResponse;
 import com.fitnessuplink.talent.dto.ExperienceItem;
 import com.fitnessuplink.talent.dto.FileRef;
@@ -37,7 +41,7 @@ public class CandidateService {
 
     private static final Pattern UPLOAD_ID = Pattern.compile("\"id\"\\s*:\\s*\"([0-9a-fA-F-]{36})\"");
     private static final Set<String> PUBLIC_FILES = Set.of("professional_photo", "organization_logo");
-    private static final Set<String> MEDIA_FILES = Set.of("cv", "presentation_videos", "diplomas", "certifications");
+    private static final Set<String> MEDIA_FILES = Set.of("cv", "diplomas", "certifications");
 
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
@@ -45,22 +49,49 @@ public class CandidateService {
     private final TalentPipelineRepository talentPipelineRepository;
     private final RecruitmentService recruitmentService;
     private final UploadService uploadService;
+    private final CandidateSearchRepository candidateSearchRepository;
     private final ObjectMapper objectMapper;
+    private final PermissionService permissionService;
+    private final com.fitnessuplink.billing.EntitlementService entitlementService;
+
+    @Transactional(readOnly = true)
+    public CandidatePageDto list(User viewer, CandidateSearchQuery query) {
+        entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.SEARCH);
+        if (query != null && (
+                query.specialty() != null
+                        || query.language() != null
+                        || query.relocate() != null
+                        || query.hasDiploma() != null
+                        || query.hasCertification() != null
+                        || query.contractType() != null
+        )) {
+            entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.SEARCH_ADVANCED);
+        }
+        requireVerifiedSearcher(viewer);
+        var page = candidateSearchRepository.search(query);
+        Map<UUID, TalentPipeline> latest = permissionService.has(viewer, Permissions.HIRE_PIPELINE)
+                ? latestByCandidate(viewer.getId())
+                : Map.of();
+        Map<UUID, User> byId = userRepository.findByIdIn(page.getContent()).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+        List<CandidateCardResponse> items = page.getContent().stream()
+                .map(byId::get)
+                .filter(candidate -> candidate != null)
+                .map(candidate -> toCard(viewer.getId(), candidate, valuesOf(candidate.getId()), latest.get(candidate.getId())))
+                .toList();
+        return new CandidatePageDto(items, page.getTotalElements(), query.page(), query.size());
+    }
 
     @Transactional(readOnly = true)
     public List<CandidateCardResponse> list(User viewer, String query) {
-        requireViewer(viewer);
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
-        Map<UUID, TalentPipeline> latest = viewer.isBusiness() ? latestByCandidate(viewer.getId()) : Map.of();
-        return userRepository.findByAppRole_CodeAndOnboardingCompletedTrue("CANDIDATE").stream()
-                .map(candidate -> toCard(viewer.getId(), candidate, valuesOf(candidate.getId()), latest.get(candidate.getId())))
-                .filter(card -> matches(card, needle))
-                .toList();
+        return list(viewer, CandidateSearchQuery.of(
+                query, null, null, null, null, null, null, null, null, null, null, "relevance", 0, 50
+        )).items();
     }
 
     @Transactional(readOnly = true)
     public CandidateDetailResponse detail(User viewer, UUID candidateId) {
-        requireViewer(viewer);
+        requireVerifiedSearcher(viewer);
         User candidate = requireCandidate(candidateId);
         Map<String, String> values = valuesOf(candidate.getId());
         boolean favorite = candidateFavoriteRepository.existsByEmployerIdAndCandidateId(viewer.getId(), candidate.getId());
@@ -86,10 +117,10 @@ public class CandidateService {
                 candidate.isVerified(),
                 favorite,
                 recruitmentService.summariesForCandidate(viewer, candidate.getId()),
-                candidate.getEmail(),
-                text(values, "phone"),
+                null,
+                null,
                 canViewMedia ? firstFile(values.get("cv")) : null,
-                canViewMedia ? files(values.get("presentation_videos")) : List.of(),
+                canViewMedia ? stringList(values.get("presentation_videos")) : List.of(),
                 canViewMedia
         );
     }
@@ -116,17 +147,24 @@ public class CandidateService {
         Map<UUID, TalentPipeline> latest = latestByCandidate(viewer.getId());
         return candidateFavoriteRepository.findByEmployerIdOrderByCreatedAtDesc(viewer.getId()).stream()
                 .map(favorite -> userRepository.findById(favorite.getCandidateId()).orElse(null))
-                .filter(candidate -> candidate != null && candidate.isCandidate() && candidate.isOnboardingCompleted())
+                .filter(candidate -> candidate != null
+                        && candidate.isCandidate()
+                        && candidate.isOnboardingCompleted()
+                        && candidate.isVerified()
+                        && isHireVisible(candidate))
                 .map(candidate -> toCard(viewer.getId(), candidate, valuesOf(candidate.getId()), latest.get(candidate.getId())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public UploadService.LoadedUpload file(User viewer, UUID candidateId, UUID uploadId) {
-        requireViewer(viewer);
+        requireVerifiedSearcher(viewer);
         requireCandidate(candidateId);
         UploadService.LoadedUpload loaded = uploadService.load(candidateId, uploadId);
         String key = loaded.upload().getFieldKey();
+        if ("identity_document".equals(key)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "This file is not available");
+        }
         if (PUBLIC_FILES.contains(key)) {
             return loaded;
         }
@@ -136,7 +174,12 @@ public class CandidateService {
         throw new ApiException(HttpStatus.FORBIDDEN, "This file is not available");
     }
 
-    private CandidateCardResponse toCard(UUID viewerId, User candidate, Map<String, String> values, TalentPipeline latest) {
+    private CandidateCardResponse toCard(
+            UUID viewerId,
+            User candidate,
+            Map<String, String> values,
+            TalentPipeline latest
+    ) {
         return new CandidateCardResponse(
                 candidate.getId(),
                 candidate.getFirstName(),
@@ -155,12 +198,13 @@ public class CandidateService {
                 latest != null,
                 latest == null ? null : latest.getStatus().name(),
                 latest == null ? null : latest.getId(),
-                candidate.getEmail()
+                null
         );
     }
 
     private Map<UUID, TalentPipeline> latestByCandidate(UUID employerId) {
         return talentPipelineRepository.findByEmployerIdOrderByUpdatedAtDesc(employerId).stream()
+                .filter(row -> row.getStatus() != PipelineStatus.APPLIED)
                 .collect(Collectors.toMap(TalentPipeline::getCandidateId, row -> row, (first, ignored) -> first));
     }
 
@@ -181,27 +225,41 @@ public class CandidateService {
     private User requireCandidate(UUID candidateId) {
         User candidate = userRepository.findById(candidateId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Candidate not found"));
-        if (!candidate.isCandidate() || !candidate.isOnboardingCompleted()) {
+        if (!candidate.isCandidate()
+                || !candidate.isOnboardingCompleted()
+                || !candidate.isProfileVisible()
+                || !candidate.isVerified()
+                || !isHireVisible(candidate)) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Candidate not found");
         }
         return candidate;
+    }
+
+    private boolean isHireVisible(User candidate) {
+        String intent = candidate.getProfessionalIntent();
+        return intent == null || "JOB".equals(intent) || "BOTH".equals(intent);
+    }
+
+    private void requireVerifiedSearcher(User viewer) {
+        requireViewer(viewer);
+        if (!viewer.isSuperAdmin() && !viewer.isVerified()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+        }
     }
 
     private void requireViewer(User viewer) {
         if (viewer.isSuperAdmin()) {
             return;
         }
-        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
-            return;
-        }
-        throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+        permissionService.require(viewer, Permissions.HIRE_CANDIDATES_SEARCH);
     }
 
     private void requireEmployer(User viewer) {
-        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
-            return;
+        permissionService.require(viewer, Permissions.HIRE_FAVORITES);
+        entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.FAVORITES);
+        if (!viewer.isSuperAdmin() && !viewer.isVerified()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
         }
-        throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
     }
 
     private Map<String, String> valuesOf(UUID userId) {

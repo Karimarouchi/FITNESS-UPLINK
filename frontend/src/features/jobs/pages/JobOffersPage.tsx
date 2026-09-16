@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { useAuth } from "@/features/auth/AuthContext";
+import { can, useBilling } from "@/features/billing/useBilling";
 import { isBusiness } from "@/features/auth/types";
 import { ApiError } from "@/shared/api/client";
 import {
@@ -38,6 +39,9 @@ function contractLabel(value: string | null | undefined) {
 
 export function JobOffersPage() {
   const { user } = useAuth();
+  const billing = useBilling();
+  const canJobs = can(billing, "hire.jobs");
+  const jobLimit = billing?.limits["hire.jobs"];
   const [items, setItems] = useState<JobOffer[]>([]);
   const [form, setForm] = useState<UpsertJobOffer>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,6 +50,7 @@ export function JobOffersPage() {
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -70,7 +75,18 @@ export function JobOffersPage() {
     setCertInput("");
   }
 
+  function closeForm() {
+    resetForm();
+    setFormOpen(false);
+  }
+
+  function openCreate() {
+    resetForm();
+    setFormOpen(true);
+  }
+
   function fill(offer: JobOffer) {
+    setFormOpen(true);
     setEditingId(offer.id);
     setLangInput("");
     setCertInput("");
@@ -122,6 +138,7 @@ export function JobOffersPage() {
         setFlash("Offre créée.");
       }
       resetForm();
+      setFormOpen(false);
       await load();
     } catch (err) {
       setError(err instanceof ApiError ? recruitmentError(err.message) : "Enregistrement impossible.");
@@ -135,7 +152,7 @@ export function JobOffersPage() {
       await deleteJobOffer(id);
       setFlash("Offre supprimée.");
       if (editingId === id) {
-        resetForm();
+        closeForm();
       }
       await load();
     } catch (err) {
@@ -144,18 +161,35 @@ export function JobOffersPage() {
   }
 
   return (
-    <section className="jobs-page">
+    <section className="hire-page">
       <div className="page-head">
         <div>
+          <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
           <h1>Offres d’emploi</h1>
-          <p className="sub">Publiez une offre, puis rattachez-la à un recrutement dans le pipeline.</p>
+          <p className="sub">
+            Cartes brouillon ou publiée.
+            {jobLimit != null ? ` Offre actuelle : ${items.length} / ${jobLimit} offres.` : ""}
+          </p>
         </div>
+        {canJobs && (jobLimit == null || items.length < jobLimit) ? (
+          <Button variant="primary" type="button" onClick={openCreate}>
+            Nouvelle offre
+          </Button>
+        ) : canJobs ? (
+          <Button variant="outline" to="/app/profile/plan">
+            Limite d’offres atteinte
+          </Button>
+        ) : (
+          <Button variant="outline" to="/app/profile/plan">
+            Débloquer les offres
+          </Button>
+        )}
       </div>
       {flash ? <p className="fu-flash">{flash}</p> : null}
       {error ? <p className="auth-error">{error}</p> : null}
 
-      <div className="jobs-layout">
-        <Panel title={editingId ? "Modifier l’offre" : "Créer une offre"} body>
+      {formOpen ? (
+        <Panel title={editingId ? "Modifier l’offre" : "Nouvelle offre"} body>
           <form
             className="jobs-form"
             onSubmit={(event) => {
@@ -317,49 +351,50 @@ export function JobOffersPage() {
               </div>
             </div>
             <div className="jobs-actions">
-              {editingId ? (
-                <Button variant="outline" type="button" onClick={resetForm}>
-                  Annuler
-                </Button>
-              ) : null}
+              <Button variant="outline" type="button" onClick={closeForm}>
+                Annuler
+              </Button>
               <Button variant="primary" type="submit" disabled={saving}>
                 {saving ? "Enregistrement…" : editingId ? "Mettre à jour" : "Créer l’offre"}
               </Button>
             </div>
           </form>
         </Panel>
+      ) : null}
 
-        <Panel title="Vos offres" actionLabel={items.length ? `${items.length}` : undefined}>
-          {items.length === 0 ? (
-            <p className="jobs-empty">
-              <strong>Aucune offre</strong>
-              <span>Cette liste est vide. Créez une offre avec le formulaire ci-contre.</span>
-            </p>
-          ) : (
-            items.map((offer) => (
-              <div key={offer.id} className="contract-item">
-                <div>
-                  <div className="t">{offer.title}</div>
-                  <div className="s">
-                    {[offer.position, offer.location, contractLabel(offer.contractType)].filter(Boolean).join(" · ") || "Détails non renseignés"}
-                  </div>
-                </div>
-                <div className="jobs-offer-actions">
-                  <StatusPill tone={offer.status === "PUBLISHED" ? "verified" : "pending"}>
-                    {offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"}
-                  </StatusPill>
-                  <Button variant="mini" type="button" onClick={() => fill(offer)}>
-                    Modifier
-                  </Button>
-                  <Button variant="outline" type="button" onClick={() => void remove(offer.id)}>
-                    Supprimer
-                  </Button>
-                </div>
+      {items.length === 0 && !error && !formOpen ? (
+        <div className="fu-empty">
+          <p>Aucune offre pour le moment.</p>
+          <Button variant="primary" type="button" onClick={openCreate}>
+            Nouvelle offre
+          </Button>
+        </div>
+      ) : (
+        <div className="hire-grid">
+          {items.map((offer) => (
+            <article key={offer.id} className="hire-card">
+              <div className="hire-card-copy">
+                <strong>{offer.title}</strong>
+                <p>
+                  {[offer.position, offer.location, contractLabel(offer.contractType)].filter(Boolean).join(" · ") ||
+                    "Détails non renseignés"}
+                </p>
+                <StatusPill tone={offer.status === "PUBLISHED" ? "verified" : "pending"}>
+                  {offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"}
+                </StatusPill>
               </div>
-            ))
-          )}
-        </Panel>
-      </div>
+              <div className="jobs-offer-actions">
+                <Button variant="mini" type="button" onClick={() => fill(offer)}>
+                  Modifier
+                </Button>
+                <Button variant="outline" type="button" onClick={() => void remove(offer.id)}>
+                  Supprimer
+                </Button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

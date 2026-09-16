@@ -16,7 +16,9 @@ import com.fitnessuplink.onboarding.dto.ItemField;
 import com.fitnessuplink.onboarding.dto.ProfileFieldResponse;
 import com.fitnessuplink.onboarding.dto.ProfileValuesResponse;
 import com.fitnessuplink.onboarding.dto.SelectCountryRequest;
+import com.fitnessuplink.onboarding.dto.SelectIntentRequest;
 import com.fitnessuplink.onboarding.dto.SelectOption;
+import com.fitnessuplink.onboarding.dto.SelectPlanRequest;
 import com.fitnessuplink.onboarding.dto.SelectRoleRequest;
 import com.fitnessuplink.user.User;
 import com.fitnessuplink.user.UserRepository;
@@ -48,7 +50,8 @@ public class OnboardingService {
     private static final Pattern PERSON_NAME = Pattern.compile("^\\p{L}[\\p{L} .'\\-]{0,79}$");
     private static final Pattern PHONE = Pattern.compile("^[+0-9() .\\-]{6,32}$");
     private static final Pattern CITY = Pattern.compile("^[\\p{L}0-9 .,'\\-]{2,80}$");
-    private static final Pattern EMAIL = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern ID_NUMBER = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9 ./-]{3,39}$");
+    private static final Pattern EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$");
     private static final Set<String> NAME_KEYS = Set.of("first_name", "last_name");
     private static final String VERIFICATION_STATUS = "verification_status";
 
@@ -73,7 +76,31 @@ public class OnboardingService {
         user.setAppRole(role);
         if (roleChanged) {
             userProfileValueRepository.deleteByUserId(user.getId());
+            user.setProfessionalIntent(null);
+            user.setProfileVisible(false);
+            user.setSelectedPlan(null);
+            user.setSelectedPlanInterval(null);
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+            user.setOnboardingCompleted(false);
         }
+        if (!UserService.needsIntent(role)) {
+            user.setProfessionalIntent(null);
+        }
+        userRepository.save(user);
+        return userService.toResponse(user);
+    }
+
+    @Transactional
+    public UserResponse selectIntent(UUID userId, SelectIntentRequest request) {
+        User user = requireOnboardingUser(userId);
+        if (user.getAppRole() == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez un rôle d’abord");
+        }
+        if (!UserService.needsIntent(user.getAppRole())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Ce rôle n’a pas de sous-choix");
+        }
+        user.setProfessionalIntent(request.intent());
         userRepository.save(user);
         return userService.toResponse(user);
     }
@@ -83,6 +110,10 @@ public class OnboardingService {
         User user = requireOnboardingUser(userId);
         if (user.getAppRole() == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Choose a role first");
+        }
+        if (UserService.needsIntent(user.getAppRole())
+                && (user.getProfessionalIntent() == null || user.getProfessionalIntent().isBlank())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez emploi, coaching ou les deux");
         }
         Country country = countryRepository.findById(request.countryId())
                 .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Unknown country"));
@@ -136,8 +167,9 @@ public class OnboardingService {
                 value = previous == null || previous.isBlank() ? "pending" : previous;
             } else {
                 value = sanitize(incoming.get(field.getFieldKey()));
+                value = normalizeRepeatable(field, value);
                 if (UserService.isMissing(field.getFieldType(), value)) {
-                    value = sanitize(existing.get(field.getFieldKey()));
+                    value = normalizeRepeatable(field, sanitize(existing.get(field.getFieldKey())));
                 }
             }
             if (UserService.isMissing(field.getFieldType(), value)) {
@@ -153,9 +185,83 @@ public class OnboardingService {
 
         userProfileValueRepository.deleteByUserId(user.getId());
         userProfileValueRepository.saveAll(stored);
-        user.setOnboardingCompleted(userService.hasRequiredProfile(user));
+        boolean ready = userService.hasRequiredProfile(user);
+        if (!user.isMember()) {
+            user.setOnboardingCompleted(ready);
+        } else if (user.isOnboardingCompleted()) {
+            user.setOnboardingCompleted(ready);
+        }
+        user.setProfileVisible(ready && userService.isProfileVisibleComplete(user));
         userRepository.save(user);
         return userService.toResponse(user);
+    }
+
+    @Transactional
+    public UserResponse selectPlan(UUID userId, SelectPlanRequest request) {
+        User user = requireUser(userId);
+        if (user.isSuperAdmin()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "PLAN_NOT_NEEDED");
+        }
+        if (!userService.hasRequiredProfile(user)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Complétez d’abord votre profil");
+        }
+        boolean free = false;
+        if (!user.isOnboardingCompleted()) {
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+            user.setSelectedPlan(request.plan());
+            user.setSelectedPlanInterval(request.interval());
+            user.setOnboardingCompleted(free);
+            userRepository.save(user);
+            return userService.toResponse(user);
+        }
+        boolean same = request.plan().equals(user.getSelectedPlan())
+                && request.interval().equals(user.getSelectedPlanInterval());
+        if (same) {
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+        } else if (free) {
+            user.setSelectedPlan(request.plan());
+            user.setSelectedPlanInterval(request.interval());
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+        } else {
+            user.setPendingPlan(request.plan());
+            user.setPendingPlanInterval(request.interval());
+        }
+        userRepository.save(user);
+        return userService.toResponse(user);
+    }
+
+    @Transactional
+    public UserResponse confirmPayment(UUID userId) {
+        User user = requireMember(userId);
+        if (!user.isOnboardingCompleted()) {
+            if (!user.hasSelectedPlan()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez d’abord une offre");
+            }
+            user.setOnboardingCompleted(true);
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+        } else {
+            if (!user.hasPendingPlan()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Aucune offre à payer");
+            }
+            user.setSelectedPlan(user.getPendingPlan());
+            user.setSelectedPlanInterval(user.getPendingPlanInterval());
+            user.setPendingPlan(null);
+            user.setPendingPlanInterval(null);
+        }
+        userRepository.save(user);
+        return userService.toResponse(user);
+    }
+
+    private User requireMember(UUID userId) {
+        User user = requireUser(userId);
+        if (!user.isMember()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cette étape concerne uniquement les membres");
+        }
+        return user;
     }
 
     private List<ProfileFieldResponse> schemaFor(UUID roleId) {
@@ -184,7 +290,8 @@ public class OnboardingService {
                 field.getSectionLabel(),
                 field.getSectionIcon(),
                 field.getHelpText(),
-                field.getAccept()
+                field.getAccept(),
+                mapping.isVisibilityRequired()
         );
     }
 
@@ -236,6 +343,9 @@ public class OnboardingService {
             case "TEXT" -> {
                 if (NAME_KEYS.contains(field.getFieldKey()) && !PERSON_NAME.matcher(value).matches()) {
                     throw new ApiException(HttpStatus.BAD_REQUEST, field.getLabel() + " contains invalid characters");
+                }
+                if ("identity_document_number".equals(field.getFieldKey()) && !ID_NUMBER.matcher(value).matches()) {
+                    throw new ApiException(HttpStatus.BAD_REQUEST, "Indiquez un n° CIN ou passeport valide");
                 }
             }
             case "CITY" -> {
@@ -359,6 +469,52 @@ public class OnboardingService {
         }
     }
 
+    private String normalizeRepeatable(ProfileField field, String value) {
+        if (value == null || !"REPEATABLE".equalsIgnoreCase(field.getFieldType())) {
+            return value;
+        }
+        try {
+            JsonNode array = objectMapper.readTree(value);
+            if (!array.isArray()) {
+                return value;
+            }
+            List<ItemField> schema = parseMeta(field.getOptionsJson()).itemFields();
+            List<JsonNode> kept = new ArrayList<>();
+            for (JsonNode item : array) {
+                if (item == null || !item.isObject()) {
+                    continue;
+                }
+                boolean filled = false;
+                if (schema.isEmpty()) {
+                    var fields = item.fields();
+                    while (fields.hasNext()) {
+                        var entry = fields.next();
+                        if (entry.getValue() != null && !entry.getValue().asText("").trim().isBlank()) {
+                            filled = true;
+                            break;
+                        }
+                    }
+                } else {
+                    for (ItemField spec : schema) {
+                        if (!item.path(spec.key()).asText("").trim().isBlank()) {
+                            filled = true;
+                            break;
+                        }
+                    }
+                }
+                if (filled) {
+                    kept.add(item);
+                }
+            }
+            if (kept.isEmpty()) {
+                return null;
+            }
+            return objectMapper.writeValueAsString(kept);
+        } catch (Exception ex) {
+            return value;
+        }
+    }
+
     private void validateRepeatable(ProfileField field, String value) {
         try {
             JsonNode array = objectMapper.readTree(value);
@@ -370,7 +526,7 @@ public class OnboardingService {
                 for (ItemField spec : schema) {
                     String raw = item.path(spec.key()).asText("").trim();
                     if (spec.required() && raw.isBlank()) {
-                        throw new ApiException(HttpStatus.BAD_REQUEST, spec.label() + " is required");
+                        throw new ApiException(HttpStatus.BAD_REQUEST, spec.label() + " est obligatoire");
                     }
                     if (raw.length() > 400 && !"textarea".equals(spec.type())) {
                         throw new ApiException(HttpStatus.BAD_REQUEST, spec.label() + " is too long");

@@ -1,6 +1,7 @@
 package com.fitnessuplink.user.dto;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public record UserResponse(
@@ -15,6 +16,15 @@ public record UserResponse(
         OnboardingStep onboardingStep,
         Instant createdAt,
         UUID avatarUploadId,
-        String verificationStatus
+        String verificationStatus,
+        boolean enabled,
+        List<String> permissions,
+        String professionalIntent,
+        boolean profileVisible,
+        boolean emailVerified,
+        String selectedPlan,
+        String selectedPlanInterval,
+        String pendingPlan,
+        String pendingPlanInterval
 ) {
 }

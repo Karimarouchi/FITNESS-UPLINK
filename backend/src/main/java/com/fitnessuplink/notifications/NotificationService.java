@@ -14,6 +14,22 @@ import java.util.UUID;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserNotifyPrefsService userNotifyPrefsService;
+
+    @Transactional
+    public void notify(
+            UUID userId,
+            NotifyCategory category,
+            String title,
+            String message,
+            String actionLabel,
+            String actionPath
+    ) {
+        if (!userNotifyPrefsService.allowsInApp(userId, category)) {
+            return;
+        }
+        notify(userId, title, message, actionLabel, actionPath);
+    }
 
     @Transactional
     public void notify(UUID userId, String title, String message, String actionLabel, String actionPath) {

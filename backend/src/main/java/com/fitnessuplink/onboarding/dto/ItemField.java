@@ -1,9 +1,11 @@
 package com.fitnessuplink.onboarding.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public record ItemField(
-        String key,
+        @JsonProperty("key") String key,
         String label,
         String type,
         boolean required,

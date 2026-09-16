@@ -51,8 +51,8 @@ export function StartRecruitmentModal({
   return (
     <div className="fu-backdrop" role="presentation" onClick={onClose}>
       <div className="fu-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-        <h2 className="font-display-lg-mobile text-primary">Démarrer un recrutement avec {candidateName}</h2>
-        <p className="font-body-md text-on-surface-variant">Ajoutez ce candidat à votre processus de recrutement.</p>
+        <h2 className="font-display-lg-mobile text-primary">Ajouter {candidateName} au pipeline</h2>
+        <p className="font-body-md text-on-surface-variant">Le dossier n’apparaît dans le Kanban qu’après cet ajout.</p>
         <fieldset className="fu-radios">
           <legend>Pour quelle opportunité ?</legend>
           <label>
@@ -96,7 +96,7 @@ export function StartRecruitmentModal({
             Annuler
           </button>
           <button className="ob-primary" type="button" disabled={submitting} onClick={() => void submit()}>
-            {submitting ? "Ajout…" : "Démarrer le recrutement"}
+            {submitting ? "Ajout…" : "Ajouter au pipeline"}
           </button>
         </div>
       </div>

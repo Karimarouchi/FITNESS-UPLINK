@@ -31,7 +31,7 @@ export function PipelineFilters({
       </select>
       <select className="custom-input" value={statusFilter} onChange={(event) => onStatusFilter(event.target.value)}>
         <option value="">Tous les statuts</option>
-        {PIPELINE_STATUSES.map((status) => (
+        {PIPELINE_STATUSES.filter((status) => status.value !== "APPLIED").map((status) => (
           <option key={status.value} value={status.value}>
             {status.label}
           </option>

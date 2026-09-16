@@ -110,8 +110,8 @@ export function validatePassword(password: string, email = ""): string | null {
     return `Maximum ${LIMITS.passwordMax} characters`;
   }
   const rules = passwordRules(password);
-  if (!rules.length || !rules.uppercase || !rules.number || !rules.special || !rules.noSpace) {
-    return "Use 8–128 characters, with uppercase, a number, a special character, and no spaces";
+  if (!rules.length || !rules.uppercase || !rules.lowercase || !rules.number || !rules.special || !rules.noSpace) {
+    return "Use 8–128 characters, with uppercase, lowercase, a number, a special character, and no spaces";
   }
   const local = trimValue(email).split("@")[0]?.toLowerCase();
   if (local && local.length >= 3 && password.toLowerCase().includes(local)) {

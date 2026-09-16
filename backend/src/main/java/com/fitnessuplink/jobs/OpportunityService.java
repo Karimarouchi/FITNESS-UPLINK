@@ -2,6 +2,8 @@ package com.fitnessuplink.jobs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.jobs.dto.OpportunityDto;
 import com.fitnessuplink.onboarding.UserProfileValue;
@@ -22,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,18 +34,21 @@ public class OpportunityService {
 
     private static final TypeReference<List<String>> STRING_LIST = new TypeReference<>() {
     };
+    private static final Pattern UPLOAD_ID = Pattern.compile("\"id\"\\s*:\\s*\"([0-9a-fA-F-]{36})\"");
 
     private final JobOfferRepository jobOfferRepository;
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
     private final TalentPipelineRepository talentPipelineRepository;
     private final ObjectMapper objectMapper;
+    private final PermissionService permissionService;
 
     @Transactional(readOnly = true)
     public List<OpportunityDto> listPublished(User candidate, String query) {
         if (!candidate.isCandidate() || !candidate.isOnboardingCompleted()) {
             throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
         }
+        permissionService.require(candidate, Permissions.HIRE_JOBS_APPLY);
         Instant now = Instant.now();
         String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
         List<JobOffer> offers = jobOfferRepository.findByStatusOrderByUpdatedAtDesc(JobOfferStatus.PUBLISHED).stream()
@@ -54,7 +61,7 @@ public class OpportunityService {
         return offers.stream()
                 .map(offer -> {
                     User employer = employers.get(offer.getEmployerId());
-                    if (employer == null || !employer.isBusiness() || !employer.isOnboardingCompleted()) {
+                    if (employer == null || !employer.isOnboardingCompleted()) {
                         return null;
                     }
                     boolean applied = talentPipelineRepository.existsByEmployerIdAndCandidateIdAndJobOfferId(
@@ -72,6 +79,31 @@ public class OpportunityService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public OpportunityDto getPublished(User candidate, UUID offerId) {
+        if (!candidate.isCandidate() || !candidate.isOnboardingCompleted()) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
+        }
+        permissionService.require(candidate, Permissions.HIRE_JOBS_APPLY);
+        JobOffer offer = jobOfferRepository.findById(offerId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
+        if (offer.getStatus() != JobOfferStatus.PUBLISHED
+                || (offer.getExpiresAt() != null && offer.getExpiresAt().isBefore(Instant.now()))) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND");
+        }
+        User employer = userRepository.findById(offer.getEmployerId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
+        if (!employer.isOnboardingCompleted()) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND");
+        }
+        boolean applied = talentPipelineRepository.existsByEmployerIdAndCandidateIdAndJobOfferId(
+                employer.getId(),
+                candidate.getId(),
+                offer.getId()
+        );
+        return toDto(offer, employer, valuesOf(Set.of(employer.getId())).getOrDefault(employer.getId(), Map.of()), applied);
+    }
+
     private OpportunityDto toDto(JobOffer offer, User employer, Map<String, String> values, boolean applied) {
         return new OpportunityDto(
                 offer.getId(),
@@ -86,6 +118,7 @@ public class OpportunityService {
                 offer.getExperience(),
                 offer.getDescription(),
                 organizationName(employer, values),
+                firstUploadId(values.get("organization_logo")),
                 countryOf(employer),
                 applied,
                 offer.getExpiresAt(),
@@ -154,5 +187,20 @@ public class OpportunityService {
 
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
+    }
+
+    private UUID firstUploadId(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        Matcher matcher = UPLOAD_ID.matcher(json);
+        if (!matcher.find()) {
+            return null;
+        }
+        try {
+            return UUID.fromString(matcher.group(1));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 }

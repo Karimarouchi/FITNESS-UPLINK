@@ -37,4 +37,7 @@ public class RoleProfileField {
 
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
+
+    @Column(name = "visibility_required", nullable = false)
+    private boolean visibilityRequired;
 }

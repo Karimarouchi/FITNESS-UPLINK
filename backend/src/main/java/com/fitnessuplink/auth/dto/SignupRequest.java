@@ -18,7 +18,8 @@ public record SignupRequest(
         String email,
         @NotBlank @StrongPassword String password,
         @NotBlank @Size(min = 8, max = 128) String confirmPassword,
-        @AssertTrue(message = "You must accept the terms") boolean acceptedTerms
+        @AssertTrue(message = "You must accept the terms") boolean acceptedTerms,
+        @Size(max = 4000) String recaptchaToken
 ) {
     @AssertTrue(message = "Passwords do not match")
     public boolean isPasswordConfirmed() {

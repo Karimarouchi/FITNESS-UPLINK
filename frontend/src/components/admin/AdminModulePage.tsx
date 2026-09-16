@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { fetchCandidates, type CandidateCard } from "@/features/talent/api";
+import { AdminBillingPage } from "@/features/admin/pages/AdminBillingPage";
+import { AdminCoachingPage } from "@/features/admin/pages/AdminCoachingPage";
 import { adminModuleBySlug } from "./adminNav";
 
 export function AdminModulePage() {
@@ -13,6 +15,12 @@ export function AdminModulePage() {
   }
   if (def.slug === "recruitment") {
     return <AdminRecruitmentPage lead={def.lead} title={def.title} empty={def.empty} />;
+  }
+  if (def.slug === "subscriptions") {
+    return <AdminBillingPage />;
+  }
+  if (def.slug === "coaching") {
+    return <AdminCoachingPage />;
   }
   return (
     <section>
@@ -35,7 +43,7 @@ function AdminRecruitmentPage({ title, lead, empty }: { title: string; lead: str
 
   useEffect(() => {
     fetchCandidates()
-      .then(setCandidates)
+      .then((page) => setCandidates(page.items))
       .catch(() => setError("Impossible de charger les candidats."));
   }, []);
 

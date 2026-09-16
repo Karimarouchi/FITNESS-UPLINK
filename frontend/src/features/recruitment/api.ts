@@ -2,6 +2,7 @@ import { api } from "@/shared/api/client";
 import type { CountrySummary } from "@/features/auth/types";
 
 export type PipelineStatus =
+  | "APPLIED"
   | "NEW"
   | "CONTACTED"
   | "INTERVIEW_SCHEDULED"
@@ -47,6 +48,12 @@ export type Recruitment = {
   updatedAt: string;
   statusUpdatedAt: string;
   contract: ContractSummary | null;
+  coverLetterText: string | null;
+  coverLetterFile: { id: string; name: string; contentType: string; size: number } | null;
+  cvFile: { id: string; name: string; contentType: string; size: number } | null;
+  interviewAt: string | null;
+  interviewMode: "MEET" | "ONSITE" | string | null;
+  interviewPlace: string | null;
 };
 
 export type ContractSummary = {
@@ -78,6 +85,7 @@ export type RecruitmentSummary = {
 };
 
 export const PIPELINE_STATUSES: { value: PipelineStatus; label: string }[] = [
+  { value: "APPLIED", label: "Candidature reçue" },
   { value: "NEW", label: "Nouveau" },
   { value: "CONTACTED", label: "Contacté" },
   { value: "INTERVIEW_SCHEDULED", label: "Entretien prévu" },
@@ -97,12 +105,29 @@ export const BOARD_COLUMNS: PipelineStatus[] = [
   "HIRED",
 ];
 
-export function statusLabel(status: PipelineStatus) {
+export function statusLabel(status: PipelineStatus, audience: "employer" | "candidate" = "employer") {
+  if (audience === "candidate") {
+    if (status === "APPLIED") {
+      return "Envoyée";
+    }
+    if (status === "REJECTED") {
+      return "Refusée";
+    }
+    if (status === "HIRED") {
+      return "Recruté";
+    }
+    if (status === "ARCHIVED") {
+      return "Archivée";
+    }
+    return "En cours";
+  }
   return PIPELINE_STATUSES.find((item) => item.value === status)?.label ?? status;
 }
 
 export function pipelineTone(status: PipelineStatus): "new" | "interview" | "sent" | "refused" | "verified" | "pending" {
   switch (status) {
+    case "APPLIED":
+      return "pending";
     case "NEW":
     case "CONTACTED":
       return "new";
@@ -127,7 +152,17 @@ export function recruitmentError(code: string) {
     case "JOB_OFFER_NOT_FOUND":
       return "Offre d’emploi introuvable.";
     case "RECRUITMENT_ALREADY_EXISTS":
-      return "Ce candidat est déjà dans votre pipeline pour cette opportunité.";
+      return "Une candidature existe déjà pour cette offre.";
+    case "COVER_LETTER_TOO_LONG":
+      return "La lettre de motivation est trop longue.";
+    case "INVALID_COVER_LETTER":
+      return "Le fichier de lettre de motivation n’est pas valide.";
+    case "MESSAGING_NOT_OPEN":
+      return "La conversation s’ouvre une fois le candidat recruté.";
+    case "EMPTY_MESSAGE":
+      return "Écrivez un message avant d’envoyer.";
+    case "MESSAGE_TOO_LONG":
+      return "Le message est trop long.";
     case "FORBIDDEN":
       return "Vous n’êtes pas autorisé à effectuer cette action.";
     case "INVALID_PIPELINE_STATUS":
@@ -153,7 +188,27 @@ export function recruitmentError(code: string) {
     case "FILE_TOO_LARGE":
       return "Ce fichier est trop volumineux (10 Mo maximum).";
     case "INVALID_FILE_TYPE":
-      return "Seuls les fichiers PDF sont acceptés.";
+      return "PDF, JPG ou PNG uniquement (8 Mo max).";
+    case "INTERVIEW_DETAILS_REQUIRED":
+      return "Indiquez la date, l’heure et le lieu ou le lien de l’entretien.";
+    case "INTERVIEW_MEET_LINK_REQUIRED":
+      return "Collez le lien de la visioconférence (https://…).";
+    case "INVALID_ATTACHMENT":
+      return "La pièce jointe n’est pas valide.";
+    case "REPORT_REASON_REQUIRED":
+      return "Écrivez le motif du signalement.";
+    case "Trop de messages. Réessayez plus tard.":
+      return "Trop de messages. Réessayez plus tard.";
+    case "Trop de contacts aujourd’hui. Réessayez demain.":
+      return "Trop de contacts aujourd’hui. Réessayez demain.";
+    case "Trop de signalements aujourd’hui.":
+      return "Trop de signalements aujourd’hui.";
+    case "Too many attempts. Try again later.":
+      return "Trop de tentatives. Réessayez plus tard.";
+    case "ENTITLEMENT_REQUIRED":
+      return "Cette fonction n’est pas incluse dans votre offre.";
+    case "ENTITLEMENT_LIMIT":
+      return "Limite de votre offre atteinte. Passez à une offre supérieure.";
     default:
       return code;
   }
@@ -179,12 +234,80 @@ export function fetchRecruitment(id: string) {
   return api.get<Recruitment>(`/v1/recruitments/${id}`);
 }
 
+export function fetchInboxCount() {
+  return api.get<{ count: number }>("/v1/recruitments/inbox-count");
+}
+
+export function acceptApplication(id: string) {
+  return updateRecruitmentStatus(id, "CONTACTED");
+}
+
+export function rejectApplication(id: string) {
+  return updateRecruitmentStatus(id, "REJECTED");
+}
+
+export type RecruitmentFile = { id: string; name: string; contentType: string; size: number };
+
+export type RecruitmentMessage = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  mine: boolean;
+  body: string;
+  createdAt: string;
+  file: RecruitmentFile | null;
+};
+
+export function fetchMessages(id: string) {
+  return api.get<RecruitmentMessage[]>(`/v1/recruitments/${id}/messages`);
+}
+
+export function sendMessage(id: string, body: string, uploadId?: string) {
+  return api.post<RecruitmentMessage>(`/v1/recruitments/${id}/messages`, { body, uploadId });
+}
+
+export function uploadMessageFile(id: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return api.postForm<RecruitmentFile>(`/v1/recruitments/${id}/messages/file`, body);
+}
+
+export function reportRecruitment(id: string, reason: string) {
+  return api.post<{ status: string }>(`/v1/recruitments/${id}/report`, { reason });
+}
+
+export type RecruitmentConversation = {
+  id: string;
+  peerName: string;
+  title: string;
+  lastBody: string | null;
+  lastAt: string;
+  lastMine: boolean;
+  status: PipelineStatus;
+};
+
+export function fetchConversations() {
+  return api.get<RecruitmentConversation[]>("/v1/recruitments/conversations");
+}
+
+export function fetchCoverLetterBlob(id: string) {
+  return api.getBlob(`/v1/recruitments/${id}/cover-letter`);
+}
+
+export function fetchMessageFileBlob(recruitmentId: string, messageId: string) {
+  return api.getBlob(`/v1/recruitments/${recruitmentId}/messages/${messageId}/file`);
+}
+
 export function startRecruitment(body: { candidateId: string; jobOfferId?: string; internalNote?: string }) {
   return api.post<Recruitment>("/v1/recruitments", body);
 }
 
-export function updateRecruitmentStatus(id: string, status: PipelineStatus) {
-  return api.patch<Recruitment>(`/v1/recruitments/${id}/status`, { status });
+export function updateRecruitmentStatus(
+  id: string,
+  status: PipelineStatus,
+  interview?: { interviewAt: string; interviewMode: "MEET" | "ONSITE"; interviewPlace: string },
+) {
+  return api.patch<Recruitment>(`/v1/recruitments/${id}/status`, { status, ...interview });
 }
 
 export function updateRecruitmentNote(id: string, internalNote: string) {
@@ -193,6 +316,10 @@ export function updateRecruitmentNote(id: string, internalNote: string) {
 
 export function archiveRecruitment(id: string) {
   return api.patch<Recruitment>(`/v1/recruitments/${id}/archive`);
+}
+
+export function blockRecruitment(id: string) {
+  return api.post<Recruitment>(`/v1/recruitments/${id}/block`);
 }
 
 export function formatPipelineDate(value: string) {

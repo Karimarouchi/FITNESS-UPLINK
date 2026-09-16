@@ -10,5 +10,7 @@ public interface AppRoleRepository extends JpaRepository<AppRole, UUID> {
 
     Optional<AppRole> findByCode(String code);
 
+    List<AppRole> findAllByOrderBySortOrderAsc();
+
     List<AppRole> findBySelectableTrueOrderBySortOrderAsc();
 }

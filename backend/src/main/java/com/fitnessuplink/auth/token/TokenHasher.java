@@ -20,6 +20,11 @@ public class TokenHasher {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
+    public String newNumericCode(int digits) {
+        int bound = (int) Math.pow(10, digits);
+        return String.format("%0" + digits + "d", secureRandom.nextInt(bound));
+    }
+
     public String sha256(String rawToken) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

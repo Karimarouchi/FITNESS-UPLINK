@@ -14,7 +14,11 @@ import {
   validateTextarea,
   validateUrl,
 } from "@/features/auth/validation";
+import { Select } from "@/components/ui/Select";
 import { completeProfile, fetchCountries, fetchProfileFields, fetchProfileValues, parseCv } from "../api";
+import { LocaleSwitch, useOnboardingLocale } from "../LocaleContext";
+import { OnboardingBrand } from "../OnboardingFrame";
+import { fieldLabel } from "../i18n";
 import {
   BooleanToggle,
   CountryMultiField,
@@ -23,6 +27,7 @@ import {
   MoneyField,
   MultiSelectField,
   PhotoField,
+  GroupClassSlotsField,
   RepeatableField,
   TagInput,
 } from "../ProfileWidgets";
@@ -84,14 +89,51 @@ function mergeFromCv(
   return { next, applied, opened };
 }
 
-function isBlankJson(type: string, value: string) {
+function repeatableItemFields(field: ProfileField) {
+  if (field.itemFields?.length) {
+    return field.itemFields;
+  }
+  if (field.fieldKey === "legal_representative") {
+    return [
+      { key: "name", label: "Nom et prénom", type: "text", required: true, options: [] },
+      { key: "title", label: "Fonction", type: "text", required: true, options: [] },
+      { key: "id_number", label: "N° pièce d’identité", type: "text", required: false, options: [] },
+      { key: "email", label: "E-mail", type: "text", required: false, options: [] },
+      { key: "phone", label: "Téléphone", type: "text", required: false, options: [] },
+    ];
+  }
+  return field.itemFields ?? [];
+}
+
+function compactRepeatable(value: string, schema: { key: string }[]) {
+  const parsed = parseJson<unknown>(value || "[]", []);
+  const rows = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === "object"
+      ? [parsed]
+      : [];
+  const filled = rows.filter((item) => {
+    if (!item || typeof item !== "object") {
+      return false;
+    }
+    const row = item as Record<string, string>;
+    const keys = schema.length ? schema.map((spec) => spec.key) : Object.keys(row);
+    return keys.some((key) => (row[key] ?? "").trim());
+  });
+  return JSON.stringify(filled);
+}
+
+function isBlankJson(type: string, value: string, schema: { key: string }[] = []) {
   if (!value || !value.trim()) {
     return true;
   }
   if (["PHOTO", "FILE", "FILES"].includes(type)) {
     return !hasUploadId(value);
   }
-  if (["TAGS", "MULTISELECT", "REPEATABLE", "COUNTRY_MULTI"].includes(type)) {
+  if (type === "REPEATABLE") {
+    return compactRepeatable(value, schema) === "[]";
+  }
+  if (["TAGS", "MULTISELECT", "COUNTRY_MULTI"].includes(type)) {
     const parsed = parseJson<unknown>(value, []);
     if (Array.isArray(parsed)) {
       return parsed.length === 0;
@@ -105,20 +147,24 @@ function isBlankJson(type: string, value: string) {
   return false;
 }
 
-const ONBOARDING_REQUIRED = new Set(["professional_photo", "organization_logo", "first_name", "last_name", "city", "phone"]);
-
-function isFieldRequired(field: ProfileField, onboarding: boolean) {
-  return field.required || (onboarding && ONBOARDING_REQUIRED.has(field.fieldKey));
+function isFieldRequired(field: ProfileField) {
+  return field.required;
 }
 
-function fieldError(field: ProfileField, value: string, onboarding: boolean) {
+function fieldError(field: ProfileField, value: string) {
   const type = field.fieldType.toUpperCase();
-  const required = isFieldRequired(field, onboarding);
-  if (isBlankJson(type, value)) {
+  const required = isFieldRequired(field);
+  if (isBlankJson(type, value, type === "REPEATABLE" ? repeatableItemFields(field) : [])) {
     return required ? `${field.label} est obligatoire` : null;
   }
   if (field.fieldKey === "first_name" || field.fieldKey === "last_name") {
     return validateName(value);
+  }
+  if (field.fieldKey === "identity_document_number") {
+    if (!/^[A-Za-z0-9][A-Za-z0-9 ./-]{3,39}$/.test(value.trim())) {
+      return "Indiquez un n° CIN ou passeport valide";
+    }
+    return null;
   }
   if (type === "CITY") {
     return validateCity(value, required);
@@ -145,7 +191,19 @@ function fieldError(field: ProfileField, value: string, onboarding: boolean) {
     }
     return null;
   }
-  if (["SELECT", "BOOLEAN", "COUNTRY", "PHOTO", "FILE", "FILES", "TAGS", "MULTISELECT", "REPEATABLE", "COUNTRY_MULTI"].includes(type)) {
+  if (type === "REPEATABLE") {
+    const schema = repeatableItemFields(field);
+    const items = parseJson<Record<string, string>[]>(compactRepeatable(value, schema), []);
+    for (const item of items) {
+      for (const spec of schema) {
+        if (spec.required && !(item[spec.key] ?? "").trim()) {
+          return `${spec.label} est obligatoire`;
+        }
+      }
+    }
+    return null;
+  }
+  if (["SELECT", "BOOLEAN", "COUNTRY", "PHOTO", "FILE", "FILES", "TAGS", "MULTISELECT", "COUNTRY_MULTI"].includes(type)) {
     return null;
   }
   return validateOptionalText(value, field.label, field.maxLength);
@@ -175,8 +233,45 @@ type Section = {
   fields: ProfileField[];
 };
 
+const SPORT_SECTION_ICONS: Record<string, string> = {
+  identity: "sports_score",
+  profession: "fitness_center",
+  experience: "sports",
+  documents: "military_tech",
+  media: "videocam",
+  contract: "handshake",
+  mobility: "public",
+  org_identity: "stadium",
+  org_location: "location_on",
+  org_contact: "call",
+  org_legal: "verified",
+  org_hiring: "groups",
+  org_verification: "verified_user",
+  legal: "verified",
+  contact: "call",
+  profile: "exercise",
+};
+
+const SPORT_ROLE_ICONS: Record<string, string> = {
+  MEMBER: "exercise",
+  CANDIDATE: "sports",
+  EMPLOYER: "stadium",
+  ACADEMY: "school",
+  SUPPLIER: "inventory_2",
+  SERVICE_PROVIDER: "handyman",
+  EVENT_ORGANIZER: "emoji_events",
+  EXPERT_CREATOR: "nutrition",
+};
+
+function sportSectionIcon(sectionKey: string, fallback?: string) {
+  return SPORT_SECTION_ICONS[sectionKey] ?? fallback ?? "fitness_center";
+}
+
+const IDENTITY_KEYS = new Set(["identity_document_type", "identity_document_number", "identity_document"]);
+
 export function CompleteProfilePage() {
   const { user, updateUser } = useAuth();
+  const { locale, t } = useOnboardingLocale();
   const navigate = useNavigate();
   const path = useLocation().pathname;
   const editing = path === "/profile" || path === "/app/profile/edit";
@@ -224,7 +319,7 @@ export function CompleteProfilePage() {
       })
       .catch(() => {
         if (!cancelled) {
-          setError("Impossible de charger le formulaire.");
+          setError(t.loadFormError);
         }
       })
       .finally(() => {
@@ -247,7 +342,7 @@ export function CompleteProfilePage() {
       const key = field.sectionKey || "profile";
       let section = index.get(key);
       if (!section) {
-        section = { key, label: field.sectionLabel || "Profil", icon: field.sectionIcon || "person", fields: [] };
+        section = { key, label: field.sectionLabel || "Profil", icon: sportSectionIcon(key, field.sectionIcon), fields: [] };
         index.set(key, section);
         order.push(section);
       }
@@ -257,15 +352,18 @@ export function CompleteProfilePage() {
   }, [fields]);
 
   function issueFor(field: ProfileField) {
-    return fieldError(field, values[field.fieldKey] ?? "", true);
+    if (field.fieldKey === "identity_document_number" && !(values.identity_document_type ?? "").trim()) {
+      return isFieldRequired(field) ? t.identityChooseFirst : null;
+    }
+    return fieldError(field, values[field.fieldKey] ?? "");
   }
 
   function filledCount(sectionFields: ProfileField[]) {
-    return sectionFields.filter((field) => !isBlankJson(field.fieldType.toUpperCase(), values[field.fieldKey] ?? "")).length;
+    return sectionFields.filter((field) => !isBlankJson(field.fieldType.toUpperCase(), values[field.fieldKey] ?? "", repeatableItemFields(field))).length;
   }
 
   function sectionMeta(section: Section) {
-    const requiredFields = section.fields.filter((field) => isFieldRequired(field, true));
+    const requiredFields = section.fields.filter((field) => isFieldRequired(field));
     if (requiredFields.length) {
       const done = requiredFields.filter((field) => !issueFor(field)).length;
       return `${done}/${requiredFields.length} obligatoire${requiredFields.length > 1 ? "s" : ""}`;
@@ -366,7 +464,7 @@ export function CompleteProfilePage() {
         }
         return next;
       });
-      setError("Complétez les champs obligatoires marqués d’une *.");
+      setError(t.requiredBanner);
       requestAnimationFrame(() => {
         document.getElementById(`field-${firstInvalid.fieldKey}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
@@ -379,8 +477,9 @@ export function CompleteProfilePage() {
       const payload: Record<string, string> = {};
       for (const field of fields) {
         const type = field.fieldType.toUpperCase();
-        const value = values[field.fieldKey] ?? "";
-        if (isBlankJson(type, value)) {
+        const raw = values[field.fieldKey] ?? "";
+        const value = type === "REPEATABLE" ? compactRepeatable(raw, repeatableItemFields(field)) : raw;
+        if (isBlankJson(type, value, repeatableItemFields(field))) {
           continue;
         }
         payload[field.fieldKey] = ["TAGS", "MULTISELECT", "REPEATABLE", "FILES", "PHOTO", "FILE", "COUNTRY_MULTI", "MONEY"].includes(type)
@@ -404,31 +503,125 @@ export function CompleteProfilePage() {
       }
       const next = await completeProfile(payload);
       updateUser(next);
-      if (next.onboardingStep !== "DONE") {
+      if (next.onboardingStep === "PROFILE") {
         setAttempted(true);
-        setError("Complétez les champs obligatoires marqués d’une * pour continuer.");
+        setError(t.requiredBanner);
         return;
+      }
+      if (!editing && next.profileVisible === false) {
+        try {
+          sessionStorage.setItem("fu.visibility.notice", "1");
+        } catch {
+          /* ignore */
+        }
       }
       navigate(editing ? "/app/profile" : destinationFor(next), { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d’enregistrer le profil");
+      setError(err instanceof ApiError ? err.message : t.saveError);
     } finally {
       setSubmitting(false);
     }
   }
 
+  function renderIdentityDocument() {
+    const typeField = fields.find((item) => item.fieldKey === "identity_document_type");
+    const numberField = fields.find((item) => item.fieldKey === "identity_document_number");
+    const fileField = fields.find((item) => item.fieldKey === "identity_document");
+    if (!typeField) {
+      return null;
+    }
+    const kind = values.identity_document_type ?? "";
+    const numberLabel = kind === "passport" ? t.identityNumberPassport : kind === "cin" ? t.identityNumberCin : t.identityNumberGeneric;
+    const typeIssue = issueFor(typeField);
+    const numberIssue = numberField ? issueFor(numberField) : null;
+    const fileIssue = fileField ? issueFor(fileField) : null;
+    const showTypeIssue = Boolean(typeIssue) && attempted;
+    const showNumberIssue = Boolean(numberIssue) && (attempted || Boolean(kind));
+    const showFileIssue = Boolean(fileIssue) && (attempted || Boolean(kind));
+    return (
+      <div id="field-identity_document_type" key="identity-document-block" className="ob-field ob-field--full">
+        <section className="ob-cv-import">
+          <div className="ob-cv-import-head">
+            <span className="material-symbols-outlined">badge</span>
+            <div>
+              <h2>{t.identityTypeTitle}</h2>
+              <p>{t.identityTypeLead}</p>
+            </div>
+          </div>
+          <div className="bool-toggle">
+            {(typeField.options.length
+              ? typeField.options
+              : [
+                  { value: "cin", label: t.identityCin },
+                  { value: "passport", label: t.identityPassport },
+                ]
+            ).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`bool-option${kind === option.value ? " is-active" : ""}`}
+                onClick={() => {
+                  setField("identity_document_type", option.value);
+                }}
+              >
+                {option.value === "passport" ? t.identityPassport : t.identityCin}
+              </button>
+            ))}
+          </div>
+          {showTypeIssue ? <p className="auth-field-error">{t.identityChooseFirst}</p> : null}
+          {kind && numberField ? (
+            <div className="ob-id-number">
+              <label className="auth-label" htmlFor="identity_document_number">
+                {numberLabel} *
+              </label>
+              <input
+                id="identity_document_number"
+                className={`custom-input${showNumberIssue ? " is-invalid" : ""}`}
+                value={values.identity_document_number ?? ""}
+                placeholder={kind === "passport" ? "A1234567" : "12345678"}
+                maxLength={numberField.maxLength ?? 40}
+                onChange={(event) => setField("identity_document_number", event.target.value)}
+              />
+              {showNumberIssue ? <p className="auth-field-error">{numberIssue}</p> : null}
+            </div>
+          ) : null}
+          {kind && fileField ? (
+            <div className="ob-id-photo">
+              <label className="auth-label">
+                {t.identityPhotoTitle} *
+              </label>
+              <p className="field-hint">{t.identityPhotoLead}</p>
+              <FileField
+                field={{ ...fileField, helpText: t.identityPhotoLead }}
+                value={values.identity_document ?? "[]"}
+                multiple={false}
+                onChange={(next) => setField("identity_document", next)}
+              />
+              {showFileIssue ? <p className="auth-field-error">{fileIssue}</p> : null}
+            </div>
+          ) : null}
+        </section>
+      </div>
+    );
+  }
+
   function renderField(field: ProfileField) {
+    const hasIdentityType = fields.some((item) => item.fieldKey === "identity_document_type");
+    if (hasIdentityType && IDENTITY_KEYS.has(field.fieldKey)) {
+      return field.fieldKey === "identity_document_type" ? renderIdentityDocument() : null;
+    }
     const value = values[field.fieldKey] ?? "";
     const type = field.fieldType.toUpperCase();
-    const required = isFieldRequired(field, true);
-    const displayField = { ...field, required };
+    const required = isFieldRequired(field);
+    const shownLabel = fieldLabel(field.fieldKey, locale, field.label);
+    const displayField = { ...field, required, label: shownLabel };
     const issue = issueFor(field);
     const showIssue = Boolean(issue) && (attempted || required || !isBlankJson(type, value));
     const invalid = showIssue;
     const wide = ["TEXTAREA", "TAGS", "MULTISELECT", "REPEATABLE", "FILES", "FILE", "PHOTO", "COUNTRY_MULTI", "MONEY"].includes(type);
     const label = type === "PHOTO" ? null : (
       <label className="auth-label" htmlFor={field.fieldKey}>
-        {field.label}
+        {shownLabel}
         {required ? " *" : ""}
       </label>
     );
@@ -445,6 +638,8 @@ export function CompleteProfilePage() {
           onChange={(next) => setField(field.fieldKey, next)}
         />
       );
+    } else if (type === "TAGS" && field.fieldKey === "group_class_slots") {
+      control = <GroupClassSlotsField value={value} invalid={invalid} onChange={(next) => setField(field.fieldKey, next)} />;
     } else if (type === "TAGS") {
       control = <TagInput field={field} value={value} invalid={invalid} onChange={(next) => setField(field.fieldKey, next)} />;
     } else if (type === "BOOLEAN") {
@@ -470,20 +665,15 @@ export function CompleteProfilePage() {
     } else if (type === "SELECT") {
       const locked = field.fieldKey === "verification_status";
       control = (
-        <select
+        <Select
           id={field.fieldKey}
-          className={`custom-input${invalid ? " is-invalid" : ""}${locked ? " is-readonly" : ""}`}
           value={value}
+          invalid={invalid}
           disabled={locked}
-          onChange={(event) => setField(field.fieldKey, event.target.value)}
-        >
-          <option value="">Sélectionner</option>
-          {field.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          placeholder="Sélectionner"
+          options={field.options}
+          onChange={(next) => setField(field.fieldKey, next)}
+        />
       );
     } else if (type === "TEXTAREA") {
       control = (
@@ -553,19 +743,37 @@ export function CompleteProfilePage() {
 
   const candidate = user?.role?.code === "CANDIDATE";
   const business = user?.role?.category === "BUSINESS";
+  const memberFlow = user?.role?.code === "MEMBER";
   const goBack = () => navigate(editing ? "/app/profile" : "/onboarding/country");
+  const longFlow = candidate;
+  const profileTitle = candidate
+    ? t.profileCandidateTitle
+    : business
+      ? t.profileBusinessTitle
+      : user?.role?.code === "MEMBER"
+        ? t.profileMemberTitle
+        : t.profileDefaultTitle;
+  const profileLead = candidate
+    ? t.profileCandidateLead
+    : business
+      ? t.profileBusinessLead
+      : user?.role?.code === "MEMBER"
+        ? t.profileMemberLead
+        : t.profileDefaultLead;
 
   const form = (
         <form className="ob-dossier" onSubmit={onSubmit} noValidate>
           {embedded ? null : (
           <div className="ob-role-badge">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-secondary">{user?.role?.icon ?? "person"}</span>
-              <span className="font-mono-data text-on-surface-variant">Profil : {user?.role?.label ?? "—"}</span>
+              <span className="material-symbols-outlined">
+                {SPORT_ROLE_ICONS[user?.role?.code ?? ""] ?? "fitness_center"}
+              </span>
+              <span>{t.profileLabel} : {user?.role?.label ?? "—"}</span>
             </div>
             {editing ? null : (
               <button className="ob-link" type="button" onClick={() => navigate("/onboarding/role")}>
-                Changer
+                {t.changeRole}
               </button>
             )}
           </div>
@@ -573,13 +781,10 @@ export function CompleteProfilePage() {
           {cvField ? (
             <section className="ob-cv-import">
               <div className="ob-cv-import-head">
-                <span className="material-symbols-outlined">upload_file</span>
+                <span className="material-symbols-outlined">assignment</span>
                 <div>
-                  <h2>Votre CV</h2>
-                  <p>
-                    Déposez un PDF ou un Word. Nous préremplissons les champs vides. Vérifiez-les, puis ajoutez la photo
-                    obligatoire.
-                  </p>
+                  <h2>{t.cvTitle}</h2>
+                  <p>{t.cvLead}</p>
                 </div>
               </div>
               <FileField
@@ -591,7 +796,7 @@ export function CompleteProfilePage() {
               {cvMessage ? <p className={`ob-cv-import-status is-${cvStatus}`}>{cvMessage}</p> : null}
             </section>
           ) : null}
-          {loading ? <p className="font-body-md text-on-surface-variant">Chargement du formulaire…</p> : null}
+          {loading ? <p className="font-body-md text-on-surface-variant">{t.loadingForm}</p> : null}
           {sections.map((section, index) => {
             const folded = Boolean(collapsed[section.key]);
             return (
@@ -616,17 +821,17 @@ export function CompleteProfilePage() {
           })}
           {error ? <p className="auth-error">{error}</p> : null}
           <div className="ob-profile-footer">
-            <p className="font-mono-data text-[12px] text-on-surface-variant">
+            <p>
               {editing
-                ? "Vos informations sont traitées conformément à la politique de confidentialité Fitness Uplink."
-                : "Tous les champs marqués * doivent être renseignés pour accéder à l’application."}
+                ? t.privacyFooter
+                : t.requiredFooter}
             </p>
             <div className="ob-profile-actions">
               <button className="ob-secondary" type="button" onClick={goBack}>
-                Retour
+                {t.back}
               </button>
               <button className="ob-primary" type="submit" disabled={submitting || loading || requiredBlocking}>
-                {submitting ? "Enregistrement..." : editing ? "Enregistrer" : "Terminer"}
+                {submitting ? t.saving : editing ? t.save : memberFlow ? t.continue : t.finish}
                 <span className="material-symbols-outlined text-[16px]">{editing ? "check" : "arrow_forward"}</span>
               </button>
             </div>
@@ -649,32 +854,23 @@ export function CompleteProfilePage() {
   }
 
   return (
-    <div className="ob-shell ob-shell--profile">
+    <div className="fu-public ob-shell ob-shell--profile">
       <header className="ob-profile-nav">
         <button className="ob-nav-back" type="button" onClick={goBack}>
           <span className="material-symbols-outlined">arrow_back</span>
-          <span className="font-label-caps uppercase">Retour</span>
+          <span className="font-label-caps uppercase">{t.back}</span>
         </button>
-        <div className="font-headline-md text-primary">Fitness Uplink</div>
-        <div className="font-label-caps text-on-surface-variant">Étape 3 / 3</div>
+        <OnboardingBrand />
+        <div className="flex items-center gap-3">
+          <LocaleSwitch />
+          <div className="ob-step-label">{memberFlow ? t.stepProfileMember : longFlow ? t.stepProfileLong : t.stepProfile}</div>
+        </div>
       </header>
       <main className="ob-profile ob-profile--wide">
         <div className="ob-profile-intro">
           <p className="ob-kicker">{user?.role?.label}</p>
-          <h1 className="font-display-lg-mobile md:font-display-lg text-on-surface">
-            {candidate
-              ? "Votre dossier candidat"
-              : business
-                ? "Votre dossier établissement"
-                : "Complete your profile"}
-          </h1>
-          <p className="font-body-lg text-on-surface-variant">
-            {candidate
-              ? "Déposez d’abord votre CV pour préremplir le dossier. Photo, nom, téléphone et ville restent obligatoires."
-              : business
-                ? "Renseignez l’identité, les pièces juridiques et les coordonnées de votre structure. Vous pourrez affiner plus tard."
-                : "Tell us a little more about yourself to personalize your Fitness Uplink experience."}
-          </p>
+          <h1>{profileTitle}</h1>
+          <p>{profileLead}</p>
         </div>
         {form}
       </main>

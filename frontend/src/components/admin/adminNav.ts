@@ -14,7 +14,7 @@ export const ADMIN_MODULES: AdminLink[] = [
     path: "/admin/subscriptions",
     icon: "card_membership",
     lead: "Plans, renouvellements et statuts d’abonnement",
-    empty: "Les abonnements ne sont pas encore enregistrés en base. Aucune donnée fictive n’est affichée.",
+    empty: "",
   },
   {
     slug: "recruitment",
@@ -76,6 +76,14 @@ export const ADMIN_MODULES: AdminLink[] = [
 
 export const ADMIN_CONFIG: AdminLink[] = [
   {
+    slug: "roles",
+    title: "Rôles et permissions",
+    path: "/admin/config/roles",
+    icon: "admin_panel_settings",
+    lead: "Droits de chaque rôle dans l’application",
+    empty: "",
+  },
+  {
     slug: "langues",
     title: "Langues",
     path: "/admin/config/langues",
@@ -116,12 +124,20 @@ export const ADMIN_CONFIG: AdminLink[] = [
     empty: "Les commissions ne sont pas encore configurées en base.",
   },
   {
+    slug: "offres",
+    title: "Offres et fonctions",
+    path: "/admin/config/offres",
+    icon: "sell",
+    lead: "Catalogues, prix, TVA, cartes de test et abonnés",
+    empty: "",
+  },
+  {
     slug: "emails",
     title: "E-mails",
     path: "/admin/config/emails",
     icon: "mail",
-    lead: "Modèles d’e-mails transactionnels",
-    empty: "Les modèles d’e-mails ne sont pas encore en base.",
+    lead: "Expéditeur, SMTP et journal des envois",
+    empty: "",
   },
   {
     slug: "notifications",

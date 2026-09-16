@@ -1,0 +1,3 @@
+ALTER TABLE users
+    ALTER COLUMN selected_plan TYPE VARCHAR(36),
+    ALTER COLUMN pending_plan TYPE VARCHAR(36);

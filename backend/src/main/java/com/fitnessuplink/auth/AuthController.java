@@ -2,8 +2,13 @@ package com.fitnessuplink.auth;
 
 import com.fitnessuplink.auth.config.SecurityProperties;
 import com.fitnessuplink.auth.dto.AuthResponse;
+import com.fitnessuplink.auth.dto.ForgotPasswordRequest;
 import com.fitnessuplink.auth.dto.LoginRequest;
+import com.fitnessuplink.auth.dto.ResetPasswordRequest;
 import com.fitnessuplink.auth.dto.SignupRequest;
+import com.fitnessuplink.auth.dto.VerifyEmailRequest;
+import com.fitnessuplink.auth.dto.ChangeEmailRequest;
+import com.fitnessuplink.auth.dto.VerifyResetCodeRequest;
 import com.fitnessuplink.auth.security.UserPrincipal;
 import com.fitnessuplink.user.UserService;
 import com.fitnessuplink.user.dto.UserResponse;
@@ -62,6 +67,46 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header("Set-Cookie", authCookieService.clearRefreshCookie().toString())
                 .build();
+    }
+
+    @PostMapping("/verify-email")
+    public UserResponse verifyEmail(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody VerifyEmailRequest request
+    ) {
+        return authService.verifyEmail(principal.getId(), request.code());
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@AuthenticationPrincipal UserPrincipal principal) {
+        authService.resendVerification(principal.getId());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/change-email")
+    public UserResponse changeEmail(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ChangeEmailRequest request
+    ) {
+        return authService.changeUnverifiedEmail(principal.getId(), request);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequest request) {
+        authService.verifyResetCode(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")

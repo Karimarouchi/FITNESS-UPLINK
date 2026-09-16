@@ -1,5 +1,7 @@
 package com.fitnessuplink.talent;
 
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.contracts.Contract;
 import com.fitnessuplink.contracts.ContractRepository;
@@ -10,12 +12,22 @@ import com.fitnessuplink.jobs.JobOfferRepository;
 import com.fitnessuplink.jobs.JobOfferService;
 import com.fitnessuplink.jobs.JobOfferStatus;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
-import com.fitnessuplink.talent.dto.RecruitmentEmployerDto;
+import com.fitnessuplink.auth.mail.HireMailService;
+import com.fitnessuplink.notifications.NotificationService;
+import com.fitnessuplink.notifications.NotifyCategory;
+import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
+import com.fitnessuplink.onboarding.UserUpload;
+import com.fitnessuplink.talent.dto.ApplyOpportunityRequest;
 import com.fitnessuplink.talent.dto.CreateRecruitmentRequest;
+import com.fitnessuplink.talent.dto.FileRef;
+import com.fitnessuplink.talent.dto.UpdateRecruitmentStatusRequest;
 import com.fitnessuplink.talent.dto.RecruitmentCandidateDto;
+import com.fitnessuplink.talent.dto.RecruitmentConversationDto;
 import com.fitnessuplink.talent.dto.RecruitmentDto;
+import com.fitnessuplink.talent.dto.RecruitmentEmployerDto;
+import com.fitnessuplink.talent.dto.RecruitmentMessageDto;
 import com.fitnessuplink.talent.dto.RecruitmentSummaryDto;
 import com.fitnessuplink.user.User;
 import com.fitnessuplink.user.UserRepository;
@@ -25,8 +37,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -44,17 +61,33 @@ import java.util.stream.Collectors;
 public class RecruitmentService {
 
     private static final Pattern UPLOAD_ID = Pattern.compile("\"id\"\\s*:\\s*\"([0-9a-fA-F-]{36})\"");
+    private static final String COVER_LETTER_FIELD = "cover_letter";
+    private static final int COVER_LETTER_MAX = 4000;
+    private static final int MESSAGE_MAX = 2000;
+    private static final String HIRE_FILE_FIELD = "hire_message";
+    private static final ZoneId INTERVIEW_ZONE = ZoneId.of("Africa/Tunis");
+    private static final DateTimeFormatter INTERVIEW_DAY = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(INTERVIEW_ZONE);
+    private static final DateTimeFormatter INTERVIEW_HOUR = DateTimeFormatter.ofPattern("HH:mm").withZone(INTERVIEW_ZONE);
 
     private final TalentPipelineRepository talentPipelineRepository;
+    private final RecruitmentMessageRepository recruitmentMessageRepository;
+    private final HireReportRepository hireReportRepository;
+    private final HireAbuseGuard hireAbuseGuard;
     private final JobOfferRepository jobOfferRepository;
     private final JobOfferService jobOfferService;
     private final UserRepository userRepository;
     private final UserProfileValueRepository userProfileValueRepository;
     private final ContractRepository contractRepository;
+    private final PermissionService permissionService;
+    private final UploadService uploadService;
+    private final NotificationService notificationService;
+    private final HireMailService hireMailService;
+    private final com.fitnessuplink.billing.EntitlementService entitlementService;
 
     @Transactional
     public RecruitmentDto create(User employer, CreateRecruitmentRequest request) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_PIPELINE);
+        entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.CONTACT);
         User candidate = requireCandidate(request.candidateId());
         UUID jobOfferId = request.jobOfferId();
         if (jobOfferId != null) {
@@ -85,7 +118,7 @@ public class RecruitmentService {
 
     @Transactional(readOnly = true)
     public List<RecruitmentDto> list(User viewer, UUID jobOfferId, Boolean direct, PipelineStatus status, String query) {
-        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
+        if (permissionService.has(viewer, Permissions.HIRE_PIPELINE) && viewer.isOnboardingCompleted()) {
             if (jobOfferId != null) {
                 jobOfferService.requireOwned(viewer.getId(), jobOfferId);
             }
@@ -98,7 +131,7 @@ public class RecruitmentService {
                     false
             );
         }
-        if (viewer.isCandidate() && viewer.isOnboardingCompleted()) {
+        if (permissionService.has(viewer, Permissions.HIRE_APPLICATIONS_VIEW) && viewer.isOnboardingCompleted()) {
             return mapRows(
                     talentPipelineRepository.findByCandidateIdOrderByUpdatedAtDesc(viewer.getId()),
                     jobOfferId,
@@ -113,10 +146,10 @@ public class RecruitmentService {
 
     @Transactional(readOnly = true)
     public RecruitmentDto get(User viewer, UUID id) {
-        if (viewer.isBusiness() && viewer.isOnboardingCompleted()) {
+        if (permissionService.has(viewer, Permissions.HIRE_PIPELINE) && viewer.isOnboardingCompleted()) {
             return toDto(requireOwned(viewer.getId(), id), false);
         }
-        if (viewer.isCandidate() && viewer.isOnboardingCompleted()) {
+        if (permissionService.has(viewer, Permissions.HIRE_APPLICATIONS_VIEW) && viewer.isOnboardingCompleted()) {
             TalentPipeline entry = talentPipelineRepository.findByIdAndCandidateId(id, viewer.getId())
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECRUITMENT_NOT_FOUND"));
             return toDto(entry, true);
@@ -125,10 +158,12 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public RecruitmentDto apply(User candidate, UUID jobOfferId) {
+    public RecruitmentDto apply(User candidate, UUID jobOfferId, ApplyOpportunityRequest request) {
         if (!candidate.isCandidate() || !candidate.isOnboardingCompleted()) {
             throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
         }
+        permissionService.require(candidate, Permissions.HIRE_JOBS_APPLY);
+        entitlementService.require(candidate, com.fitnessuplink.billing.Entitlements.APPLY);
         JobOffer offer = jobOfferRepository.findById(jobOfferId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
         if (offer.getStatus() != JobOfferStatus.PUBLISHED
@@ -137,11 +172,19 @@ public class RecruitmentService {
         }
         User employer = userRepository.findById(offer.getEmployerId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND"));
-        if (!employer.isBusiness() || !employer.isOnboardingCompleted()) {
+        if (!employer.isOnboardingCompleted()) {
             throw new ApiException(HttpStatus.NOT_FOUND, "JOB_OFFER_NOT_FOUND");
         }
         if (alreadyExists(employer.getId(), candidate.getId(), offer.getId())) {
             throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
+        }
+        String letter = request == null ? null : blankToNull(request.coverLetter());
+        if (letter != null && letter.length() > COVER_LETTER_MAX) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "COVER_LETTER_TOO_LONG");
+        }
+        UUID letterUpload = request == null ? null : request.coverLetterUploadId();
+        if (letterUpload != null && !uploadService.belongsTo(candidate.getId(), letterUpload, COVER_LETTER_FIELD)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_COVER_LETTER");
         }
         Instant now = Instant.now();
         TalentPipeline entry = TalentPipeline.builder()
@@ -149,7 +192,9 @@ public class RecruitmentService {
                 .employerId(employer.getId())
                 .candidateId(candidate.getId())
                 .jobOfferId(offer.getId())
-                .status(PipelineStatus.NEW)
+                .status(PipelineStatus.APPLIED)
+                .coverLetterText(letter)
+                .coverLetterUploadId(letterUpload)
                 .createdAt(now)
                 .updatedAt(now)
                 .statusUpdatedAt(now)
@@ -159,12 +204,152 @@ public class RecruitmentService {
         } catch (DataIntegrityViolationException ex) {
             throw new ApiException(HttpStatus.CONFLICT, "RECRUITMENT_ALREADY_EXISTS");
         }
+        notificationService.notify(
+                employer.getId(),
+                NotifyCategory.APPLICATION,
+                "Nouvelle candidature",
+                candidate.getDisplayName() + " a postulé pour « " + offer.getTitle() + " ».",
+                "Ouvrir",
+                "/applications"
+        );
         return toDto(entry, true);
     }
 
     @Transactional(readOnly = true)
+    public long inboxCount(User employer) {
+        permissionService.require(employer, Permissions.HIRE_PIPELINE);
+        return talentPipelineRepository.countByEmployerIdAndStatus(employer.getId(), PipelineStatus.APPLIED);
+    }
+
+    @Transactional(readOnly = true)
+    public UploadService.LoadedUpload coverLetterFile(User viewer, UUID recruitmentId) {
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        if (entry.getCoverLetterUploadId() == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "COVER_LETTER_NOT_FOUND");
+        }
+        return uploadService.loadAny(entry.getCoverLetterUploadId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecruitmentMessageDto> messages(User viewer, UUID recruitmentId) {
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        Map<UUID, User> people = peopleOf(entry);
+        return recruitmentMessageRepository.findByRecruitmentIdOrderByCreatedAtAsc(entry.getId()).stream()
+                .map(row -> toMessage(row, viewer.getId(), people))
+                .toList();
+    }
+
+    @Transactional
+    public RecruitmentMessageDto sendMessage(User viewer, UUID recruitmentId, String raw, UUID uploadId) {
+        hireAbuseGuard.checkMessage(viewer.getId());
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        if (viewer.getId().equals(entry.getEmployerId())) {
+            entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.CONTACT);
+        } else {
+            entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.TALENT_MESSAGES);
+        }
+        if (uploadId != null) {
+            entitlementService.require(viewer, com.fitnessuplink.billing.Entitlements.CHAT_FILES);
+        }
+        if (!messagingOpen(entry.getStatus())) {
+            throw new ApiException(HttpStatus.CONFLICT, "MESSAGING_NOT_OPEN");
+        }
+        String body = raw == null ? "" : raw.trim();
+        if (body.length() > MESSAGE_MAX) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "MESSAGE_TOO_LONG");
+        }
+        if (uploadId != null && !uploadService.belongsTo(viewer.getId(), uploadId, HIRE_FILE_FIELD)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_ATTACHMENT");
+        }
+        if (body.isEmpty() && uploadId == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "EMPTY_MESSAGE");
+        }
+        RecruitmentMessage saved = recruitmentMessageRepository.save(RecruitmentMessage.builder()
+                .id(UUID.randomUUID())
+                .recruitmentId(entry.getId())
+                .senderId(viewer.getId())
+                .body(body.isEmpty() ? "Pièce jointe" : body)
+                .uploadId(uploadId)
+                .createdAt(Instant.now())
+                .build());
+        UUID otherId = viewer.getId().equals(entry.getEmployerId()) ? entry.getCandidateId() : entry.getEmployerId();
+        String path = viewer.getId().equals(entry.getEmployerId()) ? "/app/applications" : "/applications";
+        notificationService.notify(
+                otherId,
+                NotifyCategory.MESSAGE,
+                "Nouveau message",
+                viewer.getDisplayName() + " vous a écrit.",
+                "Ouvrir",
+                path
+        );
+        User other = peopleOf(entry).get(otherId);
+        if (other != null) {
+            String excerpt = body.length() > 180 ? body.substring(0, 180) + "…" : body;
+            hireMailService.enqueueMessage(other, viewer, excerpt);
+        }
+        return toMessage(saved, viewer.getId(), peopleOf(entry));
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecruitmentConversationDto> conversations(User viewer) {
+        List<RecruitmentDto> rows = list(viewer, null, null, null, null).stream()
+                .filter(row -> messagingOpen(row.status()))
+                .toList();
+        if (rows.isEmpty()) {
+            return List.of();
+        }
+        boolean employer = permissionService.has(viewer, Permissions.HIRE_PIPELINE);
+        Map<UUID, RecruitmentMessage> lastByRecruitment = recruitmentMessageRepository
+                .findByRecruitmentIdIn(rows.stream().map(RecruitmentDto::id).toList())
+                .stream()
+                .collect(Collectors.toMap(
+                        RecruitmentMessage::getRecruitmentId,
+                        row -> row,
+                        (left, right) -> left.getCreatedAt().isAfter(right.getCreatedAt()) ? left : right
+                ));
+        return rows.stream()
+                .map(row -> {
+                    RecruitmentMessage last = lastByRecruitment.get(row.id());
+                    String peer = employer
+                            ? row.candidate().displayName()
+                            : (row.employer() == null ? "Employeur" : row.employer().displayName());
+                    String title = row.jobOffer() == null ? "Recrutement direct" : row.jobOffer().title();
+                    Instant lastAt = last == null ? row.statusUpdatedAt() : last.getCreatedAt();
+                    return new RecruitmentConversationDto(
+                            row.id(),
+                            peer,
+                            title,
+                            last == null ? null : last.getBody(),
+                            lastAt,
+                            last != null && last.getSenderId().equals(viewer.getId()),
+                            row.status()
+                    );
+                })
+                .sorted(Comparator.comparing(RecruitmentConversationDto::lastAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    private Map<UUID, User> peopleOf(TalentPipeline entry) {
+        return userRepository.findAllById(Set.of(entry.getEmployerId(), entry.getCandidateId())).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+    }
+
+    private RecruitmentMessageDto toMessage(RecruitmentMessage row, UUID viewerId, Map<UUID, User> people) {
+        User sender = people.get(row.getSenderId());
+        return new RecruitmentMessageDto(
+                row.getId(),
+                row.getSenderId(),
+                sender == null ? "Compte" : sender.getDisplayName(),
+                row.getSenderId().equals(viewerId),
+                row.getBody(),
+                row.getCreatedAt(),
+                fileRef(row.getUploadId())
+        );
+    }
+
+    @Transactional(readOnly = true)
     public List<RecruitmentSummaryDto> summariesForCandidate(User employer, UUID candidateId) {
-        if (!employer.isBusiness() || !employer.isOnboardingCompleted()) {
+        if (!permissionService.has(employer, Permissions.HIRE_PIPELINE) || !employer.isOnboardingCompleted()) {
             return List.of();
         }
         return talentPipelineRepository.findByEmployerIdAndCandidateIdOrderByUpdatedAtDesc(employer.getId(), candidateId)
@@ -175,7 +360,22 @@ public class RecruitmentService {
 
     @Transactional
     public RecruitmentDto updateStatus(User employer, UUID id, PipelineStatus status) {
-        JobOfferService.requireEmployer(employer);
+        return updateStatus(employer, id, new UpdateRecruitmentStatusRequest(status, null, null, null));
+    }
+
+    @Transactional
+    public RecruitmentDto updateStatus(User employer, UUID id, UpdateRecruitmentStatusRequest request) {
+        permissionService.require(employer, Permissions.HIRE_PIPELINE);
+        if (request != null && request.status() == PipelineStatus.CONTACTED) {
+            entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.CONTACT);
+        }
+        if (request != null && request.status() == PipelineStatus.INTERVIEW_SCHEDULED) {
+            entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.INTERVIEW);
+        }
+        if (request != null && request.status() != null && request.status() != PipelineStatus.CONTACTED) {
+            entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.PIPELINE);
+        }
+        PipelineStatus status = request == null ? null : request.status();
         if (status == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PIPELINE_STATUS");
         }
@@ -188,9 +388,13 @@ public class RecruitmentService {
             throw new ApiException(HttpStatus.CONFLICT, "CONTRACT_NOT_COMPLETED");
         }
         Instant now = Instant.now();
-        if (entry.getStatus() != status) {
-            assertTransition(entry.getStatus(), status);
-            if (entry.getStatus() == PipelineStatus.CONTRACT_SENT
+        PipelineStatus from = entry.getStatus();
+        if (from != status && status == PipelineStatus.CONTACTED) {
+            hireAbuseGuard.checkContact(employer.getId());
+        }
+        if (from != status) {
+            assertTransition(from, status);
+            if (from == PipelineStatus.CONTRACT_SENT
                     && status != PipelineStatus.HIRED
                     && status != PipelineStatus.ARCHIVED
                     && status != PipelineStatus.REJECTED) {
@@ -199,13 +403,145 @@ public class RecruitmentService {
             entry.setStatus(status);
             entry.setStatusUpdatedAt(now);
         }
+        if (status == PipelineStatus.INTERVIEW_SCHEDULED) {
+            applyInterview(entry, request);
+        }
         entry.setUpdatedAt(now);
-        return toDto(talentPipelineRepository.save(entry));
+        RecruitmentDto dto = toDto(talentPipelineRepository.save(entry));
+        if (from != status && status == PipelineStatus.CONTACTED) {
+            notificationService.notify(
+                    entry.getCandidateId(),
+                    NotifyCategory.CONTACT,
+                    "Vous êtes contacté",
+                    employer.getDisplayName() + " souhaite échanger avec vous.",
+                    "Ouvrir",
+                    "/app/applications"
+            );
+            User candidate = userRepository.findById(entry.getCandidateId()).orElse(null);
+            if (candidate != null) {
+                String offer = dto.jobOffer() == null ? "un recrutement" : dto.jobOffer().title();
+                hireMailService.enqueueContacted(candidate, employer, offer);
+            }
+        } else if (from != status && status == PipelineStatus.INTERVIEW_SCHEDULED) {
+            notifyInterview(entry, employer, dto);
+        } else if (from != status) {
+            notificationService.notify(
+                    entry.getCandidateId(),
+                    NotifyCategory.CONTACT,
+                    "Étape mise à jour",
+                    employer.getDisplayName() + " a passé le dossier à « " + statusLabelFr(status) + " ».",
+                    "Ouvrir",
+                    "/app/applications"
+            );
+        }
+        return dto;
+    }
+
+    @Transactional
+    public void report(User viewer, UUID recruitmentId, String reason) {
+        hireAbuseGuard.checkReport(viewer.getId());
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        String text = reason == null ? "" : reason.trim();
+        if (text.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "REPORT_REASON_REQUIRED");
+        }
+        hireReportRepository.save(HireReport.builder()
+                .id(UUID.randomUUID())
+                .recruitmentId(entry.getId())
+                .reporterId(viewer.getId())
+                .reason(text)
+                .createdAt(Instant.now())
+                .build());
+        userRepository.findByAppRole_Code("SUPER_ADMIN").forEach(admin -> notificationService.notify(
+                admin.getId(),
+                "Signalement recrutement",
+                viewer.getDisplayName() + " a signalé une discussion Hire.",
+                "Ouvrir",
+                "/admin/verifications"
+        ));
+    }
+
+    @Transactional
+    public FileRef uploadMessageFile(User viewer, UUID recruitmentId, MultipartFile file) {
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        if (!messagingOpen(entry.getStatus())) {
+            throw new ApiException(HttpStatus.CONFLICT, "MESSAGING_NOT_OPEN");
+        }
+        UserUpload upload = uploadService.storeHireFile(viewer.getId(), file);
+        return new FileRef(upload.getId(), upload.getOriginalFilename(), upload.getContentType(), upload.getSizeBytes());
+    }
+
+    @Transactional(readOnly = true)
+    public UploadService.LoadedUpload messageFile(User viewer, UUID recruitmentId, UUID messageId) {
+        TalentPipeline entry = requireReadable(viewer, recruitmentId);
+        RecruitmentMessage row = recruitmentMessageRepository.findById(messageId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "MESSAGE_NOT_FOUND"));
+        if (!row.getRecruitmentId().equals(entry.getId()) || row.getUploadId() == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "ATTACHMENT_NOT_FOUND");
+        }
+        return uploadService.loadAny(row.getUploadId());
+    }
+
+    private void applyInterview(TalentPipeline entry, UpdateRecruitmentStatusRequest request) {
+        Instant at = parseInterviewAt(request == null ? null : request.interviewAt());
+        String mode = request == null || request.interviewMode() == null ? "" : request.interviewMode().trim().toUpperCase(Locale.ROOT);
+        String place = request == null ? null : blankToNull(request.interviewPlace());
+        if (at == null || (!"MEET".equals(mode) && !"ONSITE".equals(mode)) || place == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INTERVIEW_DETAILS_REQUIRED");
+        }
+        if ("MEET".equals(mode) && !place.startsWith("http")) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "INTERVIEW_MEET_LINK_REQUIRED");
+        }
+        entry.setInterviewAt(at);
+        entry.setInterviewMode(mode);
+        entry.setInterviewPlace(place);
+    }
+
+    private Instant parseInterviewAt(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return Instant.parse(raw);
+        } catch (DateTimeParseException ignored) {
+            try {
+                return LocalDateTime.parse(raw).atZone(INTERVIEW_ZONE).toInstant();
+            } catch (DateTimeParseException ex) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "INTERVIEW_DETAILS_REQUIRED");
+            }
+        }
+    }
+
+    private void notifyInterview(TalentPipeline entry, User employer, RecruitmentDto dto) {
+        User candidate = userRepository.findById(entry.getCandidateId()).orElse(null);
+        if (candidate == null || entry.getInterviewAt() == null) {
+            return;
+        }
+        boolean meet = "MEET".equals(entry.getInterviewMode());
+        String modeLabel = meet ? "Visioconférence" : "Présentiel";
+        notificationService.notify(
+                candidate.getId(),
+                NotifyCategory.CONTACT,
+                "Entretien prévu",
+                employer.getDisplayName() + " : " + INTERVIEW_DAY.format(entry.getInterviewAt()) + " à " + INTERVIEW_HOUR.format(entry.getInterviewAt()),
+                "Ouvrir",
+                "/app/applications"
+        );
+        hireMailService.enqueueInterview(
+                candidate,
+                employer,
+                dto.jobOffer() == null ? "un recrutement" : dto.jobOffer().title(),
+                INTERVIEW_DAY.format(entry.getInterviewAt()),
+                INTERVIEW_HOUR.format(entry.getInterviewAt()),
+                modeLabel,
+                meet ? "Lien" : "Adresse",
+                entry.getInterviewPlace()
+        );
     }
 
     @Transactional
     public RecruitmentDto markContractSent(User employer, UUID recruitmentId) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_PIPELINE);
         TalentPipeline entry = requireOwned(employer.getId(), recruitmentId);
         if (entry.getStatus() != PipelineStatus.NEGOTIATION && entry.getStatus() != PipelineStatus.CONTRACT_SENT) {
             throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
@@ -221,7 +557,7 @@ public class RecruitmentService {
 
     @Transactional
     public RecruitmentDto updateNote(User employer, UUID id, String note) {
-        JobOfferService.requireEmployer(employer);
+        permissionService.require(employer, Permissions.HIRE_PIPELINE);
         TalentPipeline entry = requireOwned(employer.getId(), id);
         entry.setInternalNote(blankToNull(note));
         entry.setUpdatedAt(Instant.now());
@@ -231,6 +567,26 @@ public class RecruitmentService {
     @Transactional
     public RecruitmentDto archive(User employer, UUID id) {
         return updateStatus(employer, id, PipelineStatus.ARCHIVED);
+    }
+
+    @Transactional
+    public RecruitmentDto block(User viewer, UUID id) {
+        TalentPipeline entry = requireReadable(viewer, id);
+        Instant now = Instant.now();
+        entry.setStatus(PipelineStatus.REJECTED);
+        entry.setStatusUpdatedAt(now);
+        entry.setUpdatedAt(now);
+        RecruitmentDto dto = toDto(talentPipelineRepository.save(entry));
+        UUID otherId = viewer.getId().equals(entry.getEmployerId()) ? entry.getCandidateId() : entry.getEmployerId();
+        notificationService.notify(
+                otherId,
+                NotifyCategory.CONTACT,
+                "Contact refusé",
+                viewer.getDisplayName() + " a bloqué cette discussion.",
+                "Ouvrir",
+                viewer.getId().equals(entry.getEmployerId()) ? "/app/applications" : "/applications"
+        );
+        return dto;
     }
 
     private boolean alreadyExists(UUID employerId, UUID candidateId, UUID jobOfferId) {
@@ -350,7 +706,13 @@ public class RecruitmentService {
                 entry.getCreatedAt(),
                 entry.getUpdatedAt(),
                 entry.getStatusUpdatedAt(),
-                contract
+                contract,
+                entry.getCoverLetterText(),
+                fileRef(entry.getCoverLetterUploadId()),
+                firstFile(candidateValues.get("cv")),
+                entry.getInterviewAt(),
+                entry.getInterviewMode(),
+                entry.getInterviewPlace()
         );
     }
 
@@ -403,13 +765,51 @@ public class RecruitmentService {
                 countryOf(candidate),
                 firstUploadId(values.get("professional_photo")),
                 candidate.isVerified(),
-                candidate.getEmail()
+                null
         );
+    }
+
+    private static String statusLabelFr(PipelineStatus status) {
+        return switch (status) {
+            case APPLIED -> "Candidature reçue";
+            case NEW -> "Nouveau";
+            case CONTACTED -> "Contacté";
+            case INTERVIEW_SCHEDULED -> "Entretien prévu";
+            case NEGOTIATION -> "En négociation";
+            case CONTRACT_SENT -> "Contrat envoyé";
+            case HIRED -> "Recruté";
+            case REJECTED -> "Refusé";
+            case ARCHIVED -> "Archivé";
+        };
+    }
+
+    private boolean messagingOpen(PipelineStatus status) {
+        return status != PipelineStatus.APPLIED
+                && status != PipelineStatus.NEW
+                && status != PipelineStatus.REJECTED
+                && status != PipelineStatus.ARCHIVED;
+    }
+
+    private TalentPipeline requireReadable(User viewer, UUID id) {
+        if (permissionService.has(viewer, Permissions.HIRE_PIPELINE) && viewer.isOnboardingCompleted()) {
+            return requireOwned(viewer.getId(), id);
+        }
+        if (permissionService.has(viewer, Permissions.HIRE_APPLICATIONS_VIEW) && viewer.isOnboardingCompleted()) {
+            return talentPipelineRepository.findByIdAndCandidateId(id, viewer.getId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "RECRUITMENT_NOT_FOUND"));
+        }
+        throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
     }
 
     private void assertTransition(PipelineStatus from, PipelineStatus to) {
         if (from == to) {
             return;
+        }
+        if (from == PipelineStatus.APPLIED && (to == PipelineStatus.NEW || to == PipelineStatus.CONTACTED || to == PipelineStatus.REJECTED)) {
+            return;
+        }
+        if (from == PipelineStatus.APPLIED) {
+            throw new ApiException(HttpStatus.CONFLICT, "INVALID_RECRUITMENT_TRANSITION");
         }
         if (to == PipelineStatus.REJECTED || to == PipelineStatus.ARCHIVED) {
             return;
@@ -518,6 +918,23 @@ public class RecruitmentService {
     private String text(Map<String, String> values, String key) {
         String value = values.get(key);
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private FileRef fileRef(UUID uploadId) {
+        if (uploadId == null) {
+            return null;
+        }
+        try {
+            UserUpload upload = uploadService.loadAny(uploadId).upload();
+            return new FileRef(upload.getId(), upload.getOriginalFilename(), upload.getContentType(), upload.getSizeBytes());
+        } catch (RuntimeException ex) {
+            return new FileRef(uploadId, "Lettre de motivation", "application/pdf", 0);
+        }
+    }
+
+    private FileRef firstFile(String json) {
+        UUID id = firstUploadId(json);
+        return id == null ? null : fileRef(id);
     }
 
     private UUID firstUploadId(String json) {

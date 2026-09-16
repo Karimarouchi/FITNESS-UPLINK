@@ -8,7 +8,10 @@ import com.fitnessuplink.admin.dto.VerificationDossierDto;
 import com.fitnessuplink.admin.dto.VerificationFileDto;
 import com.fitnessuplink.admin.dto.VerificationPersonDto;
 import com.fitnessuplink.admin.dto.VerificationSectionDto;
+import com.fitnessuplink.auth.mail.HireMailService;
 import com.fitnessuplink.common.exception.ApiException;
+import com.fitnessuplink.notifications.NotificationService;
+import com.fitnessuplink.notifications.NotifyCategory;
 import com.fitnessuplink.common.exception.ResourceNotFoundException;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
@@ -55,6 +58,8 @@ public class AdminVerificationService {
     private final UserService userService;
     private final UserVerificationCheckRepository userVerificationCheckRepository;
     private final ObjectMapper objectMapper;
+    private final NotificationService notificationService;
+    private final HireMailService hireMailService;
 
     @Transactional(readOnly = true)
     public List<VerificationAccountDto> list(String group, String status) {
@@ -81,8 +86,16 @@ public class AdminVerificationService {
 
     @Transactional
     public VerificationDossierDto updateCheck(UUID id, String key, String status) {
+        return updateCheck(id, key, status, null);
+    }
+
+    @Transactional
+    public VerificationDossierDto updateCheck(UUID id, String key, String status, String reason) {
         if (!STATUSES.contains(status)) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid verification status");
+        }
+        if ("rejected".equals(status) && (reason == null || reason.isBlank())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "REJECTION_REASON_REQUIRED");
         }
         User user = requireReviewable(id);
         Map<String, String> values = valuesOf(id);
@@ -105,6 +118,7 @@ public class AdminVerificationService {
                     return created;
                 });
         check.setStatus(status);
+        check.setRejectionReason("rejected".equals(status) ? reason.trim() : null);
         userVerificationCheckRepository.save(check);
 
         reviews.put(key, status);
@@ -113,6 +127,27 @@ public class AdminVerificationService {
         if (!overall.equals(user.getVerificationStatus())) {
             user.setVerificationStatus(overall);
             userRepository.save(user);
+        }
+        if ("rejected".equals(status)) {
+            notificationService.notify(
+                    user.getId(),
+                    NotifyCategory.DOCUMENT,
+                    "Document refusé : " + section.label(),
+                    "Motif : " + reason.trim(),
+                    "Ouvrir",
+                    "/app/profile/edit"
+            );
+            hireMailService.enqueueDocumentRejected(user, section.label(), reason.trim());
+        } else if ("verified".equals(status)) {
+            notificationService.notify(
+                    user.getId(),
+                    NotifyCategory.DOCUMENT,
+                    "Document validé : " + section.label(),
+                    section.label() + " a été validé.",
+                    "Ouvrir",
+                    "/app/dashboard"
+            );
+            hireMailService.enqueueDocumentVerified(user, section.label());
         }
         return new VerificationDossierDto(toAccount(user, sections), sections);
     }
@@ -158,15 +193,17 @@ public class AdminVerificationService {
     }
 
     private List<VerificationSectionDto> sectionsOf(User user, Map<String, String> values, Map<String, String> reviews) {
+        Map<String, String> reasons = reasonsOf(user.getId());
         return user.isCandidate()
-                ? professionalSections(user, values, reviews)
-                : companySections(user, values, reviews);
+                ? professionalSections(user, values, reviews, reasons)
+                : companySections(user, values, reviews, reasons);
     }
 
     private List<VerificationSectionDto> professionalSections(
             User user,
             Map<String, String> values,
-            Map<String, String> reviews
+            Map<String, String> reviews,
+            Map<String, String> reasons
     ) {
         List<String> identityFacts = new ArrayList<>();
         addFact(identityFacts, "Nom", joinName(user.getFirstName(), user.getLastName()));
@@ -177,12 +214,24 @@ public class AdminVerificationService {
             addFact(identityFacts, "Pays", user.getCountry().getName());
         }
         addFact(identityFacts, "Titre", text(values, "professional_title"));
-        List<VerificationFileDto> photo = files(values.get("professional_photo"));
+        String documentType = text(values, "identity_document_type");
+        if ("cin".equals(documentType)) {
+            addFact(identityFacts, "Pièce", "CIN");
+        } else if ("passport".equals(documentType)) {
+            addFact(identityFacts, "Pièce", "Passeport");
+        }
+        addFact(identityFacts, "N° pièce", text(values, "identity_document_number"));
+        List<VerificationFileDto> identityFiles = new ArrayList<>();
+        identityFiles.addAll(files(values.get("professional_photo")));
+        identityFiles.addAll(files(values.get("identity_document")));
         boolean identityOk = hasText(user.getFirstName())
                 && hasText(user.getLastName())
                 && hasText(text(values, "city"))
                 && hasText(text(values, "phone"))
-                && !photo.isEmpty();
+                && hasText(documentType)
+                && hasText(text(values, "identity_document_number"))
+                && !files(values.get("professional_photo")).isEmpty()
+                && !files(values.get("identity_document")).isEmpty();
 
         List<VerificationFileDto> cv = files(values.get("cv"));
         List<VerificationFileDto> diplomas = files(values.get("diplomas"));
@@ -193,14 +242,15 @@ public class AdminVerificationService {
                         "identity",
                         "Identité",
                         identityOk
-                                ? "Photo, nom, téléphone, ville et coordonnées du professionnel."
-                                : "Photo professionnelle, téléphone et ville sont obligatoires pour valider l’identité.",
+                                ? "Photo, type de pièce, numéro et scan CIN/passeport du professionnel."
+                                : "Photo, choix CIN ou passeport, numéro et scan de la pièce sont obligatoires. Le compte ne peut pas être vérifié sans la photo de la pièce.",
                         identityOk,
                         true,
                         reviews,
                         identityFacts,
-                        photo,
-                        List.of()
+                        identityFiles,
+                        List.of(),
+                        reasons
                 ),
                 section(
                         "cv",
@@ -211,7 +261,8 @@ public class AdminVerificationService {
                         reviews,
                         cv.isEmpty() ? List.of("Aucun CV transmis.") : List.of(cv.size() + " fichier(s)"),
                         cv,
-                        List.of()
+                        List.of(),
+                        reasons
                 ),
                 section(
                         "diplomas",
@@ -222,7 +273,8 @@ public class AdminVerificationService {
                         reviews,
                         diplomas.isEmpty() ? List.of("Aucun diplôme transmis.") : List.of(diplomas.size() + " fichier(s)"),
                         diplomas,
-                        List.of()
+                        List.of(),
+                        reasons
                 ),
                 section(
                         "certifications",
@@ -233,7 +285,8 @@ public class AdminVerificationService {
                         reviews,
                         certifications.isEmpty() ? List.of("Aucune certification transmise.") : List.of(certifications.size() + " fichier(s)"),
                         certifications,
-                        List.of()
+                        List.of(),
+                        reasons
                 )
         );
     }
@@ -241,7 +294,8 @@ public class AdminVerificationService {
     private List<VerificationSectionDto> companySections(
             User user,
             Map<String, String> values,
-            Map<String, String> reviews
+            Map<String, String> reviews,
+            Map<String, String> reasons
     ) {
         List<String> existenceFacts = new ArrayList<>();
         addFact(existenceFacts, "Nom commercial", text(values, "trade_name"));
@@ -284,12 +338,18 @@ public class AdminVerificationService {
             legalFacts.add("Autres documents juridiques : " + files(values.get("legal_documents")).size() + " fichier(s)");
         }
 
-        List<VerificationPersonDto> people = people(values.get("legal_representative"));
-        List<String> peopleFacts = people.isEmpty()
-                ? List.of("Aucun représentant légal renseigné.")
-                : people.stream()
-                .map(person -> person.name() + (hasText(person.title()) ? " · " + person.title() : ""))
-                .toList();
+        List<VerificationPersonDto> people = legalRepresentatives(user, values);
+        List<String> peopleFacts = new ArrayList<>();
+        if (people.isEmpty()) {
+            peopleFacts.add("Aucun représentant légal renseigné.");
+        } else {
+            for (VerificationPersonDto person : people) {
+                peopleFacts.add(person.name() + (hasText(person.title()) ? " · " + person.title() : ""));
+            }
+        }
+        if (people.stream().noneMatch(person -> hasText(person.idNumber()))) {
+            addFact(peopleFacts, "CIN / n° pièce", text(values, "representative_cin"));
+        }
 
         return List.of(
                 section(
@@ -301,7 +361,8 @@ public class AdminVerificationService {
                         reviews,
                         existenceFacts.isEmpty() ? List.of("Aucune information d’existence transmise.") : existenceFacts,
                         List.of(),
-                        List.of()
+                        List.of(),
+                        reasons
                 ),
                 section(
                         "legal_documents",
@@ -312,7 +373,8 @@ public class AdminVerificationService {
                         reviews,
                         legalFacts,
                         legalFiles,
-                        List.of()
+                        List.of(),
+                        reasons
                 ),
                 section(
                         "legal_representative",
@@ -323,7 +385,8 @@ public class AdminVerificationService {
                         reviews,
                         peopleFacts,
                         List.of(),
-                        people
+                        people,
+                        reasons
                 )
         );
     }
@@ -339,6 +402,21 @@ public class AdminVerificationService {
             List<VerificationFileDto> files,
             List<VerificationPersonDto> people
     ) {
+        return section(key, label, hint, complete, required, reviews, facts, files, people, Map.of());
+    }
+
+    private VerificationSectionDto section(
+            String key,
+            String label,
+            String hint,
+            boolean complete,
+            boolean required,
+            Map<String, String> reviews,
+            List<String> facts,
+            List<VerificationFileDto> files,
+            List<VerificationPersonDto> people,
+            Map<String, String> reasons
+    ) {
         return new VerificationSectionDto(
                 key,
                 label,
@@ -346,10 +424,21 @@ public class AdminVerificationService {
                 complete,
                 required,
                 reviews.getOrDefault(key, "pending"),
+                reasons.get(key),
                 facts,
                 files,
                 people
         );
+    }
+
+    private Map<String, String> reasonsOf(UUID userId) {
+        Map<String, String> reasons = new HashMap<>();
+        for (UserVerificationCheck check : userVerificationCheckRepository.findByUserId(userId)) {
+            if (check.getRejectionReason() != null && !check.getRejectionReason().isBlank()) {
+                reasons.put(check.getCheckKey(), check.getRejectionReason());
+            }
+        }
+        return reasons;
     }
 
     private String overallStatus(List<VerificationSectionDto> sections) {
@@ -373,23 +462,62 @@ public class AdminVerificationService {
         return reviews;
     }
 
+    private List<VerificationPersonDto> legalRepresentatives(User user, Map<String, String> values) {
+        List<VerificationPersonDto> people = people(values.get("legal_representative"));
+        if (!people.isEmpty()) {
+            return people;
+        }
+        String name = joinName(user.getFirstName(), user.getLastName());
+        String cin = text(values, "representative_cin");
+        if (!hasText(name) && !hasText(cin)) {
+            return List.of();
+        }
+        return List.of(new VerificationPersonDto(
+                hasText(name) ? name : "Représentant déclaré",
+                "Personne du compte",
+                cin,
+                firstNonBlank(text(values, "org_email"), user.getEmail()),
+                text(values, "org_phone")
+        ));
+    }
+
     private List<VerificationPersonDto> people(String json) {
         JsonNode node = tree(json);
-        if (node == null || !node.isArray()) {
+        if (node != null && node.isTextual()) {
+            node = tree(node.asText());
+        }
+        if (node == null) {
+            return List.of();
+        }
+        List<JsonNode> rows = new ArrayList<>();
+        if (node.isArray()) {
+            node.forEach(rows::add);
+        } else if (node.isObject()) {
+            rows.add(node);
+        } else {
             return List.of();
         }
         List<VerificationPersonDto> items = new ArrayList<>();
-        for (JsonNode item : node) {
-            String name = textNode(item, "name");
+        for (JsonNode item : rows) {
+            if (item == null || !item.isObject()) {
+                continue;
+            }
+            String name = firstTextNode(item, "name", "nom", "fullName", "full_name");
+            if (!hasText(name)) {
+                name = joinName(
+                        firstTextNode(item, "first_name", "firstName", "prenom"),
+                        firstTextNode(item, "last_name", "lastName")
+                );
+            }
             if (!hasText(name)) {
                 continue;
             }
             items.add(new VerificationPersonDto(
                     name,
-                    textNode(item, "title"),
-                    textNode(item, "id_number"),
-                    textNode(item, "email"),
-                    textNode(item, "phone")
+                    firstTextNode(item, "title", "fonction", "role"),
+                    firstTextNode(item, "id_number", "idNumber", "cin", "representative_cin"),
+                    firstTextNode(item, "email"),
+                    firstTextNode(item, "phone", "telephone")
             ));
         }
         return items;
@@ -465,6 +593,25 @@ public class AdminVerificationService {
     private String textNode(JsonNode node, String field) {
         String value = node.path(field).asText("");
         return value.isBlank() ? null : value;
+    }
+
+    private String firstTextNode(JsonNode node, String... fields) {
+        for (String field : fields) {
+            String value = textNode(node, field);
+            if (hasText(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (hasText(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private String labelOf(String type) {

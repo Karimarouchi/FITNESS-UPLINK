@@ -42,6 +42,10 @@ class AdminVerificationServiceTest {
     private UserService userService;
     @Mock
     private UserVerificationCheckRepository userVerificationCheckRepository;
+    @Mock
+    private com.fitnessuplink.notifications.NotificationService notificationService;
+    @Mock
+    private com.fitnessuplink.auth.mail.HireMailService hireMailService;
 
     private AdminVerificationService service;
     private final List<UserVerificationCheck> storedChecks = new ArrayList<>();
@@ -54,7 +58,9 @@ class AdminVerificationServiceTest {
                 userProfileValueRepository,
                 userService,
                 userVerificationCheckRepository,
-                new ObjectMapper()
+                new ObjectMapper(),
+                notificationService,
+                hireMailService
         );
         lenient().when(userVerificationCheckRepository.findByUserId(any())).thenAnswer(invocation -> List.copyOf(storedChecks));
         lenient().when(userVerificationCheckRepository.findById(any())).thenAnswer(invocation -> {
@@ -84,7 +90,16 @@ class AdminVerificationServiceTest {
                     OnboardingStep.DONE,
                     Instant.now(),
                     null,
-                    user.getVerificationStatus()
+                    user.getVerificationStatus(),
+                    user.isEnabled(),
+                    List.of(),
+                    user.getProfessionalIntent(),
+                    user.isProfileVisible(),
+                    user.isEmailVerified(),
+                    user.getSelectedPlan(),
+                    user.getSelectedPlanInterval(),
+                    user.getPendingPlan(),
+                    user.getPendingPlanInterval()
             );
         });
         lenient().when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -96,6 +111,9 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
                 value(candidate.getId(), "city", "Tunis"),
                 value(candidate.getId(), "phone", "53345912")
         ));
@@ -115,6 +133,9 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
                 value(candidate.getId(), "city", "Tunis"),
                 value(candidate.getId(), "phone", "53345912"),
                 value(candidate.getId(), "cv", fileJson())
@@ -134,6 +155,9 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
                 value(candidate.getId(), "city", "Tunis"),
                 value(candidate.getId(), "phone", "53345912"),
                 value(candidate.getId(), "diplomas", fileJson())
@@ -148,11 +172,33 @@ class AdminVerificationServiceTest {
     }
 
     @Test
+    void cannotVerifyIdentityWithoutIdScan() {
+        User candidate = candidate();
+        when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
+        when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
+                value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
+                value(candidate.getId(), "city", "Tunis"),
+                value(candidate.getId(), "phone", "53345912")
+        ));
+
+        ApiException error = assertThrows(
+                ApiException.class,
+                () -> service.updateCheck(candidate.getId(), "identity", "verified")
+        );
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+    }
+
+    @Test
     void cannotVerifyMissingCandidateDiplomas() {
         User candidate = candidate();
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
                 value(candidate.getId(), "city", "Tunis"),
                 value(candidate.getId(), "phone", "53345912")
         ));
@@ -170,6 +216,9 @@ class AdminVerificationServiceTest {
         when(userRepository.findById(candidate.getId())).thenReturn(Optional.of(candidate));
         when(userProfileValueRepository.findByUserId(candidate.getId())).thenReturn(List.of(
                 value(candidate.getId(), "professional_photo", fileJson()),
+                value(candidate.getId(), "identity_document", fileJson()),
+                value(candidate.getId(), "identity_document_type", "cin"),
+                value(candidate.getId(), "identity_document_number", "12345678"),
                 value(candidate.getId(), "city", "Tunis"),
                 value(candidate.getId(), "phone", "53345912"),
                 value(candidate.getId(), "certifications", fileJson())
@@ -208,12 +257,57 @@ class AdminVerificationServiceTest {
         when(userProfileValueRepository.findByUserId(employer.getId())).thenReturn(employerValues(employer.getId()));
 
         service.updateCheck(employer.getId(), "existence", "verified");
-        VerificationDossierDto dossier = service.updateCheck(employer.getId(), "legal_representative", "rejected");
+        VerificationDossierDto dossier = service.updateCheck(employer.getId(), "legal_representative", "rejected", "Pièce illisible");
 
         assertEquals("rejected", dossier.account().verificationStatus());
         assertEquals("verified", review(dossier, "existence"));
         assertEquals("rejected", review(dossier, "legal_representative"));
         assertEquals("pending", review(dossier, "legal_documents"));
+    }
+
+    @Test
+    void employerRepresentativeFallsBackToAccountAndCin() {
+        User employer = employer();
+        when(userRepository.findById(employer.getId())).thenReturn(Optional.of(employer));
+        when(userProfileValueRepository.findByUserId(employer.getId())).thenReturn(List.of(
+                value(employer.getId(), "legal_name", "Fitness Uplink"),
+                value(employer.getId(), "tax_id", "ZEEEEEEEEEE"),
+                value(employer.getId(), "representative_cin", "12345678"),
+                value(employer.getId(), "legal_documents", fileJson())
+        ));
+
+        VerificationDossierDto dossier = service.dossier(employer.getId());
+        var section = dossier.sections().stream()
+                .filter(item -> item.key().equals("legal_representative"))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(section.complete());
+        assertEquals(1, section.people().size());
+        assertEquals("Karim Arctrr", section.people().getFirst().name());
+        assertEquals("12345678", section.people().getFirst().idNumber());
+    }
+
+    @Test
+    void employerRepresentativeAcceptsSingleObjectJson() {
+        User employer = employer();
+        when(userRepository.findById(employer.getId())).thenReturn(Optional.of(employer));
+        when(userProfileValueRepository.findByUserId(employer.getId())).thenReturn(List.of(
+                value(employer.getId(), "legal_name", "Fitness Uplink"),
+                value(employer.getId(), "tax_id", "ZEEEEEEEEEE"),
+                value(employer.getId(), "legal_documents", fileJson()),
+                value(employer.getId(), "legal_representative", "{\"name\":\"Rihem DRIDI\",\"title\":\"Gérante\"}")
+        ));
+
+        VerificationDossierDto dossier = service.dossier(employer.getId());
+        var section = dossier.sections().stream()
+                .filter(item -> item.key().equals("legal_representative"))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(section.complete());
+        assertEquals("Rihem DRIDI", section.people().getFirst().name());
+        assertEquals("Gérante", section.people().getFirst().title());
     }
 
     @Test

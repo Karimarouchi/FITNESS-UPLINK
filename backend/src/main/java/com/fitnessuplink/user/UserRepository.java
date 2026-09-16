@@ -21,7 +21,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findAll();
 
     @EntityGraph(attributePaths = {"appRole", "country"})
-    List<User> findByAppRole_CodeAndOnboardingCompletedTrue(String code);
+    List<User> findByAppRole_CodeAndOnboardingCompletedTrueAndProfileVisibleTrue(String code);
+
+    @EntityGraph(attributePaths = {"appRole", "country"})
+    List<User> findByIdIn(java.util.Collection<UUID> ids);
+
+    @EntityGraph(attributePaths = {"appRole", "country"})
+    List<User> findByAppRole_Code(String code);
 
     boolean existsByEmail(String email);
 }

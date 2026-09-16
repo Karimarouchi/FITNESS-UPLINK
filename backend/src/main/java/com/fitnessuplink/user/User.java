@@ -63,6 +63,29 @@ public class User {
     @Builder.Default
     private String verificationStatus = "pending";
 
+    @Column(name = "professional_intent", length = 16)
+    private String professionalIntent;
+
+    @Column(name = "profile_visible", nullable = false)
+    @Builder.Default
+    private boolean profileVisible = false;
+
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private boolean emailVerified = false;
+
+    @Column(name = "selected_plan", length = 36)
+    private String selectedPlan;
+
+    @Column(name = "selected_plan_interval", length = 8)
+    private String selectedPlanInterval;
+
+    @Column(name = "pending_plan", length = 36)
+    private String pendingPlan;
+
+    @Column(name = "pending_plan_interval", length = 8)
+    private String pendingPlanInterval;
+
     @Column(name = "first_name", nullable = false, length = 80)
     private String firstName;
 
@@ -127,6 +150,18 @@ public class User {
 
     public boolean isCandidate() {
         return appRole != null && "CANDIDATE".equals(appRole.getCode());
+    }
+
+    public boolean isMember() {
+        return appRole != null && "MEMBER".equals(appRole.getCode());
+    }
+
+    public boolean hasSelectedPlan() {
+        return selectedPlan != null && !selectedPlan.isBlank();
+    }
+
+    public boolean hasPendingPlan() {
+        return pendingPlan != null && !pendingPlan.isBlank();
     }
 
     public boolean isSuperAdmin() {

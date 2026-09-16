@@ -5,6 +5,9 @@ spring:
     password: ${POSTGRES_PASSWORD}
   jpa:
     show-sql: false
+  mail:
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
 
 app:
   cors:
@@ -14,3 +17,12 @@ app:
       secret: ${JWT_SECRET}
     cookie:
       secure: true
+    super-admin:
+      email: ${SUPER_ADMIN_EMAIL}
+      password: ${SUPER_ADMIN_PASSWORD}
+  signature:
+    webhook-secret: ${SIGNATURE_WEBHOOK_SECRET}
+  mail:
+    from-email: ${MAIL_FROM:${MAIL_USERNAME}}
+  frontend:
+    base-url: ${FRONTEND_URL}

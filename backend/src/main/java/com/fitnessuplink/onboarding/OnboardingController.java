@@ -8,6 +8,8 @@ import com.fitnessuplink.onboarding.dto.ParseCvResponse;
 import com.fitnessuplink.onboarding.dto.ProfileFieldResponse;
 import com.fitnessuplink.onboarding.dto.ProfileValuesResponse;
 import com.fitnessuplink.onboarding.dto.SelectCountryRequest;
+import com.fitnessuplink.onboarding.dto.SelectIntentRequest;
+import com.fitnessuplink.onboarding.dto.SelectPlanRequest;
 import com.fitnessuplink.onboarding.dto.SelectRoleRequest;
 import com.fitnessuplink.onboarding.dto.UploadResponse;
 import com.fitnessuplink.user.dto.UserResponse;
@@ -49,6 +51,14 @@ public class OnboardingController {
         return onboardingService.selectRole(principal.getId(), request);
     }
 
+    @PostMapping("/intent")
+    public UserResponse selectIntent(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody SelectIntentRequest request
+    ) {
+        return onboardingService.selectIntent(principal.getId(), request);
+    }
+
     @PostMapping("/country")
     public UserResponse selectCountry(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -73,6 +83,19 @@ public class OnboardingController {
             @Valid @RequestBody CompleteProfileRequest request
     ) {
         return onboardingService.completeProfile(principal.getId(), request);
+    }
+
+    @PostMapping("/plan")
+    public UserResponse selectPlan(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody SelectPlanRequest request
+    ) {
+        return onboardingService.selectPlan(principal.getId(), request);
+    }
+
+    @PostMapping("/payment")
+    public UserResponse confirmPayment(@AuthenticationPrincipal UserPrincipal principal) {
+        return onboardingService.confirmPayment(principal.getId());
     }
 
     @PostMapping("/profile/parse-cv")

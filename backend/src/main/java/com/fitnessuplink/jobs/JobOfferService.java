@@ -2,6 +2,8 @@ package com.fitnessuplink.jobs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitnessuplink.access.PermissionService;
+import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.jobs.dto.JobOfferDto;
 import com.fitnessuplink.jobs.dto.JobOfferSummaryDto;
@@ -27,6 +29,8 @@ public class JobOfferService {
     private final JobOfferRepository jobOfferRepository;
     private final TalentPipelineRepository talentPipelineRepository;
     private final ObjectMapper objectMapper;
+    private final PermissionService permissionService;
+    private final com.fitnessuplink.billing.EntitlementService entitlementService;
 
     @Transactional(readOnly = true)
     public List<JobOfferDto> list(User employer) {
@@ -45,6 +49,11 @@ public class JobOfferService {
     @Transactional
     public JobOfferDto create(User employer, UpsertJobOfferRequest request) {
         requireEmployer(employer);
+        entitlementService.require(employer, com.fitnessuplink.billing.Entitlements.JOBS);
+        Integer max = entitlementService.limit(employer, com.fitnessuplink.billing.Entitlements.JOBS);
+        if (max != null && jobOfferRepository.findByEmployerIdOrderByUpdatedAtDesc(employer.getId()).size() >= max) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ENTITLEMENT_LIMIT");
+        }
         Instant now = Instant.now();
         JobOffer offer = JobOffer.builder()
                 .id(UUID.randomUUID())
@@ -84,10 +93,8 @@ public class JobOfferService {
         return new JobOfferSummaryDto(offer.getId(), offer.getTitle(), offer.getPosition(), offer.getLocation());
     }
 
-    public static void requireEmployer(User user) {
-        if (user == null || !user.isBusiness() || !user.isOnboardingCompleted()) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN");
-        }
+    public void requireEmployer(User user) {
+        permissionService.require(user, Permissions.HIRE_JOBS_MANAGE);
     }
 
     private void apply(JobOffer offer, UpsertJobOfferRequest request) {

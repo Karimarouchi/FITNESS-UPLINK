@@ -9,6 +9,7 @@ public record VerificationSectionDto(
         boolean complete,
         boolean required,
         String reviewStatus,
+        String rejectionReason,
         List<String> facts,
         List<VerificationFileDto> files,
         List<VerificationPersonDto> people

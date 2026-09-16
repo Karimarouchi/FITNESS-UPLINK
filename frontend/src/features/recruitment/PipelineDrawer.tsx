@@ -18,7 +18,6 @@ export function PipelineDrawer({
   onStatus,
   onSaveNote,
   onArchive,
-  onContact,
   onNewRecruitment,
   onPrepareContract,
   onViewContract,
@@ -31,7 +30,6 @@ export function PipelineDrawer({
   onStatus: (status: PipelineStatus) => void;
   onSaveNote: () => void;
   onArchive: () => void;
-  onContact: () => void;
   onNewRecruitment: () => void;
   onPrepareContract: () => void;
   onViewContract: () => void;
@@ -82,7 +80,7 @@ export function PipelineDrawer({
         <label className="fu-field">
           Changer le statut
           <select className="custom-input" value={item.status} onChange={(event) => changeStatus(event.target.value as PipelineStatus)}>
-            {PIPELINE_STATUSES.map((status) => (
+            {PIPELINE_STATUSES.filter((status) => status.value !== "APPLIED").map((status) => (
               <option key={status.value} value={status.value} disabled={status.value === "HIRED" && !canHire && item.status !== "HIRED"}>
                 {status.label}
               </option>
@@ -97,9 +95,6 @@ export function PipelineDrawer({
           <Link className="ob-secondary" to={`/candidates/${candidate.id}`}>
             Voir le profil
           </Link>
-          <button className="ob-secondary" type="button" onClick={onContact}>
-            Contacter
-          </button>
           {item.status === "NEGOTIATION" ? (
             <button className="ob-primary" type="button" onClick={onPrepareContract}>
               Préparer le contrat

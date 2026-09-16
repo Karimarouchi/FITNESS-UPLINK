@@ -98,7 +98,7 @@ export function ContractDetailPage() {
     try {
       await updateRecruitmentStatus(contract.recruitmentId, "HIRED");
       setFlash("Candidat marqué comme recruté.");
-      navigate("/pipeline");
+      navigate("/applications");
     } catch (err) {
       setError(err instanceof ApiError ? contractError(err.message) : "Impossible de marquer ce candidat comme recruté.");
     } finally {
