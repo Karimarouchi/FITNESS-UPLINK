@@ -113,50 +113,7 @@ export function HomeLanding() {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="home-showcase" aria-label="Aperçu de la plateforme" data-reveal>
-              <Link className="home-card" to="/fitness-hire-elite">
-                <p className="home-card-label">Hire Elite — Profil</p>
-                <div className="home-cv-id">
-                  <img
-                    src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&crop=faces&w=160&h=160&q=70"
-                    alt=""
-                  />
-                  <div>
-                    <strong>Sarah Benali</strong>
-                    <span>Coach performance, Paris</span>
-                  </div>
-                </div>
-                <dl className="home-cv-exp">
-                  <div>
-                    <dt>Head coach, Basic-Fit</dt>
-                    <dd>2022 —</dd>
-                  </div>
-                  <div>
-                    <dt>Prépa. physique, PSG Handball</dt>
-                    <dd>2019–22</dd>
-                  </div>
-                  <div>
-                    <dt>BPJEPS AF, Mobilité, HIIT</dt>
-                    <dd>Diplômes</dd>
-                  </div>
-                </dl>
-              </Link>
-
-              <Link className="home-card home-card-product" to="/marketplace">
-                <img
-                  src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=320&h=320&q=70"
-                  alt=""
-                />
-                <div>
-                  <p className="home-card-label">Marketplace</p>
-                  <strong>Rack de musculation Pro</strong>
-                  <span>Livraison sous 10 jours</span>
-                </div>
-                <b>1 290 €</b>
-              </Link>
-            </div>
-          )}
+          ) : null}
         </div>
         <div className="home-wrap home-stats" data-reveal>
           {LANDING_STATS.map((stat) => (

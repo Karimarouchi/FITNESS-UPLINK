@@ -48,36 +48,33 @@
   margin-bottom: 14px;
 }
 
-/* ---------- dark blob ---------- */
+/* ---------- blob (same treatment as the home hero) ---------- */
 .fu-auth .fu-blob {
   background: var(--night);
 }
 
 .fu-auth .fu-blob-photo {
-  background:
-    url("/media/hero-sprint.jpg") 30% 45% / cover no-repeat;
-  opacity: 0.42;
+  background: url("/media/hero-sprint.jpg") 30% 45% / cover no-repeat;
+  opacity: 1;
   mix-blend-mode: normal;
-  filter: saturate(0.9);
+  filter: brightness(0.72) saturate(0.9);
 }
 
 .fu-auth .fu-blob-glow {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(40% 40% at 70% 55%, rgba(37, 99, 235, 0.45), transparent 70%),
-    radial-gradient(25% 25% at 62% 75%, rgba(215, 255, 60, 0.1), transparent 70%);
+  background: radial-gradient(45% 45% at 55% 85%, rgba(29, 78, 216, 0.35), transparent 70%);
   pointer-events: none;
 }
 
 .fu-auth .fu-blob-pattern {
-  opacity: 0.25;
+  opacity: 0;
 }
 
 .fu-auth .fu-blob-fade {
   background:
-    linear-gradient(90deg, rgba(7, 13, 28, 0.2), rgba(7, 13, 28, 0.85) 70%),
-    linear-gradient(to top, var(--night) 5%, transparent 60%);
+    linear-gradient(rgba(7, 13, 28, 0.62), rgba(7, 13, 28, 0.62)),
+    linear-gradient(to top, rgba(7, 13, 28, 0.85) 0%, transparent 45%);
   opacity: 1;
 }
 
@@ -102,12 +99,13 @@
 
 .fu-auth .fu-panel-title span {
   color: var(--volt);
+  white-space: nowrap;
 }
 
 .fu-auth .fu-panel-copy {
   max-width: 40ch;
   margin-bottom: 32px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 16.5px;
   line-height: 1.65;
 }
@@ -122,9 +120,9 @@
   gap: 8px;
   height: 52px;
   padding: 0 22px;
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.14);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: #fff;
