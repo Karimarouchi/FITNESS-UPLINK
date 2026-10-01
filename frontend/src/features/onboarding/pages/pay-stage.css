@@ -3,20 +3,20 @@
 .ob-shell.pay-shell,
 .ob-shell--wide.pay-shell {
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(214, 255, 63, 0.16), transparent 55%),
+    radial-gradient(1200px 600px at 50% -10%, rgba(29, 78, 216, 0.16), transparent 55%),
     radial-gradient(900px 500px at 100% 20%, rgba(0, 64, 224, 0.28), transparent 50%),
-    #141a32;
-  color: #f4f5f1;
+    #0f172a;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-nav-back,
 .pay-shell .ob-step-label,
 .pay-shell .pub-logo .word {
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-profile-nav {
-  color: #f4f5f1;
+  color: #f4f7fb;
   background: transparent;
   border-bottom-color: rgba(244, 245, 241, 0.12);
 }
@@ -30,8 +30,8 @@
 }
 
 .pay-shell .ob-locale button.is-active {
-  background: #d6ff3f;
-  color: #141a32;
+  background: #1d4ed8;
+  color: #fff;
 }
 
 .pay-shell .ob-pay {
@@ -64,7 +64,7 @@
   height: 280px;
   left: 8%;
   top: 20px;
-  background: rgba(214, 255, 63, 0.35);
+  background: rgba(29, 78, 216, 0.35);
 }
 
 .pay-orb--blue {
@@ -96,12 +96,12 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #d6ff3f;
+  color: #93c5fd;
 }
 
 .pay-shell .pay-title,
 .pay-shell .ob-plans-title {
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .pay-lead,
@@ -117,14 +117,14 @@
   padding: 10px 16px;
   border-radius: 999px;
   background: #ffffff;
-  border: 1px solid #dee1d8;
-  color: #141a32;
+  border: 1px solid #dde5f0;
+  color: #0f172a;
 }
 
 .pay-shell .pay-plan {
   background: rgba(244, 245, 241, 0.08);
-  border-color: rgba(214, 255, 63, 0.35);
-  color: #f4f5f1;
+  border-color: rgba(29, 78, 216, 0.35);
+  color: #f4f7fb;
 }
 
 .pay-plan span {
@@ -132,25 +132,24 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #141a32;
+  color: #0f172a;
 }
 
 .pay-shell .pay-plan span {
-  color: #d6ff3f;
+  color: #93c5fd;
 }
 
 .pay-plan strong {
-  font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  font-family: Manrope, Inter, sans-serif;
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 .pay-plan em {
   font-style: normal;
   font-size: 13px;
-  color: #5b6570;
+  color: #475569;
 }
 
 .pay-shell .pay-plan em {
@@ -168,15 +167,15 @@
   padding: 14px 16px;
   border-radius: 16px;
   background: #ffffff;
-  border: 1px solid #dee1d8;
+  border: 1px solid #dde5f0;
   cursor: pointer;
-  color: #141a32;
+  color: #0f172a;
 }
 
 .pay-shell .pay-cgv {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(244, 245, 241, 0.12);
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .pay-cgv em {
@@ -193,7 +192,7 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  border: 2px solid #d6ff3f;
+  border: 2px solid #1d4ed8;
   background: transparent;
   flex-shrink: 0;
   margin-top: 1px;
@@ -201,7 +200,7 @@
 }
 
 .pay-cgv.is-on .pay-cgv-box {
-  background: #d6ff3f;
+  background: #1d4ed8;
 }
 
 .pay-cgv.is-on .pay-cgv-box::after {
@@ -211,7 +210,7 @@
   top: 2px;
   width: 6px;
   height: 11px;
-  border: solid #141a32;
+  border: solid #0f172a;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }

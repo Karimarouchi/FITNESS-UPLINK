@@ -85,7 +85,7 @@ export function AppSidebar() {
           F
         </div>
         <div>
-          <div className="word">FITNESS UPLINK</div>
+          <div className="word">Fitness Uplink</div>
           <div className="sb-kicker">Back-office</div>
         </div>
       </div>

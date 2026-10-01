@@ -1,11 +1,5 @@
-import { Hero } from "@/components/public/Hero";
-import { ModulesGrid } from "@/components/public/ModulesGrid";
+import { HomeLanding } from "./landing/HomeLanding";
 
 export function HomePage() {
-  return (
-    <>
-      <Hero />
-      <ModulesGrid />
-    </>
-  );
+  return <HomeLanding />;
 }

@@ -2,6 +2,7 @@ package com.fitnessuplink.jobs;
 
 import com.fitnessuplink.auth.security.UserPrincipal;
 import com.fitnessuplink.jobs.dto.OpportunityDto;
+import com.fitnessuplink.jobs.dto.OpportunityPreviewDto;
 import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.onboarding.dto.UploadResponse;
 import com.fitnessuplink.talent.RecruitmentService;
@@ -37,6 +38,11 @@ public class OpportunityController {
             @RequestParam(required = false) String q
     ) {
         return opportunityService.listPublished(principal.getUser(), q);
+    }
+
+    @GetMapping("/preview")
+    public List<OpportunityPreviewDto> preview(@RequestParam(defaultValue = "6") int limit) {
+        return opportunityService.publicPreview(limit);
     }
 
     @GetMapping("/{id}")

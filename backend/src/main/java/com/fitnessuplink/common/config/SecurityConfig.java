@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/v1/marketplace/categories", "/v1/marketplace/products", "/v1/marketplace/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/coaches/top-rated", "/v1/coaches/top-rated/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/academy/formations", "/v1/academy/formations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/opportunities/preview").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/marketplace/products/*/quote-requests").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/marketplace/quote-requests/*/confirm", "/v1/marketplace/quote-requests/*/resend").permitAll()
                         .anyRequest().authenticated()

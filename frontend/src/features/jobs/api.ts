@@ -45,6 +45,21 @@ export const CONTRACT_TYPES = [
   { value: "vacation", label: "Vacation" },
 ];
 
+export type OpportunityPreview = {
+  id: string;
+  title: string;
+  position: string | null;
+  location: string | null;
+  contractType: string | null;
+  employerName: string;
+  employerCountry: CountrySummary | null;
+  createdAt: string;
+};
+
+export function fetchOpportunityPreview(limit = 4) {
+  return api.get<OpportunityPreview[]>(`/v1/opportunities/preview?limit=${limit}`);
+}
+
 export function fetchJobOffers() {
   return api.get<JobOffer[]>("/v1/job-offers");
 }

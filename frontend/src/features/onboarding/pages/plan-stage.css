@@ -57,8 +57,8 @@
 }
 
 .plan-stage .ob-plan-card li.is-ok .material-symbols-outlined {
-  color: #141a32;
-  background: #d6ff3f;
+  color: #fff;
+  background: #1d4ed8;
   border-radius: 50%;
   font-size: 14px;
   width: 20px;
@@ -75,9 +75,9 @@
   gap: 8px;
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(214, 255, 63, 0.14);
-  border: 1px solid rgba(214, 255, 63, 0.4);
-  color: #d6ff3f;
+  background: rgba(29, 78, 216, 0.14);
+  border: 1px solid rgba(29, 78, 216, 0.4);
+  color: #93c5fd;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -90,7 +90,7 @@
 }
 
 .pay-shell .ob-plans-title {
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-plans-lead {
@@ -99,7 +99,7 @@
 
 .pay-shell .ob-plans-switch {
   margin-top: 0;
-  color: #f4f5f1;
+  color: #f4f7fb;
   white-space: nowrap;
   flex: 0 1 auto;
 }
@@ -126,11 +126,11 @@
 }
 
 .pay-shell .ob-plans-switch.is-on .ob-plans-switch-track {
-  background: #d6ff3f;
+  background: #1d4ed8;
 }
 
 .pay-shell .ob-plans-switch.is-on .ob-plans-switch-knob {
-  background: #141a32;
+  background: #0f172a;
 }
 
 .pay-shell .ob-plans-tools .custom-input,
@@ -142,7 +142,7 @@
   height: 38px;
   min-height: 38px;
   background: rgba(244, 245, 241, 0.08);
-  color: #f4f5f1;
+  color: #f4f7fb;
   border: 1px solid rgba(244, 245, 241, 0.2);
   border-radius: 999px;
   padding: 0 12px;
@@ -150,20 +150,20 @@
 
 .pay-shell .ob-plans-tools .custom-input option,
 .pay-shell .plan-currency option {
-  background: #141a32;
-  color: #f4f5f1;
+  background: #0f172a;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-plan-card {
   padding-top: 36px;
   background: rgba(20, 28, 56, 0.88);
   border: 1px solid rgba(244, 245, 241, 0.16);
-  color: #f4f5f1;
+  color: #f4f7fb;
   backdrop-filter: blur(18px);
 }
 
 .pay-shell .ob-plan-card h2 {
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-plan-tag,
@@ -175,7 +175,7 @@
 .pay-shell .ob-plan-price,
 .pay-shell .ob-plan-price strong,
 .pay-shell .ob-plan-card li {
-  color: #f4f5f1;
+  color: #f4f7fb;
 }
 
 .pay-shell .ob-plan-card ul {
@@ -183,8 +183,8 @@
 }
 
 .pay-shell .ob-plan-cta {
-  background: #f4f5f1;
-  color: #141a32;
+  background: #f4f7fb;
+  color: #0f172a;
 }
 
 .pay-shell .ob-plan-cta:hover:not(:disabled) {
@@ -192,8 +192,8 @@
 }
 
 .pay-shell .ob-plan-cta--lime {
-  background: #d6ff3f;
-  color: #141a32;
+  background: #1d4ed8;
+  color: #fff;
 }
 
 .pay-shell .ob-plan-cta--lime:hover:not(:disabled) {
@@ -202,27 +202,27 @@
 
 .pay-shell .ob-plan-card.is-featured {
   padding-top: 44px;
-  background: rgba(214, 255, 63, 0.1);
-  border: 2px solid #d6ff3f;
+  background: rgba(29, 78, 216, 0.1);
+  border: 2px solid #1d4ed8;
   box-shadow:
-    0 0 0 1px rgba(214, 255, 63, 0.22),
-    0 28px 60px -20px rgba(214, 255, 63, 0.42);
+    0 0 0 1px rgba(29, 78, 216, 0.22),
+    0 28px 60px -20px rgba(29, 78, 216, 0.42);
   animation: plan-featured-glow 3.2s ease-in-out infinite;
 }
 
 .pay-shell .ob-plan-card.is-selected {
-  outline: 2px solid #d6ff3f;
+  outline: 2px solid #1d4ed8;
 }
 
 .pay-shell .ob-plan-badge {
-  background: #d6ff3f;
-  color: #141a32;
+  background: #1d4ed8;
+  color: #fff;
   animation: plan-badge-pop 2.8s ease-in-out infinite;
 }
 
 .pay-shell .ob-plan-card.is-featured .ob-plan-price strong {
-  color: #d6ff3f;
-  text-shadow: 0 0 24px rgba(214, 255, 63, 0.35);
+  color: #93c5fd;
+  text-shadow: 0 0 24px rgba(29, 78, 216, 0.35);
 }
 
 @media (max-width: 720px) {
@@ -248,10 +248,10 @@
 @keyframes plan-cta-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(214, 255, 63, 0.45);
+    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.45);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(214, 255, 63, 0);
+    box-shadow: 0 0 0 8px rgba(29, 78, 216, 0);
   }
 }
 
@@ -259,13 +259,13 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 1px rgba(214, 255, 63, 0.22),
-      0 28px 60px -20px rgba(214, 255, 63, 0.35);
+      0 0 0 1px rgba(29, 78, 216, 0.22),
+      0 28px 60px -20px rgba(29, 78, 216, 0.35);
   }
   50% {
     box-shadow:
-      0 0 0 4px rgba(214, 255, 63, 0.18),
-      0 32px 70px -16px rgba(214, 255, 63, 0.55);
+      0 0 0 4px rgba(29, 78, 216, 0.18),
+      0 32px 70px -16px rgba(29, 78, 216, 0.55);
   }
 }
 

@@ -160,7 +160,7 @@ export function AppNavbar() {
         <span className="mark" aria-hidden="true">
           F
         </span>
-        <span className="word">FITNESS UPLINK</span>
+        <span className="word">Fitness Uplink</span>
       </Link>
 
       <div className="app-navbar-menu" ref={navRef}>

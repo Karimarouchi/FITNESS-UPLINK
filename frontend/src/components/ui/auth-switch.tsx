@@ -1,10 +1,9 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Eye, EyeOff, Hexagon, Lock, Mail } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
-import { AUTH_HERO } from "@/features/auth/components/AuthHeroImage";
 import { destinationFor, safeRedirectTarget } from "@/features/auth/types";
 import { executeRecaptcha, loadRecaptcha, recaptchaEnabled } from "@/features/auth/recaptcha";
 import {
@@ -17,8 +16,18 @@ import {
   validateName,
   validatePassword,
 } from "@/features/auth/validation";
+import "./auth-switch.css";
 
 type Mode = "login" | "signup";
+
+function BackHome() {
+  return (
+    <Link className="fu-back" to="/">
+      <ArrowLeft size={16} />
+      Retour à l’accueil
+    </Link>
+  );
+}
 
 function PasswordRule({ ok, label }: { ok: boolean; label: string }) {
   return (
@@ -149,9 +158,10 @@ export function AuthSwitch() {
   }
 
   return (
-    <div className={cn("fu-switch", isSignup && "is-signup")}>
+    <div className={cn("fu-switch fu-auth", isSignup && "is-signup")} lang="fr">
       <div className="fu-blob" aria-hidden>
-        <div className="fu-blob-photo" style={{ backgroundImage: `url('${AUTH_HERO}')` }} />
+        <div className="fu-blob-photo" />
+        <div className="fu-blob-glow" />
         <div className="fu-blob-pattern network-pattern" />
         <div className="fu-blob-fade" />
       </div>
@@ -159,12 +169,14 @@ export function AuthSwitch() {
       <div className="fu-forms">
         <div className="fu-forms-inner">
           <form className="fu-form fu-form--signin" onSubmit={onLogin} noValidate>
-            <h2 className="fu-form-title">Sign in</h2>
-            <p className="fu-form-sub">Access your Fitness Uplink account.</p>
+            <BackHome />
+            <p className="fu-form-kicker">Espace membre</p>
+            <h2 className="fu-form-title">Bon retour.</h2>
+            <p className="fu-form-sub">Connectez-vous pour retrouver votre réseau, vos séances et vos opportunités.</p>
 
             <div className="fu-control">
               <label className="auth-label" htmlFor="login-email">
-                Email Address
+                Adresse e-mail
               </label>
               <div className="fu-field">
                 <Mail className="fu-field-icon" size={16} />
@@ -178,7 +190,7 @@ export function AuthSwitch() {
                   autoCorrect="off"
                   spellCheck={false}
                   maxLength={LIMITS.email}
-                  placeholder="name@company.com"
+                  placeholder="nom@entreprise.com"
                   value={loginEmail}
                   onChange={(event) => {
                     setLoginEmail(event.target.value);
@@ -194,7 +206,7 @@ export function AuthSwitch() {
 
             <div className="fu-control">
               <label className="auth-label" htmlFor="login-password">
-                Password
+                Mot de passe
               </label>
               <div className="fu-field">
                 <Lock className="fu-field-icon" size={16} />
@@ -215,7 +227,7 @@ export function AuthSwitch() {
                   className="auth-eye"
                   type="button"
                   onClick={() => setLoginShowPw((value) => !value)}
-                  aria-label={loginShowPw ? "Hide password" : "Show password"}
+                  aria-label={loginShowPw ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 >
                   {loginShowPw ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -230,10 +242,10 @@ export function AuthSwitch() {
                   checked={loginRememberMe}
                   onChange={(event) => setLoginRememberMe(event.target.checked)}
                 />
-                Remember me
+                Se souvenir de moi
               </label>
               <Link className="fu-link" to="/forgot-password">
-                Forgot password?
+                Mot de passe oublié ?
               </Link>
             </div>
 
@@ -244,18 +256,28 @@ export function AuthSwitch() {
               type="submit"
               disabled={loginSubmitting || Boolean(loginEmailError) || Boolean(loginPwError)}
             >
-              {loginSubmitting ? "Signing in..." : "Login"}
+              {loginSubmitting ? "Connexion…" : "Se connecter"}
+              <ArrowRight size={18} />
             </button>
+
+            <p className="fu-switch-hint">
+              Pas encore membre ?{" "}
+              <button type="button" onClick={() => switchMode("signup")}>
+                Créer un compte
+              </button>
+            </p>
           </form>
 
           <form className="fu-form fu-form--signup" onSubmit={onSignup} noValidate>
-            <h2 className="fu-form-title">Create account</h2>
-            <p className="fu-form-sub">Join the global network of high-performance athletes.</p>
+            <BackHome />
+            <p className="fu-form-kicker">Rejoindre le réseau</p>
+            <h2 className="fu-form-title">Créez votre compte.</h2>
+            <p className="fu-form-sub">Gratuit, en moins d’une minute.</p>
 
             <div className="fu-signup-id">
               <div className="fu-control">
                 <label className="auth-label" htmlFor="first-name">
-                  First Name
+                  Prénom
                 </label>
                 <input
                   className={cn("auth-input", signupFieldErrors.firstName && "is-invalid")}
@@ -282,7 +304,7 @@ export function AuthSwitch() {
               </div>
               <div className="fu-control">
                 <label className="auth-label" htmlFor="last-name">
-                  Last Name
+                  Nom
                 </label>
                 <input
                   className={cn("auth-input", signupFieldErrors.lastName && "is-invalid")}
@@ -304,7 +326,7 @@ export function AuthSwitch() {
               </div>
               <div className="fu-control fu-signup-email">
                 <label className="auth-label" htmlFor="signup-email">
-                  Email Address
+                  Adresse e-mail
                 </label>
                 <div className="fu-field">
                   <Mail className="fu-field-icon" size={16} />
@@ -318,7 +340,7 @@ export function AuthSwitch() {
                     autoCorrect="off"
                     spellCheck={false}
                     maxLength={LIMITS.email}
-                    placeholder="jane.doe@example.com"
+                    placeholder="jane.doe@exemple.com"
                     value={signupEmail}
                     onChange={(event) => {
                       setSignupEmail(event.target.value);
@@ -333,10 +355,10 @@ export function AuthSwitch() {
               </div>
             </div>
 
-            <div className="fu-signup-pw">
+            <div className="fu-signup-pw fu-signup-pw--split">
               <div className="fu-control">
                 <label className="auth-label" htmlFor="signup-password">
-                  Password
+                  Mot de passe
                 </label>
                 <div className="fu-field">
                   <Lock className="fu-field-icon" size={16} />
@@ -357,7 +379,7 @@ export function AuthSwitch() {
                     className="auth-eye"
                     type="button"
                     onClick={() => setSignupShowPw((value) => !value)}
-                    aria-label={signupShowPw ? "Hide password" : "Show password"}
+                    aria-label={signupShowPw ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                   >
                     {signupShowPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -366,7 +388,7 @@ export function AuthSwitch() {
               </div>
               <div className="fu-control">
                 <label className="auth-label" htmlFor="confirm-password">
-                  Confirm Password
+                  Confirmation
                 </label>
                 <input
                   className={cn("auth-input", signupFieldErrors.confirmPassword && "is-invalid")}
@@ -394,12 +416,12 @@ export function AuthSwitch() {
             </div>
 
             <div className="auth-rules fu-rules">
-              <PasswordRule ok={rules.length} label="8–128 chars" />
-              <PasswordRule ok={rules.uppercase} label="Uppercase" />
-              <PasswordRule ok={rules.lowercase} label="Lowercase" />
-              <PasswordRule ok={rules.number} label="Number" />
-              <PasswordRule ok={rules.special} label="Special" />
-              <PasswordRule ok={rules.noSpace} label="No spaces" />
+              <PasswordRule ok={rules.length} label="8–128 caractères" />
+              <PasswordRule ok={rules.uppercase} label="Majuscule" />
+              <PasswordRule ok={rules.lowercase} label="Minuscule" />
+              <PasswordRule ok={rules.number} label="Chiffre" />
+              <PasswordRule ok={rules.special} label="Caractère spécial" />
+              <PasswordRule ok={rules.noSpace} label="Sans espace" />
             </div>
 
             <div className="fu-signup-foot">
@@ -413,8 +435,8 @@ export function AuthSwitch() {
                   }}
                 />
                 <span>
-                  I agree to the <span className="text-secondary">Terms</span> and{" "}
-                  <span className="text-secondary">Privacy Policy</span>.
+                  J’accepte les <span className="text-secondary">Conditions</span> et la{" "}
+                  <span className="text-secondary">Politique de confidentialité</span>.
                 </span>
               </label>
               {signupFieldErrors.terms ? <p className="auth-field-error">{signupFieldErrors.terms}</p> : null}
@@ -433,9 +455,15 @@ export function AuthSwitch() {
                 </p>
               ) : null}
               <button className="auth-btn fu-submit" type="submit" disabled={signupSubmitting || !signupValid}>
-                {signupSubmitting ? "Creating account..." : "Continue"}
+                {signupSubmitting ? "Création du compte…" : "Créer mon compte"}
                 <ArrowRight size={18} />
               </button>
+              <p className="fu-switch-hint">
+                Déjà membre ?{" "}
+                <button type="button" onClick={() => switchMode("login")}>
+                  Se connecter
+                </button>
+              </p>
             </div>
           </form>
         </div>
@@ -444,39 +472,36 @@ export function AuthSwitch() {
       <div className="fu-panels">
         <div className="fu-panel fu-panel--left">
           <div className="fu-panel-content">
-            <Link className="fu-brand" to="/">
-              <Hexagon size={26} strokeWidth={2.2} />
-              FITNESS UPLINK
-            </Link>
+            <p className="fu-panel-kicker">Nouveau sur le réseau ?</p>
             <h2 className="fu-panel-title">
-              New here?
+              Plus de mouvement.
               <br />
-              <span>Connected.</span>
+              <span>Plus de réseau.</span>
             </h2>
             <p className="fu-panel-copy">
-              Join us today and discover a world of possibilities. Create your account in seconds.
+              Recrutement, coaching, formations, matériel et événements : rejoignez le circuit du fitness en quelques
+              secondes.
             </p>
             <button type="button" className="fu-ghost" onClick={() => switchMode("signup")}>
-              Sign up
+              Créer mon compte
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>
         <div className="fu-panel fu-panel--right">
           <div className="fu-panel-content">
-            <Link className="fu-brand" to="/">
-              <Hexagon size={26} strokeWidth={2.2} />
-              FITNESS UPLINK
-            </Link>
+            <p className="fu-panel-kicker">Déjà membre ?</p>
             <h2 className="fu-panel-title">
-              Welcome back
+              Content de
               <br />
-              <span>Connected.</span>
+              <span>vous revoir.</span>
             </h2>
             <p className="fu-panel-copy">
-              Already part of the network? Sign in and keep building with the fitness industry.
+              Connectez-vous pour retrouver votre dossier, vos séances, vos devis et vos opportunités.
             </p>
             <button type="button" className="fu-ghost" onClick={() => switchMode("login")}>
-              Sign in
+              Se connecter
+              <ArrowRight size={18} />
             </button>
           </div>
         </div>

@@ -32,6 +32,19 @@ export function GuestRoute() {
   return <Outlet />;
 }
 
+export function MemberOnlyRoute() {
+  const { user, ready } = useAuth();
+  const location = useLocation();
+  if (!ready) {
+    return <div className="min-h-screen bg-surface-container-lowest" />;
+  }
+  if (!user) {
+    const target = `${location.pathname}${location.search}`;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(target)}`} replace />;
+  }
+  return <Outlet />;
+}
+
 export function OnboardingRoute() {
   const { user, ready } = useAuth();
   const location = useLocation();

@@ -1,0 +1,434 @@
+/* ==================================================================
+   AUTH (login / signup) — aligned with the public site aesthetic
+   ================================================================== */
+.fu-auth {
+  --brand: #1d4ed8;
+  --brand-600: #1e40af;
+  --volt: #d7ff3c;
+  --night: #070d1c;
+  --ink: #0f172a;
+  --slate: #475569;
+  --line: #dfe7f2;
+  background: #f4f7fb;
+  color: var(--ink);
+  font-family: Geist, Inter, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- back to home (inside the form) ---------- */
+.fu-auth .fu-back {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 28px -10px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 10px;
+  color: var(--slate);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-auth .fu-back svg {
+  transition: transform 0.2s ease;
+}
+
+.fu-auth .fu-back:hover {
+  background: #e9eef6;
+  color: var(--ink);
+}
+
+.fu-auth .fu-back:hover svg {
+  transform: translateX(-3px);
+}
+
+.fu-auth .fu-form--signup .fu-back {
+  margin-bottom: 14px;
+}
+
+/* ---------- dark blob ---------- */
+.fu-auth .fu-blob {
+  background: var(--night);
+}
+
+.fu-auth .fu-blob-photo {
+  background:
+    url("/media/hero-sprint.jpg") 30% 45% / cover no-repeat;
+  opacity: 0.42;
+  mix-blend-mode: normal;
+  filter: saturate(0.9);
+}
+
+.fu-auth .fu-blob-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(40% 40% at 70% 55%, rgba(37, 99, 235, 0.45), transparent 70%),
+    radial-gradient(25% 25% at 62% 75%, rgba(215, 255, 60, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+.fu-auth .fu-blob-pattern {
+  opacity: 0.25;
+}
+
+.fu-auth .fu-blob-fade {
+  background:
+    linear-gradient(90deg, rgba(7, 13, 28, 0.2), rgba(7, 13, 28, 0.85) 70%),
+    linear-gradient(to top, var(--night) 5%, transparent 60%);
+  opacity: 1;
+}
+
+/* ---------- panels ---------- */
+.fu-auth .fu-panel-kicker {
+  margin: 0 0 16px;
+  color: var(--volt);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-auth .fu-panel-title {
+  margin-bottom: 20px;
+  font-family: Manrope, Inter, sans-serif;
+  font-size: clamp(40px, 4.2vw, 62px);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+
+.fu-auth .fu-panel-title span {
+  color: var(--volt);
+}
+
+.fu-auth .fu-panel-copy {
+  max-width: 40ch;
+  margin-bottom: 32px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 16.5px;
+  line-height: 1.65;
+}
+
+.fu-auth .fu-panel--right .fu-panel-copy {
+  margin-left: auto;
+}
+
+.fu-auth .fu-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-auth .fu-ghost svg {
+  transition: transform 0.2s ease;
+}
+
+.fu-auth .fu-ghost:hover {
+  border-color: var(--volt);
+  background: var(--volt);
+  color: #0b1224;
+  transform: translateY(-2px);
+}
+
+.fu-auth .fu-ghost:hover svg {
+  transform: translateX(3px);
+}
+
+/* ---------- forms ---------- */
+.fu-auth .fu-forms-inner {
+  padding-top: 24px;
+}
+
+.fu-auth .fu-form-kicker {
+  margin: 0 0 12px;
+  color: var(--brand);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-auth .fu-form-title {
+  margin-bottom: 10px;
+  color: var(--ink);
+  font-family: Manrope, Inter, sans-serif;
+  font-size: clamp(32px, 3vw, 42px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.fu-auth .fu-form-sub {
+  max-width: 40ch;
+  margin-bottom: 28px;
+  color: var(--slate);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.fu-auth .fu-form--signup .fu-form-title {
+  font-size: clamp(28px, 2.4vw, 34px);
+  margin-bottom: 6px;
+}
+
+.fu-auth .fu-form--signup .fu-form-kicker {
+  margin-bottom: 8px;
+}
+
+.fu-auth .fu-form--signup .fu-form-sub {
+  margin-bottom: 16px;
+}
+
+.fu-auth .fu-form--signup .auth-label {
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+.fu-auth .fu-signup-id {
+  gap: 10px 12px;
+}
+
+.fu-auth .fu-signup-pw--split {
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.fu-auth .fu-rules {
+  margin-top: 8px;
+  gap: 4px;
+}
+
+.fu-auth .fu-signup-foot {
+  margin-top: 10px;
+}
+
+.fu-auth .auth-label {
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fu-auth .fu-control:focus-within .auth-label {
+  color: var(--brand);
+}
+
+.fu-auth .fu-form--signin .fu-control + .fu-control {
+  margin-top: 18px;
+}
+
+.fu-auth .auth-input {
+  height: 52px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f8fafc;
+  color: var(--ink);
+  font-size: 15.5px;
+}
+
+.fu-auth .fu-form--signup .auth-input {
+  height: 44px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.fu-auth .auth-input::placeholder {
+  color: #94a3b8;
+}
+
+.fu-auth .auth-input:hover:not(:focus):not(.is-invalid) {
+  border-color: #c7d4e6;
+  background: #fff;
+}
+
+.fu-auth .auth-input:focus {
+  border-color: var(--brand);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+  transform: none;
+}
+
+.fu-auth .auth-input.is-invalid {
+  border-color: #dc2626;
+  background: #fff7f7;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+}
+
+.fu-auth .fu-field-icon {
+  left: 16px;
+  color: #94a3b8;
+}
+
+.fu-auth .fu-control:focus-within .fu-field-icon {
+  color: var(--brand);
+}
+
+.fu-auth .auth-eye {
+  right: 8px;
+  border-radius: 10px;
+  color: #94a3b8;
+}
+
+.fu-auth .auth-eye:hover {
+  background: #eef2f7;
+  color: var(--ink);
+}
+
+.fu-auth .fu-row {
+  margin-top: 18px;
+}
+
+.fu-auth .fu-check {
+  color: var(--slate);
+  font-size: 14px;
+}
+
+.fu-auth .fu-check input {
+  accent-color: var(--brand);
+}
+
+.fu-auth .fu-link {
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+}
+
+.fu-auth .fu-link:hover {
+  color: var(--brand-600);
+  text-decoration: underline;
+}
+
+.fu-auth .auth-btn {
+  height: 54px;
+  margin-top: 24px;
+  border-radius: 14px;
+  background: var(--brand);
+  box-shadow: 0 12px 28px -14px rgba(29, 78, 216, 0.95);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fu-auth .fu-form--signup .auth-btn {
+  height: 48px;
+  margin-top: 12px;
+}
+
+.fu-auth .auth-btn:hover:not(:disabled) {
+  background: var(--brand-600);
+  box-shadow: 0 16px 32px -14px rgba(29, 78, 216, 0.95);
+  transform: translateY(-2px);
+}
+
+.fu-auth .auth-btn:disabled {
+  background: #94a3b8;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.fu-auth .auth-error {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.fu-auth .auth-field-error {
+  color: #dc2626;
+}
+
+.fu-auth .auth-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 5px;
+  background: #f1f5f9;
+  color: var(--slate);
+  font-family: Geist, Inter, sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.fu-auth .auth-rule .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.fu-auth .auth-rule.is-ok {
+  background: #eef4ff;
+  color: var(--brand);
+}
+
+.fu-auth .fu-check--terms .text-secondary {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.fu-switch-hint {
+  margin: 18px 0 0;
+  color: var(--slate);
+  font-size: 14px;
+  text-align: center;
+}
+
+.fu-auth .fu-form--signup .fu-switch-hint {
+  margin-top: 12px;
+}
+
+.fu-switch-hint button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fu-switch-hint button:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1023px) {
+  .fu-auth .fu-forms-inner {
+    padding-top: 20px;
+  }
+
+  .fu-auth .fu-panel--right .fu-panel-copy {
+    margin-inline: auto;
+  }
+
+  .fu-auth .fu-panel-title {
+    font-size: 36px;
+  }
+
+  .fu-auth .fu-signup-pw--split {
+    grid-template-columns: 1fr;
+  }
+}

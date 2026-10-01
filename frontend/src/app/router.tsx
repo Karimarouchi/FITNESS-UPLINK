@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { GuestRoute, OnboardingRoute, ProtectedRoute, RoleRoute, VerifyEmailRoute } from "@/shared/components/RouteGuards";
+import { GuestRoute, MemberOnlyRoute, OnboardingRoute, ProtectedRoute, RoleRoute, VerifyEmailRoute } from "@/shared/components/RouteGuards";
 import { AuthSwitch } from "@/components/ui/auth-switch";
 import { VerifyEmailPage } from "@/features/auth/pages/VerifyEmailPage";
 import { ForgotPasswordPage } from "@/features/auth/pages/ForgotPasswordPage";
@@ -77,10 +77,12 @@ export function AppRouter() {
         <Route path="/services" element={<PublicModulePage content={SERVICES_PAGE} />} />
         <Route path="/marketplace" element={<ProductCatalogPage />} />
         <Route path="/marketplace/products" element={<ProductCatalogPage />} />
-        <Route path="/marketplace/products/:id" element={<ProductDetailPage />} />
         <Route path="/marketplace/quote/confirm" element={<QuoteConfirmPage />} />
         <Route path="/academie" element={<AcademyLandingPage />} />
-        <Route path="/academie/formations/:id" element={<FormationDetailPage />} />
+        <Route element={<MemberOnlyRoute />}>
+          <Route path="/marketplace/products/:id" element={<ProductDetailPage />} />
+          <Route path="/academie/formations/:id" element={<FormationDetailPage />} />
+        </Route>
         <Route path="/news" element={<PublicModulePage content={NEWS_PAGE} />} />
         <Route path="/events" element={<PublicModulePage content={EVENTS_PAGE} />} />
         <Route path="/tarifs" element={<PricingPage />} />

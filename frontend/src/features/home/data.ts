@@ -18,14 +18,20 @@ export type ModuleItem = {
 export type PublicPoint = {
   title: string;
   description: string;
+  icon?: string;
 };
 
 export type PublicModuleContent = {
   path: string;
   title: string;
+  kicker: string;
   lead: string;
+  image: string;
   points: PublicPoint[];
   ctaLabel: string;
+  ctaHref?: string;
+  highlights?: { icon: string; label: string }[];
+  promise?: { title: string; text: string };
 };
 
 export type PricingPlan = {
@@ -98,31 +104,49 @@ export const MODULES: ModuleItem[] = [
 export const HIRE_PAGE: PublicModuleContent = {
   path: "/fitness-hire-elite",
   title: "Fitness-Hire Elite",
+  kicker: "Recrutement",
+  image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=2000&q=70",
   lead: "Le cœur de Fitness Universe : trouver, vérifier et recruter des professionnels du fitness, y compris à l’international. Les profils complets restent privés — réservés aux employeurs autorisés.",
   ctaLabel: "Créer un compte employeur",
+  ctaHref: "/signup",
+  highlights: [
+    { icon: "verified_user", label: "Profils vérifiés" },
+    { icon: "public", label: "Recrutement international" },
+    { icon: "lock", label: "Dossiers privés" },
+  ],
+  promise: {
+    title: "Recrutez sur preuves, pas sur promesses.",
+    text: "Identité, diplômes et certifications contrôlés avant que le profil complet ne soit visible. Vous gagnez des semaines de tri — et vous recrutez en confiance.",
+  },
   points: [
     {
       title: "Profils professionnels",
+      icon: "badge",
       description: "Photo, spécialités, expériences, diplômes, certifications, langues, disponibilités, mobilité et type de contrat recherché.",
     },
     {
       title: "Moteur de recherche",
+      icon: "manage_search",
       description: "Filtres combinables : métier, spécialité, pays, ville, expérience, diplôme, langue, disponibilité, salaire, profil vérifié.",
     },
     {
       title: "Offres d’emploi",
+      icon: "work",
       description: "Publication, candidatures, suivi de statut et notifications entre le professionnel et l’employeur.",
     },
     {
       title: "Pipeline de recrutement",
+      icon: "view_kanban",
       description: "Nouveau, consulté, favori, contacté, entretien, négociation, contrat, recruté ou archivé — un suivi unique par dossier.",
     },
     {
       title: "Matching",
+      icon: "join_inner",
       description: "Score explicable sur métier, compétences, langues, certifications, localisation, mobilité et disponibilité.",
     },
     {
       title: "Vérification",
+      icon: "verified_user",
       description: "Identité, diplômes et certifications contrôlés. Badge mis à jour selon les pièces validées.",
     },
   ],
@@ -131,8 +155,11 @@ export const HIRE_PAGE: PublicModuleContent = {
 export const COACHING_PAGE: PublicModuleContent = {
   path: "/coaching",
   title: "Coaching privé",
+  kicker: "Coaching",
+  image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=2000&q=70",
   lead: "Mise en relation des particuliers avec des coachs : recherche, agenda, réservation, paiement, packs et avis — sur le même compte Fitness Universe.",
   ctaLabel: "Trouver un coach",
+  ctaHref: "/coaching",
   points: [
     {
       title: "Recherche de coachs",
@@ -160,31 +187,49 @@ export const COACHING_PAGE: PublicModuleContent = {
 export const SERVICES_PAGE: PublicModuleContent = {
   path: "/services",
   title: "Services salles de sport",
+  kicker: "Exploitation",
+  image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=70",
   lead: "Répertoire de prestataires pour clubs, studios et structures fitness : l’exploitation quotidienne, au-delà du recrutement.",
   ctaLabel: "Demander un devis",
+  ctaHref: "/signup",
+  highlights: [
+    { icon: "handyman", label: "Prestataires spécialisés" },
+    { icon: "request_quote", label: "Devis ciblés" },
+    { icon: "history", label: "Historique centralisé" },
+  ],
+  promise: {
+    title: "L’exploitation de votre salle, sans friction.",
+    text: "Un besoin, une demande, les bons prestataires notifiés. Toutes vos demandes et réponses restent tracées dans votre tableau de bord.",
+  },
   points: [
     {
       title: "Technique",
+      icon: "build",
       description: "Maintenance, logiciels, sécurité.",
     },
     {
       title: "Opérations",
+      icon: "cleaning_services",
       description: "Nettoyage, habillement.",
     },
     {
       title: "Business",
+      icon: "campaign",
       description: "Marketing, comptabilité, juridique.",
     },
     {
       title: "Aménagement & expertise",
+      icon: "architecture",
       description: "Architecture, nutrition, photographie et audiovisuel.",
     },
     {
       title: "Page prestataire",
+      icon: "storefront",
       description: "Identité, services, zones couvertes, médias et coordonnées.",
     },
     {
       title: "Demande de devis",
+      icon: "request_quote",
       description: "Formulaire de besoin, pièces jointes, notification du prestataire et historique dans le tableau de bord.",
     },
   ],
@@ -193,8 +238,11 @@ export const SERVICES_PAGE: PublicModuleContent = {
 export const MARKETPLACE_PAGE: PublicModuleContent = {
   path: "/marketplace",
   title: "Marketplace matériel",
+  kicker: "Équipement",
+  image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=70",
   lead: "Vitrines fournisseurs et fiches produits. En phase 1 : catalogue + demande de devis, sans panier multi-vendeurs.",
   ctaLabel: "Parcourir le catalogue",
+  ctaHref: "/marketplace",
   points: [
     {
       title: "Catégories",
@@ -218,8 +266,11 @@ export const MARKETPLACE_PAGE: PublicModuleContent = {
 export const ACADEMY_PAGE: PublicModuleContent = {
   path: "/academie",
   title: "Académie & formations",
+  kicker: "Formation",
+  image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=2000&q=70",
   lead: "Formations, certifications, workshops, webinars et masterclass — sessions, capacité, inscription et paiement.",
   ctaLabel: "Voir les formations",
+  ctaHref: "/academie",
   points: [
     {
       title: "Fiche formation",
@@ -239,19 +290,34 @@ export const ACADEMY_PAGE: PublicModuleContent = {
 export const NEWS_PAGE: PublicModuleContent = {
   path: "/news",
   title: "News & Knowledge Center",
+  kicker: "Éditorial",
+  image: "https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=2000&q=70",
   lead: "Espace éditorial public : actualités, innovations, équipements, tendances, recherches, conseils business et interviews — indexable, distinct des profils privés.",
   ctaLabel: "Créer un compte",
+  ctaHref: "/signup",
+  highlights: [
+    { icon: "trending_up", label: "Tendances du secteur" },
+    { icon: "science", label: "Recherche & études" },
+    { icon: "mic", label: "Interviews" },
+  ],
+  promise: {
+    title: "Le savoir du secteur, au même endroit.",
+    text: "Innovations, études et conseils business sélectionnés pour les professionnels du fitness — pour décider plus vite et mieux.",
+  },
   points: [
     {
       title: "Actualités du secteur",
+      icon: "newspaper",
       description: "Innovations, nouveaux équipements et tendances de l’industrie du fitness.",
     },
     {
       title: "Knowledge Center",
+      icon: "menu_book",
       description: "Articles, recherches scientifiques, conseils business et interviews.",
     },
     {
       title: "Publication",
+      icon: "edit_note",
       description: "Catégories et médias gérés depuis le back-office par le responsable contenu.",
     },
   ],
@@ -260,19 +326,34 @@ export const NEWS_PAGE: PublicModuleContent = {
 export const EVENTS_PAGE: PublicModuleContent = {
   path: "/events",
   title: "Events & compétitions",
+  kicker: "Compétition",
+  image: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=2000&q=70",
   lead: "Compétitions, salons, conférences, lancements de produits, networking et roadshows — création, inscriptions et participants.",
   ctaLabel: "Voir les événements",
+  ctaHref: "/signup",
+  highlights: [
+    { icon: "emoji_events", label: "Compétitions" },
+    { icon: "storefront", label: "Salons pros" },
+    { icon: "groups", label: "Networking" },
+  ],
+  promise: {
+    title: "Là où l’industrie se rencontre.",
+    text: "Compétitions, salons et conférences : découvrez, inscrivez-vous et retrouvez les participants — sur votre compte Fitness Universe.",
+  },
   points: [
     {
       title: "Compétitions & salons",
+      icon: "emoji_events",
       description: "Annonces publiques des compétitions, exhibitions et salons professionnels.",
     },
     {
       title: "Conférences & networking",
+      icon: "groups",
       description: "Formations événementielles, lancements de produits et roadshows.",
     },
     {
       title: "Inscriptions",
+      icon: "how_to_reg",
       description: "L’organisateur gère les événements, les inscriptions et la liste des participants.",
     },
   ],

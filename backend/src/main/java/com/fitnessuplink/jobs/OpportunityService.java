@@ -6,6 +6,7 @@ import com.fitnessuplink.access.PermissionService;
 import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.jobs.dto.OpportunityDto;
+import com.fitnessuplink.jobs.dto.OpportunityPreviewDto;
 import com.fitnessuplink.onboarding.UserProfileValue;
 import com.fitnessuplink.onboarding.UserProfileValueRepository;
 import com.fitnessuplink.talent.TalentPipelineRepository;
@@ -76,6 +77,39 @@ public class OpportunityService {
                     return dto;
                 })
                 .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OpportunityPreviewDto> publicPreview(int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 12);
+        Instant now = Instant.now();
+        List<JobOffer> offers = jobOfferRepository.findByStatusOrderByUpdatedAtDesc(JobOfferStatus.PUBLISHED).stream()
+                .filter(offer -> offer.getExpiresAt() == null || offer.getExpiresAt().isAfter(now))
+                .toList();
+        Set<UUID> employerIds = offers.stream().map(JobOffer::getEmployerId).collect(Collectors.toSet());
+        Map<UUID, User> employers = userRepository.findAllById(employerIds).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+        Map<UUID, Map<String, String>> values = valuesOf(employerIds);
+        return offers.stream()
+                .filter(offer -> {
+                    User employer = employers.get(offer.getEmployerId());
+                    return employer != null && employer.isOnboardingCompleted();
+                })
+                .limit(safeLimit)
+                .map(offer -> {
+                    User employer = employers.get(offer.getEmployerId());
+                    return new OpportunityPreviewDto(
+                            offer.getId(),
+                            offer.getTitle(),
+                            offer.getPosition(),
+                            offer.getLocation(),
+                            offer.getContractType(),
+                            organizationName(employer, values.getOrDefault(employer.getId(), Map.of())),
+                            countryOf(employer),
+                            offer.getCreatedAt()
+                    );
+                })
                 .toList();
     }
 
