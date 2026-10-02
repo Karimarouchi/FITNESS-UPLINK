@@ -6,12 +6,10 @@ import {
   LANDING_FAQ,
   LANDING_MODULES,
   LANDING_PILLARS,
-  LANDING_ROLES,
-  LANDING_SHORTCUTS,
-  LANDING_STATS,
   LANDING_STEPS,
   LANDING_TRUST,
 } from "./content";
+import { HomeHero } from "./HomeHero";
 import { HomeShowcase } from "./HomeShowcase";
 import "./landing.css";
 
@@ -21,10 +19,6 @@ const OTHER_MODULES = LANDING_MODULES.slice(1);
 export function HomeLanding() {
   const { user } = useAuth();
   const primaryTo = user ? "/app/dashboard" : "/signup";
-  const primaryLabel = user ? "Tableau de bord" : "Rejoindre le réseau";
-  const secondaryTo = user ? "/app/profile" : "/fitness-hire-elite";
-  const secondaryLabel = user ? "Mon profil" : "Découvrir Hire Elite";
-
   useEffect(() => {
     const nodes = document.querySelectorAll<HTMLElement>(".fu-home [data-reveal]");
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -48,87 +42,7 @@ export function HomeLanding() {
 
   return (
     <div className="fu-home">
-      <section className="home-hero">
-        <div className="home-hero-media" aria-hidden="true" />
-        <div className="home-hero-shade" aria-hidden="true" />
-        <div className="home-wrap home-hero-grid">
-          <div className="home-hero-copy" data-reveal>
-            <p className="home-kicker home-kicker-pill">
-              <span className="home-dot" aria-hidden="true" />
-              {user ? `Bon retour, ${user.firstName || user.displayName}` : "L’écosystème mondial du fitness"}
-            </p>
-            <h1>
-              Plus de
-              <br />
-              mouvement.
-              <br />
-              <span>Plus de réseau.</span>
-            </h1>
-            <p className="home-lead">
-              {user
-                ? "Votre réseau avance. Reprenez là où vous en étiez : opportunités, séances, formations et devis vous attendent."
-                : "Recrutement d’élite, coaching privé, formations, matériel et événements — une seule plateforme pour les professionnels, les salles et les prestataires qui font l’industrie."}
-            </p>
-            <div className="home-hero-actions">
-              <Link className="home-btn home-btn-pill" to={primaryTo}>
-                {primaryLabel}
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  arrow_forward
-                </span>
-              </Link>
-              <Link className="home-btn home-btn-ghost" to={secondaryTo}>
-                {secondaryLabel}
-              </Link>
-            </div>
-            {user ? null : (
-              <div className="home-roles-pick">
-                <span>Je suis</span>
-                <div>
-                  {LANDING_ROLES.map((role) => (
-                    <Link key={role.label} to={role.href}>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        {role.icon}
-                      </span>
-                      {role.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {user ? (
-            <div className="home-showcase" aria-label="Raccourcis" data-reveal>
-              <div className="home-card home-shortcuts">
-                <p className="home-card-label">Accès rapide</p>
-                <div className="home-shortcuts-grid">
-                  {LANDING_SHORTCUTS.map((item) => (
-                    <Link key={item.href} to={item.href}>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : null}
-        </div>
-        <div className="home-wrap home-stats" data-reveal>
-          {LANDING_STATS.map((stat) => (
-            <div key={stat.label}>
-              <b>{stat.value}</b>
-              <span>{stat.label}</span>
-            </div>
-          ))}
-          <a className="home-scroll" href="#reseau" aria-label="Découvrir la suite">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              south
-            </span>
-          </a>
-        </div>
-      </section>
+      <HomeHero />
 
       <section className="home-strip" id="reseau" aria-label="Preuves">
         <div className="home-strip-track">
