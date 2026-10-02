@@ -650,3 +650,124 @@
     animation: none;
   }
 }
+
+/* ---------- Vantage navbar (all pages, all states) ----------
+   Transparent over a hero, solid white once scrolled — same fonts,
+   same square shapes in both states. */
+.fu-public.fu-public .pn-bar {
+  max-width: 1320px;
+  padding: 10px 10px 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-bar {
+  background: transparent;
+  color: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.fu-public.fu-public .pn--solid .pn-bar {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #e3e6eb;
+  box-shadow: 0 12px 32px -20px rgba(11, 26, 51, 0.35);
+  color: #0b1a33;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.fu-public.fu-public .pn-word {
+  font-family: Anton, "Bebas Neue", Impact, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pn-word b {
+  font-weight: 400;
+}
+
+.fu-public.fu-public .pn-links a,
+.fu-public.fu-public .pn-links a:hover,
+.fu-public.fu-public .pn-links a.is-active {
+  padding: 8px 12px;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 500;
+}
+
+.fu-public.fu-public .pn-links a {
+  opacity: 0.88;
+}
+
+.fu-public.fu-public .pn-links a:hover,
+.fu-public.fu-public .pn-links a.is-active {
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 7px;
+}
+
+.fu-public.fu-public .pn-btn {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 0;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pn-btn-ghost:hover {
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.fu-public.fu-public .pn-btn-solid {
+  background: #fff;
+  box-shadow: none;
+  color: #0b1a33;
+}
+
+.fu-public.fu-public .pn--solid .pn-btn-solid {
+  background: #0b1a33;
+  color: #fff;
+}
+
+.fu-public.fu-public .pn-btn-solid:hover,
+.fu-public.fu-public .pn--solid .pn-btn-solid:hover {
+  background: #d4f53c;
+  color: #0b1a33;
+  transform: none;
+}
+
+.fu-public.fu-public .pn-btn-outline {
+  border-color: #0b1a33;
+}
+
+.fu-public.fu-public .pn-user-trigger,
+.fu-public.fu-public .pn-toggle,
+.fu-public.fu-public .pn-user-menu,
+.fu-public.fu-public .pn-sheet,
+.fu-public.fu-public .pn-sheet-icon,
+.fu-public.fu-public .pn-sheet-links a,
+.fu-public.fu-public .pn-user-menu a,
+.fu-public.fu-public .pn-user-menu button,
+.fu-public.fu-public .pn-user-trigger .app-avatar {
+  border-radius: 0;
+}
+
+.fu-public.fu-public .pn-sheet {
+  margin-top: 10px;
+}
+
+.fu-public.fu-public .pn--open .pn-bar {
+  background: #fff;
+  color: #0b1a33;
+}

@@ -1362,3 +1362,446 @@
     animation: none;
   }
 }
+
+/* ==================================================================
+   VANTAGE LAYER — module pages (Hire Elite, Coaching, Académie,
+   Marketplace, News, Events, Tarifs). Anton titles, Barlow Condensed
+   labels, square shapes, navy + lime.
+   ================================================================== */
+.fu-public {
+  --vt-navy: #0b1a33;
+  --vt-navy-2: #13264a;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  background: var(--vt-paper);
+}
+
+/* ---- titles ---- */
+.fu-public.fu-public .pub-hero h1,
+.fu-public.fu-public .pub-section-head h2,
+.fu-public.fu-public .pub-promise h2,
+.fu-public.fu-public .pub-cta h2,
+.fu-public.fu-public .cat-empty h3 {
+  font-family: var(--vt-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-hero h1 {
+  font-size: clamp(56px, 8.4vw, 132px);
+  line-height: 0.95;
+}
+
+.fu-public.fu-public .pub-section-head h2 {
+  color: var(--vt-navy);
+  font-size: clamp(40px, 5vw, 72px);
+}
+
+.fu-public.fu-public .pub-kicker,
+.fu-public.fu-public .pub-crumbs {
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-kicker.ink,
+.fu-public.fu-public .pub-section-head .pub-kicker {
+  color: var(--vt-grey);
+}
+
+.fu-public.fu-public .pub-crumbs [aria-current] {
+  color: var(--vt-lime);
+}
+
+.fu-public.fu-public .pub-section-head p,
+.fu-public.fu-public .pub-features p,
+.fu-public.fu-public .pub-steps p {
+  color: var(--vt-text);
+}
+
+.fu-public.fu-public .pub-features h3,
+.fu-public.fu-public .pub-steps h3,
+.fu-public.fu-public .cat-body h3 {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-features h3,
+.fu-public.fu-public .pub-steps h3 {
+  font-size: 22px;
+}
+
+/* ---- hero ---- */
+.fu-public.fu-public .pub-hero-highlights li {
+  border-radius: 0;
+  font-family: var(--vt-cond);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-hero-highlights .material-symbols-outlined {
+  color: var(--vt-lime);
+}
+
+/* ---- buttons & links ---- */
+.fu-public.fu-public .pub-btn,
+.fu-public.fu-public .cat-search-go,
+.fu-public.fu-public .pf-cta {
+  border-radius: 0;
+  box-shadow: none;
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-btn:hover {
+  transform: none;
+}
+
+.fu-public.fu-public .pub-btn-lime,
+.fu-public.fu-public .pub-btn-volt {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-btn-lime:hover,
+.fu-public.fu-public .pub-btn-volt:hover {
+  border-color: #fff;
+  background: #fff;
+  box-shadow: none;
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-btn-line,
+.fu-public.fu-public .pub-btn-ghost {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  color: #fff;
+}
+
+.fu-public.fu-public .pub-btn-line:hover,
+.fu-public.fu-public .pub-btn-ghost:hover {
+  border-color: #fff;
+  background: #fff;
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-btn-line.ink,
+.fu-public.fu-public .pub-btn-ghost.ink {
+  border-color: var(--vt-navy);
+  background: transparent;
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-btn-line.ink:hover,
+.fu-public.fu-public .pub-btn-ghost.ink:hover {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public.fu-public .pub-link-arrow,
+.fu-public.fu-public .cat-toolbar button,
+.fu-public.fu-public .cat-cta,
+.fu-public.fu-public .cat-go {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pub-link-arrow {
+  padding-bottom: 6px;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ---- features & steps ---- */
+.fu-public.fu-public .pub-features li,
+.fu-public.fu-public .pub-steps li {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  box-shadow: none;
+  background: #fff;
+}
+
+.fu-public.fu-public .pub-features li:hover {
+  border-color: var(--vt-navy);
+  box-shadow: none;
+  transform: none;
+}
+
+.fu-public.fu-public .pub-feature-icon,
+.fu-public.fu-public .pub-step-icon {
+  border-radius: 0;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-public.fu-public .pub-features li:hover .pub-feature-icon {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-step-num {
+  color: var(--vt-grey);
+  font-family: var(--vt-display);
+  font-size: 34px;
+}
+
+.fu-public.fu-public .pub-section-tint {
+  border-color: var(--vt-line);
+}
+
+/* ---- promise & CTA ---- */
+.fu-public.fu-public .pub-promise,
+.fu-public.fu-public .pub-cta-card {
+  background-color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pub-promise .pub-kicker,
+.fu-public.fu-public .pub-cta .pub-kicker {
+  color: var(--vt-lime);
+}
+
+.fu-public.fu-public .pub-cta-card {
+  border-radius: 0;
+  background-image: none;
+}
+
+.fu-public.fu-public .pub-cta-card::after {
+  display: none;
+}
+
+.fu-public.fu-public .pub-cta h2 {
+  max-width: 14ch;
+  font-size: clamp(40px, 5.6vw, 84px);
+}
+
+/* ---- catalog ---- */
+.fu-public.fu-public .cat-panel,
+.fu-public.fu-public .cat-search,
+.fu-public.fu-public .cat-search-clear,
+.fu-public.fu-public .cat-chip,
+.fu-public.fu-public .cat-card,
+.fu-public.fu-public .cat-empty,
+.fu-public.fu-public .cat-empty > .material-symbols-outlined,
+.fu-public.fu-public .cat-pager button,
+.fu-public.fu-public .cat-nudge,
+.fu-public.fu-public .cat-nudge-icon,
+.fu-public.fu-public .cat-tags span,
+.fu-public.fu-public .cat-lock,
+.fu-public.fu-public .cat-seats,
+.fu-public.fu-public .coach-specs li,
+.fu-public.fu-public .pub-tabs,
+.fu-public.fu-public .pub-tab {
+  border-radius: 0;
+}
+
+.fu-public.fu-public .cat-panel {
+  border-color: var(--vt-line);
+  box-shadow: 0 30px 60px -36px rgba(11, 26, 51, 0.4);
+}
+
+.fu-public.fu-public .cat-search:focus-within {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.fu-public.fu-public .cat-search-go {
+  background: var(--vt-navy);
+}
+
+.fu-public.fu-public .cat-search-go:hover {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .cat-chip {
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .cat-chip:hover {
+  border-color: var(--vt-navy);
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .cat-chip.is-on,
+.fu-public.fu-public .cat-pager button.is-on,
+.fu-public.fu-public .pub-tab.is-on {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public.fu-public .cat-card {
+  border-color: var(--vt-line);
+  box-shadow: none;
+}
+
+.fu-public.fu-public .cat-card:not(.is-skeleton):hover {
+  border-color: var(--vt-navy);
+  box-shadow: none;
+  transform: none;
+}
+
+.fu-public.fu-public .cat-media {
+  background: #d5d9df;
+}
+
+.fu-public.fu-public .cat-tags span,
+.fu-public.fu-public .cat-lock,
+.fu-public.fu-public .cat-seats {
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .cat-tags span {
+  background: #fff;
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .cat-tags span.is-volt {
+  background: var(--vt-lime);
+}
+
+.fu-public.fu-public .cat-eyebrow {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.fu-public.fu-public .cat-meta .material-symbols-outlined {
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .cat-foot b {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.fu-public.fu-public .cat-empty {
+  border-color: var(--vt-line);
+}
+
+.fu-public.fu-public .cat-empty > .material-symbols-outlined,
+.fu-public.fu-public .cat-nudge-icon {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-public.fu-public .cat-nudge {
+  border-color: var(--vt-line);
+  background: #fff;
+}
+
+.fu-public.fu-public .cat-nudge strong {
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .coach-rating b {
+  font-family: var(--vt-display);
+  font-weight: 400;
+}
+
+.fu-public.fu-public .coach-specs li {
+  font-family: var(--vt-cond);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .coach-card blockquote {
+  border-top-color: var(--vt-line);
+}
+
+.fu-public.fu-public .pub-tabs {
+  border-color: var(--vt-line);
+  box-shadow: none;
+}
+
+.fu-public.fu-public .pub-tab {
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+/* ---- footer: square shapes ---- */
+.fu-public.fu-public .pf-band,
+.fu-public.fu-public .pf-badges li,
+.fu-public.fu-public .pf-logo span {
+  border-radius: 0;
+}
+
+.fu-public.fu-public .pf {
+  background: var(--vt-navy);
+}
+
+.fu-public.fu-public .pf-band h2 {
+  font-family: var(--vt-display);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pf-cta {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.fu-public .pf-cta:hover {
+  background: #fff;
+  box-shadow: none;
+  transform: none;
+}
+
+.fu-public.fu-public .pf-logo {
+  font-family: var(--vt-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pf-kicker,
+.fu-public.fu-public .pf-col h3 {
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-public.fu-public .pf-kicker {
+  color: var(--vt-lime);
+}

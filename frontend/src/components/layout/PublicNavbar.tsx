@@ -140,7 +140,12 @@ export function PublicNavbar() {
   }, [open]);
 
   const solid = !overlay || scrolled || open;
-  const navClass = ["pn", overlay ? "pn--overlay" : "", solid ? "pn--solid" : "", open ? "pn--open" : ""]
+  const navClass = [
+    "pn",
+    overlay ? "pn--overlay" : "",
+    solid ? "pn--solid" : "",
+    open ? "pn--open" : "",
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -180,7 +185,7 @@ export function PublicNavbar() {
               <Link className="pn-btn pn-btn-solid" to="/signup">
                 Rejoindre
                 <span className="material-symbols-outlined" aria-hidden="true">
-                  arrow_forward
+                  north_east
                 </span>
               </Link>
             </>

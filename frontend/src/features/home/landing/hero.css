@@ -1,307 +1,193 @@
-.hx {
-  --hx-gutter: clamp(20px, 4.4vw, 72px);
-  --hx-glass: rgba(255, 255, 255, 0.14);
-  --hx-glass-line: rgba(255, 255, 255, 0.3);
-  --hx-scale: 0.86;
+/* ==================================================================
+   HOME HERO — "Vantage" style
+   layer 1: sky · layer 2: headline · layer 3: athlete (overflows down)
+   The athlete PNG shares the sky canvas (1672×1163, sky = top 941px),
+   so the athlete is drawn at 1163/941 = 123.6% of the hero height,
+   anchored to the top: its legs spill onto the next section.
+   ================================================================== */
+.vx {
+  --vx-gutter: clamp(20px, 4.4vw, 72px);
+  --vx-lime: #d4f53c;
+  --vx-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vx-display: Anton, "Bebas Neue", Impact, sans-serif;
   position: relative;
-  min-height: max(100svh, 680px);
-  overflow: hidden;
-  isolation: isolate;
-  background: radial-gradient(120% 95% at 50% 58%, #0a6ee6 0%, #0157c0 46%, #013a8a 100%);
+  z-index: 3;
+  height: clamp(640px, 56.28vw, 100svh);
+  overflow-x: clip;
+  overflow-y: visible;
   color: #fff;
   font-family: Geist, Inter, sans-serif;
 }
 
-.hx-layer {
+.vx-sky {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 0%;
-  transform: scale(var(--hx-scale));
-  transform-origin: 50% 100%;
+  z-index: 0;
+  background:
+    linear-gradient(0deg, rgba(4, 38, 92, 0.38) 0%, rgba(4, 38, 92, 0) 38%),
+    url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+}
+
+.fu-public .vx .vx-title {
+  position: absolute;
+  z-index: 1;
+  top: 30%;
+  left: var(--vx-gutter);
+  right: var(--vx-gutter);
+  margin: 0;
+  color: #fff;
+  font-family: var(--vx-display);
+  font-size: min(11.9vw, 214px);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  user-select: none;
+  animation: vx-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.vx-athlete {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 50%;
+  height: 123.6%;
+  width: auto;
+  max-width: none;
+  transform: translateX(-50%);
   pointer-events: none;
   user-select: none;
+  animation: vx-athlete 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
 }
 
-.hx-bg {
-  z-index: 0;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, #000 16%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 12%, #000 88%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, #000 16%);
-  mask-composite: intersect;
-}
-
-.hx-cut {
-  z-index: 2;
-}
-
-.hx-arcs {
+/* ---------- UI ---------- */
+.vx-ui {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.hx-arcs span {
-  position: absolute;
-  left: 50%;
-  top: 62%;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.hx-arcs span:first-child {
-  width: min(78vw, 1180px);
-  aspect-ratio: 1;
-}
-
-.hx-arcs span:last-child {
-  width: min(56vw, 840px);
-  aspect-ratio: 1;
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-.fu-public .hx .hx-title {
-  position: absolute;
-  z-index: 1;
-  top: clamp(112px, 16.5svh, 190px);
-  left: 0;
-  right: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: Inter, Manrope, sans-serif;
-  font-weight: 900;
-  font-size: clamp(60px, 11vw, 200px);
-  line-height: 0.86;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-  text-align: center;
-  white-space: nowrap;
-  background: linear-gradient(180deg, #ffffff 0%, #f1f6ff 46%, rgba(210, 226, 255, 0.82) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: hx-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.hx-ui {
-  position: absolute;
-  inset: 0;
   z-index: 3;
+  left: var(--vx-gutter);
+  right: var(--vx-gutter);
+  bottom: 0;
   pointer-events: none;
 }
 
-.hx-ui > * {
+.vx-ui a {
   pointer-events: auto;
 }
 
-/* ---------- bottom row ---------- */
-
-.fu-public .hx .hx-pitch {
-  align-self: end;
-  max-width: min(320px, 24vw);
-  margin: 0;
-  font-family: Manrope, Inter, sans-serif;
-  font-size: clamp(17px, 1.35vw, 20px);
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: -0.015em;
-  color: rgba(255, 255, 255, 0.72);
-  text-wrap: pretty;
+.vx-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 40px;
 }
 
-.hx-pitch em {
-  font-style: normal;
-  color: #fff;
+.vx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.fu-public .hx-cta {
+.fu-public.fu-public .vx .vx-btn {
   display: inline-flex;
   align-items: center;
-  justify-self: center;
-  align-self: center;
-  gap: 14px;
-  padding: 7px 7px 7px 28px;
-  border-radius: 999px;
-  background: #2f6bff;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  white-space: nowrap;
-  text-decoration: none;
-  box-shadow: 0 14px 34px -14px rgba(8, 24, 80, 0.7);
-  transition: background 0.25s ease, transform 0.25s ease;
-}
-
-.fu-public .hx-cta:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-}
-
-.hx-cta-ico {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #fff;
-  color: #1d4ed8;
-  font-size: 22px;
-  transition: transform 0.25s ease;
-}
-
-.fu-public .hx-cta:hover .hx-cta-ico {
-  transform: rotate(45deg);
-}
-
-/* ---------- bottom cards ---------- */
-
-.hx-cards {
-  position: absolute;
-  left: var(--hx-gutter);
-  right: var(--hx-gutter);
-  bottom: clamp(20px, 3.4svh, 36px);
-  display: grid;
-  grid-template-columns: minmax(0, 340px) auto minmax(0, 300px);
-  justify-content: space-between;
-  align-items: end;
-  gap: 18px;
-  animation: hx-fade 0.8s 0.45s ease both;
-}
-
-.hx-card {
-  border-radius: 24px;
-  padding: 18px 20px;
-}
-
-.hx-glass {
-  background: var(--hx-glass);
-  border: 1px solid var(--hx-glass-line);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  color: #fff;
-}
-
-.hx-trainer {
-  position: relative;
-  display: grid;
-  grid-template-columns: 46% minmax(0, 1fr);
-  min-height: 118px;
-  padding: 14px 16px 14px 0;
-  border-radius: 22px;
-}
-
-.fu-public .hx-trainer-figure {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 46%;
-  height: 140%;
-  overflow: hidden;
-  border-bottom-left-radius: 22px;
-}
-
-.hx-trainer-figure img {
-  position: absolute;
-  left: 50%;
-  bottom: -16%;
-  display: block;
-  width: auto;
-  height: 110%;
-  max-width: none;
-  filter: drop-shadow(0 14px 20px rgba(4, 20, 70, 0.35));
-  transform: translateX(-50%);
-  transform-origin: 50% 100%;
-  transition: transform 0.35s ease;
-}
-
-.fu-public .hx-trainer-figure:hover img {
-  transform: translateX(-50%) scale(1.03);
-}
-
-.hx-trainer-body {
-  grid-column: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   gap: 10px;
-  min-width: 0;
-}
-
-.fu-public .hx-trainer-id {
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-  color: #fff;
-  text-decoration: none;
-}
-
-.hx-trainer-id small {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.hx-trainer-id b {
-  overflow: hidden;
+  height: 52px;
+  padding: 0 22px;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0;
+  font-family: var(--vx-cond);
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.hx-trainer-id span {
-  overflow: hidden;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.hx-trainer-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.fu-public .hx-trainer-actions a {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  color: #fff;
+  letter-spacing: 0.14em;
   text-decoration: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.fu-public .hx-trainer-actions a:hover {
-  transform: translateY(-2px);
+.vx-btn .material-symbols-outlined {
+  font-size: 19px;
+  transition: transform 0.2s ease;
+}
+
+.fu-public .vx-btn-lime {
+  border-color: var(--vx-lime);
+  background: var(--vx-lime);
+  color: #0b1a33;
+}
+
+.fu-public .vx-btn-lime:hover {
+  border-color: #fff;
   background: #fff;
-  color: #1d4ed8;
+  color: #0b1a33;
 }
 
-.hx-trainer-actions .material-symbols-outlined {
+.vx-btn-lime:hover .material-symbols-outlined {
+  transform: translateX(4px);
+}
+
+.fu-public .vx-btn-line {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.fu-public .vx-btn-line:hover {
+  border-color: #fff;
+  background: #fff;
+  color: #0b1a33;
+}
+
+.vx-btn-line:hover .material-symbols-outlined {
+  transform: translate(2px, -2px);
+}
+
+.fu-public .fu-home .vx .vx-pitch {
+  max-width: 34ch;
+  margin: 0;
+  color: #fff;
   font-size: 17px;
+  line-height: 1.45;
+  text-shadow: 0 1px 12px rgba(4, 38, 92, 0.35);
 }
 
-/* ---------- motion ---------- */
+.vx-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0 18px;
+}
 
-@keyframes hx-rise {
+.vx-meta div {
+  display: grid;
+  gap: 2px;
+}
+
+.vx-meta div:last-child {
+  text-align: right;
+}
+
+.vx-meta b {
+  font-family: var(--vx-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vx-meta span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12.5px;
+}
+
+@keyframes vx-rise {
   from {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -309,86 +195,64 @@
   }
 }
 
-@keyframes hx-fade {
+@keyframes vx-athlete {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translate(-50%, 60px);
   }
   to {
     opacity: 1;
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fu-public .hx .hx-title,
-  .hx-cards {
-    animation: none;
+    transform: translateX(-50%);
   }
 }
 
 /* ---------- responsive ---------- */
-
-@media (max-width: 1180px) {
-  .hx-cards {
-    grid-template-columns: minmax(0, 340px) auto;
+@media (max-width: 900px) {
+  .vx-row {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 20px;
+    padding-bottom: 28px;
   }
 
-  .hx-trainer {
+  .fu-public .fu-home .vx .vx-pitch {
+    max-width: 40ch;
+    font-size: 15.5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vx {
+    height: max(680px, 100svh);
+  }
+
+  .fu-public .vx .vx-title {
+    top: 18%;
+    font-size: 17vw;
+    white-space: normal;
+  }
+
+  .vx-athlete {
+    height: 100%;
+  }
+
+  .vx-actions {
+    width: 100%;
+  }
+
+  .fu-public .vx-btn {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .vx-meta {
     display: none;
   }
 }
 
-@media (max-width: 860px) {
-  .hx {
-    --hx-scale: 1;
-    min-height: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .hx::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 2;
-    height: 62%;
-    background: linear-gradient(180deg, rgba(29, 78, 216, 0) 0%, rgba(29, 78, 216, 0.78) 38%, #1c47cc 100%);
-    pointer-events: none;
-  }
-
-  .hx-layer {
-    transform: translateY(64px);
-  }
-
-  .fu-public .hx .hx-title {
-    top: 104px;
-    font-size: clamp(48px, 15vw, 120px);
-  }
-
-  .hx-ui {
-    position: relative;
-    inset: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    padding: calc(104px + 30vw + 46vw) var(--hx-gutter) 28px;
-  }
-
-  .hx-cards {
-    position: static;
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-
-  .fu-public .hx .hx-pitch {
-    max-width: 420px;
-    font-size: 19px;
-  }
-
-  .fu-public .hx-cta {
-    justify-self: start;
+@media (prefers-reduced-motion: reduce) {
+  .fu-public .vx .vx-title,
+  .vx-athlete {
+    animation: none;
   }
 }

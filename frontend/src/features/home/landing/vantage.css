@@ -1,0 +1,825 @@
+/* ==================================================================
+   HOME — "Vantage" sections
+   Anton headlines (navy + grey tail), Barlow Condensed labels,
+   Geist body copy, square shapes, lime accent.
+   ================================================================== */
+.fu-home.vt {
+  --vt-navy: #0b1a33;
+  --vt-navy-2: #13264a;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-gutter: clamp(20px, 4.4vw, 72px);
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+}
+
+.vt-wrap {
+  width: min(1240px, calc(100% - var(--vt-gutter) * 2));
+  margin-inline: auto;
+}
+
+.vt-section {
+  padding: 120px 0;
+  background: var(--vt-paper);
+}
+
+.vt-section-white {
+  background: #fff;
+}
+
+/* ---------- type ---------- */
+.fu-public .fu-home.vt .vt-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(44px, 5.2vw, 76px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-home.vt .vt-muted {
+  color: var(--vt-grey);
+}
+
+.fu-home.vt .vt-idx {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.fu-public .fu-home.vt h3 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-public .fu-home.vt p {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ---------- links & buttons ---------- */
+.fu-public .fu-home.vt .vt-link,
+.fu-public .fu-home.vt .vt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fu-home.vt .vt-link .material-symbols-outlined,
+.fu-home.vt .vt-btn .material-symbols-outlined {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.fu-public .fu-home.vt .vt-link {
+  padding-bottom: 6px;
+  border-bottom: 1px solid currentColor;
+  color: var(--vt-navy);
+}
+
+.fu-home.vt .vt-link:hover .material-symbols-outlined,
+.fu-home.vt .vt-btn:hover .material-symbols-outlined {
+  transform: translateX(4px);
+}
+
+.fu-public .fu-home.vt .vt-btn {
+  height: 50px;
+  padding: 0 22px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-public .fu-home.vt .vt-btn-line:hover,
+.fu-public .fu-home.vt .vt-btn-navy {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-navy:hover,
+.fu-public .fu-home.vt .vt-btn-lime {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public .fu-home.vt .vt-btn-lime:hover {
+  border-color: #fff;
+  background: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-ghost {
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-ghost:hover {
+  border-color: #fff;
+  background: #fff;
+  color: var(--vt-navy);
+}
+
+.fu-home.vt .vt-tag,
+.fu-home.vt .vt-lock {
+  display: inline-block;
+  padding: 5px 9px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------- header row (title left, copy right) ---------- */
+.vt-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 64px;
+  margin-bottom: 48px;
+}
+
+.fu-public .fu-home.vt .vt-head-copy p {
+  max-width: 40ch;
+  font-size: 14.5px;
+}
+
+/* ---------- intro (receives the athlete's legs) ---------- */
+.vt-section.vt-intro {
+  padding-top: 220px;
+}
+
+.vt-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 64px;
+  align-items: start;
+}
+
+.vt-prose {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  max-width: 48ch;
+  padding-top: 8px;
+}
+
+.vt-prose .vt-link {
+  margin-top: 12px;
+}
+
+.vt-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 96px 0 0;
+  border-block: 1px solid var(--vt-line);
+}
+
+.vt-stats div {
+  padding: 28px 24px;
+}
+
+.vt-stats div + div {
+  border-left: 1px solid var(--vt-line);
+}
+
+.vt-stats dt {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(44px, 4.4vw, 64px);
+  line-height: 1;
+}
+
+.vt-stats dt.is-symbol {
+  font-family: Geist, Inter, sans-serif;
+  font-weight: 300;
+}
+
+.vt-stats dd {
+  margin: 10px 0 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------- column lists ---------- */
+.vt-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 32px;
+  margin: 72px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vt-section .vt-head + .vt-cols {
+  margin-top: 0;
+}
+
+.vt-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.vt-cols > li,
+.vt-cols > article,
+.fu-public .fu-home.vt .vt-cols > a {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding-top: 22px;
+  border-top: 1px solid var(--vt-navy);
+  color: inherit;
+  text-decoration: none;
+}
+
+.vt-cols > li .vt-idx,
+.vt-cols > article .vt-idx,
+.vt-cols > a .vt-idx {
+  margin-bottom: 6px;
+}
+
+.vt-cols-links em {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vt-cols-links em .material-symbols-outlined {
+  font-size: 17px;
+  transition: transform 0.2s ease;
+}
+
+.vt-cols-links a:hover em .material-symbols-outlined {
+  transform: translateX(4px);
+}
+
+.vt-cols-links a:hover h3 {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* ---------- cards (people / products / formations) ---------- */
+.vt-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 40px;
+}
+
+.fu-public .fu-home.vt .vt-card {
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.vt-card-media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: #d5d9df;
+}
+
+.vt-card-media.is-wide {
+  aspect-ratio: 4 / 3;
+}
+
+.vt-card-media.is-square {
+  aspect-ratio: 1 / 1;
+}
+
+.vt-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.vt-card:hover .vt-card-media img {
+  transform: scale(1.05);
+}
+
+.vt-card-ph {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: 72px;
+}
+
+.vt-card-media .vt-tag,
+.vt-card-media .vt-lock {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.vt-card-media .vt-lock {
+  background: var(--vt-navy);
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.vt-card:hover .vt-lock {
+  opacity: 1;
+}
+
+.vt-card strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.vt-card small {
+  color: var(--vt-text);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.fu-home.vt .vt-card .vt-price {
+  margin-top: 4px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- rows (job offers) ---------- */
+.vt-rows {
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.fu-public .fu-home.vt .vt-rows a {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 0;
+  border-top: 1px solid var(--vt-line);
+  color: inherit;
+  text-decoration: none;
+  transition: padding 0.2s ease;
+}
+
+.fu-public .fu-home.vt .vt-rows a:hover {
+  padding-left: 8px;
+}
+
+.vt-rows strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vt-rows span {
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.vt-rows em {
+  padding: 5px 10px;
+  border: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vt-rows .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 20px;
+}
+
+/* ---------- dark section (ecosystem) ---------- */
+.vt-section.vt-dark {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-dark .vt-title,
+.fu-public .fu-home.vt .vt-dark h3 {
+  color: #fff;
+}
+
+.fu-home.vt .vt-dark .vt-muted {
+  color: var(--vt-lime);
+}
+
+.fu-public .fu-home.vt .vt-dark p {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.fu-home.vt .vt-dark .vt-idx {
+  color: var(--vt-lime);
+}
+
+.vt-eco {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.fu-public .fu-home.vt .vt-eco-feature {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 560px;
+  overflow: hidden;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vt-eco-photo {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.vt-eco-feature:hover .vt-eco-photo {
+  transform: scale(1.04);
+}
+
+.vt-eco-feature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(11, 26, 51, 0.92) 0%, rgba(11, 26, 51, 0.15) 60%);
+}
+
+.vt-eco-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  padding: 36px;
+}
+
+.fu-public .fu-home.vt .vt-eco-copy h3 {
+  font-family: var(--vt-display);
+  font-size: clamp(36px, 3.6vw, 52px);
+  font-weight: 400;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.fu-public .fu-home.vt .vt-eco-copy p {
+  max-width: 42ch;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.vt-eco-copy em {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vt-eco-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.fu-public .fu-home.vt .vt-eco-grid a {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 26px 24px;
+  background: var(--vt-navy);
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-public .fu-home.vt .vt-eco-grid a:hover {
+  background: var(--vt-navy-2);
+}
+
+.fu-public .fu-home.vt .vt-eco-grid h3 {
+  font-size: 19px;
+}
+
+.fu-public .fu-home.vt .vt-eco-grid p {
+  font-size: 13.5px;
+}
+
+.vt-eco-go {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 20px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.vt-eco-grid a:hover .vt-eco-go {
+  color: var(--vt-lime);
+  transform: translate(2px, -2px);
+}
+
+/* ---------- method ---------- */
+.vt-method-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 72px;
+  align-items: center;
+}
+
+.vt-method-photo {
+  min-height: 620px;
+  background:
+    url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=70")
+      center / cover no-repeat;
+}
+
+.vt-steps {
+  margin: 40px 0 36px;
+  padding: 0;
+  list-style: none;
+}
+
+.vt-steps li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+  padding: 22px 0;
+  border-top: 1px solid var(--vt-line);
+}
+
+.vt-steps li > span {
+  color: var(--vt-grey);
+  font-family: var(--vt-display);
+  font-size: 44px;
+  line-height: 1;
+}
+
+.fu-public .fu-home.vt .vt-steps h3 {
+  margin-bottom: 6px;
+}
+
+/* ---------- FAQ ---------- */
+.vt-faq-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 72px;
+  align-items: start;
+}
+
+.vt-faq-head {
+  position: sticky;
+  top: 110px;
+  display: grid;
+  gap: 20px;
+}
+
+.fu-public .fu-home.vt .vt-faq-head p {
+  max-width: 38ch;
+}
+
+.vt-faq {
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.vt-faq details {
+  border-top: 1px solid var(--vt-line);
+}
+
+.vt-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  list-style: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.vt-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.vt-faq-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--vt-navy);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.vt-faq-ico .material-symbols-outlined {
+  font-size: 20px;
+  transition: transform 0.25s ease;
+}
+
+.vt-faq details[open] .vt-faq-ico {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+}
+
+.vt-faq details[open] .vt-faq-ico .material-symbols-outlined {
+  transform: rotate(45deg);
+}
+
+.fu-public .fu-home.vt .vt-faq details p {
+  max-width: 62ch;
+  padding: 0 0 26px;
+}
+
+/* ---------- CTA ---------- */
+.vt-cta {
+  padding: 130px 0;
+  background: var(--vt-navy);
+}
+
+.vt-cta-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 48px;
+  align-items: end;
+}
+
+.fu-public .fu-home.vt .vt-cta .vt-title {
+  color: #fff;
+  font-size: clamp(52px, 7vw, 108px);
+}
+
+.fu-home.vt .vt-lime {
+  color: var(--vt-lime);
+}
+
+.fu-public .fu-home.vt .vt-cta p {
+  max-width: 42ch;
+  margin-bottom: 28px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.vt-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px) {
+  .vt-cols,
+  .vt-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vt-eco {
+    grid-template-columns: 1fr;
+  }
+
+  .fu-public .fu-home.vt .vt-eco-feature {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 900px) {
+  .vt-section {
+    padding: 88px 0;
+  }
+
+  .vt-section.vt-intro {
+    padding-top: 180px;
+  }
+
+  .vt-split,
+  .vt-method-grid,
+  .vt-faq-grid,
+  .vt-cta-inner,
+  .vt-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .vt-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vt-stats div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .vt-stats div:nth-child(n + 3) {
+    border-top: 1px solid var(--vt-line);
+  }
+
+  .vt-method-photo {
+    min-height: 320px;
+  }
+
+  .vt-faq-head {
+    position: static;
+  }
+
+  .fu-public .fu-home.vt .vt-rows a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
+  }
+
+  .vt-rows span:not(.material-symbols-outlined) {
+    grid-column: 1;
+  }
+
+  .vt-rows .material-symbols-outlined {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .vt-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .vt-cards {
+    gap: 14px;
+  }
+
+  .vt-eco-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vt-section.vt-intro {
+    padding-top: 120px;
+  }
+}

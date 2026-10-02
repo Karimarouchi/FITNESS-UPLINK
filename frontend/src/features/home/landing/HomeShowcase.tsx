@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { peekPath } from "@/features/auth/peek";
@@ -6,6 +6,7 @@ import { coachLocation, fetchTopRatedCoaches, topRatedCoachPhotoUrl, type TopCoa
 import { fetchProducts, productPhotoUrl, type ProductCard } from "@/features/marketplace/api";
 import { CONTENT_TYPE_LABELS, fetchFormations, formationImageUrl, type FormationCard } from "@/features/academy/api";
 import { CONTRACT_TYPES, fetchOpportunityPreview, type OpportunityPreview } from "@/features/jobs/api";
+import { VtButton, VtHead, VtTitle } from "./Vantage";
 
 type Showcase = {
   coaches: TopCoach[];
@@ -30,23 +31,13 @@ function contractLabel(value: string | null) {
   return CONTRACT_TYPES.find((item) => item.value === value)?.label ?? value ?? "";
 }
 
-function Group({ title, href, count, children }: { title: string; href: string; count: number; children: ReactNode }) {
-  if (count === 0) return null;
-  return (
-    <div className="home-live-group">
-      <div className="home-live-group-head">
-        <h3>{title}</h3>
-        <Link to={href}>Tout voir</Link>
-      </div>
-      {children}
-    </div>
-  );
+function Initial({ value }: { value: string }) {
+  return <span className="vt-card-ph">{value.slice(0, 1).toUpperCase()}</span>;
 }
 
 export function HomeShowcase() {
   const { user } = useAuth();
   const [data, setData] = useState<Showcase>(EMPTY);
-  const [ready, setReady] = useState(false);
   const guest = !user;
 
   useEffect(() => {
@@ -54,7 +45,7 @@ export function HomeShowcase() {
     Promise.allSettled([
       fetchTopRatedCoaches(4),
       fetchProducts({ size: 4 }),
-      fetchFormations({ size: 3 }),
+      fetchFormations({ size: 4 }),
       fetchOpportunityPreview(4),
     ]).then(([coaches, products, formations, jobs]) => {
       if (cancelled) return;
@@ -64,137 +55,137 @@ export function HomeShowcase() {
         formations: formations.status === "fulfilled" ? formations.value.items : [],
         jobs: jobs.status === "fulfilled" ? jobs.value : [],
       });
-      setReady(true);
     });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const total = data.coaches.length + data.products.length + data.formations.length + data.jobs.length;
-  if (ready && total === 0) return null;
-
   return (
-    <section className={guest ? "home-live is-guest" : "home-live"} aria-label="Aperçu de la plateforme">
-      <div className="home-wrap">
-        <header className="home-head home-live-head">
-          <div>
-            <p className="home-kicker dark">En ce moment sur le réseau</p>
-            <h2>Ce qui se passe, en vrai.</h2>
-          </div>
-          {guest ? (
-            <p className="home-live-note">
-              <span className="material-symbols-outlined" aria-hidden="true">
-                lock
-              </span>
-              Aperçu en lecture seule. Connectez-vous pour réserver, commander ou postuler.
-            </p>
-          ) : null}
-        </header>
-
-        <Group title="Coachs les mieux notés" href={guest ? "/coaching" : "/coaches"} count={data.coaches.length}>
-          <div className="home-live-grid">
-            {data.coaches.map((coach) => (
-              <Link className="home-live-card" key={coach.id} to={peekPath(user, `/coaches/${coach.id}`)}>
-                <div className="home-live-media">
-                  {coach.photoUploadId ? (
-                    <img src={topRatedCoachPhotoUrl(coach.id, coach.photoUploadId)} alt="" loading="lazy" />
-                  ) : (
-                    <span className="home-live-ph">{coach.displayName.slice(0, 1)}</span>
-                  )}
-                </div>
-                <div className="home-live-body">
-                  <small>{coach.title ?? "Coach"}</small>
+    <>
+      {data.coaches.length ? (
+        <section className="vt-section" aria-label="Coachs">
+          <div className="vt-wrap">
+            <VtHead title={<VtTitle lines={["Les coachs"]} muted="du réseau." />}>
+              <p>
+                Les coachs les mieux notés de Fitness Universe. Chaque avis est laissé après une séance réalisée — la note
+                se gagne sur le terrain.
+              </p>
+            </VtHead>
+            <div className="vt-cards">
+              {data.coaches.map((coach) => (
+                <Link className="vt-card" key={coach.id} to={peekPath(user, `/coaches/${coach.id}`)}>
+                  <div className="vt-card-media">
+                    {coach.photoUploadId ? (
+                      <img src={topRatedCoachPhotoUrl(coach.id, coach.photoUploadId)} alt="" loading="lazy" />
+                    ) : (
+                      <Initial value={coach.displayName} />
+                    )}
+                    {guest ? <span className="vt-lock">Membres</span> : null}
+                  </div>
                   <strong>{coach.displayName}</strong>
-                  <span>{coachLocation(coach) ?? "En ligne"}</span>
-                  <b>
-                    ★ {coach.averageRating.toFixed(1)} <em>({coach.reviewCount} avis)</em>
-                  </b>
-                </div>
-              </Link>
-            ))}
+                  <small>
+                    {coach.title ?? "Coach"} · ★ {coach.averageRating.toFixed(1)}
+                  </small>
+                  <small>{coachLocation(coach) || "En ligne"}</small>
+                </Link>
+              ))}
+            </div>
+            <VtButton to={guest ? "/coaching" : "/coaches"}>Voir tous les coachs</VtButton>
           </div>
-        </Group>
+        </section>
+      ) : null}
 
-        <Group title="Marketplace" href="/marketplace" count={data.products.length}>
-          <div className="home-live-grid">
-            {data.products.map((product) => (
-              <Link
-                className="home-live-card"
-                key={product.id}
-                to={peekPath(user, `/marketplace/products/${product.id}`)}
-              >
-                <div className="home-live-media">
-                  {product.firstPhotoUploadId ? (
-                    <img src={productPhotoUrl(product.id, product.firstPhotoUploadId)} alt="" loading="lazy" />
-                  ) : (
-                    <span className="home-live-ph">M</span>
-                  )}
-                </div>
-                <div className="home-live-body">
-                  <small>{product.categoryName}</small>
-                  <strong>{product.name}</strong>
-                  <span>{product.supplier?.displayName ?? product.brand ?? "Fournisseur vérifié"}</span>
-                  <b>{price(product.priceAmount, product.priceCurrency)}</b>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </Group>
-
-        <Group title="Académie" href="/academie" count={data.formations.length}>
-          <div className="home-live-grid home-live-grid-3">
-            {data.formations.map((formation) => (
-              <Link
-                className="home-live-card"
-                key={formation.id}
-                to={peekPath(user, `/academie/formations/${formation.id}`)}
-              >
-                <div className="home-live-media wide">
-                  {formation.imageUploadId ? (
-                    <img src={formationImageUrl(formation.id, formation.imageUploadId)} alt="" loading="lazy" />
-                  ) : (
-                    <span className="home-live-ph">A</span>
-                  )}
-                </div>
-                <div className="home-live-body">
+      {data.formations.length ? (
+        <section className="vt-section vt-section-white" aria-label="Académie">
+          <div className="vt-wrap">
+            <VtHead title={<VtTitle lines={["Former"]} muted="la force." />}>
+              <p>Certifications, workshops et masterclass animés par les académies du réseau. Sessions, places, inscription.</p>
+            </VtHead>
+            <div className="vt-cards">
+              {data.formations.map((formation) => (
+                <Link
+                  className="vt-card"
+                  key={formation.id}
+                  to={peekPath(user, `/academie/formations/${formation.id}`)}
+                >
+                  <div className="vt-card-media is-wide">
+                    {formation.imageUploadId ? (
+                      <img src={formationImageUrl(formation.id, formation.imageUploadId)} alt="" loading="lazy" />
+                    ) : (
+                      <Initial value={formation.title} />
+                    )}
+                    {formation.hasCertification ? <span className="vt-tag">Certifiant</span> : null}
+                  </div>
+                  <strong>{formation.title}</strong>
                   <small>
                     {CONTENT_TYPE_LABELS[formation.contentType] ?? formation.contentType}
-                    {formation.hasCertification ? " · Certifiant" : ""}
+                    {formation.nextSessionAt ? ` · ${shortDate(formation.nextSessionAt)}` : ""}
                   </small>
-                  <strong>{formation.title}</strong>
-                  <span>
-                    {[shortDate(formation.nextSessionAt), formation.online ? "En ligne" : formation.location]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </span>
-                  <b>{price(formation.priceAmount, formation.priceCurrency)}</b>
-                </div>
-              </Link>
-            ))}
+                  <small className="vt-price">{price(formation.priceAmount, formation.priceCurrency)}</small>
+                </Link>
+              ))}
+            </div>
+            <VtButton to="/academie">Voir toutes les formations</VtButton>
           </div>
-        </Group>
+        </section>
+      ) : null}
 
-        <Group title="Offres Hire Elite" href="/fitness-hire-elite" count={data.jobs.length}>
-          <div className="home-live-jobs">
-            {data.jobs.map((job) => (
-              <Link key={job.id} to={peekPath(user, `/app/opportunities/${job.id}`)}>
-                <div>
+      {data.products.length ? (
+        <section className="vt-section" aria-label="Marketplace">
+          <div className="vt-wrap">
+            <VtHead title={<VtTitle lines={["Équiper"]} muted="la salle." />}>
+              <p>Musculation, cardio, HYROX, récupération. Les catalogues des fournisseurs vérifiés, sur demande de devis.</p>
+            </VtHead>
+            <div className="vt-cards">
+              {data.products.map((product) => (
+                <Link className="vt-card" key={product.id} to={peekPath(user, `/marketplace/products/${product.id}`)}>
+                  <div className="vt-card-media is-square">
+                    {product.firstPhotoUploadId ? (
+                      <img src={productPhotoUrl(product.id, product.firstPhotoUploadId)} alt="" loading="lazy" />
+                    ) : (
+                      <Initial value={product.name} />
+                    )}
+                  </div>
+                  <strong>{product.name}</strong>
+                  <small>{product.supplier?.displayName ?? product.brand ?? product.categoryName}</small>
+                  <small className="vt-price">{price(product.priceAmount, product.priceCurrency)}</small>
+                </Link>
+              ))}
+            </div>
+            <VtButton to="/marketplace">Parcourir le catalogue</VtButton>
+          </div>
+        </section>
+      ) : null}
+
+      {data.jobs.length ? (
+        <section className="vt-section vt-section-white" aria-label="Offres Hire Elite">
+          <div className="vt-wrap">
+            <VtHead title={<VtTitle lines={["Les offres"]} muted="Hire Elite." />}>
+              <p>
+                Salles, clubs et studios recrutent en ce moment.{" "}
+                {guest ? "Connectez-vous pour postuler." : "Postulez depuis votre dossier."}
+              </p>
+            </VtHead>
+            <div className="vt-rows">
+              {data.jobs.map((job) => (
+                <Link key={job.id} to={peekPath(user, `/app/opportunities/${job.id}`)}>
                   <strong>{job.title}</strong>
                   <span>
                     {job.employerName}
                     {job.location ? ` · ${job.location}` : ""}
                   </span>
-                </div>
-                <em>{contractLabel(job.contractType)}</em>
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  {guest ? "lock" : "arrow_forward"}
-                </span>
-              </Link>
-            ))}
+                  <em>{contractLabel(job.contractType)}</em>
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {guest ? "lock" : "north_east"}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <VtButton to="/fitness-hire-elite">Découvrir Hire Elite</VtButton>
           </div>
-        </Group>
-      </div>
-    </section>
+        </section>
+      ) : null}
+    </>
   );
 }

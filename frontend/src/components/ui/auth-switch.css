@@ -430,3 +430,209 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==================================================================
+   VANTAGE LAYER — same language as the home page:
+   sky panel, Anton titles, Barlow Condensed labels, square shapes.
+   ================================================================== */
+.fu-switch.fu-auth {
+  --vt-navy: #0b1a33;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  background: var(--vt-paper);
+}
+
+/* ---- sky panel ---- */
+.fu-switch.fu-auth .fu-blob {
+  background: #1f6fc4;
+}
+
+.fu-switch.fu-auth .fu-blob-photo {
+  background: url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+  opacity: 1;
+  filter: none;
+}
+
+.fu-switch.fu-auth .fu-blob-glow {
+  background: none;
+}
+
+.fu-switch.fu-auth .fu-blob-fade {
+  background: linear-gradient(0deg, rgba(4, 38, 92, 0.45) 0%, rgba(4, 38, 92, 0.12) 55%, rgba(4, 38, 92, 0.05) 100%);
+}
+
+.fu-switch.fu-auth .fu-panel-kicker {
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.fu-switch.fu-auth .fu-panel-title {
+  font-family: var(--vt-display);
+  font-size: clamp(52px, 5.6vw, 92px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .fu-panel-title span {
+  color: var(--vt-lime);
+}
+
+.fu-switch.fu-auth .fu-panel-copy {
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(4, 38, 92, 0.35);
+}
+
+.fu-switch.fu-auth .fu-ghost {
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .fu-ghost:hover {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  transform: none;
+}
+
+/* ---- form ---- */
+.fu-switch.fu-auth .fu-back {
+  margin-left: 0;
+  padding: 0 0 4px;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .fu-back:hover {
+  background: transparent;
+}
+
+.fu-switch.fu-auth .fu-form-kicker {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.fu-switch.fu-auth .fu-form-title {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(44px, 4vw, 60px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .fu-form--signup .fu-form-title {
+  font-size: clamp(38px, 3.2vw, 48px);
+}
+
+.fu-switch.fu-auth .fu-form-sub {
+  color: var(--vt-text);
+}
+
+.fu-switch.fu-auth .auth-label {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .fu-control:focus-within .auth-label {
+  color: var(--vt-navy);
+}
+
+.fu-switch.fu-auth .auth-input {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+}
+
+.fu-switch.fu-auth .auth-input:hover:not(:focus):not(.is-invalid) {
+  border-color: #b9c0ca;
+}
+
+.fu-switch.fu-auth .auth-input:focus {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.fu-switch.fu-auth .fu-control:focus-within .fu-field-icon {
+  color: var(--vt-navy);
+}
+
+.fu-switch.fu-auth .auth-eye,
+.fu-switch.fu-auth .auth-rule,
+.fu-switch.fu-auth .auth-error {
+  border-radius: 0;
+}
+
+.fu-switch.fu-auth .auth-rule.is-ok {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-switch.fu-auth .fu-check input {
+  accent-color: var(--vt-navy);
+}
+
+.fu-switch.fu-auth .fu-link,
+.fu-switch.fu-auth .fu-switch-hint button,
+.fu-switch.fu-auth .fu-check--terms .text-secondary {
+  color: var(--vt-navy);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.fu-switch.fu-auth .auth-btn {
+  border-radius: 0;
+  background: var(--vt-navy);
+  box-shadow: none;
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-switch.fu-auth .auth-btn:hover:not(:disabled) {
+  background: var(--vt-lime);
+  box-shadow: none;
+  color: var(--vt-navy);
+  transform: none;
+}
+
+.fu-switch.fu-auth .auth-btn:disabled {
+  background: #b9c0ca;
+  color: #fff;
+  opacity: 1;
+}
