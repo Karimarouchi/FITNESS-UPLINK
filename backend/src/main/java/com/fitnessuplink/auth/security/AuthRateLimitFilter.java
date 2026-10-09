@@ -27,6 +27,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
         return !(
                 "/v1/auth/login".equals(path)
                         || "/v1/auth/signup".equals(path)
+                        || "/v1/auth/signup/verify".equals(path)
+                        || "/v1/auth/signup/resend".equals(path)
                         || "/v1/auth/forgot-password".equals(path)
                         || "/v1/auth/reset-password".equals(path)
                         || "/v1/auth/verify-reset-code".equals(path)

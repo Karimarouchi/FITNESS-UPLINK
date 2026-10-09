@@ -1,0 +1,889 @@
+/* ==================================================================
+   SIGNUP FLOW — Vantage layer
+   E-mail verification + onboarding (rôle, intention, pays, profil,
+   offre, paiement). Same language as the public site: Anton titles,
+   Barlow Condensed labels, square shapes, navy + lime.
+   The base styles live in @layer components (index.css), so these
+   unlayered rules win; plan/pay stages are unlayered, hence the
+   doubled `.fu-public.ob-shell` prefix there.
+   ================================================================== */
+.ob-shell,
+.auth-shell.vf {
+  --vt-navy: #0b1a33;
+  --vt-navy-2: #13264a;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-body: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+.fu-public.ob-shell {
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+}
+
+/* ---------- top bar ---------- */
+.ob-shell .ob-top,
+.ob-shell .ob-profile-nav {
+  padding: 18px clamp(20px, 4.4vw, 72px);
+  border-bottom: 1px solid var(--vt-line);
+  background: #fff;
+}
+
+.ob-shell .ob-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vt-navy);
+  text-decoration: none;
+}
+
+.ob-shell .ob-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 18px;
+}
+
+.ob-shell .ob-brand-word {
+  font-family: var(--vt-display);
+  font-size: 22px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .ob-nav-back,
+.fu-public.ob-shell .ob-nav-back .font-label-caps {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ob-shell .ob-nav-back .material-symbols-outlined {
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.ob-shell .ob-nav-back:hover .material-symbols-outlined {
+  transform: translateX(-3px);
+}
+
+.fu-public.ob-shell .ob-step-label {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.ob-shell .ob-locale,
+.auth-shell.vf .ob-locale {
+  border-color: var(--vt-line);
+  border-radius: 0;
+}
+
+.fu-public.ob-shell .ob-locale button {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.fu-public.ob-shell .ob-locale button.is-active {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+/* ---------- page titles ---------- */
+.ob-shell .ob-main {
+  padding-top: 64px;
+}
+
+.fu-public.ob-shell .ob-heading h1,
+.fu-public.ob-shell .ob-profile-intro h1 {
+  margin: 0 0 18px;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(46px, 6vw, 88px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .ob-country .ob-heading h1 {
+  font-size: clamp(40px, 5vw, 60px);
+}
+
+.ob-shell .ob-heading,
+.ob-shell .ob-profile-intro {
+  border-bottom-color: var(--vt-line);
+}
+
+.fu-public.ob-shell .ob-heading p,
+.fu-public.ob-shell .ob-profile-intro p:not(.ob-kicker) {
+  color: var(--vt-text);
+  font-family: var(--vt-body);
+  letter-spacing: 0;
+}
+
+.fu-public.ob-shell .ob-kicker {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+/* ---------- audience switch (Particulier / Employeur) ---------- */
+.ob-shell .ob-audience-tabs {
+  max-width: 440px;
+  padding: 0;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  background: #fff;
+}
+
+.fu-public.ob-shell .ob-audience-tab {
+  padding: 14px 16px;
+  border-radius: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  letter-spacing: 0.14em;
+}
+
+.fu-public.ob-shell .ob-audience-tab.is-active {
+  color: #fff;
+}
+
+.ob-shell .ob-audience-indicator {
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  border-radius: 0;
+  background: var(--vt-navy);
+  box-shadow: none;
+}
+
+.ob-shell .ob-audience-hint {
+  color: var(--vt-text);
+}
+
+/* ---------- choice cards (rôle, intention) ---------- */
+.ob-shell .ob-role-grid,
+.ob-shell .ob-intent-grid {
+  gap: 1px;
+  border-color: var(--vt-line);
+  background: var(--vt-line);
+}
+
+.fu-public.ob-shell .profile-card {
+  padding: 28px 26px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-public.ob-shell .profile-card:hover {
+  background: #f7f8fa;
+  box-shadow: inset 0 0 0 1px var(--vt-navy);
+}
+
+.fu-public.ob-shell .profile-card-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 22px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 26px;
+}
+
+.fu-public.ob-shell .profile-card h3 {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .ob-role-desc {
+  color: var(--vt-text);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* selected: navy card, white copy, lime accents (readable) */
+.fu-public.ob-shell .profile-card.active {
+  background: var(--vt-navy);
+  box-shadow: none;
+}
+
+.fu-public.ob-shell .profile-card.active h3 {
+  color: #fff;
+}
+
+.fu-public.ob-shell .profile-card.active .ob-role-desc {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.fu-public.ob-shell .profile-card.active .profile-card-icon {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell .profile-card .check-icon {
+  top: 18px;
+  right: 18px;
+  color: var(--vt-lime);
+  font-variation-settings: "FILL" 1;
+}
+
+/* ---------- buttons ---------- */
+.fu-public.ob-shell .ob-primary-pill,
+.fu-public.ob-shell .ob-primary,
+.fu-public.ob-shell .ob-upload,
+.auth-shell.vf .auth-btn {
+  height: 52px;
+  min-width: 200px;
+  padding: 0 24px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  background: var(--vt-navy);
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-public.ob-shell .ob-upload {
+  height: 42px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.fu-public.ob-shell .ob-primary-pill:hover:not(:disabled),
+.fu-public.ob-shell .ob-primary:hover:not(:disabled),
+.fu-public.ob-shell .ob-upload:hover:not(:disabled),
+.auth-shell.vf .auth-btn:hover:not(:disabled) {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell .ob-primary-pill:disabled,
+.fu-public.ob-shell .ob-primary:disabled,
+.auth-shell.vf .auth-btn:disabled {
+  border-color: #b9c0ca;
+  background: #b9c0ca;
+  color: #fff;
+  opacity: 1;
+}
+
+.fu-public.ob-shell .ob-ghost,
+.fu-public.ob-shell .ob-secondary {
+  height: 52px;
+  padding: 0 22px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .ob-ghost:hover,
+.fu-public.ob-shell .ob-secondary:hover {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public.ob-shell .ob-link {
+  border-bottom: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- country ---------- */
+.ob-shell .ob-country {
+  max-width: 560px;
+}
+
+.ob-shell .ob-search input,
+.ob-shell .country-list {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+}
+
+.ob-shell .ob-search input:focus {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.ob-shell .country-row {
+  border-bottom-color: var(--vt-line);
+}
+
+.ob-shell .country-row:hover {
+  background: var(--vt-paper);
+}
+
+.ob-shell .country-row.is-active {
+  border-bottom: 1px solid var(--vt-navy);
+  background: var(--vt-navy);
+}
+
+.ob-shell .country-row.is-active .country-name {
+  color: #fff;
+}
+
+.ob-shell .country-row.is-active .country-check {
+  color: var(--vt-lime);
+}
+
+/* ---------- profile form ---------- */
+.ob-shell .ob-section,
+.ob-shell .ob-cv-import {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+}
+
+.ob-shell .ob-section-head {
+  border-bottom-color: var(--vt-line);
+}
+
+.fu-public.ob-shell .ob-section-head h2,
+.fu-public.ob-shell .ob-cv-import-head h2 {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .ob-section-index {
+  border-radius: 0;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.fu-public.ob-shell .ob-section-meta {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .auth-label,
+.auth-shell.vf .auth-label {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.fu-public.ob-shell .custom-input,
+.fu-public.ob-shell .custom-textarea,
+.fu-public.ob-shell .ui-select-trigger,
+.auth-shell.vf .auth-input {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  font-family: var(--vt-body);
+}
+
+.fu-public.ob-shell .custom-input,
+.fu-public.ob-shell .ui-select-trigger,
+.auth-shell.vf .auth-input {
+  height: 48px;
+}
+
+.fu-public.ob-shell .custom-input:focus,
+.fu-public.ob-shell .custom-textarea:focus,
+.auth-shell.vf .auth-input:focus {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.fu-public.ob-shell .chip,
+.fu-public.ob-shell .bool-option {
+  border-radius: 0;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell .chip {
+  background: var(--vt-navy);
+}
+
+.fu-public.ob-shell .chip-box {
+  border-radius: 0;
+}
+
+.fu-public.ob-shell .bool-option {
+  border-color: var(--vt-line);
+}
+
+.fu-public.ob-shell .bool-option.is-active {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.ob-shell .ob-id-photo > :first-child {
+  border-radius: 0;
+}
+
+.fu-public.ob-shell .auth-error {
+  padding: 10px 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+/* ---------- plan & payment (dark navy stage) ---------- */
+.fu-public.ob-shell.pay-shell {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public.ob-shell.pay-shell .ob-profile-nav,
+.fu-public.ob-shell.pay-shell .ob-top {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background: transparent;
+}
+
+.fu-public.ob-shell.pay-shell .ob-brand,
+.fu-public.ob-shell.pay-shell .ob-nav-back,
+.fu-public.ob-shell.pay-shell .ob-nav-back .font-label-caps,
+.fu-public.ob-shell.pay-shell .ob-step-label {
+  color: #fff;
+}
+
+.fu-public.ob-shell.pay-shell .ob-brand-mark {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell.pay-shell .ob-locale {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.fu-public.ob-shell.pay-shell .ob-locale button {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.fu-public.ob-shell.pay-shell .ob-locale button.is-active {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell.pay-shell .pay-orb--lime {
+  background: rgba(212, 245, 60, 0.12);
+}
+
+.fu-public.ob-shell.pay-shell .pay-orb--blue {
+  background: rgba(37, 99, 235, 0.3);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plans-title,
+.fu-public.ob-shell.pay-shell .pay-title {
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: clamp(46px, 6vw, 88px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .pay-kicker {
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .plan-trial,
+.fu-public.ob-shell.pay-shell .ob-plans-tools,
+.fu-public.ob-shell.pay-shell .plan-currency {
+  border-radius: 0;
+}
+
+.fu-public.ob-shell.pay-shell .plan-trial {
+  border: 1px solid var(--vt-lime);
+  background: transparent;
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plans-switch.is-on .ob-plans-switch-track {
+  background: var(--vt-lime);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: none;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card.is-featured {
+  border-color: var(--vt-lime);
+  background: rgba(212, 245, 60, 0.05);
+  box-shadow: none;
+  animation: none;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card.is-selected {
+  border-color: #fff;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card h2 {
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-price strong {
+  color: #fff;
+  font-family: var(--vt-display);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card.is-featured .ob-plan-price strong {
+  color: var(--vt-lime);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-badge {
+  border-radius: 0;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-card li.is-ok .material-symbols-outlined {
+  border-radius: 0;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-cta {
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  animation: none;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-cta--lime,
+.fu-public.ob-shell.pay-shell .ob-plan-cta:hover:not(:disabled) {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-cta--lime:hover:not(:disabled) {
+  background: #fff;
+}
+
+.fu-public.ob-shell.pay-shell .pay-plan,
+.fu-public.ob-shell.pay-shell .pay-cgv-box {
+  border-radius: 0;
+}
+
+/* plan toolbar: yearly switch + currency segmented control */
+.fu-public.ob-shell.pay-shell .ob-plans-tools {
+  gap: 20px;
+  padding: 8px 8px 8px 18px;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.fu-public.ob-shell.pay-shell .ob-plans-switch {
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plans-switch-track,
+.fu-public.ob-shell.pay-shell .ob-plans-switch-knob {
+  border-radius: 0;
+}
+
+/* light default (account mode, inside the dashboard) */
+.plan-currency-seg {
+  display: inline-flex;
+  border: 1px solid #d9dde3;
+  background: #fff;
+}
+
+.plan-currency-seg button {
+  min-width: 64px;
+  height: 42px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.plan-currency-seg button + button {
+  border-left: 1px solid #d9dde3;
+}
+
+.plan-currency-seg button.is-on {
+  background: #0b1a33;
+  color: #fff;
+}
+
+/* dark onboarding stage */
+.fu-public.ob-shell.pay-shell .plan-currency-seg {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: transparent;
+}
+
+.fu-public.ob-shell.pay-shell .plan-currency-seg button {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--vt-cond);
+  letter-spacing: 0.14em;
+}
+
+.fu-public.ob-shell.pay-shell .plan-currency-seg button + button {
+  border-left-color: rgba(255, 255, 255, 0.24);
+}
+
+.fu-public.ob-shell.pay-shell .plan-currency-seg button:hover {
+  color: #fff;
+}
+
+.fu-public.ob-shell.pay-shell .plan-currency-seg button.is-on {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+/* ---------- e-mail verification (same split as login) ---------- */
+.auth-shell.vf {
+  background: var(--vt-paper);
+}
+
+.auth-shell.vf .auth-panel {
+  background: var(--vt-paper);
+}
+
+.vf-hero {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px clamp(32px, 4vw, 64px);
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(0deg, rgba(4, 38, 92, 0.45) 0%, rgba(4, 38, 92, 0.08) 60%),
+    url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+}
+
+@media (min-width: 1024px) {
+  .vf-hero {
+    display: flex;
+    width: 46%;
+    flex: none;
+  }
+}
+
+.vf-hero .ob-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vf-hero .ob-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 18px;
+}
+
+.vf-hero .ob-brand-word {
+  font-family: var(--vt-display);
+  font-size: 22px;
+  text-transform: uppercase;
+}
+
+.vf-hero h2 {
+  margin: 0;
+  font-family: var(--vt-display);
+  font-size: clamp(56px, 6vw, 96px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.vf-hero h2 span {
+  color: var(--vt-lime);
+}
+
+.vf-hero p {
+  max-width: 38ch;
+  margin: 18px 0 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.vf-steps {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vf-steps li {
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vf-steps li.is-on {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.auth-shell.vf .vf-kicker {
+  margin: 0 0 12px;
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.auth-shell.vf .vf-title {
+  margin: 0 0 12px;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(40px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.auth-shell.vf .vf-nowrap {
+  white-space: nowrap;
+}
+
+.auth-shell.vf .otp-cell {
+  border-width: 1px;
+  border-color: var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+}
+
+.auth-shell.vf .otp-cell:focus,
+.auth-shell.vf .otp-cell.is-active,
+.auth-shell.vf .otp-cell.is-filled {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.auth-shell.vf .otp-cell.is-success {
+  border-color: var(--vt-navy);
+  background: var(--vt-lime);
+}
+
+.auth-shell.vf .otp-digit {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.auth-shell.vf .text-secondary {
+  color: var(--vt-navy);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  .fu-public.ob-shell .ob-role-grid--pair,
+  .fu-public.ob-shell .ob-role-grid--employer {
+    grid-template-columns: 1fr;
+  }
+
+  .fu-public.ob-shell .ob-primary-pill,
+  .fu-public.ob-shell .ob-primary {
+    width: 100%;
+  }
+}

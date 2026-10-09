@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "./fu.css";
+@import "./backoffice.css";
+@import "./backoffice-theme.css";
 
 @theme {
   --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;

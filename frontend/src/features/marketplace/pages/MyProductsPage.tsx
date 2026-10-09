@@ -1,277 +1,376 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/Button";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Image as ImageIcon,
+  MessagesSquare,
+  Package,
+  PackagePlus,
+  Pencil,
+  Search,
+  ShieldAlert,
+  Trash2,
+} from "lucide-react";
+import { BoModal } from "@/components/ui/BoOverlay";
 import { ApiError } from "@/shared/api/client";
 import {
+  conditionLabel,
   deleteProduct,
   fetchMyProducts,
   fetchProductCategories,
+  formatPrice,
   productPhotoUrl,
   saveProduct,
-  uploadProductPhoto,
   type Product,
   type ProductCategory,
 } from "../api";
+import { compactNumber, productStatus, timeAgo } from "../format";
+import { ProductEditorDrawer } from "../ProductEditorDrawer";
 
-const EMPTY = {
-  categoryId: "",
-  name: "",
-  brand: "",
-  description: "",
-  technicalSheet: "",
-  priceAmount: "",
-  priceCurrency: "TND",
-  photoUploadIds: [] as string[],
-  videos: [] as string[],
-  active: true,
-};
+type Filter = "ALL" | "PUBLISHED" | "DRAFT" | "HIDDEN";
+type Sort = "recent" | "views" | "name";
+
+function matchesFilter(product: Product, filter: Filter) {
+  if (filter === "PUBLISHED") return product.active && !product.hiddenByAdmin;
+  if (filter === "DRAFT") return !product.active && !product.hiddenByAdmin;
+  if (filter === "HIDDEN") return product.hiddenByAdmin;
+  return true;
+}
 
 export function MyProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [params, setParams] = useSearchParams();
+  const [products, setProducts] = useState<Product[] | null>(null);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState(EMPTY);
-  const [videoDraft, setVideoDraft] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [filter, setFilter] = useState<Filter>("ALL");
+  const [sort, setSort] = useState<Sort>("recent");
+  const [query, setQuery] = useState(params.get("q") ?? "");
+  const [editing, setEditing] = useState<Product | null | undefined>(undefined);
+  const [deleting, setDeleting] = useState<Product | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
 
   function load() {
-    fetchMyProducts().then(setProducts).catch(() => setProducts([]));
-    fetchProductCategories().then(setCategories).catch(() => setCategories([]));
+    fetchMyProducts()
+      .then(setProducts)
+      .catch(() => {
+        setProducts([]);
+        setError("Impossible de charger vos articles.");
+      });
   }
 
   useEffect(() => {
     load();
+    fetchProductCategories().then(setCategories).catch(() => setCategories([]));
   }, []);
 
-  function startCreate() {
-    setEditing(null);
-    setForm(EMPTY);
-    setShowForm(true);
-  }
+  useEffect(() => {
+    setQuery(params.get("q") ?? "");
+    if (params.get("new") === "1") {
+      setEditing(null);
+      params.delete("new");
+      setParams(params, { replace: true });
+    }
+  }, [params, setParams]);
 
-  function startEdit(product: Product) {
-    setEditing(product.id);
-    setForm({
-      categoryId: product.categoryId,
-      name: product.name,
-      brand: product.brand ?? "",
-      description: product.description ?? "",
-      technicalSheet: product.technicalSheet ?? "",
-      priceAmount: product.priceAmount ?? "",
-      priceCurrency: product.priceCurrency ?? "TND",
-      photoUploadIds: product.photoUploadIds,
-      videos: product.videos,
-      active: product.active,
+  const counts = useMemo(() => {
+    const list = products ?? [];
+    return {
+      ALL: list.length,
+      PUBLISHED: list.filter((p) => matchesFilter(p, "PUBLISHED")).length,
+      DRAFT: list.filter((p) => matchesFilter(p, "DRAFT")).length,
+      HIDDEN: list.filter((p) => matchesFilter(p, "HIDDEN")).length,
+    };
+  }, [products]);
+
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = (products ?? []).filter(
+      (p) =>
+        matchesFilter(p, filter) &&
+        (!q || [p.name, p.brand, p.categoryName].some((value) => value?.toLowerCase().includes(q))),
+    );
+    return [...list].sort((a, b) => {
+      if (sort === "views") return b.viewCount - a.viewCount;
+      if (sort === "name") return a.name.localeCompare(b.name, "fr");
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-    setShowForm(true);
-  }
+  }, [products, filter, query, sort]);
 
-  async function onPickPhotos(files: FileList | null) {
-    if (!files?.length) return;
-    setUploading(true);
-    try {
-      for (const file of Array.from(files).slice(0, 8 - form.photoUploadIds.length)) {
-        const result = await uploadProductPhoto(file);
-        setForm((current) => ({ ...current, photoUploadIds: [...current.photoUploadIds, result.uploadId] }));
-      }
-    } catch {
-      setError("Impossible d’envoyer une photo.");
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  function addVideo() {
-    const url = videoDraft.trim();
-    if (!url) return;
-    setForm((current) => ({ ...current, videos: [...current.videos, url] }));
-    setVideoDraft("");
-  }
-
-  async function submit() {
+  async function togglePublish(product: Product) {
+    setBusyId(product.id);
     setError(null);
-    if (!form.categoryId) {
-      setError("Choisissez une catégorie.");
-      return;
-    }
     try {
-      await saveProduct(editing, {
-        categoryId: form.categoryId,
-        name: form.name,
-        brand: form.brand || null,
-        description: form.description || null,
-        technicalSheet: form.technicalSheet || null,
-        priceAmount: form.priceAmount || null,
-        priceCurrency: form.priceAmount ? form.priceCurrency : null,
-        photoUploadIds: form.photoUploadIds,
-        videos: form.videos,
-        active: form.active,
+      const saved = await saveProduct(product.id, {
+        categoryId: product.categoryId,
+        name: product.name,
+        brand: product.brand,
+        description: product.description,
+        technicalSheet: product.technicalSheet,
+        priceAmount: product.priceAmount,
+        priceCurrency: product.priceCurrency,
+        photoUploadIds: product.photoUploadIds,
+        videos: product.videos,
+        active: !product.active,
+        condition: product.condition,
       });
-      setShowForm(false);
-      load();
+      setProducts((current) => current?.map((item) => (item.id === saved.id ? saved : item)) ?? null);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d’enregistrer ce produit.");
+      setError(err instanceof ApiError ? err.message : "Action impossible.");
+    } finally {
+      setBusyId(null);
     }
   }
 
-  async function remove(id: string) {
-    await deleteProduct(id);
-    load();
+  async function confirmDelete() {
+    if (!deleting) return;
+    setBusyId(deleting.id);
+    try {
+      await deleteProduct(deleting.id);
+      setProducts((current) => current?.filter((item) => item.id !== deleting.id) ?? null);
+      setDeleting(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Suppression impossible.");
+    } finally {
+      setBusyId(null);
+    }
   }
+
+  function onSaved(saved: Product) {
+    setProducts((current) => {
+      const list = current ?? [];
+      return list.some((item) => item.id === saved.id)
+        ? list.map((item) => (item.id === saved.id ? saved : item))
+        : [saved, ...list];
+    });
+    setEditing(undefined);
+  }
+
+  const FILTERS: { id: Filter; label: string }[] = [
+    { id: "ALL", label: "Tous" },
+    { id: "PUBLISHED", label: "Publiés" },
+    { id: "DRAFT", label: "Brouillons" },
+    { id: "HIDDEN", label: "Masqués" },
+  ];
 
   return (
-    <section>
-      <div className="page-head">
+    <section className="bo-page">
+      <div className="bo-head">
         <div>
-          <h1>Mes produits</h1>
-          <p className="sub">Publiez vos produits : catégorie, photos, vidéos, fiche technique et prix.</p>
+          <h1>Mes articles</h1>
+          <p>
+            Publiez votre matériel de sport : les acheteurs intéressés vous écrivent directement via la messagerie de la
+            plateforme.
+          </p>
         </div>
-        <div className="head-actions">
-          <Button variant="primary" onClick={startCreate}>
-            + Ajouter un produit
-          </Button>
+        <div className="bo-head-actions">
+          <a className="bo-btn" href="/marketplace/products" target="_blank" rel="noreferrer">
+            <ExternalLink size={16} />
+            Voir la vitrine
+          </a>
+          <button type="button" className="bo-btn bo-btn--primary" onClick={() => setEditing(null)}>
+            <PackagePlus size={16} />
+            Nouvel article
+          </button>
         </div>
       </div>
 
-      {showForm ? (
-        <motion.div className="panel" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          <div className="panel-head">
-            <h2>{editing ? "Modifier le produit" : "Nouveau produit"}</h2>
+      {counts.HIDDEN > 0 ? (
+        <div className="bo-alert is-danger" style={{ marginBottom: 16 }}>
+          <ShieldAlert size={18} />
+          <div>
+            <strong>
+              {counts.HIDDEN} article{counts.HIDDEN > 1 ? "s" : ""} masqué{counts.HIDDEN > 1 ? "s" : ""} par la modération.
+            </strong>{" "}
+            Ouvrez-les pour voir le motif et corriger l’annonce.
           </div>
-          <div className="panel-body">
-            <div className="two-col">
-              <label className="field">
-                <span>Catégorie</span>
-                <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
-                  <option value="">Sélectionner</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Marque</span>
-                <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
-              </label>
-            </div>
-            <label className="field">
-              <span>Nom du produit</span>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </label>
-            <label className="field">
-              <span>Description</span>
-              <textarea className="custom-textarea" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </label>
-            <label className="field">
-              <span>Fiche technique</span>
-              <textarea
-                className="custom-textarea"
-                value={form.technicalSheet}
-                onChange={(e) => setForm({ ...form, technicalSheet: e.target.value })}
-                placeholder="Dimensions, poids, garantie…"
-              />
-            </label>
-            <div className="two-col">
-              <label className="field">
-                <span>Prix indicatif (optionnel)</span>
-                <input value={form.priceAmount} onChange={(e) => setForm({ ...form, priceAmount: e.target.value })} placeholder="Laisser vide = sur devis" />
-              </label>
-              <label className="field">
-                <span>Devise</span>
-                <select value={form.priceCurrency} onChange={(e) => setForm({ ...form, priceCurrency: e.target.value })}>
-                  <option value="TND">TND</option>
-                  <option value="EUR">EUR</option>
-                  <option value="USD">USD</option>
-                </select>
-              </label>
-            </div>
+        </div>
+      ) : null}
+      {error ? <p className="bo-error">{error}</p> : null}
 
-            <label className="field">
-              <span>Photos</span>
-              <input type="file" multiple accept="image/*" disabled={uploading} onChange={(e) => void onPickPhotos(e.target.files)} />
-            </label>
-            {form.photoUploadIds.length > 0 ? (
-              <div className="video-grid" style={{ marginBottom: 12 }}>
-                {form.photoUploadIds.map((uploadId) => (
-                  <div key={uploadId} style={{ position: "relative" }}>
-                    <img
-                      src={editing ? productPhotoUrl(editing, uploadId) : undefined}
-                      alt=""
-                      style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", background: "var(--paper-line)" }}
-                    />
+      <div className="bo-card">
+        <div className="bo-toolbar">
+          <div className="bo-seg" role="tablist">
+            {FILTERS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={filter === item.id}
+                className={filter === item.id ? "is-active" : ""}
+                onClick={() => setFilter(item.id)}
+              >
+                {item.label}
+                <span className="bo-seg-count">{counts[item.id]}</span>
+              </button>
+            ))}
+          </div>
+          <div className="bo-toolbar-spacer" />
+          <div className="bo-toolbar-search">
+            <Search size={16} />
+            <input
+              className="bo-input"
+              value={query}
+              placeholder="Rechercher un article…"
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </div>
+          <select className="bo-select" value={sort} onChange={(event) => setSort(event.target.value as Sort)} aria-label="Trier">
+            <option value="recent">Modifiés récemment</option>
+            <option value="views">Les plus vus</option>
+            <option value="name">Nom (A → Z)</option>
+          </select>
+        </div>
+
+        {products === null ? (
+          <div className="bo-product-grid">
+            {[0, 1, 2, 3].map((key) => (
+              <div key={key} className="bo-skeleton" style={{ height: 300 }} />
+            ))}
+          </div>
+        ) : visible.length === 0 ? (
+          <div className="bo-empty">
+            <div className="bo-empty-icon">
+              <Package size={24} />
+            </div>
+            <div className="bo-empty-title">{products.length === 0 ? "Aucun article pour l’instant" : "Aucun résultat"}</div>
+            <p>
+              {products.length === 0
+                ? "Ajoutez votre premier article : vélos, haltères, textiles, nutrition… Tout ce qui touche au sport."
+                : "Modifiez la recherche ou le filtre pour retrouver vos articles."}
+            </p>
+            {products.length === 0 ? (
+              <button type="button" className="bo-btn bo-btn--primary" onClick={() => setEditing(null)}>
+                <PackagePlus size={16} />
+                Créer un article
+              </button>
+            ) : null}
+          </div>
+        ) : (
+          <div className="bo-product-grid">
+            {visible.map((product) => {
+              const status = productStatus(product);
+              const price = formatPrice(product.priceAmount, product.priceCurrency);
+              const cover = product.photoUploadIds[0];
+              return (
+                <article className="bo-product" key={product.id}>
+                  <div className="bo-product-media">
+                    {cover ? <img src={productPhotoUrl(product.id, cover)} alt="" loading="lazy" /> : <ImageIcon size={32} />}
+                    <span className={`bo-pill ${status.tone}`}>{status.label}</span>
+                    {product.photoUploadIds.length > 1 ? (
+                      <span className="bo-product-photos">
+                        <ImageIcon size={12} />
+                        {product.photoUploadIds.length}
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="bo-product-body">
+                    <div className="bo-product-cat">
+                      {product.categoryName} · {conditionLabel(product.condition)}
+                    </div>
+                    <div className="bo-product-name">{product.name}</div>
+                    {price ? (
+                      <div className="bo-product-price">{price}</div>
+                    ) : (
+                      <div className="bo-product-price is-muted">Prix sur demande</div>
+                    )}
+                    <div className="bo-product-meta">
+                      <span title="Vues">
+                        <Eye size={14} />
+                        {compactNumber(product.viewCount)}
+                      </span>
+                      <span>Modifié {timeAgo(product.updatedAt)}</span>
+                    </div>
+                  </div>
+                  {product.hiddenByAdmin && product.hiddenReason ? (
+                    <div className="bo-product-mod">
+                      <strong>Motif :</strong> {product.hiddenReason}
+                    </div>
+                  ) : null}
+                  <div className="bo-product-actions">
+                    <button type="button" className="bo-btn bo-btn--sm" onClick={() => setEditing(product)}>
+                      <Pencil size={14} />
+                      Modifier
+                    </button>
+                    {!product.hiddenByAdmin ? (
+                      <button
+                        type="button"
+                        className="bo-btn bo-btn--sm bo-btn--icon"
+                        disabled={busyId === product.id}
+                        title={product.active ? "Repasser en brouillon" : "Publier"}
+                        aria-label={product.active ? "Repasser en brouillon" : "Publier"}
+                        onClick={() => void togglePublish(product)}
+                      >
+                        {product.active ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    ) : null}
+                    {product.active && !product.hiddenByAdmin ? (
+                      <a
+                        className="bo-btn bo-btn--sm bo-btn--icon"
+                        href={`/marketplace/products/${product.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        title="Voir l’annonce"
+                        aria-label="Voir l’annonce"
+                      >
+                        <ExternalLink size={15} />
+                      </a>
+                    ) : null}
                     <button
                       type="button"
-                      className="chip"
-                      style={{ position: "absolute", top: 4, right: 4 }}
-                      onClick={() => setForm({ ...form, photoUploadIds: form.photoUploadIds.filter((id) => id !== uploadId) })}
+                      className="bo-btn bo-btn--sm bo-btn--icon bo-btn--danger"
+                      title="Supprimer"
+                      aria-label="Supprimer"
+                      onClick={() => setDeleting(product)}
                     >
-                      <span className="material-symbols-outlined">close</span>
+                      <Trash2 size={15} />
                     </button>
                   </div>
-                ))}
-              </div>
-            ) : null}
-
-            <label className="field">
-              <span>Vidéos (liens)</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input value={videoDraft} onChange={(e) => setVideoDraft(e.target.value)} placeholder="Coller un lien YouTube ou Vimeo" />
-                <Button variant="outline" onClick={addVideo}>
-                  Ajouter
-                </Button>
-              </div>
-            </label>
-            <div className="chip-list">
-              {form.videos.map((url) => (
-                <button key={url} type="button" className="chip" onClick={() => setForm({ ...form, videos: form.videos.filter((v) => v !== url) })}>
-                  {url}
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              ))}
-            </div>
-
-            {error ? <p className="auth-error mt-6">{error}</p> : null}
-            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-              <Button variant="primary" onClick={() => void submit()}>
-                Enregistrer
-              </Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>
-                Annuler
-              </Button>
-            </div>
+                </article>
+              );
+            })}
           </div>
-        </motion.div>
+        )}
+      </div>
+
+      {editing !== undefined ? (
+        <ProductEditorDrawer
+          product={editing}
+          categories={categories}
+          onClose={() => setEditing(undefined)}
+          onSaved={onSaved}
+        />
       ) : null}
 
-      <div className="doc-grid">
-        {products.map((product) => (
-          <motion.div key={product.id} className="doc-card" whileHover={{ y: -6 }} transition={{ duration: 0.2 }}>
-            {product.photoUploadIds[0] ? (
-              <img
-                src={productPhotoUrl(product.id, product.photoUploadIds[0])}
-                alt=""
-                style={{ width: "100%", aspectRatio: "16/10", objectFit: "cover", marginBottom: 8 }}
-              />
-            ) : null}
-            <div className="t">{product.name}</div>
-            <div className="org">{product.categoryName}</div>
-            {!product.active ? <div className="meta">Désactivé</div> : null}
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <Button variant="mini" onClick={() => startEdit(product)}>
-                Modifier
-              </Button>
-              <Button variant="danger" onClick={() => void remove(product.id)}>
+      {deleting ? (
+        <BoModal
+          title="Supprimer cet article ?"
+          subtitle={deleting.name}
+          onClose={() => setDeleting(null)}
+          footer={
+            <>
+              <button type="button" className="bo-btn" onClick={() => setDeleting(null)}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="bo-btn bo-btn--danger-solid"
+                disabled={busyId === deleting.id}
+                onClick={() => void confirmDelete()}
+              >
+                <Trash2 size={15} />
                 Supprimer
-              </Button>
-            </div>
-          </motion.div>
-        ))}
-        {products.length === 0 && !showForm ? <p className="empty-hint">Aucun produit pour l’instant.</p> : null}
-      </div>
+              </button>
+            </>
+          }
+        >
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "var(--bo-text-2)" }}>
+            L’annonce disparaît du catalogue. Les conversations existantes restent accessibles dans{" "}
+            <MessagesSquare size={14} style={{ verticalAlign: "-2px" }} /> Messages.
+          </p>
+        </BoModal>
+      ) : null}
     </section>
   );
 }

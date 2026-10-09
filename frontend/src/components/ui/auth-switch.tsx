@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
 import { destinationFor, safeRedirectTarget } from "@/features/auth/types";
+import { readPendingSignup, storePendingSignup } from "@/features/auth/api";
 import { executeRecaptcha, loadRecaptcha, recaptchaEnabled } from "@/features/auth/recaptcha";
 import {
   LIMITS,
@@ -57,9 +58,10 @@ export function AuthSwitch() {
   const [loginFieldErrors, setLoginFieldErrors] = useState<Record<string, string | undefined>>({});
   const [loginSubmitting, setLoginSubmitting] = useState(false);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [signupEmail, setSignupEmail] = useState("");
+  const [pendingDraft] = useState(readPendingSignup);
+  const [firstName, setFirstName] = useState(pendingDraft?.firstName ?? "");
+  const [lastName, setLastName] = useState(pendingDraft?.lastName ?? "");
+  const [signupEmail, setSignupEmail] = useState(pendingDraft?.email ?? "");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -140,7 +142,7 @@ export function AuthSwitch() {
     setSignupSubmitting(true);
     try {
       const recaptchaToken = await executeRecaptcha("signup");
-      const user = await signup({
+      const pending = await signup({
         firstName: trimValue(firstName),
         lastName: trimValue(lastName),
         email: trimValue(signupEmail).toLowerCase(),
@@ -149,7 +151,13 @@ export function AuthSwitch() {
         acceptedTerms,
         recaptchaToken,
       });
-      navigate(destinationFor(user), { replace: true });
+      storePendingSignup({
+        email: pending.email,
+        firstName: trimValue(firstName),
+        lastName: trimValue(lastName),
+        resendAt: Date.now() + pending.resendInSeconds * 1000,
+      });
+      navigate("/signup/verify", { replace: true });
     } catch (err) {
       setSignupError(err instanceof ApiError ? err.message : "Unable to create account");
     } finally {
@@ -455,7 +463,7 @@ export function AuthSwitch() {
                 </p>
               ) : null}
               <button className="auth-btn fu-submit" type="submit" disabled={signupSubmitting || !signupValid}>
-                {signupSubmitting ? "Création du compte…" : "Créer mon compte"}
+                {signupSubmitting ? "Envoi du code…" : "Créer mon compte"}
                 <ArrowRight size={18} />
               </button>
               <p className="fu-switch-hint">

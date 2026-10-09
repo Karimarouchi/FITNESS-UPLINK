@@ -16,6 +16,7 @@ import {
   type DirectMessage,
   type MemberInboxItem,
 } from "@/features/coaching/api";
+import type { OpenCoachChatDetail } from "./openHireChat";
 
 function isChatNotice(item: AppNotification) {
   return item.title === "Nouveau message" || item.title === "Vous êtes contacté" || item.title === "Réponse du coach";
@@ -313,6 +314,25 @@ export function ChatWidget() {
     window.addEventListener("fu-open-hire-chat", onOpen);
     return () => window.removeEventListener("fu-open-hire-chat", onOpen);
   }, []);
+
+  // Open the member ↔ coach thread from a coach profile ("Contacter le coach"),
+  // so there is only ever one chat window on screen.
+  useEffect(() => {
+    if (!visible) return;
+    function onOpenCoach(event: Event) {
+      const detail = (event as CustomEvent<OpenCoachChatDetail>).detail;
+      if (!detail?.coachId) return;
+      detail.handled = true;
+      setOpen(true);
+      setTab("coaching");
+      setActive({
+        kind: "member",
+        coach: { coachId: detail.coachId, coachDisplayName: detail.coachDisplayName, lastBody: "", lastAt: new Date().toISOString() },
+      });
+    }
+    window.addEventListener("fu-open-coach-chat", onOpenCoach);
+    return () => window.removeEventListener("fu-open-coach-chat", onOpenCoach);
+  }, [visible]);
 
   // Polling
   useEffect(() => {

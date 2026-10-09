@@ -46,8 +46,23 @@ public class Product {
     private String videosJson;
     @Column(nullable = false)
     private boolean active;
+    @Column(name = "item_condition", nullable = false, length = 16)
+    @Builder.Default
+    private String itemCondition = ItemCondition.NEW;
+    @Column(name = "view_count", nullable = false)
+    private int viewCount;
+    @Column(name = "hidden_by_admin", nullable = false)
+    private boolean hiddenByAdmin;
+    @Column(name = "hidden_reason", length = 500)
+    private String hiddenReason;
+    @Column(name = "hidden_at")
+    private Instant hiddenAt;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    public boolean isPubliclyVisible() {
+        return active && !hiddenByAdmin;
+    }
 }

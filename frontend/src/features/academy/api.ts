@@ -1,4 +1,4 @@
-import { api } from "@/shared/api/client";
+import { api, ApiError } from "@/shared/api/client";
 
 export type ContentType = "FORMATION" | "CERTIFICATION" | "WORKSHOP" | "WEBINAR" | "MASTERCLASS";
 
@@ -185,4 +185,22 @@ export function payRegistration(id: string, cardNumber: string) {
 
 export function cancelRegistration(id: string) {
   return api.post<Registration>(`/v1/academy/registrations/${id}/cancel`, {});
+}
+
+const ACADEMY_ERRORS: Record<string, string> = {
+  SESSION_NOT_OPEN: "Cette session n’est plus ouverte aux inscriptions.",
+  SESSION_FULL: "Cette session vient d’être complète : toutes les places ont été payées.",
+  SESSION_NOT_FOUND: "Cette session n’existe plus.",
+  FORMATION_NOT_FOUND: "Cette formation n’est plus disponible.",
+  ALREADY_REGISTERED: "Vous êtes déjà inscrit(e) à cette session.",
+  REGISTRATION_NOT_AWAITING_PAYMENT: "Cette inscription n’attend plus de paiement.",
+  PAYMENT_FAILED: "Carte refusée. Pour le test, utilisez 4242 4242 4242 4242.",
+};
+
+/** Turns backend error codes (e.g. SESSION_NOT_OPEN) into French messages. */
+export function academyErrorMessage(err: unknown, fallback: string) {
+  if (err instanceof ApiError) {
+    return ACADEMY_ERRORS[err.message] ?? err.message ?? fallback;
+  }
+  return fallback;
 }

@@ -2,7 +2,9 @@ package com.fitnessuplink.academy;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,6 +39,11 @@ interface FormationSessionRepository extends JpaRepository<FormationSession, UUI
     Optional<FormationSession> findByIdAndFormationId(UUID id, UUID formationId);
 
     List<FormationSession> findByStatusAndScheduledAtBefore(FormationSessionStatus status, Instant when);
+
+    /** Row lock on the session so seat checks (register / pay) can't race each other. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM FormationSession s WHERE s.id = :id")
+    Optional<FormationSession> findByIdForUpdate(@Param("id") UUID id);
 }
 
 interface FormationRegistrationRepository extends JpaRepository<FormationRegistration, UUID> {

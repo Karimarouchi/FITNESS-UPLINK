@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from "react";
 import "./credit-card-form.css";
+import "./payment-vantage.css";
 
 export type CardState = {
   number: string;

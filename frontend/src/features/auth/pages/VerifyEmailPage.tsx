@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { OtpInput, type OtpInputHandle, type OtpStatus } from "@/components/ui/otp-input";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "../AuthContext";
-import { AuthHeroImage } from "../components/AuthHeroImage";
 import { changeEmail, resendVerification, verifyEmail } from "../api";
 import { destinationFor, type AuthUser } from "../types";
 import { LIMITS, validateEmail } from "../validation";
+import { VerifyHero } from "../components/VerifyHero";
 
 export function VerifyEmailPage() {
   const { user, updateUser } = useAuth();
@@ -99,17 +99,15 @@ export function VerifyEmailPage() {
   }
 
   return (
-    <div className="auth-shell">
-      <section className="auth-hero auth-hero--signup">
-        <AuthHeroImage className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute top-8 left-8 z-10 xl:top-10 xl:left-10">
-          <span className="font-headline-md tracking-tight text-white drop-shadow-md">FITNESS UPLINK</span>
-        </div>
-      </section>
+    <div className="auth-shell vf">
+      <VerifyHero />
       <section className="auth-panel">
         <div className="auth-form">
           <div className="mb-8">
-            <h2 className="font-display-lg-mobile text-on-surface mb-1">Vérifiez votre email</h2>
+            <p className="vf-kicker">Vérification</p>
+            <h2 className="vf-title">
+              Vérifiez votre <span className="vf-nowrap">e-mail.</span>
+            </h2>
             <p className="font-body-md text-on-surface-variant">
               Un code à 6 chiffres est en cours d’envoi à <strong>{user?.email}</strong>. Entrez-le dès que vous le recevez.
             </p>

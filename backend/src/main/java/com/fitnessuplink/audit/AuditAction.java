@@ -15,6 +15,8 @@ public final class AuditAction {
     public static final String SUBSCRIPTION_CANCELLED = "SUBSCRIPTION_CANCELLED";
     public static final String SUBSCRIPTION_SUSPENDED = "SUBSCRIPTION_SUSPENDED";
     public static final String SUBSCRIPTION_EXPIRED = "SUBSCRIPTION_EXPIRED";
+    public static final String MARKETPLACE_PRODUCT_HIDDEN = "MARKETPLACE_PRODUCT_HIDDEN";
+    public static final String MARKETPLACE_PRODUCT_RESTORED = "MARKETPLACE_PRODUCT_RESTORED";
 
     private AuditAction() {
     }

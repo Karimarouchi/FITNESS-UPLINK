@@ -25,6 +25,11 @@ public class NotificationController {
         return notificationService.list(principal.getId());
     }
 
+    @PatchMapping("/read-all")
+    public List<NotificationDto> markAllRead(@AuthenticationPrincipal UserPrincipal principal) {
+        return notificationService.markAllRead(principal.getId());
+    }
+
     @PatchMapping("/{id}/read")
     public List<NotificationDto> markRead(
             @AuthenticationPrincipal UserPrincipal principal,

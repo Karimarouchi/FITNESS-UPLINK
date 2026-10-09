@@ -14,7 +14,47 @@ export function signup(payload: {
   acceptedTerms: boolean;
   recaptchaToken?: string;
 }) {
-  return api.post<AuthResponse>("/v1/auth/signup", payload, { skipRefresh: true });
+  return api.post<PendingSignup>("/v1/auth/signup", payload, { skipRefresh: true });
+}
+
+export type PendingSignup = {
+  email: string;
+  codeExpiresInSeconds: number;
+  resendInSeconds: number;
+};
+
+export function verifySignup(email: string, code: string) {
+  return api.post<AuthResponse>("/v1/auth/signup/verify", { email, code }, { skipRefresh: true });
+}
+
+export function resendSignupCode(email: string) {
+  return api.post<PendingSignup>("/v1/auth/signup/resend", { email }, { skipRefresh: true });
+}
+
+const PENDING_KEY = "fu.pendingSignup";
+
+export type StoredPendingSignup = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  resendAt: number;
+};
+
+export function storePendingSignup(value: StoredPendingSignup) {
+  sessionStorage.setItem(PENDING_KEY, JSON.stringify(value));
+}
+
+export function readPendingSignup(): StoredPendingSignup | null {
+  try {
+    const raw = sessionStorage.getItem(PENDING_KEY);
+    return raw ? (JSON.parse(raw) as StoredPendingSignup) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingSignup() {
+  sessionStorage.removeItem(PENDING_KEY);
 }
 
 export function logout() {

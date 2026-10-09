@@ -87,13 +87,20 @@ export function ChoosePlanPage({ account = false }: { account?: boolean }) {
             </span>
             <span>{t.planYearly}</span>
           </label>
-          <select className="custom-input plan-currency" value={currency} onChange={(event) => setCurrency(event.target.value)}>
+          <div className="plan-currency-seg" role="radiogroup" aria-label="Devise">
             {["TND", "EUR", "USD"].map((item) => (
-              <option key={item} value={item}>
+              <button
+                key={item}
+                type="button"
+                role="radio"
+                aria-checked={currency === item}
+                className={currency === item ? "is-on" : undefined}
+                onClick={() => setCurrency(item)}
+              >
                 {item}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
       </motion.div>
       {error ? <p className="auth-error text-center">{error}</p> : null}

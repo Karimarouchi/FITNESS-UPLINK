@@ -59,6 +59,12 @@ public class NotificationService {
         return list(userId);
     }
 
+    @Transactional
+    public List<NotificationDto> markAllRead(UUID userId) {
+        notificationRepository.markAllRead(userId, Instant.now());
+        return list(userId);
+    }
+
     private NotificationDto toDto(Notification notification) {
         return new NotificationDto(
                 notification.getId(),

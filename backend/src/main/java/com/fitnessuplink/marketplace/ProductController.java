@@ -4,6 +4,7 @@ import com.fitnessuplink.auth.security.UserPrincipal;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.ProductDetailDto;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.ProductDto;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.ProductPageDto;
+import com.fitnessuplink.marketplace.dto.MarketplaceDtos.SupplierStatsDto;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.UpsertProductRequest;
 import com.fitnessuplink.onboarding.UploadService;
 import lombok.RequiredArgsConstructor;
@@ -39,15 +40,21 @@ public class ProductController {
     public ProductPageDto search(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String condition,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size
     ) {
-        return productCatalogService.search(q, categoryId, page, size);
+        return productCatalogService.search(q, categoryId, condition, page, size);
     }
 
     @GetMapping("/products/{id}")
-    public ProductDetailDto detail(@PathVariable UUID id) {
-        return productCatalogService.detail(id);
+    public ProductDetailDto detail(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID id) {
+        return productCatalogService.detail(id, principal == null ? null : principal.getUser());
+    }
+
+    @GetMapping("/mine/stats")
+    public SupplierStatsDto stats(@AuthenticationPrincipal UserPrincipal principal) {
+        return productService.stats(principal.getUser());
     }
 
     @GetMapping("/products/{id}/files/{uploadId}")

@@ -23,6 +23,7 @@ import {
 } from "../api";
 import { CoachPhoto } from "../CoachPhoto";
 import { RatingStars } from "../RatingStars";
+import { openCoachChat } from "@/features/recruitment/openHireChat";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 type Tab = "services" | "availability" | "reviews";
@@ -82,7 +83,13 @@ export function CoachProfilePage() {
             ))}
           </div>
           <div style={{ marginTop: 12 }}>
-            <Button variant="outline" onClick={() => setShowContact(true)}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                // Prefer the global chat widget; only fall back to the inline panel when it isn't mounted.
+                if (!openCoachChat(id, profile.displayName)) setShowContact(true);
+              }}
+            >
               <span className="material-symbols-outlined" style={{ fontSize: 16, verticalAlign: "middle", marginRight: 4 }}>chat</span>
               Contacter le coach
             </Button>

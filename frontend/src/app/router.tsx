@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { GuestRoute, MemberOnlyRoute, OnboardingRoute, ProtectedRoute, RoleRoute, VerifyEmailRoute } from "@/shared/components/RouteGuards";
 import { AuthSwitch } from "@/components/ui/auth-switch";
 import { VerifyEmailPage } from "@/features/auth/pages/VerifyEmailPage";
+import { VerifySignupPage } from "@/features/auth/pages/VerifySignupPage";
 import { ForgotPasswordPage } from "@/features/auth/pages/ForgotPasswordPage";
 import { HomePage } from "@/features/home/HomePage";
 import { PublicModulePage } from "@/features/home/pages/PublicModulePage";
@@ -58,6 +59,8 @@ import { ProductDetailPage } from "@/features/marketplace/pages/ProductDetailPag
 import { QuoteConfirmPage } from "@/features/marketplace/pages/QuoteConfirmPage";
 import { MyProductsPage } from "@/features/marketplace/pages/MyProductsPage";
 import { MarketplaceRequestsPage } from "@/features/marketplace/pages/MarketplaceRequestsPage";
+import { MarketplaceMessagesPage } from "@/features/marketplace/pages/MarketplaceMessagesPage";
+import { AdminMarketplacePage } from "@/features/admin/pages/AdminMarketplacePage";
 import { AcademyLandingPage } from "@/features/academy/pages/AcademyLandingPage";
 import { FormationDetailPage } from "@/features/academy/pages/FormationDetailPage";
 import { MyFormationsPage } from "@/features/academy/pages/MyFormationsPage";
@@ -90,6 +93,7 @@ export function AppRouter() {
       <Route element={<GuestRoute />}>
         <Route path="/login" element={<AuthSwitch />} />
         <Route path="/signup" element={<AuthSwitch />} />
+        <Route path="/signup/verify" element={<VerifySignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Route>
       <Route element={<VerifyEmailRoute />}>
@@ -202,6 +206,7 @@ export function AppRouter() {
           >
             <Route path="/app/marketplace" element={<Navigate to="/marketplace/products" replace />} />
           </Route>
+          <Route path="/app/marketplace/messages" element={<MarketplaceMessagesPage />} />
           <Route element={<RoleRoute allow={(user) => hasPermission(user, PERMS.MARKETPLACE_MANAGE)} />}>
             <Route path="/app/marketplace/mine" element={<MyProductsPage />} />
             <Route path="/app/marketplace/requests" element={<MarketplaceRequestsPage />} />
@@ -260,6 +265,7 @@ export function AppRouter() {
           </Route>
           <Route element={<RoleRoute allow={(user) => hasPermission(user, PERMS.ADMIN_MODULES) || isSuperAdmin(user)} />}>
             <Route path="/admin" element={<Navigate to="/app/dashboard" replace />} />
+            <Route path="/admin/marketplace" element={<AdminMarketplacePage />} />
             <Route path="/admin/:module" element={<AdminModulePage />} />
           </Route>
         </Route>

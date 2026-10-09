@@ -36,11 +36,12 @@ public class ProductCatalogService {
     private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
-    public ProductPageDto search(String q, UUID categoryId, int page, int size) {
+    public ProductPageDto search(String q, UUID categoryId, String condition, int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), 50);
         String normalizedQ = q == null || q.isBlank() ? "" : q.trim();
-        var result = productRepository.search(categoryId, normalizedQ, PageRequest.of(safePage, safeSize));
+        String normalizedCondition = ItemCondition.isValid(condition) ? condition : "";
+        var result = productRepository.search(categoryId, normalizedCondition, normalizedQ, PageRequest.of(safePage, safeSize));
         Map<UUID, Product> products = productRepository.findAllById(result.getContent()).stream()
                 .collect(Collectors.toMap(Product::getId, p -> p));
         Map<UUID, String> categoryNames = categoryRepository.findAllById(
@@ -58,9 +59,12 @@ public class ProductCatalogService {
         return new ProductPageDto(items, result.getTotalElements(), safePage, safeSize);
     }
 
-    @Transactional(readOnly = true)
-    public ProductDetailDto detail(UUID productId) {
+    @Transactional
+    public ProductDetailDto detail(UUID productId, User viewer) {
         Product product = requireVisible(productId);
+        if (viewer == null || !viewer.getId().equals(product.getSupplierId())) {
+            productRepository.incrementViews(productId);
+        }
         User supplier = userRepository.findById(product.getSupplierId()).orElse(null);
         ProductCategory category = categoryRepository.findById(product.getCategoryId()).orElse(null);
         return new ProductDetailDto(
@@ -71,13 +75,14 @@ public class ProductCatalogService {
 
     Product requireVisible(UUID productId) {
         return productRepository.findById(productId)
-                .filter(Product::isActive)
+                .filter(Product::isPubliclyVisible)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "PRODUCT_NOT_FOUND"));
     }
 
     @Transactional(readOnly = true)
     public UploadService.LoadedUpload photo(UUID productId, UUID uploadId) {
-        Product product = requireVisible(productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "PRODUCT_NOT_FOUND"));
         if (!productService.readUploadIds(product.getPhotosJson()).contains(uploadId)) {
             throw new ApiException(HttpStatus.NOT_FOUND, "PHOTO_NOT_FOUND");
         }
@@ -94,11 +99,12 @@ public class ProductCatalogService {
                 product.getPriceAmount(),
                 product.getPriceCurrency(),
                 photos.isEmpty() ? null : photos.get(0),
-                supplierSummary(supplier)
+                supplierSummary(supplier),
+                product.getItemCondition()
         );
     }
 
-    private SupplierSummaryDto supplierSummary(User supplier) {
+    SupplierSummaryDto supplierSummary(User supplier) {
         if (supplier == null) {
             return null;
         }

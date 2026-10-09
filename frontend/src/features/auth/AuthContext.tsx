@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { api, setAccessToken } from "@/shared/api/client";
-import { fetchMe, login as loginRequest, logout as logoutRequest, signup as signupRequest } from "./api";
+import {
+  fetchMe,
+  login as loginRequest,
+  logout as logoutRequest,
+  signup as signupRequest,
+  type PendingSignup,
+} from "./api";
 import type { AuthResponse, AuthUser } from "./types";
 
 type AuthContextValue = {
@@ -15,7 +21,8 @@ type AuthContextValue = {
     confirmPassword: string;
     acceptedTerms: boolean;
     recaptchaToken?: string;
-  }) => Promise<AuthUser>;
+  }) => Promise<PendingSignup>;
+  startSession: (response: AuthResponse) => AuthUser;
   logout: () => Promise<void>;
   updateUser: (user: AuthUser) => void;
 };
@@ -61,8 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(next);
         return next;
       },
-      signup: async (payload) => {
-        const next = applySession(await signupRequest(payload));
+      signup: (payload) => signupRequest(payload),
+      startSession: (response) => {
+        const next = applySession(response);
         setUser(next);
         return next;
       },

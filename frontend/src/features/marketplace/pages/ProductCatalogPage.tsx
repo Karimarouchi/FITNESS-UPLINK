@@ -13,18 +13,29 @@ import {
 } from "@/features/home/public/Catalog";
 import { PublicCta } from "@/features/home/public/PublicCta";
 import { PublicHero } from "@/features/home/public/PublicHero";
-import { fetchProductCategories, fetchProducts, productPhotoUrl, type ProductCard, type ProductCategory } from "../api";
+import {
+  CONDITION_LABELS,
+  conditionLabel,
+  fetchProductCategories,
+  fetchProducts,
+  formatPrice,
+  productPhotoUrl,
+  type ItemCondition,
+  type ProductCard,
+  type ProductCategory,
+} from "../api";
 
-function formatPrice(amount: string | null, currency: string | null) {
-  if (amount == null || Number(amount) <= 0) return "Sur devis";
-  return `${new Intl.NumberFormat("fr-FR").format(Number(amount))} ${currency ?? ""}`.trim();
-}
+const CONDITION_OPTIONS = (Object.keys(CONDITION_LABELS) as ItemCondition[]).map((value) => ({
+  value,
+  label: CONDITION_LABELS[value],
+}));
 
 export function ProductCatalogPage() {
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [categoryId, setCategoryId] = useState(params.get("categoryId") ?? "");
+  const [condition, setCondition] = useState<ItemCondition | "">((params.get("condition") as ItemCondition) ?? "");
   const [page, setPage] = useState(Number(params.get("page") ?? "0") || 0);
   const [items, setItems] = useState<ProductCard[]>([]);
   const [total, setTotal] = useState(0);
@@ -32,7 +43,7 @@ export function ProductCatalogPage() {
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const filters = useMemo(() => ({ q: query, categoryId, page }), [query, categoryId, page]);
+  const filters = useMemo(() => ({ q: query, categoryId, condition, page }), [query, categoryId, condition, page]);
 
   useEffect(() => {
     fetchProductCategories().then(setCategories).catch(() => setCategories([]));
@@ -78,18 +89,25 @@ export function ProductCatalogPage() {
   function pickCategory(value: string) {
     setCategoryId(value);
     setPage(0);
-    applyParams({ q: query, categoryId: value });
+    applyParams({ q: query, categoryId: value, condition });
+  }
+
+  function pickCondition(value: string) {
+    setCondition(value as ItemCondition | "");
+    setPage(0);
+    applyParams({ q: query, categoryId, condition: value });
   }
 
   function reset() {
     setQuery("");
     setCategoryId("");
+    setCondition("");
     setPage(0);
     applyParams({});
   }
 
   const pageCount = Math.max(1, Math.ceil(total / size));
-  const filtered = Boolean(query || categoryId);
+  const filtered = Boolean(query || categoryId || condition);
   const categoryOptions = categories
     .filter((category) => category.active)
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -99,13 +117,13 @@ export function ProductCatalogPage() {
     <article>
       <PublicHero
         kicker="Marketplace"
-        title="Équiper le circuit."
-        lead="Musculation, cardio, HYROX, Pilates, récupération… Les catalogues des fournisseurs vérifiés, et une demande de devis en un clic."
+        title="Tout le matériel du sport."
+        lead="Musculation, running, cyclisme, sports de raquette, textile, nutrition… Repérez un article, écrivez au fournisseur et convenez ensemble du prix et de la remise."
         image="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2000&q=70"
         highlights={[
-          { icon: "verified", label: "Fournisseurs vérifiés" },
-          { icon: "request_quote", label: "Devis ciblé, sans engagement" },
-          { icon: "local_shipping", label: "Pour salles, studios et coachs" },
+          { icon: "verified", label: "Fournisseurs de la plateforme" },
+          { icon: "forum", label: "Contact direct par messagerie" },
+          { icon: "sell", label: "Neuf, comme neuf ou occasion" },
         ]}
       />
       <section className="pub-section pub-section-catalog">
@@ -129,6 +147,13 @@ export function ProductCatalogPage() {
                 onChange={pickCategory}
               />
             ) : null}
+            <CatalogChips
+              label="État"
+              value={condition}
+              options={CONDITION_OPTIONS}
+              allLabel="Tous les états"
+              onChange={pickCondition}
+            />
           </div>
 
           {!loading && !error && items.length > 0 ? (
@@ -166,6 +191,7 @@ export function ProductCatalogPage() {
                     )}
                     <div className="cat-tags">
                       <span>{item.categoryName}</span>
+                      {item.condition && item.condition !== "NEW" ? <span>{conditionLabel(item.condition)}</span> : null}
                     </div>
                     {!user ? (
                       <span className="cat-lock">
@@ -187,9 +213,9 @@ export function ProductCatalogPage() {
                       {item.supplier?.city ? ` · ${item.supplier.city}` : ""}
                     </p>
                     <div className="cat-foot">
-                      <b>{formatPrice(item.priceAmount, item.priceCurrency)}</b>
+                      <b>{formatPrice(item.priceAmount, item.priceCurrency) ?? "Prix sur demande"}</b>
                       <span className="cat-cta">
-                        Devis
+                        Contacter
                         <span className="material-symbols-outlined" aria-hidden="true">
                           arrow_forward
                         </span>
@@ -204,14 +230,14 @@ export function ProductCatalogPage() {
           <CatalogPager page={page} pageCount={pageCount} onChange={setPage} />
 
           {!user && items.length > 0 ? (
-            <GuestNudge text="Fiches techniques, photos, vidéos et demandes de devis aux fournisseurs : tout s’ouvre avec un compte gratuit." />
+            <GuestNudge text="Fiches techniques, photos, vidéos et messagerie directe avec les fournisseurs : tout s’ouvre avec un compte gratuit." />
           ) : null}
         </div>
       </section>
       <PublicCta
         kicker="Vous êtes fournisseur ?"
-        title="Mettez votre catalogue face aux salles."
-        lead="Vitrine, fiches produits et demandes de devis qualifiées, venant de salles et de pros déjà présents sur le réseau."
+        title="Mettez vos articles face aux sportifs."
+        lead="Publiez votre matériel en quelques minutes, avec ou sans prix, et échangez directement avec les acheteurs intéressés."
         primaryTo={user ? "/app/dashboard" : "/signup"}
         primaryLabel={user ? "Tableau de bord" : "Ouvrir ma vitrine"}
         secondaryTo="/tarifs"

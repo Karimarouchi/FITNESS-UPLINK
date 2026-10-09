@@ -7,9 +7,13 @@ import com.fitnessuplink.auth.dto.LoginRequest;
 import com.fitnessuplink.auth.dto.ResetPasswordRequest;
 import com.fitnessuplink.auth.dto.SignupRequest;
 import com.fitnessuplink.auth.dto.ChangeEmailRequest;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.PendingSignupResponse;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.ResendSignupRequest;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.VerifySignupRequest;
 import com.fitnessuplink.auth.dto.VerifyResetCodeRequest;
 import com.fitnessuplink.auth.jwt.JwtService;
 import com.fitnessuplink.auth.mail.MailAddressMasker;
+import com.fitnessuplink.auth.mail.MailProperties;
 import com.fitnessuplink.auth.mail.MailService;
 import com.fitnessuplink.auth.recaptcha.RecaptchaService;
 import com.fitnessuplink.auth.token.RefreshToken;
@@ -27,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.annotation.PostConstruct;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +46,15 @@ import java.util.UUID;
 public class AuthService {
 
     private static final String INVALID_CREDENTIALS = "Invalid email or password";
+    private static final String SIGNUP_EXPIRED = "Cette inscription a expiré. Recommencez la création de votre compte.";
+    private static final String SIGNUP_CODE_EXPIRED = "Ce code a expiré. Demandez un nouveau code.";
+    private static final String SIGNUP_MAIL_FAILED =
+            "Impossible d'envoyer le code de vérification pour le moment. Aucun compte n'a été créé, réessayez plus tard.";
+    private static final Duration PENDING_SIGNUP_TTL = Duration.ofHours(24);
 
     private final UserRepository userRepository;
+    private final PendingSignupRepository pendingSignupRepository;
+    private final MailProperties mailProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -61,7 +73,7 @@ public class AuthService {
     }
 
     @Transactional
-    public IssuedAuth signup(SignupRequest request) {
+    public PendingSignupResponse signup(SignupRequest request) {
         recaptchaService.verify(request.recaptchaToken(), "signup");
         String email = normalizeEmail(request.email());
         if (email.equals(normalizeEmail(securityProperties.superAdmin().email()))) {
@@ -71,18 +83,92 @@ public class AuthService {
             throw new ApiException(HttpStatus.CONFLICT, "An account with this email already exists");
         }
 
+        Instant now = Instant.now();
+        PendingSignup pending = pendingSignupRepository.findByEmail(email).orElse(null);
+        boolean codeStillFresh = pending != null
+                && now.isBefore(pending.getLastSentAt().plus(mailProperties.resendCooldown()))
+                && now.isBefore(pending.getCodeExpiresAt());
+        if (pending == null) {
+            pending = PendingSignup.builder()
+                    .id(UUID.randomUUID())
+                    .email(email)
+                    .createdAt(now)
+                    .build();
+        }
+        pending.setPasswordHash(passwordEncoder.encode(request.password()));
+        pending.setFirstName(request.firstName().trim());
+        pending.setLastName(request.lastName().trim());
+        pending.setExpiresAt(now.plus(PENDING_SIGNUP_TTL));
+        if (codeStillFresh) {
+            pendingSignupRepository.save(pending);
+        } else {
+            sendSignupCode(pending, now);
+        }
+        return pendingResponse(pending, now);
+    }
+
+    @Transactional(noRollbackFor = ApiException.class)
+    public IssuedAuth verifySignup(VerifySignupRequest request) {
+        String email = normalizeEmail(request.email());
+        PendingSignup pending = pendingSignupRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, SIGNUP_EXPIRED));
+        Instant now = Instant.now();
+        if (now.isAfter(pending.getExpiresAt())) {
+            pendingSignupRepository.delete(pending);
+            throw new ApiException(HttpStatus.BAD_REQUEST, SIGNUP_EXPIRED);
+        }
+        if (pending.getAttempts() >= mailProperties.maxAttempts() || now.isAfter(pending.getCodeExpiresAt())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, SIGNUP_CODE_EXPIRED);
+        }
+        if (!tokenHasher.sha256(request.code().trim()).equals(pending.getCodeHash())) {
+            pending.setAttempts(pending.getAttempts() + 1);
+            pendingSignupRepository.save(pending);
+            throw new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE);
+        }
+        if (userRepository.existsByEmail(email)) {
+            pendingSignupRepository.delete(pending);
+            throw new ApiException(HttpStatus.CONFLICT, "An account with this email already exists");
+        }
+
         User user = User.builder()
                 .email(email)
-                .passwordHash(passwordEncoder.encode(request.password()))
-                .firstName(request.firstName().trim())
-                .lastName(request.lastName().trim())
+                .passwordHash(pending.getPasswordHash())
+                .firstName(pending.getFirstName())
+                .lastName(pending.getLastName())
                 .enabled(true)
                 .onboardingCompleted(false)
-                .emailVerified(false)
+                .emailVerified(true)
                 .build();
         userRepository.save(user);
-        sendCodeQuietly(user, EmailCodePurpose.VERIFY_EMAIL);
+        pendingSignupRepository.delete(pending);
+        mailService.enqueueWelcome(user);
         return issueTokens(user, false);
+    }
+
+    @Transactional
+    public PendingSignupResponse resendSignupCode(ResendSignupRequest request) {
+        String email = normalizeEmail(request.email());
+        PendingSignup pending = pendingSignupRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, SIGNUP_EXPIRED));
+        Instant now = Instant.now();
+        if (now.isAfter(pending.getExpiresAt())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, SIGNUP_EXPIRED);
+        }
+        if (now.isBefore(pending.getLastSentAt().plus(mailProperties.resendCooldown()))) {
+            throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "Un code a déjà été envoyé. Réessayez dans une minute.");
+        }
+        pending.setExpiresAt(now.plus(PENDING_SIGNUP_TTL));
+        sendSignupCode(pending, now);
+        return pendingResponse(pending, now);
+    }
+
+    @Scheduled(cron = "0 15 * * * *")
+    @Transactional
+    public void purgeExpiredSignups() {
+        int removed = pendingSignupRepository.deleteExpired(Instant.now());
+        if (removed > 0) {
+            log.info("event=pending_signups_purged count={}", removed);
+        }
     }
 
     @Transactional
@@ -245,12 +331,29 @@ public class AuthService {
                 });
     }
 
-    private void sendCodeQuietly(User user, EmailCodePurpose purpose) {
+    /**
+     * Sends synchronously so a delivery failure aborts the surrounding transaction:
+     * no pending signup is kept for a code the user never received.
+     */
+    private void sendSignupCode(PendingSignup pending, Instant now) {
+        String code = tokenHasher.newNumericCode(6);
+        pending.setCodeHash(tokenHasher.sha256(code));
+        pending.setCodeExpiresAt(now.plus(mailProperties.codeTtl()));
+        pending.setAttempts(0);
+        pending.setLastSentAt(now);
+        pendingSignupRepository.save(pending);
         try {
-            emailCodeService.issueAndSend(user, purpose);
-        } catch (Exception ex) {
-            log.warn("event=mail_code_skipped purpose={} recipient={}", purpose, MailAddressMasker.mask(user.getEmail()));
+            mailService.sendCode(pending.getEmail(), pending.getFirstName(), EmailCodePurpose.VERIFY_EMAIL, code);
+        } catch (ApiException ex) {
+            log.warn("event=signup_code_failed recipient={}", MailAddressMasker.mask(pending.getEmail()));
+            throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, SIGNUP_MAIL_FAILED);
         }
+    }
+
+    private PendingSignupResponse pendingResponse(PendingSignup pending, Instant now) {
+        long expiresIn = Math.max(0, Duration.between(now, pending.getCodeExpiresAt()).toSeconds());
+        long resendIn = Math.max(0, Duration.between(now, pending.getLastSentAt().plus(mailProperties.resendCooldown())).toSeconds());
+        return new PendingSignupResponse(pending.getEmail(), expiresIn, resendIn);
     }
 
     private User requireUser(UUID userId) {

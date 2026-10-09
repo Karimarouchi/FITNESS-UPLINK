@@ -1,17 +1,21 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
-import { isBackOfficeUser } from "@/features/auth/types";
 import { useOnboardingLocale } from "@/features/onboarding/LocaleContext";
 import { AppNavbar } from "./AppNavbar";
-import { AppSidebar } from "./AppSidebar";
-import { AppTopbar } from "./AppTopbar";
+import { BoSidebar } from "./shell/BoSidebar";
+import { BoTopbar } from "./shell/BoTopbar";
+import { isSupplierWorkspace, usesWorkspaceShell } from "./shell/shellNav";
 import { ChatWidget } from "@/features/recruitment/ChatWidget";
+import "./app-vantage.css";
 
 export function AppLayout() {
   const { user } = useAuth();
   const { t } = useOnboardingLocale();
-  const backOffice = isBackOfficeUser(user);
+  const { pathname } = useLocation();
+  const workspace = usesWorkspaceShell(user);
+  const memberLike = !workspace || isSupplierWorkspace(user);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [notice, setNotice] = useState(() => {
     try {
       return sessionStorage.getItem("fu.visibility.notice") === "1";
@@ -19,6 +23,10 @@ export function AppLayout() {
       return false;
     }
   });
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   function dismissNotice() {
     try {
@@ -29,23 +37,39 @@ export function AppLayout() {
     setNotice(false);
   }
 
+  const visibilityBanner =
+    memberLike && user && user.profileVisible === false ? (
+      <div className="fu-visibility-banner">
+        {t.visibilityTitle}. {t.visibilityEmpty}
+      </div>
+    ) : null;
+
   return (
     <div className="fu-app" id="app" lang="fr" dir="ltr">
-      <div className={backOffice ? "app-shell is-admin" : "app-shell"}>
-        {backOffice ? <AppSidebar /> : <AppNavbar />}
-        <div className="main">
-          {backOffice ? <AppTopbar /> : null}
-          <div className="main-content">
-            {!backOffice && user && user.profileVisible === false ? (
-              <div className="fu-visibility-banner">
-                {t.visibilityTitle}. {t.visibilityEmpty}
-              </div>
-            ) : null}
-            <Outlet />
+      {workspace ? (
+        <div className="app-shell is-admin bo-shell">
+          <BoSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+          {menuOpen ? <div className="bo-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
+          <div className="bo-main">
+            <BoTopbar onMenu={() => setMenuOpen(true)} />
+            <main className="bo-content main-content">
+              {visibilityBanner}
+              <Outlet />
+            </main>
           </div>
         </div>
-      </div>
-      {!backOffice && notice && user && user.profileVisible === false ? (
+      ) : (
+        <div className="app-shell vt-app">
+          <AppNavbar />
+          <div className="main">
+            <div className="main-content">
+              {visibilityBanner}
+              <Outlet />
+            </div>
+          </div>
+        </div>
+      )}
+      {memberLike && notice && user && user.profileVisible === false ? (
         <div className="ob-visibility" role="dialog" aria-modal="true">
           <div className="ob-visibility-card">
             <h2>{t.visibilityTitle}</h2>
@@ -57,7 +81,7 @@ export function AppLayout() {
           </div>
         </div>
       ) : null}
-      {!backOffice ? <ChatWidget /> : null}
+      {!workspace ? <ChatWidget /> : null}
     </div>
   );
 }

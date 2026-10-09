@@ -8,6 +8,9 @@ import com.fitnessuplink.auth.dto.ResetPasswordRequest;
 import com.fitnessuplink.auth.dto.SignupRequest;
 import com.fitnessuplink.auth.dto.VerifyEmailRequest;
 import com.fitnessuplink.auth.dto.ChangeEmailRequest;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.PendingSignupResponse;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.ResendSignupRequest;
+import com.fitnessuplink.auth.dto.SignupCodeRequests.VerifySignupRequest;
 import com.fitnessuplink.auth.dto.VerifyResetCodeRequest;
 import com.fitnessuplink.auth.security.UserPrincipal;
 import com.fitnessuplink.user.UserService;
@@ -36,8 +39,18 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
-        AuthService.IssuedAuth issued = authService.signup(request);
+    public ResponseEntity<PendingSignupResponse> signup(@Valid @RequestBody SignupRequest request) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.signup(request));
+    }
+
+    @PostMapping("/signup/resend")
+    public ResponseEntity<PendingSignupResponse> resendSignupCode(@Valid @RequestBody ResendSignupRequest request) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.resendSignupCode(request));
+    }
+
+    @PostMapping("/signup/verify")
+    public ResponseEntity<AuthResponse> verifySignup(@Valid @RequestBody VerifySignupRequest request) {
+        AuthService.IssuedAuth issued = authService.verifySignup(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header("Set-Cookie", authCookieService.createRefreshCookie(issued.rawRefreshToken(), issued.refreshTtl()).toString())
                 .body(issued.response());

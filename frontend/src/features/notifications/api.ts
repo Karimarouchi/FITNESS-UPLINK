@@ -17,3 +17,7 @@ export function fetchNotifications() {
 export function markNotificationRead(id: string) {
   return api.patch<AppNotification[]>(`/v1/notifications/${id}/read`);
 }
+
+export function markAllNotificationsRead() {
+  return api.patch<AppNotification[]>("/v1/notifications/read-all");
+}

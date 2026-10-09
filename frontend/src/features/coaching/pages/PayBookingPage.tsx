@@ -67,7 +67,7 @@ export function PayBookingPage() {
   }
 
   return (
-    <section className="pay-shell" style={{ borderRadius: 24, minHeight: "70vh", padding: "28px 20px 48px" }}>
+    <section className="pay-shell" style={{ minHeight: "70vh", padding: "48px 20px 64px" }}>
       <main className="ob-pay pay-stage" style={{ maxWidth: 720, margin: "0 auto" }}>
         <div className="pay-orbs" aria-hidden="true">
           <span className="pay-orb pay-orb--lime" />

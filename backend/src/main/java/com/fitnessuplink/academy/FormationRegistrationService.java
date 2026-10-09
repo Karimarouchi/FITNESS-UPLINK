@@ -28,8 +28,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FormationRegistrationService {
 
-    private static final List<FormationRegistrationStatus> ACTIVE_STATUSES =
-            List.of(FormationRegistrationStatus.PENDING_PAYMENT, FormationRegistrationStatus.CONFIRMED);
+    /** A seat is taken only once the registration is confirmed (paid, or free formation). */
+    private static final List<FormationRegistrationStatus> SEAT_STATUSES =
+            List.of(FormationRegistrationStatus.CONFIRMED);
 
     private final FormationRepository formationRepository;
     private final FormationSessionRepository sessionRepository;
@@ -44,17 +45,14 @@ public class FormationRegistrationService {
     @Transactional
     public RegistrationDto register(User member, UUID sessionId) {
         requireMember(member);
-        FormationSession session = sessionRepository.findById(sessionId)
+        FormationSession session = sessionRepository.findByIdForUpdate(sessionId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "SESSION_NOT_FOUND"));
-        if (session.getStatus() != FormationSessionStatus.SCHEDULED || session.getScheduledAt().isBefore(Instant.now())) {
-            throw new ApiException(HttpStatus.CONFLICT, "SESSION_NOT_OPEN");
-        }
+        requireOpen(session);
         Formation formation = formationRepository.findById(session.getFormationId())
                 .filter(Formation::isActive)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "FORMATION_NOT_FOUND"));
 
-        long activeCount = registrationRepository.countBySessionIdAndStatusIn(sessionId, ACTIVE_STATUSES);
-        boolean hasSeat = activeCount < session.getCapacity();
+        boolean hasSeat = seatsTaken(sessionId) < session.getCapacity();
         boolean free = formation.getPriceAmount() == null || formation.getPriceAmount().signum() <= 0;
 
         Instant now = Instant.now();
@@ -98,10 +96,15 @@ public class FormationRegistrationService {
         if (registration.getStatus() != FormationRegistrationStatus.PENDING_PAYMENT) {
             throw new ApiException(HttpStatus.CONFLICT, "REGISTRATION_NOT_AWAITING_PAYMENT");
         }
-        FormationSession session = sessionRepository.findById(registration.getSessionId())
+        FormationSession session = sessionRepository.findByIdForUpdate(registration.getSessionId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "SESSION_NOT_FOUND"));
         Formation formation = formationRepository.findById(session.getFormationId())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "FORMATION_NOT_FOUND"));
+        requireOpen(session);
+        // Seats are only taken on payment: re-check under the session lock, before charging the card.
+        if (seatsTaken(session.getId()) >= session.getCapacity()) {
+            throw new ApiException(HttpStatus.CONFLICT, "SESSION_FULL");
+        }
 
         ChargeResult result = paymentProvider.charge(request.cardNumber(), formation.getPriceAmount(), formation.getPriceCurrency());
         Instant now = Instant.now();
@@ -153,8 +156,7 @@ public class FormationRegistrationService {
         if (registration.getStatus() == FormationRegistrationStatus.CANCELLED) {
             throw new ApiException(HttpStatus.CONFLICT, "REGISTRATION_ALREADY_CANCELLED");
         }
-        boolean wasHoldingSeat = registration.getStatus() == FormationRegistrationStatus.CONFIRMED
-                || registration.getStatus() == FormationRegistrationStatus.PENDING_PAYMENT;
+        boolean wasHoldingSeat = registration.getStatus() == FormationRegistrationStatus.CONFIRMED;
         registration.setStatus(FormationRegistrationStatus.CANCELLED);
         registration.setWaitlistPosition(null);
         registration.setUpdatedAt(Instant.now());
@@ -249,6 +251,16 @@ public class FormationRegistrationService {
         return (int) registrationRepository
                 .findBySessionIdAndStatusOrderByCreatedAtAsc(sessionId, FormationRegistrationStatus.WAITLISTED)
                 .size() + 1;
+    }
+
+    private void requireOpen(FormationSession session) {
+        if (session.getStatus() != FormationSessionStatus.SCHEDULED || session.getScheduledAt().isBefore(Instant.now())) {
+            throw new ApiException(HttpStatus.CONFLICT, "SESSION_NOT_OPEN");
+        }
+    }
+
+    private long seatsTaken(UUID sessionId) {
+        return registrationRepository.countBySessionIdAndStatusIn(sessionId, SEAT_STATUSES);
     }
 
     private void requireMember(User user) {

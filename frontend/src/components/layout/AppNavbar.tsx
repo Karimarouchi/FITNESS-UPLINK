@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasPermission, isSuperAdmin, isVerified, shortNameOf } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
-import { fetchNotifications } from "@/features/notifications/api";
+import { NotificationBell } from "@/features/notifications/NotificationBell";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { InboxCountBadge, useInboxCount } from "@/features/recruitment/useInboxCount";
 import { sidebarGroupsFor } from "./sidebarNav";
@@ -69,7 +69,6 @@ export function AppNavbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [query, setQuery] = useState("");
-  const [unread, setUnread] = useState(false);
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navOpen, setNavOpen] = useState<string | null>(null);
@@ -80,24 +79,6 @@ export function AppNavbar() {
   const dashboardItem = items.find((item) => item.kind !== "dropdown" && item.to === "/app/dashboard");
   const menuItems = items.filter((item) => item !== dashboardItem);
   const inboxCount = useInboxCount();
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchNotifications()
-      .then((list) => {
-        if (!cancelled) {
-          setUnread(list.some((item) => !item.readAt));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setUnread(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -145,6 +126,19 @@ export function AppNavbar() {
     }
     if (hasPermission(user, PERMS.HIRE_APPLY)) {
       navigate(q ? `/app/opportunities?q=${encodeURIComponent(q)}` : "/app/opportunities");
+      return;
+    }
+    // Members: search coaches first, then the academy and the marketplace catalogues.
+    if (hasPermission(user, PERMS.COACHING_DISCOVER)) {
+      navigate(q ? `/coaches?q=${encodeURIComponent(q)}` : "/coaches");
+      return;
+    }
+    if (hasPermission(user, PERMS.ACADEMY_BROWSE)) {
+      navigate(q ? `/academie?q=${encodeURIComponent(q)}` : "/academie");
+      return;
+    }
+    if (hasPermission(user, PERMS.MARKETPLACE_BROWSE)) {
+      navigate(q ? `/marketplace/products?q=${encodeURIComponent(q)}` : "/marketplace/products");
     }
   }
 
@@ -160,7 +154,7 @@ export function AppNavbar() {
         <span className="mark" aria-hidden="true">
           F
         </span>
-        <span className="word">Fitness Uplink</span>
+        <span className="word">Fitness Universe</span>
       </Link>
 
       <div className="app-navbar-menu" ref={navRef}>
@@ -234,16 +228,16 @@ export function AppNavbar() {
                 ? "Rechercher un utilisateur…"
                 : hasPermission(user, PERMS.HIRE_SEARCH)
                   ? "Rechercher un talent…"
-                  : "Rechercher…"
+                  : hasPermission(user, PERMS.HIRE_APPLY)
+                    ? "Rechercher une offre…"
+                    : hasPermission(user, PERMS.COACHING_DISCOVER)
+                      ? "Rechercher un coach…"
+                      : "Rechercher…"
             }
             aria-label="Recherche"
           />
         </form>
-        <Link className={unread ? "bell unread" : "bell"} to="/notifications" aria-label="Notifications">
-          <span className="material-symbols-outlined" aria-hidden="true">
-            notifications
-          </span>
-        </Link>
+        <NotificationBell />
         <div className="account-menu" ref={menuRef}>
           <button
             type="button"

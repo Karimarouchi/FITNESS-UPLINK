@@ -1,16 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/Button";
-import { Panel } from "@/components/ui/Panel";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { BadgeCheck, Ban, CircleCheck, History, Lock, Search, Trash2, Unlock, UserCheck, Users } from "lucide-react";
+import { BoModal } from "@/components/ui/BoOverlay";
+import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useAuth } from "@/features/auth/AuthContext";
-import {
-  hasPermission,
-  initialsOf,
-  isSuperAdmin,
-  isVerified,
-  type AuthUser,
-} from "@/features/auth/types";
+import { hasPermission, isSuperAdmin, isVerified, type AuthUser } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { formatPipelineDate } from "@/features/recruitment/api";
 import { bulkUserAction, deleteUser, fetchUserActivity, fetchUsers, setUserEnabled, type AuditLogEntry } from "./api";
@@ -44,6 +38,12 @@ function statusTone(user: AuthUser) {
   return "pending" as const;
 }
 
+const PILL_TONE = {
+  refused: "is-danger",
+  verified: "is-success",
+  pending: "is-warn",
+} as const;
+
 function statusLabel(user: AuthUser) {
   if (!isActive(user)) {
     return "Bloqué";
@@ -63,6 +63,7 @@ export function UsersPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [filter, setFilter] = useState<AccountFilter>("all");
+  const [roleFilter, setRoleFilter] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
@@ -86,6 +87,18 @@ export function UsersPage() {
       .catch(() => setError("Impossible de charger les utilisateurs."));
   }, [user]);
 
+  useEffect(() => {
+    setQuery(params.get("q") ?? "");
+  }, [params]);
+
+  const roleOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    users.forEach((item) => {
+      if (item.role) map.set(item.role.code, item.role.label);
+    });
+    return [...map.entries()].map(([code, label]) => ({ code, label })).sort((a, b) => a.label.localeCompare(b.label, "fr"));
+  }, [users]);
+
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return users.filter((item) => {
@@ -93,6 +106,9 @@ export function UsersPage() {
         return false;
       }
       if (filter === "blocked" && isActive(item)) {
+        return false;
+      }
+      if (roleFilter && (item.role?.code ?? "") !== roleFilter) {
         return false;
       }
       if (!needle) {
@@ -104,7 +120,7 @@ export function UsersPage() {
         .toLowerCase()
         .includes(needle);
     });
-  }, [users, query, filter]);
+  }, [users, query, filter, roleFilter]);
 
   const selectableIds = useMemo(
     () => filtered.filter((item) => canManage(user?.id, item)).map((item) => item.id),
@@ -234,84 +250,133 @@ export function UsersPage() {
     setActivityError(null);
   }
 
+  const verifiedCount = users.filter((item) => isVerified(item)).length;
+  const shown = filtered;
+
   return (
-    <section>
-      <div className="page-head">
+    <section className="bo-page">
+      <div className="bo-head">
         <div>
           <h1>Utilisateurs</h1>
-          <div className="sub">
-            {users.length} compte{users.length > 1 ? "s" : ""} inscrit{users.length > 1 ? "s" : ""} · {activeCount} actif
-            {activeCount > 1 ? "s" : ""} · {blockedCount} bloqué{blockedCount > 1 ? "s" : ""}
-          </div>
+          <p>Tous les comptes de la plateforme : rôles, statut de vérification, blocage et historique d’activité.</p>
         </div>
-        <form className="search" onSubmit={(event) => event.preventDefault()} role="search">
-          🔍
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Rechercher un nom, un e-mail, un rôle…"
-          />
-        </form>
       </div>
 
-      <div className="filter-pills" role="tablist" aria-label="Filtrer les utilisateurs">
-        {FILTERS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={filter === item.id}
-            className={`filter-pill${filter === item.id ? " is-active" : ""}`}
-            onClick={() => setFilter(item.id)}
-          >
-            {item.label}
-            <span className="users-filter-count">
-              {item.id === "all" ? users.length : item.id === "active" ? activeCount : blockedCount}
+      <div className="bo-kpis">
+        <div className="bo-kpi">
+          <div className="bo-kpi-top">
+            <span className="bo-kpi-label">Comptes inscrits</span>
+            <span className="bo-kpi-icon">
+              <Users size={18} />
             </span>
-          </button>
-        ))}
-      </div>
-
-      {flash ? <p className="fu-flash">{flash}</p> : null}
-      {error ? <p className="auth-error">{error}</p> : null}
-
-      <Panel>
-        {selectedVisible.length > 0 ? (
-          <div className="users-toolbar">
-            <label className="users-check-label">
-              <input type="checkbox" checked={allSelected} onChange={toggleAll} />
-              Tout sélectionner
-            </label>
-            <span className="users-toolbar-count">
-              {selectedVisible.length} sélectionné{selectedVisible.length > 1 ? "s" : ""}
-            </span>
-            <div className="users-toolbar-actions">
-              <Button variant="mini" disabled={busy} onClick={() => void block(selectedVisible, false)}>
-                Bloquer
-              </Button>
-              <Button variant="mini" disabled={busy} onClick={() => void block(selectedVisible, true)}>
-                Débloquer
-              </Button>
-              <Button variant="danger" disabled={busy} onClick={() => askDelete(selectedVisible)}>
-                Supprimer
-              </Button>
-            </div>
           </div>
-        ) : null}
+          <div className="bo-kpi-value">{users.length}</div>
+        </div>
+        <div className="bo-kpi">
+          <div className="bo-kpi-top">
+            <span className="bo-kpi-label">Actifs</span>
+            <span className="bo-kpi-icon is-green">
+              <UserCheck size={18} />
+            </span>
+          </div>
+          <div className="bo-kpi-value">{activeCount}</div>
+        </div>
+        <div className="bo-kpi">
+          <div className="bo-kpi-top">
+            <span className="bo-kpi-label">Vérifiés</span>
+            <span className="bo-kpi-icon is-violet">
+              <BadgeCheck size={18} />
+            </span>
+          </div>
+          <div className="bo-kpi-value">{verifiedCount}</div>
+        </div>
+        <div className="bo-kpi">
+          <div className="bo-kpi-top">
+            <span className="bo-kpi-label">Bloqués</span>
+            <span className="bo-kpi-icon is-rose">
+              <Ban size={18} />
+            </span>
+          </div>
+          <div className="bo-kpi-value">{blockedCount}</div>
+        </div>
+      </div>
 
-        {!error && filtered.length === 0 ? (
-          <p className="empty-hint">
-            {query || filter !== "all"
-              ? "Aucun utilisateur ne correspond à ce filtre."
-              : "Aucun utilisateur pour le moment."}
-          </p>
-        ) : null}
+      {flash ? (
+        <div className="bo-alert" style={{ marginBottom: 14 }}>
+          <CircleCheck size={18} />
+          <div>{flash}</div>
+        </div>
+      ) : null}
+      {error ? <p className="bo-error">{error}</p> : null}
 
-        {filtered.length > 0 ? (
-          <table>
+      <div className="bo-card">
+        {selectedVisible.length > 0 ? (
+          <div className="bo-toolbar" style={{ background: "var(--bo-primary-soft)" }}>
+            <strong style={{ fontSize: 13.5, color: "var(--bo-primary)" }}>
+              {selectedVisible.length} sélectionné{selectedVisible.length > 1 ? "s" : ""}
+            </strong>
+            <div className="bo-toolbar-spacer" />
+            <button type="button" className="bo-btn bo-btn--sm" disabled={busy} onClick={() => void block(selectedVisible, false)}>
+              <Ban size={14} />
+              Bloquer
+            </button>
+            <button type="button" className="bo-btn bo-btn--sm" disabled={busy} onClick={() => void block(selectedVisible, true)}>
+              <Unlock size={14} />
+              Débloquer
+            </button>
+            <button type="button" className="bo-btn bo-btn--sm bo-btn--danger" disabled={busy} onClick={() => askDelete(selectedVisible)}>
+              <Trash2 size={14} />
+              Supprimer
+            </button>
+            <button type="button" className="bo-btn bo-btn--sm bo-btn--ghost" onClick={() => setSelected([])}>
+              Annuler
+            </button>
+          </div>
+        ) : (
+          <div className="bo-toolbar">
+            <div className="bo-seg" role="tablist" aria-label="Filtrer les utilisateurs">
+              {FILTERS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === item.id}
+                  className={filter === item.id ? "is-active" : ""}
+                  onClick={() => setFilter(item.id)}
+                >
+                  {item.label}
+                  <span className="bo-seg-count">
+                    {item.id === "all" ? users.length : item.id === "active" ? activeCount : blockedCount}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="bo-toolbar-search">
+              <Search size={16} />
+              <input
+                className="bo-input"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Nom, e-mail, pays…"
+              />
+            </div>
+            <div className="bo-toolbar-spacer" />
+            <select className="bo-select" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)} aria-label="Rôle">
+              <option value="">Tous les rôles</option>
+              {roleOptions.map((role) => (
+                <option key={role.code} value={role.code}>
+                  {role.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="bo-table-wrap">
+          <table className="bo-table">
             <thead>
               <tr>
-                <th className="users-check-col">
+                <th style={{ width: 40 }}>
                   <input
                     ref={selectAllRef}
                     type="checkbox"
@@ -321,123 +386,176 @@ export function UsersPage() {
                     aria-label="Tout sélectionner"
                   />
                 </th>
-                <th>Nom</th>
-                <th>E-mail</th>
+                <th>Utilisateur</th>
                 <th>Rôle</th>
                 <th>Pays</th>
                 <th>Statut</th>
-                <th>Inscrit le</th>
-                <th>Actions</th>
+                <th>Inscrit</th>
+                <th />
               </tr>
             </thead>
             <tbody>
-              {filtered.map((item) => {
-                const manageable = canManage(user?.id, item);
-                const checked = selected.includes(item.id);
-                return (
-                  <tr key={item.id} className={checked ? "is-selected" : undefined}>
-                    <td className="users-check-col">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        disabled={!manageable}
-                        onChange={() => toggleOne(item.id)}
-                        aria-label={`Sélectionner ${item.displayName || item.email}`}
-                      />
-                    </td>
-                    <td>
-                      <div className="user-cell">
-                        <span className="sb-avatar sm">{initialsOf(item.displayName || item.email)}</span>
-                        <span>{item.displayName || "—"}</span>
+              {shown.length === 0 ? (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="bo-empty">
+                      <div className="bo-empty-icon">
+                        <Users size={22} />
                       </div>
-                    </td>
-                    <td>{item.email}</td>
-                    <td>{item.role?.label ?? "En attente"}</td>
-                    <td>{item.country ? `${item.country.flagEmoji} ${item.country.name}` : "—"}</td>
-                    <td>
-                      <StatusPill tone={statusTone(item)}>{statusLabel(item)}</StatusPill>
-                    </td>
-                    <td>{item.createdAt ? formatPipelineDate(item.createdAt) : "—"}</td>
-                    <td>
-                      <div className="users-row-actions">
-                        <Button variant="mini" disabled={busy} onClick={() => void openActivity(item)}>
-                          Voir activité
-                        </Button>
-                        {manageable ? (
-                          <>
-                            <Button
-                              variant="mini"
-                              disabled={busy}
-                              onClick={() => void block([item.id], !isActive(item))}
-                            >
-                              {isActive(item) ? "Bloquer" : "Débloquer"}
-                            </Button>
-                            <Button variant="danger" disabled={busy} onClick={() => askDelete([item.id])}>
-                              Supprimer
-                            </Button>
-                          </>
-                        ) : (
-                          <span className="users-locked">Compte admin</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      <div className="bo-empty-title">Aucun utilisateur</div>
+                      <p>
+                        {query || filter !== "all" || roleFilter
+                          ? "Aucun compte ne correspond à ces filtres."
+                          : "Aucun utilisateur pour le moment."}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                shown.map((item) => {
+                  const manageable = canManage(user?.id, item);
+                  const checked = selected.includes(item.id);
+                  const tone = statusTone(item);
+                  return (
+                    <tr key={item.id} style={checked ? { background: "var(--bo-primary-soft)" } : undefined}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={!manageable}
+                          onChange={() => toggleOne(item.id)}
+                          aria-label={`Sélectionner ${item.displayName || item.email}`}
+                        />
+                      </td>
+                      <td>
+                        <div className="bo-cell-main">
+                          <ProfileAvatar uploadId={item.avatarUploadId} name={item.displayName || item.email} size={36} />
+                          <div style={{ minWidth: 0 }}>
+                            <div className="bo-cell-title">{item.displayName || "—"}</div>
+                            <div className="bo-cell-sub">{item.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{item.role?.label ?? <span style={{ color: "var(--bo-muted)" }}>En attente</span>}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{item.country ? `${item.country.flagEmoji} ${item.country.name}` : "—"}</td>
+                      <td>
+                        <span className={`bo-pill ${PILL_TONE[tone]}`}>{statusLabel(item)}</span>
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>{item.createdAt ? formatPipelineDate(item.createdAt) : "—"}</td>
+                      <td>
+                        <div className="bo-row-actions">
+                          <button
+                            type="button"
+                            className="bo-btn bo-btn--sm bo-btn--icon"
+                            disabled={busy}
+                            title="Voir l’activité"
+                            aria-label="Voir l’activité"
+                            onClick={() => void openActivity(item)}
+                          >
+                            <History size={15} />
+                          </button>
+                          {manageable ? (
+                            <>
+                              <button
+                                type="button"
+                                className="bo-btn bo-btn--sm bo-btn--icon"
+                                disabled={busy}
+                                title={isActive(item) ? "Bloquer" : "Débloquer"}
+                                aria-label={isActive(item) ? "Bloquer" : "Débloquer"}
+                                onClick={() => void block([item.id], !isActive(item))}
+                              >
+                                {isActive(item) ? <Ban size={15} /> : <Unlock size={15} />}
+                              </button>
+                              <button
+                                type="button"
+                                className="bo-btn bo-btn--sm bo-btn--icon bo-btn--danger"
+                                disabled={busy}
+                                title="Supprimer"
+                                aria-label="Supprimer"
+                                onClick={() => askDelete([item.id])}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </>
+                          ) : (
+                            <span className="bo-pill is-info no-dot" title="Compte protégé">
+                              <Lock size={11} />
+                              Admin
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
-        ) : null}
-      </Panel>
+        </div>
+        <div className="bo-pagination">
+          <span>
+            {shown.length} compte{shown.length > 1 ? "s" : ""} affiché{shown.length > 1 ? "s" : ""} sur {users.length}
+          </span>
+        </div>
+      </div>
 
       {confirmDelete ? (
-        <div className="fu-backdrop" role="presentation" onClick={() => (busy ? null : setConfirmDelete(null))}>
-          <div className="fu-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-            <h2>Supprimer {confirmDelete.ids.length > 1 ? "ces comptes" : "ce compte"} ?</h2>
-            <p>
-              {confirmDelete.names} sera définitivement retiré de la plateforme. Cette action est irréversible.
-            </p>
-            <div className="ob-country-actions">
-              <button className="ob-secondary" type="button" disabled={busy} onClick={() => setConfirmDelete(null)}>
+        <BoModal
+          title={`Supprimer ${confirmDelete.ids.length > 1 ? "ces comptes" : "ce compte"} ?`}
+          onClose={() => (busy ? undefined : setConfirmDelete(null))}
+          footer={
+            <>
+              <button type="button" className="bo-btn" disabled={busy} onClick={() => setConfirmDelete(null)}>
                 Annuler
               </button>
-              <Button variant="danger" disabled={busy} onClick={() => void confirmAndDelete()}>
+              <button type="button" className="bo-btn bo-btn--danger-solid" disabled={busy} onClick={() => void confirmAndDelete()}>
+                <Trash2 size={15} />
                 Supprimer
-              </Button>
-            </div>
-          </div>
-        </div>
+              </button>
+            </>
+          }
+        >
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "var(--bo-text-2)" }}>
+            <strong>{confirmDelete.names}</strong> sera définitivement retiré de la plateforme. Cette action est irréversible.
+          </p>
+        </BoModal>
       ) : null}
 
       {activityUser ? (
-        <div className="fu-backdrop" role="presentation" onClick={closeActivity}>
-          <div className="fu-modal" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-            <h2>Activité — {activityUser.displayName || activityUser.email}</h2>
-            {activityLoading ? <p className="empty-hint">Chargement…</p> : null}
-            {activityError ? <p className="auth-error">{activityError}</p> : null}
-            {!activityLoading && !activityError && activityEntries.length === 0 ? (
-              <p className="empty-hint">Aucune activité enregistrée pour ce compte.</p>
-            ) : null}
-            {activityEntries.length > 0 ? (
-              <ul className="hire-file-list">
-                {activityEntries.map((entry) => (
-                  <li key={entry.id}>
-                    <div>
-                      <strong>{entry.label}</strong>
-                      <span> · {formatPipelineDate(entry.createdAt)}</span>
-                      {entry.actorLabel ? <span> · par {entry.actorLabel}</span> : null}
+        <BoModal
+          title="Activité du compte"
+          subtitle={activityUser.displayName || activityUser.email}
+          onClose={closeActivity}
+          footer={
+            <button type="button" className="bo-btn" onClick={closeActivity}>
+              Fermer
+            </button>
+          }
+        >
+          {activityLoading ? <div className="bo-skeleton" style={{ height: 120 }} /> : null}
+          {activityError ? <p className="bo-error">{activityError}</p> : null}
+          {!activityLoading && !activityError && activityEntries.length === 0 ? (
+            <p style={{ margin: 0, color: "var(--bo-muted)", fontSize: 14 }}>Aucune activité enregistrée pour ce compte.</p>
+          ) : null}
+          {activityEntries.length > 0 ? (
+            <ul className="bo-list" style={{ maxHeight: 360, overflowY: "auto", margin: "0 -24px" }}>
+              {activityEntries.map((entry) => (
+                <li key={entry.id} className="bo-list-item" style={{ padding: "10px 24px" }}>
+                  <div className="bo-list-main">
+                    <div className="bo-list-title">
+                      <span>{entry.label}</span>
                     </div>
-                    {entry.metadata ? <div className="sub">{entry.metadata}</div> : null}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            <div className="ob-country-actions">
-              <button className="ob-secondary" type="button" onClick={closeActivity}>
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
+                    <div className="bo-list-sub">
+                      {formatPipelineDate(entry.createdAt)}
+                      {entry.actorLabel ? ` · par ${entry.actorLabel}` : ""}
+                      {entry.metadata ? ` · ${entry.metadata}` : ""}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </BoModal>
       ) : null}
     </section>
   );

@@ -27,8 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FormationService {
 
-    private static final List<FormationRegistrationStatus> ACTIVE_STATUSES =
-            List.of(FormationRegistrationStatus.PENDING_PAYMENT, FormationRegistrationStatus.CONFIRMED);
+    /** A seat is taken only once the registration is confirmed (paid, or free formation). */
+    private static final List<FormationRegistrationStatus> SEAT_STATUSES =
+            List.of(FormationRegistrationStatus.CONFIRMED);
 
     private final FormationRepository formationRepository;
     private final FormationSessionRepository sessionRepository;
@@ -223,7 +224,7 @@ public class FormationService {
     }
 
     private FormationSessionDto toSessionDto(FormationSession session) {
-        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), ACTIVE_STATUSES);
+        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), SEAT_STATUSES);
         int seatsLeft = Math.max(0, session.getCapacity() - (int) confirmed);
         return new FormationSessionDto(
                 session.getId(),

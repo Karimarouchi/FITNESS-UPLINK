@@ -37,8 +37,8 @@ export const ADMIN_MODULES: AdminLink[] = [
     title: "Marketplace",
     path: "/admin/marketplace",
     icon: "storefront",
-    lead: "Catalogue fournisseurs et demandes de devis",
-    empty: "Le marketplace n’est pas encore branché à la base. Aucun produit n’est affiché.",
+    lead: "Articles des fournisseurs, modération et conversations acheteurs",
+    empty: "",
   },
   {
     slug: "services",

@@ -30,8 +30,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FormationCatalogService {
 
-    private static final List<FormationRegistrationStatus> ACTIVE_STATUSES =
-            List.of(FormationRegistrationStatus.PENDING_PAYMENT, FormationRegistrationStatus.CONFIRMED);
+    /** A seat is taken only once the registration is confirmed (paid, or free formation). */
+    private static final List<FormationRegistrationStatus> SEAT_STATUSES =
+            List.of(FormationRegistrationStatus.CONFIRMED);
 
     private final FormationRepository formationRepository;
     private final FormationSessionRepository sessionRepository;
@@ -61,8 +62,10 @@ public class FormationCatalogService {
     @Transactional(readOnly = true)
     public FormationDetailDto detail(UUID formationId) {
         Formation formation = requireVisible(formationId);
+        // Only sessions a member can still register for — past/completed ones would just fail with SESSION_NOT_OPEN.
+        Instant now = Instant.now();
         List<FormationSessionDto> sessions = sessionRepository.findByFormationIdOrderByScheduledAtAsc(formationId).stream()
-                .filter(s -> s.getStatus() != FormationSessionStatus.CANCELLED)
+                .filter(s -> s.getStatus() == FormationSessionStatus.SCHEDULED && s.getScheduledAt().isAfter(now))
                 .map(this::toSessionDto)
                 .toList();
         return new FormationDetailDto(toCard(formation), formation.getDescription(), sessions);
@@ -84,7 +87,7 @@ public class FormationCatalogService {
     }
 
     private FormationSessionDto toSessionDto(FormationSession session) {
-        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), ACTIVE_STATUSES);
+        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), SEAT_STATUSES);
         int seatsLeft = Math.max(0, session.getCapacity() - (int) confirmed);
         return new FormationSessionDto(
                 session.getId(),
@@ -107,7 +110,7 @@ public class FormationCatalogService {
         Instant nextAt = next == null ? null : next.getScheduledAt();
         Integer seatsLeft = null;
         if (next != null) {
-            long confirmed = registrationRepository.countBySessionIdAndStatusIn(next.getId(), ACTIVE_STATUSES);
+            long confirmed = registrationRepository.countBySessionIdAndStatusIn(next.getId(), SEAT_STATUSES);
             seatsLeft = Math.max(0, next.getCapacity() - (int) confirmed);
         }
         return new FormationCardDto(

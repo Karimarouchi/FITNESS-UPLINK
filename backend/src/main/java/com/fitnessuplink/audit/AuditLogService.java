@@ -99,6 +99,8 @@ public class AuditLogService {
             case AuditAction.SUBSCRIPTION_CANCELLED -> "Abonnement annulé";
             case AuditAction.SUBSCRIPTION_SUSPENDED -> "Abonnement suspendu (échec de paiement)";
             case AuditAction.SUBSCRIPTION_EXPIRED -> "Abonnement expiré";
+            case AuditAction.MARKETPLACE_PRODUCT_HIDDEN -> "Article marketplace masqué";
+            case AuditAction.MARKETPLACE_PRODUCT_RESTORED -> "Article marketplace rétabli";
             default -> action;
         };
     }

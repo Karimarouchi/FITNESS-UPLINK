@@ -14,6 +14,25 @@ export type SupplierSummary = {
   city: string | null;
 };
 
+export type ItemCondition = "NEW" | "LIKE_NEW" | "USED";
+
+export const CONDITION_LABELS: Record<ItemCondition, string> = {
+  NEW: "Neuf",
+  LIKE_NEW: "Comme neuf",
+  USED: "Occasion",
+};
+
+export function conditionLabel(value: string | null | undefined) {
+  return CONDITION_LABELS[(value ?? "NEW") as ItemCondition] ?? "Neuf";
+}
+
+export function formatPrice(amount: string | number | null | undefined, currency: string | null | undefined) {
+  if (amount == null || amount === "") return null;
+  const value = Number(amount);
+  if (Number.isNaN(value)) return null;
+  return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(value)} ${currency ?? ""}`.trim();
+}
+
 export type ProductCard = {
   id: string;
   name: string;
@@ -23,6 +42,7 @@ export type ProductCard = {
   priceCurrency: string | null;
   firstPhotoUploadId: string | null;
   supplier: SupplierSummary | null;
+  condition: ItemCondition;
 };
 
 export type ProductPage = {
@@ -45,6 +65,12 @@ export type Product = {
   photoUploadIds: string[];
   videos: string[];
   active: boolean;
+  condition: ItemCondition;
+  viewCount: number;
+  hiddenByAdmin: boolean;
+  hiddenReason: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ProductDetail = {
@@ -73,8 +99,95 @@ export type ReceivedQuoteRequest = {
 export type ProductSearchParams = {
   q?: string;
   categoryId?: string;
+  condition?: ItemCondition | "";
   page?: number;
   size?: number;
+};
+
+export type SupplierStats = {
+  products: number;
+  published: number;
+  drafts: number;
+  hidden: number;
+  views: number;
+  conversations: number;
+  unreadConversations: number;
+};
+
+export type Counterpart = { id: string; displayName: string; subtitle: string | null };
+
+export type Conversation = {
+  id: string;
+  productId: string | null;
+  productName: string;
+  productPhotoUploadId: string | null;
+  productPriceAmount: string | null;
+  productPriceCurrency: string | null;
+  productAvailable: boolean;
+  viewerRole: "BUYER" | "SUPPLIER";
+  counterpart: Counterpart;
+  lastMessagePreview: string | null;
+  lastMessageAt: string;
+  unreadCount: number;
+};
+
+export type MarketplaceMessage = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  mine: boolean;
+  body: string;
+  createdAt: string;
+};
+
+export type ConversationThread = { conversation: Conversation; messages: MarketplaceMessage[] };
+
+export type AdminMarketplaceStats = {
+  products: number;
+  visible: number;
+  hidden: number;
+  inactive: number;
+  suppliers: number;
+  activeSuppliers: number;
+  conversations: number;
+  newConversations7d: number;
+};
+
+export type AdminProductRow = {
+  id: string;
+  name: string;
+  brand: string | null;
+  categoryId: string;
+  categoryName: string;
+  priceAmount: string | null;
+  priceCurrency: string | null;
+  condition: ItemCondition;
+  firstPhotoUploadId: string | null;
+  supplierId: string;
+  supplierName: string;
+  supplierEmail: string | null;
+  active: boolean;
+  hiddenByAdmin: boolean;
+  hiddenReason: string | null;
+  hiddenAt: string | null;
+  viewCount: number;
+  conversationCount: number;
+  createdAt: string;
+};
+
+export type AdminProductStatus = "ALL" | "VISIBLE" | "HIDDEN" | "INACTIVE";
+
+export type AdminSupplierRow = {
+  id: string;
+  displayName: string;
+  email: string;
+  city: string | null;
+  enabled: boolean;
+  productCount: number;
+  visibleCount: number;
+  hiddenCount: number;
+  conversationCount: number;
+  createdAt: string;
 };
 
 export function fetchProductCategories() {
@@ -99,6 +212,7 @@ export function fetchProducts(params: ProductSearchParams = {}) {
   const query = new URLSearchParams();
   if (params.q?.trim()) query.set("q", params.q.trim());
   if (params.categoryId) query.set("categoryId", params.categoryId);
+  if (params.condition) query.set("condition", params.condition);
   query.set("page", String(params.page ?? 0));
   query.set("size", String(params.size ?? 12));
   return api.get<ProductPage>(`/v1/marketplace/products?${query.toString()}`);
@@ -145,6 +259,7 @@ export function saveProduct(
     photoUploadIds: string[];
     videos: string[];
     active: boolean;
+    condition: ItemCondition;
   },
 ) {
   return id ? api.put<Product>(`/v1/marketplace/mine/${id}`, request) : api.post<Product>("/v1/marketplace/mine", request);
@@ -166,4 +281,68 @@ export function fetchReceivedMarketplaceRequests() {
 
 export function handleMarketplaceRequest(id: string) {
   return api.post<ReceivedQuoteRequest>(`/v1/marketplace/quote-requests/${id}/handle`);
+}
+
+export function fetchSupplierStats() {
+  return api.get<SupplierStats>("/v1/marketplace/mine/stats");
+}
+
+export function contactSupplier(productId: string, body: string) {
+  return api.post<Conversation>(`/v1/marketplace/products/${productId}/conversations`, { body });
+}
+
+export function fetchProductConversation(productId: string) {
+  return api.get<{ conversationId: string | null }>(`/v1/marketplace/products/${productId}/conversation`);
+}
+
+export function fetchConversations() {
+  return api.get<Conversation[]>("/v1/marketplace/conversations");
+}
+
+export function fetchConversation(id: string) {
+  return api.get<ConversationThread>(`/v1/marketplace/conversations/${id}`);
+}
+
+export function sendConversationMessage(id: string, body: string) {
+  return api.post<MarketplaceMessage>(`/v1/marketplace/conversations/${id}/messages`, { body });
+}
+
+export function fetchMarketplaceUnread() {
+  return api.get<{ count: number }>("/v1/marketplace/conversations/unread-count");
+}
+
+export function fetchAdminMarketplaceStats() {
+  return api.get<AdminMarketplaceStats>("/v1/admin/marketplace/stats");
+}
+
+export function fetchAdminProducts(params: {
+  q?: string;
+  status?: AdminProductStatus;
+  categoryId?: string;
+  supplierId?: string;
+  page?: number;
+  size?: number;
+}) {
+  const query = new URLSearchParams();
+  if (params.q?.trim()) query.set("q", params.q.trim());
+  if (params.status) query.set("status", params.status);
+  if (params.categoryId) query.set("categoryId", params.categoryId);
+  if (params.supplierId) query.set("supplierId", params.supplierId);
+  query.set("page", String(params.page ?? 0));
+  query.set("size", String(params.size ?? 20));
+  return api.get<{ items: AdminProductRow[]; total: number; page: number; size: number }>(
+    `/v1/admin/marketplace/products?${query.toString()}`,
+  );
+}
+
+export function hideProduct(id: string, reason: string) {
+  return api.post<AdminProductRow>(`/v1/admin/marketplace/products/${id}/hide`, { reason });
+}
+
+export function unhideProduct(id: string) {
+  return api.post<AdminProductRow>(`/v1/admin/marketplace/products/${id}/unhide`);
+}
+
+export function fetchAdminSuppliers() {
+  return api.get<AdminSupplierRow[]>("/v1/admin/marketplace/suppliers");
 }

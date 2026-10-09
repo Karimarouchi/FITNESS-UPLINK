@@ -1,0 +1,1497 @@
+/* ==================================================================
+   MEMBER APP — Vantage layer (scoped to `.vt-app`, the member shell;
+   the back-office sidebar shell is untouched).
+   Anton titles, Barlow Condensed labels, square shapes, navy + lime.
+   ================================================================== */
+.fu-app .vt-app {
+  --vt-navy: #0b1a33;
+  --vt-navy-2: #13264a;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-body: Geist, Inter, "Segoe UI", sans-serif;
+  background: var(--vt-paper);
+  font-family: var(--vt-body);
+}
+
+.fu-app .vt-app .main {
+  background: var(--vt-paper);
+}
+
+/* ---------- navbar ---------- */
+.fu-app .vt-app .app-navbar {
+  background: var(--vt-navy);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fu-app .vt-app .app-navbar-logo .mark {
+  border-radius: 0;
+  background: var(--vt-lime);
+  box-shadow: none;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-weight: 400;
+}
+
+.fu-app .vt-app .app-navbar-logo .word {
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .app-nav-link,
+.fu-app .vt-app .app-nav-drop > button {
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .app-nav-link:hover,
+.fu-app .vt-app .app-nav-drop > button:hover,
+.fu-app .vt-app .app-nav-drop.is-open > button {
+  background: transparent;
+  color: #fff;
+}
+
+.fu-app .vt-app .app-nav-link.is-on,
+.fu-app .vt-app .app-nav-drop.is-on > button {
+  color: var(--vt-lime);
+  box-shadow: inset 0 -2px 0 var(--vt-lime);
+}
+
+.fu-app .vt-app .app-nav-panel,
+.fu-app .vt-app .account-dropdown {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  box-shadow: 0 24px 48px -24px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app .vt-app .app-nav-panel a,
+.fu-app .vt-app .account-dropdown a,
+.fu-app .vt-app .account-dropdown button {
+  border-radius: 0;
+}
+
+.fu-app .vt-app .app-nav-panel a:hover,
+.fu-app .vt-app .app-nav-panel a.is-on {
+  background: var(--vt-paper);
+  box-shadow: inset 3px 0 0 var(--vt-navy);
+}
+
+.fu-app .vt-app .app-navbar .search,
+.fu-app .vt-app .app-navbar .bell,
+.fu-app .vt-app .app-navbar-toggle {
+  border-radius: 0;
+}
+
+.fu-app .vt-app .app-navbar .search:focus-within {
+  border-color: var(--vt-lime);
+  box-shadow: none;
+}
+
+.fu-app .vt-app .app-navbar .bell:hover {
+  border-color: var(--vt-lime);
+}
+
+.fu-app .vt-app .app-navbar-avatar .app-avatar {
+  box-shadow: 0 0 0 2px var(--vt-navy), 0 0 0 4px rgba(212, 245, 60, 0.6);
+}
+
+/* ---------- page header ---------- */
+.fu-app .vt-app .page-head {
+  align-items: flex-end;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.fu-app .vt-app .page-head h1 {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(40px, 4.6vw, 68px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .page-head .sub {
+  margin-top: 10px;
+  color: var(--vt-text);
+  font-size: 15px;
+}
+
+/* ---------- panels ---------- */
+.fu-app .vt-app .panel {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.fu-app .vt-app .panel-head h2 {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- buttons ---------- */
+.fu-app .vt-app .btn-solid,
+.fu-app .vt-app .btn-outline,
+.fu-app .vt-app .btn-mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: var(--vt-cond);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app .vt-app .btn-solid {
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+  font-size: 15px;
+}
+
+.fu-app .vt-app .btn-solid:hover:not(:disabled) {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app .vt-app .btn-outline,
+.fu-app .vt-app .btn-mini {
+  border: 1px solid var(--vt-navy);
+  background: transparent;
+  color: var(--vt-navy);
+}
+
+.fu-app .vt-app .btn-outline {
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+.fu-app .vt-app .btn-mini {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.fu-app .vt-app .btn-outline:hover:not(:disabled),
+.fu-app .vt-app .btn-mini:hover:not(:disabled) {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-app .vt-app .badge {
+  border-radius: 0;
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .tag {
+  border-radius: 0;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- search filters (coachs, prestataires, talents…) ---------- */
+.fu-app .vt-app .hire-filters {
+  gap: 10px;
+  padding: 16px;
+  border-color: var(--vt-line);
+  border-radius: 0;
+  box-shadow: none;
+  align-items: stretch;
+}
+
+/* one-row layout: search · ville · spécialité · tri · bouton */
+.fu-app .vt-app .hire-filters--inline {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+.fu-app .vt-app .hire-filters input:not([type="checkbox"]):not([type="radio"]),
+.fu-app .vt-app .hire-filters select {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background-color: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app .vt-app .hire-filters select {
+  padding-right: 38px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%230b1a33' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.fu-app .vt-app .hire-filters input:focus,
+.fu-app .vt-app .hire-filters select:focus {
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px rgba(11, 26, 51, 0.1);
+}
+
+.fu-app .vt-app .hire-filters input::placeholder {
+  color: var(--vt-grey);
+}
+
+.fu-app .vt-app .hire-filters .btn-solid {
+  height: 48px;
+  min-height: 48px;
+}
+
+.fu-app .vt-app .muted-line {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .jobs-empty {
+  border-radius: 0;
+}
+
+/* ---------- people / talent cards ---------- */
+.fu-app .vt-app .fu-talent-card {
+  border-color: var(--vt-line);
+  border-radius: 0;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
+}
+
+.fu-app .vt-app .fu-talent-card:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app .vt-app .fu-talent-card-top {
+  align-items: center;
+  text-align: left;
+}
+
+.fu-app .vt-app .fu-talent-card .pn {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .fu-talent-meta {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- booking rows (Mes formations, Mes séances…) ----------
+   The date column used to be 64px wide while "28/10/2026 14:00" needs
+   ~130px, so it spilled over the title. */
+.fu-app .vt-app .booking-item {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 22px;
+  border-bottom-color: var(--vt-line);
+}
+
+.fu-app .vt-app .booking-time {
+  width: auto;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.fu-app .vt-app .booking-body {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fu-app .vt-app .booking-body .t {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .booking-body .s {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app .vt-app .status-pill {
+  border-radius: 0;
+  font-family: var(--vt-cond);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .btn-mini.primary {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-app .vt-app .btn-mini.primary:hover:not(:disabled) {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app .vt-app .btn-danger {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #b91c1c;
+  border-radius: 0;
+  background: transparent;
+  color: #b91c1c;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-app .vt-app .btn-danger:hover {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.fu-app .vt-app .empty-hint {
+  color: var(--vt-text);
+}
+
+@media (max-width: 640px) {
+  .fu-app .vt-app .booking-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* ---------- member dashboard ---------- */
+.vt-dash {
+  display: grid;
+  gap: 18px;
+}
+
+.vt-dash-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px 48px;
+  padding: clamp(28px, 4vw, 52px);
+  background:
+    linear-gradient(0deg, rgba(4, 38, 92, 0.55) 0%, rgba(4, 38, 92, 0.15) 70%),
+    url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+  color: #fff;
+}
+
+.fu-app .vt-app .vt-dash-kicker {
+  margin: 0 0 14px;
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .vt-dash-hero h1 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: clamp(52px, 6.4vw, 104px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.vt-dash-hero h1 span {
+  color: var(--vt-lime);
+}
+
+.fu-app .vt-app .vt-dash-lead {
+  max-width: 44ch;
+  margin: 18px 0 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.vt-dash-status {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.fu-app .vt-app .vt-dash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 22px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+
+.fu-app .vt-app .vt-dash-btn:hover {
+  background: #fff;
+}
+
+.vt-dash-btn .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.fu-app .vt-app .vt-dash-link {
+  padding-bottom: 3px;
+  border-bottom: 1px solid #fff;
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.vt-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--vt-line);
+  background: var(--vt-line);
+}
+
+.fu-app .vt-app .vt-dash-tile {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 190px;
+  padding: 26px 24px;
+  background: #fff;
+  color: var(--vt-navy);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .vt-app .vt-dash-tile:hover {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.vt-dash-idx {
+  position: absolute;
+  top: 24px;
+  right: 54px;
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.vt-dash-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 18px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 24px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.vt-dash-tile:hover .vt-dash-icon {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.vt-dash-tile strong {
+  font-family: var(--vt-cond);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vt-dash-tile small {
+  color: var(--vt-text);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: color 0.2s ease;
+}
+
+.vt-dash-tile:hover small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.vt-dash-go {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--vt-grey);
+  font-size: 20px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.vt-dash-tile:hover .vt-dash-go {
+  color: var(--vt-lime);
+  transform: translate(2px, -2px);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  .fu-app .vt-app .hire-filters--inline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fu-app .vt-app .hire-filters--inline > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .fu-app .vt-app .hire-filters--inline .btn-solid {
+    grid-column: 1 / -1;
+  }
+
+  .vt-dash-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fu-app .vt-app .hire-filters--inline,
+  .vt-dash-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================================================================
+   NAVBAR DROPDOWNS — nav menus, account menu, mobile menu
+   ================================================================== */
+.fu-app .vt-app .app-nav-panel {
+  top: calc(100% + 14px);
+  min-width: 280px;
+  padding: 6px;
+  background: #fff;
+}
+
+.fu-app .vt-app .app-nav-panel a {
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px;
+  padding: 10px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .app-nav-panel .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 19px;
+  transition: background 0.2s ease;
+}
+
+.fu-app .vt-app .app-nav-panel a:hover .material-symbols-outlined,
+.fu-app .vt-app .app-nav-panel a.is-on .material-symbols-outlined {
+  background: var(--vt-lime);
+}
+
+.fu-app .vt-app .app-nav-drop > button .material-symbols-outlined {
+  font-size: 19px;
+  transition: transform 0.2s ease;
+}
+
+.fu-app .vt-app .app-nav-drop.is-open > button .material-symbols-outlined {
+  transform: rotate(180deg);
+}
+
+/* account menu */
+.fu-app .vt-app .account-dropdown {
+  min-width: 260px;
+  padding: 6px;
+  background: #fff;
+}
+
+.fu-app .vt-app .account-dropdown .who {
+  padding: 12px 10px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.fu-app .vt-app .account-dropdown .who .n {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .account-dropdown .who .r {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app .vt-app .account-dropdown a,
+.fu-app .vt-app .account-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .account-dropdown a:hover,
+.fu-app .vt-app .account-dropdown button:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app .vt-app .account-dropdown .danger {
+  margin-top: 6px;
+  border-top: 1px solid var(--vt-line);
+  color: #b91c1c;
+}
+
+.fu-app .vt-app .avatar-verified {
+  color: var(--vt-lime);
+}
+
+/* mobile menu */
+.fu-app .vt-app .app-navbar-mobile {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--vt-navy);
+}
+
+.fu-app .vt-app .app-navbar-mobile p {
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .app-navbar-mobile button {
+  border-radius: 0;
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ==================================================================
+   NOTIFICATION BELL
+   ================================================================== */
+.nb {
+  position: relative;
+}
+
+.fu-app .vt-app .nb-trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* the old stylesheet draws a small dot on .unread; the count badge replaces it */
+.fu-app .vt-app .nb-trigger.unread::after {
+  display: none;
+}
+
+.nb-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nb-panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  z-index: 70;
+  width: min(400px, calc(100vw - 32px));
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  box-shadow: 0 24px 48px -24px rgba(11, 26, 51, 0.5);
+  color: var(--vt-navy);
+}
+
+.nb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.nb-head strong {
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .nb-head button {
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: none;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.nb-list {
+  max-height: 380px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.nb-list li + li {
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app .vt-app .nb-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 10px;
+  align-items: start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  border: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fu-app .vt-app .nb-item:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app .vt-app .nb-item.is-unread {
+  background: #fbfde9;
+}
+
+.nb-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 19px;
+}
+
+.nb-item.is-unread .nb-icon {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.nb-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nb-copy strong {
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nb-copy span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--vt-text);
+  font-size: 13.5px;
+  line-height: 1.45;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.nb-copy small {
+  color: var(--vt-grey);
+  font-size: 12px;
+}
+
+.nb-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  background: var(--vt-lime);
+  box-shadow: 0 0 0 2px var(--vt-navy);
+}
+
+.nb-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 36px 18px;
+  color: var(--vt-text);
+  font-size: 14px;
+  text-align: center;
+}
+
+.nb-empty .material-symbols-outlined {
+  color: var(--vt-grey);
+  font-size: 32px;
+}
+
+.nb-empty p {
+  margin: 0;
+}
+
+.fu-app .vt-app .nb-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-top: 1px solid var(--vt-line);
+  background: var(--vt-navy);
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .nb-all:hover {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.nb-all .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* ==================================================================
+   NOTIFICATIONS PAGE
+   ================================================================== */
+.nf {
+  max-width: 920px;
+}
+
+.fu-app .vt-app .nf .page-head .btn-outline .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.nf-tabs {
+  display: inline-flex;
+  margin-bottom: 28px;
+  border: 1px solid var(--vt-navy);
+}
+
+.fu-app .vt-app .nf-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-app .vt-app .nf-tabs button + button {
+  border-left: 1px solid var(--vt-navy);
+}
+
+.fu-app .vt-app .nf-tabs button.is-on {
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.nf-tabs em {
+  min-width: 22px;
+  padding: 2px 6px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-style: normal;
+  font-size: 12px;
+  text-align: center;
+}
+
+.nf-tabs .is-on em {
+  background: var(--vt-lime);
+}
+
+.nf-group {
+  margin-bottom: 28px;
+}
+
+.fu-app .vt-app .nf-group h2 {
+  margin: 0 0 10px;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.nf-list {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  list-style: none;
+}
+
+.nf-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+}
+
+.nf-item + .nf-item {
+  border-top: 1px solid var(--vt-line);
+}
+
+.nf-item.is-unread {
+  background: #fbfde9;
+  box-shadow: inset 3px 0 0 var(--vt-lime);
+}
+
+.nf-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 21px;
+}
+
+.nf-item.is-unread .nf-icon {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.nf-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nf-copy strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .nf-copy p {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.nf-copy small {
+  color: var(--vt-grey);
+  font-size: 12.5px;
+}
+
+.nf-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-app .vt-app .nf-read {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  cursor: pointer;
+}
+
+.fu-app .vt-app .nf-read:hover {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+}
+
+.nf-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 64px 24px;
+  border: 1px dashed var(--vt-line);
+  background: #fff;
+  text-align: center;
+}
+
+.nf-empty .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin-bottom: 6px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 28px;
+}
+
+.fu-app .vt-app .nf-empty h2 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 30px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .nf-empty p,
+.nf-empty-text {
+  margin: 0;
+  color: var(--vt-text);
+}
+
+@media (max-width: 640px) {
+  .nf-item {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .nf-actions {
+    grid-column: 2;
+  }
+}
+
+/* ---------- navbar search + bell: dark, on the navy bar ---------- */
+.fu-app .vt-app .app-navbar .search {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.fu-app .vt-app .app-navbar .search:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.fu-app .vt-app .app-navbar .search:focus-within {
+  border-color: var(--vt-lime);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fu-app .vt-app .app-navbar .search input {
+  background: transparent;
+  color: #fff;
+}
+
+.fu-app .vt-app .app-navbar .search input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.fu-app .vt-app .app-navbar .search-icon {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.fu-app .vt-app .app-navbar .bell {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.fu-app .vt-app .app-navbar .bell:hover,
+.fu-app .vt-app .app-navbar .nb-trigger[aria-expanded="true"] {
+  border-color: var(--vt-lime);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ==================================================================
+   PROFILE + SETTINGS — the old `.settings-page` / `.fu-app .info-cell`
+   rules force Segoe UI, Geist Mono labels and rounded cells; these
+   selectors carry one extra class so they win regardless of CSS order.
+   ================================================================== */
+.fu-app .vt-app .settings-page,
+.fu-app .vt-app .settings-page p,
+.fu-app .vt-app .settings-page label,
+.fu-app .vt-app .settings-page span:not(.material-symbols-outlined),
+.fu-app .vt-app .settings-page input,
+.fu-app .vt-app .settings-page select,
+.fu-app .vt-app .settings-page textarea {
+  font-family: var(--vt-body);
+  letter-spacing: 0;
+}
+
+.fu-app .vt-app .settings-page .page-head h1,
+.fu-app .vt-app .page-head h1 {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(40px, 4.6vw, 68px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .settings-page .page-head .sub {
+  color: var(--vt-text);
+  font-size: 15px;
+}
+
+.fu-app .vt-app .settings-page .panel,
+.fu-app .vt-app .main-content .panel {
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.fu-app .vt-app .settings-page .panel-head,
+.fu-app .vt-app .main-content .panel-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--vt-line);
+  background: #fff;
+}
+
+.fu-app .vt-app .settings-page .panel-head h2,
+.fu-app .vt-app .main-content .panel-head h2 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .main-content .panel-action {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* info cells (Compte, Offre…) */
+.fu-app .vt-app .main-content .info-grid {
+  gap: 1px;
+  padding: 0;
+  background: var(--vt-line);
+}
+
+.fu-app .vt-app .main-content .info-grid .info-cell {
+  display: grid;
+  gap: 6px;
+  padding: 18px 22px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+}
+
+.fu-app .vt-app .main-content .info-grid .info-cell .k,
+.fu-app .vt-app .settings-page .info-cell .k {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .main-content .info-grid .info-cell .v,
+.fu-app .vt-app .settings-page .info-cell .v {
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* notification preferences table */
+.fu-app .vt-app .settings-mail-lead {
+  margin: 0;
+  padding: 18px 22px 6px;
+  color: var(--vt-text);
+  font-size: 15px;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs {
+  width: calc(100% - 44px);
+  margin: 10px 22px 22px;
+  border: 1px solid var(--vt-line);
+  border-collapse: collapse;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs th {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.fu-app .vt-app .settings-page .notify-prefs td strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs td span {
+  color: var(--vt-text);
+  font-size: 13.5px;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--vt-navy);
+  cursor: pointer;
+}
+
+.fu-app .vt-app .settings-page .notify-prefs-na {
+  font-family: var(--vt-cond);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .settings-mail-actions {
+  padding: 0 22px 22px;
+}
+
+.fu-app .vt-app .fu-flash {
+  margin: 14px 22px 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--vt-lime);
+  background: #fbfde9;
+  color: var(--vt-navy);
+}
+
+/* session / logout row */
+.fu-app .vt-app .settings-page .danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.fu-app .vt-app .settings-page .danger-zone .k {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .settings-page .danger-zone .s {
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+/* profile header card */
+.fu-app .vt-app .profile-banner {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 18px;
+  padding: 28px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+  text-align: left;
+}
+
+.fu-app .vt-app .profile-banner > div {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+}
+
+.fu-app .vt-app .profile-banner .app-avatar {
+  width: 112px !important;
+  height: 112px !important;
+  border-radius: 0;
+  background-color: var(--vt-navy);
+  background-position: center;
+  background-size: cover;
+  box-shadow: none;
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 44px !important;
+  font-weight: 400;
+}
+
+.fu-app .vt-app .profile-banner .pn {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: clamp(34px, 3.4vw, 48px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .profile-banner .pt {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app .vt-app .profile-banner .ploc {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app .vt-app .profile-banner .tag-row {
+  margin-top: 10px;
+}
+
+@media (max-width: 640px) {
+  .fu-app .vt-app .profile-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .fu-app .vt-app .settings-page .danger-zone {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -6,6 +6,7 @@ import com.fitnessuplink.access.PermissionService;
 import com.fitnessuplink.access.Permissions;
 import com.fitnessuplink.common.exception.ApiException;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.ProductDto;
+import com.fitnessuplink.marketplace.dto.MarketplaceDtos.SupplierStatsDto;
 import com.fitnessuplink.marketplace.dto.MarketplaceDtos.UpsertProductRequest;
 import com.fitnessuplink.onboarding.UploadService;
 import com.fitnessuplink.user.User;
@@ -31,6 +32,8 @@ public class ProductService {
     private final UploadService uploadService;
     private final ObjectMapper objectMapper;
     private final PermissionService permissionService;
+    private final MarketplaceConversationRepository conversationRepository;
+    private final MarketplaceMessageRepository messageRepository;
 
     @Transactional(readOnly = true)
     public List<ProductDto> list(User supplier) {
@@ -100,6 +103,9 @@ public class ProductService {
         product.setBrand(blankToNull(request.brand()));
         product.setDescription(blankToNull(request.description()));
         product.setTechnicalSheet(blankToNull(request.technicalSheet()));
+        if (request.priceAmount() != null && request.priceAmount().signum() < 0) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "PRICE_INVALID");
+        }
         product.setPriceAmount(request.priceAmount());
         product.setPriceCurrency(request.priceAmount() == null ? null : normalizeCurrency(request.priceCurrency()));
         product.setPhotosJson(writeUploadIds(request.photoUploadIds()));
@@ -107,6 +113,20 @@ public class ProductService {
         if (request.active() != null) {
             product.setActive(request.active());
         }
+        product.setItemCondition(ItemCondition.normalize(request.condition()));
+    }
+
+    @Transactional(readOnly = true)
+    public SupplierStatsDto stats(User supplier) {
+        requireSupplier(supplier);
+        List<Product> products = productRepository.findBySupplierIdOrderByCreatedAtDesc(supplier.getId());
+        long published = products.stream().filter(Product::isPubliclyVisible).count();
+        long hidden = products.stream().filter(Product::isHiddenByAdmin).count();
+        long drafts = products.stream().filter(p -> !p.isActive() && !p.isHiddenByAdmin()).count();
+        long views = products.stream().mapToLong(Product::getViewCount).sum();
+        long conversations = conversationRepository.countBySupplierId(supplier.getId());
+        long unread = messageRepository.unreadPerConversation(supplier.getId()).size();
+        return new SupplierStatsDto(products.size(), published, drafts, hidden, views, conversations, unread);
     }
 
     private String normalizeCurrency(String currency) {
@@ -146,7 +166,13 @@ public class ProductService {
                 product.getPriceCurrency(),
                 readUploadIds(product.getPhotosJson()),
                 readStrings(product.getVideosJson()),
-                product.isActive()
+                product.isActive(),
+                product.getItemCondition(),
+                product.getViewCount(),
+                product.isHiddenByAdmin(),
+                product.getHiddenReason(),
+                product.getCreatedAt(),
+                product.getUpdatedAt()
         );
     }
 

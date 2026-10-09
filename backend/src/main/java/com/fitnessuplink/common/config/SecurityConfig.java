@@ -61,6 +61,8 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/v1/auth/login",
                                 "/v1/auth/signup",
+                                "/v1/auth/signup/verify",
+                                "/v1/auth/signup/resend",
                                 "/v1/auth/refresh",
                                 "/v1/auth/logout",
                                 "/v1/auth/forgot-password",

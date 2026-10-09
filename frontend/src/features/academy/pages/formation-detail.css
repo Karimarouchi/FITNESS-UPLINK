@@ -1,0 +1,397 @@
+/* ==================================================================
+   FORMATION DETAIL — Vantage language (inside the public layout)
+   ================================================================== */
+.fd {
+  --vt-navy: #0b1a33;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #d4f53c;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-body: Geist, Inter, "Segoe UI", sans-serif;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+}
+
+.fd-wrap {
+  width: min(1180px, calc(100% - clamp(20px, 5vw, 72px) * 2));
+  margin-inline: auto;
+}
+
+/* ---- hero ---- */
+.fd-hero {
+  position: relative;
+  padding: 72px 0 56px;
+  background-color: var(--vt-navy);
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+}
+
+.fd-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(11, 26, 51, 0.92) 0%, rgba(11, 26, 51, 0.6) 60%, rgba(11, 26, 51, 0.35) 100%);
+}
+
+.fd-hero-inner {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+}
+
+.fu-public .fd .fd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid currentColor;
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.fd-back .material-symbols-outlined {
+  font-size: 17px;
+}
+
+.fd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-public .fd .fd-tags li {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-public .fd .fd-tags li.is-lime {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public .fd .fd-hero h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: clamp(44px, 6vw, 88px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-public .fd .fd-by {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+}
+
+/* ---- body ---- */
+.fd-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+  align-items: start;
+  padding: 56px 0 96px;
+}
+
+.fd-main {
+  display: grid;
+  gap: 40px;
+}
+
+.fu-public .fd .fd-block h2 {
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.fu-public .fd .fd-block > p,
+.fu-public .fd .fd-note {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* sessions */
+.fd-sessions {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--vt-line);
+  list-style: none;
+  background: #fff;
+}
+
+.fu-public .fd .fd-sessions li {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 22px;
+}
+
+.fd-sessions li + li {
+  border-top: 1px solid var(--vt-line);
+}
+
+.fd-date {
+  display: grid;
+  gap: 2px;
+}
+
+.fd-date b {
+  font-family: var(--vt-display);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.fd-date span,
+.fd-session-info span {
+  color: var(--vt-text);
+  font-size: 13.5px;
+}
+
+.fd-session-info {
+  display: grid;
+  gap: 4px;
+}
+
+.fd-session-info strong {
+  font-family: var(--vt-cond);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fd-session-info span.is-hot {
+  color: #c2410c;
+  font-weight: 600;
+}
+
+.fd-session-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fu-public .fd .fd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-public .fd .fd-btn:hover:not(:disabled),
+.fu-public .fd .fd-btn-lime {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-public .fd .fd-btn-lime:hover {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fd-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fd-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fd-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fd-status.is-ok {
+  padding: 6px 10px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fd-status .material-symbols-outlined {
+  font-size: 17px;
+}
+
+.fu-public .fd .fd-error {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+/* sidebar */
+.fd-side {
+  position: sticky;
+  top: 100px;
+  display: grid;
+  gap: 14px;
+  padding: 26px;
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-public .fd .fd-side-kicker {
+  margin: 0;
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-public .fd .fd-price {
+  margin: 0;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: 52px;
+  line-height: 1;
+}
+
+.fd-side dl {
+  display: grid;
+  margin: 6px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.fd-side dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.fd-side dt {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fd-side dd {
+  margin: 0;
+  font-size: 14.5px;
+  text-align: right;
+}
+
+.fu-public .fd .fd-side-note {
+  margin: 4px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.fu-public .fd .fd-side-link {
+  justify-self: start;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--vt-lime);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.fd-missing {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  padding: 120px clamp(20px, 5vw, 72px);
+}
+
+.fu-public .fd-missing h1 {
+  font-family: var(--vt-display);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-public .fd-missing .fd-back {
+  color: var(--vt-navy);
+}
+
+@media (max-width: 960px) {
+  .fd-body {
+    grid-template-columns: 1fr;
+  }
+
+  .fd-side {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .fu-public .fd .fd-sessions li {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .fd-session-action {
+    justify-content: flex-start;
+  }
+}

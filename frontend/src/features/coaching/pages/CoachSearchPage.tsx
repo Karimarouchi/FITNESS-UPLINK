@@ -85,7 +85,7 @@ export function CoachSearchPage() {
       </div>
 
       <form
-        className="hire-filters"
+        className="hire-filters hire-filters--inline"
         onSubmit={(event) => {
           event.preventDefault();
           setPage(0);

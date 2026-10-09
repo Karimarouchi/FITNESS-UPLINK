@@ -1,18 +1,24 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/Button";
-import { Tag } from "@/components/ui/Tag";
-import { ApiError } from "@/shared/api/client";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasPermission } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import {
   CONTENT_TYPE_LABELS,
+  academyErrorMessage,
   fetchFormationDetail,
+  fetchMyRegistrations,
   formationImageUrl,
   registerForSession,
   type FormationDetail,
+  type Registration,
 } from "../api";
+import "./formation-detail.css";
+
+function formatPrice(amount: string, currency: string) {
+  const value = Number(amount);
+  return value > 0 ? `${new Intl.NumberFormat("fr-FR").format(value)} ${currency}` : "Gratuit";
+}
 
 export function FormationDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,15 +28,33 @@ export function FormationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  // The member's own registration per session (one entry per session, cancelled ones ignored).
+  const [mine, setMine] = useState<Record<string, Registration>>({});
+  const canBrowse = !user || hasPermission(user, PERMS.ACADEMY_BROWSE);
+
+  const loadDetail = useCallback(() => {
+    if (!id) return Promise.resolve();
+    return fetchFormationDetail(id)
+      .then(setDetail)
+      .catch(() => setDetail(null));
+  }, [id]);
 
   useEffect(() => {
-    if (!id) return;
-    fetchFormationDetail(id)
-      .then(setDetail)
-      .catch(() => setDetail(null))
-      .finally(() => setLoading(false));
-  }, [id]);
+    void loadDetail().finally(() => setLoading(false));
+  }, [loadDetail]);
+
+  useEffect(() => {
+    if (!user || !hasPermission(user, PERMS.ACADEMY_BROWSE)) return;
+    fetchMyRegistrations()
+      .then((rows) => {
+        const map: Record<string, Registration> = {};
+        rows.filter((row) => row.status !== "CANCELLED").forEach((row) => {
+          map[row.sessionId] = row;
+        });
+        setMine(map);
+      })
+      .catch(() => undefined);
+  }, [user]);
 
   async function register(sessionId: string) {
     if (!user) {
@@ -41,9 +65,11 @@ export function FormationDetailPage() {
     setRegistering(sessionId);
     try {
       const registration = await registerForSession(sessionId);
-      setDone(registration.status === "WAITLISTED" ? "waitlisted" : "registered");
+      setMine((current) => ({ ...current, [sessionId]: registration }));
+      // Refresh seat counts (a free formation is confirmed — and takes its seat — right away).
+      await loadDetail();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible de vous inscrire.");
+      setError(academyErrorMessage(err, "Impossible de vous inscrire."));
     } finally {
       setRegistering(null);
     }
@@ -54,85 +80,159 @@ export function FormationDetailPage() {
   }
   if (!detail) {
     return (
-      <section style={{ padding: "48px" }}>
-        <p className="jobs-empty">
-          <strong>Formation introuvable</strong>
-        </p>
+      <section className="fd fd-missing">
+        <h1>Formation introuvable</h1>
+        <Link className="fd-back" to="/academie">
+          ← Retour à l’académie
+        </Link>
       </section>
     );
   }
 
   const { formation, description, sessions } = detail;
-  const canBrowse = !user || hasPermission(user, PERMS.ACADEMY_BROWSE);
+  const paid = Number(formation.priceAmount) > 0;
 
   return (
-    <section style={{ padding: "48px", maxWidth: 900, margin: "0 auto" }}>
-      {formation.imageUploadId ? (
-        <img
-          src={formationImageUrl(formation.id, formation.imageUploadId)}
-          alt={formation.title}
-          style={{ width: "100%", maxHeight: 360, objectFit: "cover", marginBottom: 20 }}
-        />
-      ) : null}
-      <div className="page-head">
-        <div>
+    <article className="fd">
+      <header
+        className="fd-hero"
+        style={
+          formation.imageUploadId
+            ? { backgroundImage: `url(${formationImageUrl(formation.id, formation.imageUploadId)})` }
+            : undefined
+        }
+      >
+        <div className="fd-wrap fd-hero-inner">
+          <Link className="fd-back" to="/academie">
+            <span className="material-symbols-outlined" aria-hidden="true">
+              arrow_back
+            </span>
+            Académie
+          </Link>
+          <ul className="fd-tags">
+            <li className="is-lime">{CONTENT_TYPE_LABELS[formation.contentType]}</li>
+            {formation.hasCertification ? <li>Certification incluse</li> : null}
+            {formation.online ? <li>En ligne</li> : null}
+            {formation.language ? <li>{formation.language}</li> : null}
+          </ul>
           <h1>{formation.title}</h1>
-          <p className="sub">
+          <p className="fd-by">
             {formation.organizer?.name ?? "Organisme"}
             {formation.trainerName ? ` · Formateur : ${formation.trainerName}` : ""}
           </p>
         </div>
-      </div>
-      <div className="tag-row" style={{ marginBottom: 16 }}>
-        <Tag>{CONTENT_TYPE_LABELS[formation.contentType]}</Tag>
-        {formation.hasCertification ? <Tag>Certification incluse</Tag> : null}
-        {formation.online ? <Tag>En ligne</Tag> : null}
-        {formation.language ? <Tag>{formation.language}</Tag> : null}
-      </div>
-      {description ? <p style={{ lineHeight: 1.6, marginBottom: 20 }}>{description}</p> : null}
-      {formation.location ? <p className="muted-line">Lieu : {formation.location}</p> : null}
-      <p className="muted-line" style={{ marginBottom: 24 }}>
-        {Number(formation.priceAmount) > 0 ? `${formation.priceAmount} ${formation.priceCurrency}` : "Gratuit"}
-      </p>
+      </header>
 
-      <div className="panel">
-        <div className="panel-head">
-          <h2>Sessions</h2>
+      <div className="fd-wrap fd-body">
+        <div className="fd-main">
+          {description ? (
+            <section className="fd-block">
+              <h2>Le programme</h2>
+              <p>{description}</p>
+            </section>
+          ) : null}
+
+          <section className="fd-block">
+            <h2>Sessions</h2>
+            {!canBrowse ? (
+              <p className="fd-note">L’inscription aux formations est réservée aux membres.</p>
+            ) : sessions.length === 0 ? (
+              <p className="fd-note">Aucune session ouverte aux inscriptions pour le moment.</p>
+            ) : (
+              <ul className="fd-sessions">
+                {sessions.map((session) => {
+                  const date = new Date(session.scheduledAt);
+                  const reg = mine[session.id];
+                  return (
+                    <li key={session.id}>
+                      <div className="fd-date">
+                        <b>{date.toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}</b>
+                        <span>
+                          {date.toLocaleDateString("fr-FR", { year: "numeric" })} ·{" "}
+                          {date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                      <div className="fd-session-info">
+                        <strong>{session.durationMinutes} min</strong>
+                        <span className={session.seatsLeft > 0 && session.seatsLeft <= 5 ? "is-hot" : undefined}>
+                          {session.seatsLeft > 0
+                            ? `${session.seatsLeft} place${session.seatsLeft > 1 ? "s" : ""} sur ${session.capacity}`
+                            : "Complet — liste d’attente"}
+                        </span>
+                      </div>
+                      <div className="fd-session-action">
+                        {reg?.status === "PENDING_PAYMENT" ? (
+                          <>
+                            <span className="fd-status">Réservée · à payer</span>
+                            <Link className="fd-btn fd-btn-lime" to={`/app/academy/registrations/${reg.id}/pay`}>
+                              Payer
+                              <span className="material-symbols-outlined" aria-hidden="true">
+                                arrow_forward
+                              </span>
+                            </Link>
+                          </>
+                        ) : reg?.status === "CONFIRMED" ? (
+                          <span className="fd-status is-ok">
+                            <span className="material-symbols-outlined" aria-hidden="true">
+                              check
+                            </span>
+                            Inscrit(e)
+                          </span>
+                        ) : reg?.status === "WAITLISTED" ? (
+                          <span className="fd-status">Liste d’attente #{reg.waitlistPosition}</span>
+                        ) : (
+                          <button
+                            className="fd-btn"
+                            type="button"
+                            disabled={registering !== null}
+                            onClick={() => void register(session.id)}
+                          >
+                            {registering === session.id
+                              ? "…"
+                              : session.seatsLeft > 0
+                                ? "S’inscrire"
+                                : "Liste d’attente"}
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {error ? <p className="fd-error">{error}</p> : null}
+          </section>
         </div>
-        {!canBrowse ? (
-          <p className="empty-hint" style={{ padding: "0 22px 20px" }}>
-            L'inscription aux formations est réservée aux membres.
-          </p>
-        ) : sessions.length === 0 ? (
-          <p className="empty-hint" style={{ padding: "0 22px 20px" }}>
-            Aucune session programmée pour le moment.
-          </p>
-        ) : (
-          sessions.map((session) => (
-            <div key={session.id} className="booking-item">
-              <div className="booking-time">
-                {new Date(session.scheduledAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
-              </div>
-              <div className="booking-body">
-                <div className="t">{session.durationMinutes} min</div>
-                <div className="s">
-                  {session.seatsLeft > 0 ? `${session.seatsLeft} places restantes` : "Complet — liste d'attente"}
-                </div>
-              </div>
-              {done === "registered" ? (
-                <span className="empty-hint">Inscription envoyée</span>
-              ) : done === "waitlisted" ? (
-                <span className="empty-hint">Sur liste d'attente</span>
-              ) : (
-                <Button variant="mini" disabled={registering !== null} onClick={() => void register(session.id)}>
-                  {registering === session.id ? "…" : session.seatsLeft > 0 ? "S'inscrire" : "Liste d'attente"}
-                </Button>
-              )}
+
+        <aside className="fd-side">
+          <p className="fd-side-kicker">Tarif</p>
+          <p className="fd-price">{formatPrice(formation.priceAmount, formation.priceCurrency)}</p>
+          <dl>
+            <div>
+              <dt>Format</dt>
+              <dd>{formation.online ? "En ligne" : formation.location || "Présentiel"}</dd>
             </div>
-          ))
-        )}
-        {error ? <p className="auth-error" style={{ padding: "0 22px 14px" }}>{error}</p> : null}
+            {formation.language ? (
+              <div>
+                <dt>Langue</dt>
+                <dd>{formation.language}</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt>Certification</dt>
+              <dd>{formation.hasCertification ? "Incluse" : "Non"}</dd>
+            </div>
+          </dl>
+          {paid ? (
+            <p className="fd-side-note">
+              Réservez une session, puis payez pour confirmer : la place n’est comptée qu’une fois réglée.
+            </p>
+          ) : null}
+          <Link className="fd-side-link" to="/app/academy/registrations">
+            Mes formations
+          </Link>
+        </aside>
       </div>
-    </section>
+    </article>
   );
 }

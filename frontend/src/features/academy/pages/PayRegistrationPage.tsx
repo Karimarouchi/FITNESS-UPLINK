@@ -3,9 +3,8 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CreditCardForm } from "@/components/ui/credit-card-form";
 import { Button } from "@/components/ui/Button";
-import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
-import { fetchRegistration, payRegistration, type Registration } from "../api";
+import { fetchRegistration, payRegistration, type Registration, academyErrorMessage } from "../api";
 import "@/features/onboarding/pages/pay-stage.css";
 
 export function PayRegistrationPage() {
@@ -51,8 +50,7 @@ export function PayRegistrationPage() {
       await payRegistration(registration.id, card.number);
       navigate("/app/academy/registrations", { replace: true });
     } catch (err) {
-      const raw = err instanceof ApiError ? err.message : "Paiement refusé.";
-      setError(raw === "PAYMENT_FAILED" ? "Carte refusée. Pour le test, utilisez 4242 4242 4242 4242." : raw);
+      setError(academyErrorMessage(err, "Paiement refusé."));
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +62,7 @@ export function PayRegistrationPage() {
   const scheduledAt = registration?.scheduledAt;
 
   return (
-    <section className="pay-shell" style={{ borderRadius: 24, minHeight: "70vh", padding: "28px 20px 48px" }}>
+    <section className="pay-shell" style={{ minHeight: "70vh", padding: "48px 20px 64px" }}>
       <main className="ob-pay pay-stage" style={{ maxWidth: 720, margin: "0 auto" }}>
         <div className="pay-orbs" aria-hidden="true">
           <span className="pay-orb pay-orb--lime" />

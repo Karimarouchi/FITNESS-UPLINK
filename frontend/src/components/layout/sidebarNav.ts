@@ -179,12 +179,21 @@ export function sidebarGroupsFor(user: AuthUser | null): SidebarGroup[] {
       label: "Marketplace",
       icon: "storefront",
       children: [
-        { label: "Mes produits", to: "/app/marketplace/mine", icon: "inventory_2" },
-        { label: "Demandes de devis", to: "/app/marketplace/requests", icon: "inbox" },
+        { label: "Mes articles", to: "/app/marketplace/mine", icon: "inventory_2" },
+        { label: "Messages", to: "/app/marketplace/messages", icon: "forum" },
       ],
     });
   } else if (hasPermission(user, PERMS.MARKETPLACE_BROWSE)) {
-    items.push({ label: "Marketplace", to: "/marketplace/products", icon: "storefront" });
+    items.push({
+      kind: "dropdown",
+      id: "marketplace",
+      label: "Marketplace",
+      icon: "storefront",
+      children: [
+        { label: "Catalogue", to: "/marketplace/products", icon: "storefront" },
+        { label: "Mes messages", to: "/app/marketplace/messages", icon: "forum" },
+      ],
+    });
   }
   if (hasPermission(user, PERMS.SERVICES_MANAGE)) {
     items.push({

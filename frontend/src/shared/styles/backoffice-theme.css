@@ -1,0 +1,524 @@
+/* ==================================================================
+   WORKSPACE THEME — aligns the back-office with the public site:
+   Anton titles, Barlow Condensed labels, Geist body, navy + lime,
+   square shapes.
+   ================================================================== */
+:root {
+  --bo-bg: #f1f3f6;
+  --bo-surface: #ffffff;
+  --bo-surface-2: #f7f8fa;
+  --bo-border: #d9dde3;
+  --bo-border-strong: #c3c9d2;
+  --bo-text: #0b1a33;
+  --bo-text-2: #26334a;
+  --bo-muted: #5b6472;
+  --bo-subtle: #a2a8b3;
+  --bo-primary: #0b1a33;
+  --bo-primary-hover: #13264a;
+  --bo-primary-soft: #e8ebf1;
+  --bo-primary-ring: rgba(11, 26, 51, 0.14);
+  --bo-lime: #d4f53c;
+  --bo-brand: #1d4ed8;
+  --bo-radius: 0px;
+  --bo-radius-sm: 0px;
+  --bo-shadow-xs: none;
+  --bo-shadow: none;
+  --bo-shadow-lg: 0 30px 60px -30px rgba(11, 26, 51, 0.45);
+  --bo-font: Geist, Inter, "Segoe UI", system-ui, sans-serif;
+  --bo-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --bo-cond: "Barlow Condensed", Oswald, sans-serif;
+}
+
+/* ---- square shapes ---- */
+.fu-app .bo-shell *,
+.fu-app .bo-shell *::before,
+.fu-app .bo-shell *::after,
+.fu-app.bo-overlay *,
+.fu-app.bo-overlay *::before,
+.fu-app.bo-overlay *::after {
+  border-radius: 0 !important;
+}
+.fu-app .bo-shell :is(.bo-dot, .vf-dot, .bo-pill)::before,
+.fu-app .bo-shell :is(.bo-dot, .vf-dot) {
+  border-radius: 50% !important;
+}
+
+/* ---- display titles (Anton) ---- */
+.fu-app .bo-head h1,
+.fu-app .bo-welcome h1,
+.fu-app .bo-shell .page-head h1,
+.fu-app .bo-shell .kcard .val,
+.fu-app .bo-kpi-value,
+.fu-app .bo-brand-name,
+.fu-app .bo-product-price {
+  font-family: var(--bo-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.fu-app .bo-head h1,
+.fu-app .bo-shell .page-head h1 {
+  font-size: clamp(34px, 3.4vw, 46px);
+  color: var(--bo-text);
+}
+.fu-app .bo-welcome h1 {
+  font-size: clamp(32px, 3.2vw, 44px);
+}
+.fu-app .bo-kpi-value {
+  font-size: 40px;
+}
+.fu-app .bo-brand-name {
+  font-size: 19px;
+  letter-spacing: 0.02em;
+}
+
+/* ---- condensed headings (Barlow Condensed 700) ---- */
+.fu-app .bo-card-head h2,
+.fu-app :is(.bo-drawer-head, .bo-modal-head) h2,
+.fu-app .bo-empty-title,
+.fu-app .bo-list-title,
+.fu-app .bo-quick-title,
+.fu-app .vf-group-title strong,
+.fu-app .vf-profile .vf-row-title strong,
+.fu-app .vf-section-title strong,
+.fu-app .bo-shell .panel-head h2,
+.fu-app .bo-shell .panel h2 {
+  font-family: var(--bo-cond);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bo-text);
+}
+.fu-app .bo-card-head h2,
+.fu-app .vf-group-title strong {
+  font-size: 19px;
+}
+.fu-app :is(.bo-drawer-head, .bo-modal-head) h2 {
+  font-size: 22px;
+}
+.fu-app .vf-profile .vf-row-title strong {
+  font-size: 24px;
+}
+.fu-app .vf-section-title strong {
+  font-size: 17px;
+}
+
+/* ---- condensed labels (Barlow Condensed 600, tracked) ---- */
+.fu-app .bo-btn,
+.fu-app .bo-seg button,
+.fu-app .bo-tabs button,
+.fu-app .bo-table th,
+.fu-app .bo-kpi-label,
+.fu-app .bo-nav-title,
+.fu-app .bo-eyebrow,
+.fu-app .bo-field-label,
+.fu-app .bo-pill,
+.fu-app .vf-check,
+.fu-app .vf-section-title em,
+.fu-app .vf-facts dt,
+.fu-app .vf-group-progress-label,
+.fu-app .bo-brand-kicker,
+.fu-app .bo-crumbs,
+.fu-app .bo-shell th {
+  font-family: var(--bo-cond);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.fu-app .bo-btn {
+  font-size: 14px;
+  letter-spacing: 0.12em;
+}
+.fu-app .bo-btn--sm {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+.fu-app .bo-seg button,
+.fu-app .bo-tabs button {
+  font-size: 14px;
+  letter-spacing: 0.1em;
+}
+.fu-app .bo-kpi-label,
+.fu-app .bo-nav-title,
+.fu-app .bo-brand-kicker {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+}
+.fu-app .bo-table th,
+.fu-app .bo-shell th,
+.fu-app .vf-facts dt,
+.fu-app .bo-field-label {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+.fu-app .bo-pill,
+.fu-app .vf-check,
+.fu-app .vf-section-title em {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.fu-app .bo-crumbs {
+  font-size: 14px;
+  letter-spacing: 0.14em;
+}
+.fu-app .vf-group-progress-label {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+/* ---- sidebar: navy, lime accents ---- */
+.fu-app .bo-sidebar {
+  background: var(--bo-primary);
+  border-right-color: var(--bo-primary);
+  color: #fff;
+}
+.fu-app .bo-brand-mark {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8 55%, #1e3a8a);
+  box-shadow: none;
+  font-family: Manrope, Inter, sans-serif;
+  font-size: 17px;
+}
+.fu-app .bo-brand-name {
+  color: #fff;
+}
+.fu-app .bo-brand-kicker {
+  color: var(--bo-lime);
+}
+.fu-app .bo-sidebar-close {
+  color: rgba(255, 255, 255, 0.7);
+}
+.fu-app .bo-nav {
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+.fu-app .bo-nav-title {
+  color: rgba(255, 255, 255, 0.42);
+}
+.fu-app .bo-nav-link {
+  color: rgba(255, 255, 255, 0.78);
+}
+.fu-app .bo-nav-icon,
+.fu-app .bo-nav-chevron {
+  color: rgba(255, 255, 255, 0.45);
+}
+.fu-app .bo-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.fu-app .bo-nav-link:hover .bo-nav-icon {
+  color: #fff;
+}
+.fu-app .bo-nav-link.is-active {
+  background: rgba(212, 245, 60, 0.1);
+  color: var(--bo-lime);
+}
+.fu-app .bo-nav-link.is-active .bo-nav-icon {
+  color: var(--bo-lime);
+}
+.fu-app .bo-nav-link.is-active::before {
+  background: var(--bo-lime);
+}
+.fu-app .bo-nav-group.has-active > .bo-nav-toggle {
+  color: #fff;
+}
+.fu-app .bo-nav-sub {
+  border-left-color: rgba(255, 255, 255, 0.12);
+}
+.fu-app .bo-nav-count {
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .bo-sidebar-foot {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+.fu-app .bo-user {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+.fu-app .bo-user-name {
+  color: #fff;
+}
+.fu-app .bo-user-role {
+  color: rgba(255, 255, 255, 0.55);
+}
+.fu-app .bo-user .bo-icon-btn {
+  color: rgba(255, 255, 255, 0.7);
+}
+.fu-app .bo-user .bo-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* ---- topbar ---- */
+.fu-app .bo-topbar {
+  background: rgba(255, 255, 255, 0.9);
+}
+.fu-app .bo-crumb-current {
+  color: var(--bo-text);
+  font-weight: 700;
+}
+.fu-app .bo-search input:focus {
+  border-color: var(--bo-primary);
+}
+
+/* ---- buttons ---- */
+.fu-app .bo-btn {
+  box-shadow: none;
+}
+.fu-app .bo-btn--sm {
+  padding: 0 12px;
+}
+.fu-app .bo-btn.bo-btn--icon {
+  flex: none;
+  width: 34px;
+  padding: 0;
+  letter-spacing: 0;
+}
+.fu-app .bo-btn.bo-btn--sm.bo-btn--icon {
+  width: 32px;
+}
+.fu-app .bo-btn svg {
+  flex: none;
+}
+.fu-app .bo-btn--primary {
+  border-color: var(--bo-primary);
+  background: var(--bo-primary);
+  color: #fff;
+}
+.fu-app .bo-btn--primary:hover:not(:disabled) {
+  border-color: var(--bo-lime);
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .bo-btn:not(.bo-btn--primary, .bo-btn--ghost, .bo-btn--danger, .bo-btn--danger-solid) {
+  border-color: var(--bo-primary);
+  color: var(--bo-primary);
+}
+.fu-app .bo-btn:not(.bo-btn--primary, .bo-btn--ghost, .bo-btn--danger, .bo-btn--danger-solid):hover:not(:disabled) {
+  background: var(--bo-primary);
+  color: #fff;
+}
+.fu-app .bo-btn--ghost:hover:not(:disabled) {
+  background: var(--bo-primary-soft);
+}
+
+/* ---- welcome banner ---- */
+.fu-app .bo-welcome {
+  background: var(--bo-primary);
+  box-shadow: none;
+}
+.fu-app .bo-welcome::after {
+  display: none;
+}
+.fu-app .bo-welcome .bo-btn--primary {
+  border-color: var(--bo-lime);
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .bo-welcome .bo-btn--primary:hover {
+  border-color: #fff;
+  background: #fff;
+}
+.fu-app .bo-welcome .bo-btn:not(.bo-btn--primary) {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: transparent;
+  color: #fff;
+}
+.fu-app .bo-welcome .bo-btn:not(.bo-btn--primary):hover {
+  background: #fff;
+  color: var(--bo-primary);
+}
+.fu-app .bo-welcome .bo-eyebrow {
+  color: var(--bo-lime);
+}
+
+/* ---- cards, KPIs, segmented, tabs ---- */
+.fu-app .bo-card,
+.fu-app .bo-kpi,
+.fu-app .vf-group {
+  box-shadow: none;
+}
+.fu-app .bo-kpi-icon {
+  background: var(--bo-primary);
+  color: var(--bo-lime);
+}
+.fu-app button.bo-kpi.vf-kpi:hover {
+  border-color: var(--bo-primary);
+  transform: none;
+}
+.fu-app button.bo-kpi.vf-kpi.is-selected {
+  border-color: var(--bo-primary);
+  box-shadow: inset 0 -4px 0 var(--bo-lime);
+}
+.fu-app .bo-seg {
+  padding: 0;
+  gap: 0;
+  border: 1px solid var(--bo-border);
+  background: #fff;
+}
+.fu-app .bo-seg button {
+  height: 36px;
+}
+.fu-app .bo-seg button + button {
+  border-left: 1px solid var(--bo-border);
+}
+.fu-app .bo-seg button.is-active {
+  background: var(--bo-primary);
+  color: #fff;
+  box-shadow: none;
+}
+.fu-app .bo-seg-count {
+  background: var(--bo-primary-soft);
+  color: var(--bo-text-2);
+  font-family: var(--bo-font);
+  letter-spacing: 0;
+}
+.fu-app .is-active > .bo-seg-count {
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .bo-tabs button.is-active {
+  color: var(--bo-primary);
+}
+.fu-app .bo-tabs button.is-active::after {
+  background: var(--bo-lime);
+  height: 3px;
+}
+
+/* ---- inputs ---- */
+.fu-app :is(.bo-input, .bo-select, .bo-textarea):focus {
+  border-color: var(--bo-primary);
+  box-shadow: 0 0 0 3px var(--bo-primary-ring);
+}
+
+/* ---- pills, chips ---- */
+.fu-app .bo-pill.is-info {
+  background: var(--bo-primary);
+  color: var(--bo-lime);
+}
+.fu-app .bo-shell .bo-pill.is-info::before {
+  background: var(--bo-lime);
+}
+.fu-app .vf-check.is-wait {
+  border-color: var(--bo-primary);
+  background: var(--bo-primary-soft);
+  color: var(--bo-primary);
+}
+.fu-app .bo-bar {
+  height: 6px;
+  background: #e2e6ec;
+}
+.fu-app .bo-bar > span {
+  background: var(--bo-primary);
+}
+.fu-app .bo-toggle input:checked + .bo-toggle-track {
+  background: var(--bo-primary);
+}
+
+/* ---- empty state, alerts ---- */
+.fu-app .bo-empty-icon {
+  background: var(--bo-primary);
+  color: var(--bo-lime);
+}
+.fu-app .bo-alert:not(.is-danger, .is-warn) {
+  border-color: var(--bo-border);
+  background: #fff;
+  color: var(--bo-text-2);
+}
+.fu-app .bo-alert:not(.is-danger, .is-warn) > svg {
+  color: var(--bo-primary);
+}
+.fu-app .bo-alert.vf-flash {
+  border-color: var(--bo-primary);
+  background: var(--bo-primary);
+  color: #fff;
+}
+.fu-app .bo-alert.vf-flash > svg {
+  color: var(--bo-lime);
+}
+
+/* ---- verification-specific ---- */
+.fu-app .vf-group.is-open {
+  border-color: var(--bo-primary);
+  box-shadow: none;
+}
+.fu-app .vf-group.is-open .vf-group-head {
+  background: var(--bo-primary);
+  border-bottom-color: var(--bo-primary);
+}
+.fu-app .vf-group.is-open .vf-group-title strong,
+.fu-app .vf-group.is-open .vf-group-progress-label {
+  color: #fff;
+}
+.fu-app .vf-group.is-open .vf-group-title span {
+  color: rgba(255, 255, 255, 0.6);
+}
+.fu-app .vf-group.is-open .vf-group-chevron {
+  color: var(--bo-lime);
+}
+.fu-app .vf-group-icon {
+  background: var(--bo-primary);
+  color: var(--bo-lime);
+}
+.fu-app .vf-group.is-open .vf-group-icon {
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .vf-group.is-open .bo-bar {
+  background: rgba(255, 255, 255, 0.16);
+}
+.fu-app .vf-group.is-open .bo-pill.is-info {
+  background: var(--bo-lime);
+  color: var(--bo-primary);
+}
+.fu-app .vf-group.is-open .bo-pill.is-info::before {
+  background: var(--bo-primary);
+}
+.fu-app .vf-group-head:hover {
+  background: var(--bo-surface-2);
+}
+.fu-app .vf-group.is-open .vf-group-head:hover {
+  background: var(--bo-primary-hover);
+}
+.fu-app .vf-group-progress .bo-bar > span {
+  background: var(--bo-lime) !important;
+}
+.fu-app .vf-group:not(.is-open) .vf-group-progress .bo-bar > span {
+  background: var(--bo-primary) !important;
+}
+.fu-app .vf-verified-icon {
+  color: var(--bo-brand);
+}
+.fu-app .vf-profile {
+  border-color: var(--bo-primary);
+  background: var(--bo-primary);
+  color: #fff;
+}
+.fu-app .vf-profile .vf-row-title strong {
+  color: #fff;
+}
+.fu-app .vf-profile .vf-row-sub {
+  color: rgba(255, 255, 255, 0.65);
+}
+.fu-app .vf-profile .vf-verified-icon {
+  color: var(--bo-lime);
+}
+.fu-app .vf-profile .vf-step {
+  background: rgba(255, 255, 255, 0.18);
+}
+.fu-app .vf-profile .vf-step.is-ok {
+  background: var(--bo-lime);
+}
+.fu-app .vf-profile .vf-step.is-wait {
+  background: rgba(255, 255, 255, 0.55);
+}
+.fu-app .vf-section.is-wait {
+  border-left-color: var(--bo-primary);
+}
+.fu-app .vf-section-icon.is-wait {
+  background: var(--bo-primary);
+  color: var(--bo-lime);
+}
+.fu-app .vf-facts > div {
+  background: var(--bo-surface-2);
+}
