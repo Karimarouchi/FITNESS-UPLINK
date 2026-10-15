@@ -21,7 +21,7 @@ export function HomeHero() {
           <p className="vx-pitch">
             {user
               ? `Bon retour, ${user.firstName || user.displayName}. Opportunités, séances, formations et devis — votre réseau avance, reprenez la main.`
-              : "Le fitness pour ceux qui traitent chaque séance comme une décision. Recrutement, coaching, formation et matériel — construits autour de vous."}
+              : "Le fitness pour ceux qui traitent chaque séance comme une décision. Recrutement, coaching, formation et matériel construits autour de vous."}
           </p>
           <div className="vx-actions">
             <Link className="vx-btn vx-btn-fill" to={primaryTo}>
