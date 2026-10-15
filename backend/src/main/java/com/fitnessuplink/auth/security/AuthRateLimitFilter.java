@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class AuthRateLimitFilter extends OncePerRequestFilter {
 
-    private static final int LIMIT = 10;
+    private static final int LIMIT = 30;
     private static final long WINDOW_SECONDS = 15 * 60;
     private final Map<String, Window> attempts = new ConcurrentHashMap<>();
 

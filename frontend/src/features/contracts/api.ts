@@ -52,6 +52,7 @@ export type Contract = {
   candidateSignedAt: string | null;
   employerSignedAt: string | null;
   completedAt: string | null;
+  candidateUploadId: string | null;
 };
 
 export type ContractHistory = {
@@ -135,6 +136,17 @@ export function sendContract(id: string) {
 
 export function signContract(id: string) {
   return api.post<Contract>(`/v1/contracts/${id}/sign`);
+}
+
+/** The candidate returns the contract signed by hand, as a PDF. */
+export function uploadCandidateSigned(id: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return api.postForm<Contract>(`/v1/contracts/${id}/candidate-signed`, body);
+}
+
+export function fetchCandidateDocument(id: string) {
+  return api.getBlob(`/v1/contracts/${id}/candidate-document`);
 }
 
 export function cancelContract(id: string) {

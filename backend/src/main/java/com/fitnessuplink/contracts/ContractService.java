@@ -78,6 +78,9 @@ public class ContractService {
         Contract existing = latestOpen(recruitment.getId());
         if (existing != null) {
             if (existing.getStatus() == ContractStatus.DRAFT && existing.getSource() == source) {
+                if (source == ContractSource.TEMPLATE && request.terms() != null) {
+                    return toDto(regenerateTemplateDraft(employer, existing, recruitment, request.terms()));
+                }
                 return toDto(existing);
             }
             if (existing.getStatus() != ContractStatus.DRAFT
@@ -110,7 +113,11 @@ public class ContractService {
             if (request.terms() == null) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_CONTRACT_STATUS");
             }
-            byte[] pdf = DraftPdfWriter.write(contract.getTitle(), templateLines(company, candidate, recruitment, request.terms()));
+            byte[] pdf = DraftPdfWriter.write(
+                    contract.getTitle(),
+                    templateSections(employer, company, candidate, recruitment, request.terms()),
+                    true
+            );
             UserUpload upload = uploadService.storePdfBytes(
                     employer.getId(),
                     "contract_original",
@@ -200,8 +207,9 @@ public class ContractService {
         ContractSignerRole role = user.getId().equals(contract.getCandidateId())
                 ? ContractSignerRole.CANDIDATE
                 : ContractSignerRole.EMPLOYER;
-        if (role == ContractSignerRole.CANDIDATE && contract.getCandidateSignedAt() != null) {
-            throw new ApiException(HttpStatus.CONFLICT, "INVALID_CONTRACT_STATUS");
+        if (role == ContractSignerRole.CANDIDATE) {
+            // The candidate downloads the contract, signs it by hand and uploads it (see uploadCandidateSigned).
+            throw new ApiException(HttpStatus.CONFLICT, "CANDIDATE_MUST_UPLOAD");
         }
         if (role == ContractSignerRole.EMPLOYER && contract.getEmployerSignedAt() != null) {
             throw new ApiException(HttpStatus.CONFLICT, "INVALID_CONTRACT_STATUS");
@@ -372,11 +380,85 @@ public class ContractService {
         }
         contract.setStatus(result.status());
         contract.setUpdatedAt(now);
-        if (result.completed()) {
+        if (contract.getCandidateUploadId() != null && contract.getCandidateSignedAt() != null && contract.getEmployerSignedAt() != null) {
+            completeManually(contract, previous);
+        } else if (result.completed()) {
             completeFromProvider(contract);
         } else {
             contractRepository.save(contract);
         }
+    }
+
+    @Transactional
+    public ContractDto uploadCandidateSigned(User candidate, UUID id, MultipartFile file) {
+        permissionService.require(candidate, Permissions.HIRE_CONTRACTS_CANDIDATE);
+        Contract contract = contractRepository.findByIdAndCandidateId(id, candidate.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND"));
+        if (contract.getStatus() != ContractStatus.SENT && contract.getStatus() != ContractStatus.EMPLOYER_SIGNED) {
+            throw new ApiException(HttpStatus.CONFLICT, "INVALID_CONTRACT_STATUS");
+        }
+        if (contract.getCandidateSignedAt() != null) {
+            throw new ApiException(HttpStatus.CONFLICT, "CONTRACT_ALREADY_SIGNED");
+        }
+        UserUpload upload = uploadService.storePdf(candidate.getId(), "contract_candidate_signed", file);
+        Instant now = Instant.now();
+        ContractStatus previous = contract.getStatus();
+        contract.setCandidateUploadId(upload.getId());
+        contract.setCandidateSignedAt(now);
+        contract.setUpdatedAt(now);
+        markSigner(contract.getId(), ContractSignerRole.CANDIDATE, now);
+        history(contract, "CANDIDATE_SIGNED", candidate.getId(), "CANDIDATE", previous, ContractStatus.CANDIDATE_SIGNED, upload.getOriginalFilename());
+        notificationService.notify(
+                contract.getEmployerId(),
+                NotifyCategory.CONTRACT,
+                "Contrat signé par le candidat",
+                candidate.getDisplayName() + " a renvoyé son contrat signé.",
+                "Voir le contrat",
+                "/contracts/" + contract.getId()
+        );
+        if (contract.getEmployerSignedAt() != null) {
+            completeManually(contract, previous);
+        } else {
+            contract.setStatus(ContractStatus.CANDIDATE_SIGNED);
+            contractRepository.save(contract);
+        }
+        return toDto(contract);
+    }
+
+    @Transactional(readOnly = true)
+    public UploadService.LoadedUpload candidateDocument(User user, UUID id) {
+        Contract contract = requireParty(user, id);
+        if (contract.getCandidateUploadId() == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "CONTRACT_NOT_FOUND");
+        }
+        return uploadService.loadAny(contract.getCandidateUploadId());
+    }
+
+    /** Both parties signed and the candidate's signed copy is on file: the contract is final. */
+    private void completeManually(Contract contract, ContractStatus previous) {
+        Instant now = Instant.now();
+        contract.setSignedUploadId(contract.getCandidateUploadId());
+        contract.setStatus(ContractStatus.COMPLETED);
+        contract.setCompletedAt(now);
+        contract.setUpdatedAt(now);
+        contractRepository.save(contract);
+        history(contract, "COMPLETED", null, "SYSTEM", previous, ContractStatus.COMPLETED, null);
+        notificationService.notify(
+                contract.getCandidateId(),
+                NotifyCategory.CONTRACT,
+                "Contrat finalisé",
+                "Le contrat a été signé par les deux parties.",
+                "Télécharger le PDF",
+                "/contracts/" + contract.getId()
+        );
+        notificationService.notify(
+                contract.getEmployerId(),
+                NotifyCategory.CONTRACT,
+                "Contrat finalisé",
+                "Le contrat a été signé par les deux parties.",
+                "Marquer comme recruté",
+                "/contracts/" + contract.getId()
+        );
     }
 
     private ContractDto completeFromProvider(Contract contract) {
@@ -611,7 +693,8 @@ public class ContractService {
                 contract.getSentAt(),
                 contract.getCandidateSignedAt(),
                 contract.getEmployerSignedAt(),
-                contract.getCompletedAt()
+                contract.getCompletedAt(),
+                contract.getCandidateUploadId()
         );
     }
 
@@ -660,22 +743,114 @@ public class ContractService {
         );
     }
 
-    private List<String> templateLines(String company, User candidate, TalentPipeline recruitment, ContractTermsDto terms) {
-        List<String> lines = new ArrayList<>();
-        lines.add("Employeur : " + company);
-        lines.add("Candidat : " + candidate.getDisplayName() + " — " + candidate.getEmail());
-        lines.add("Poste : " + blank(terms.position(), positionOf(recruitment, terms)));
-        lines.add("Type de contrat : " + blank(terms.contractType(), "Non renseigne"));
-        lines.add("Salaire : " + blank(terms.salaryAmount(), "—") + " " + blank(terms.salaryCurrency(), ""));
-        lines.add("Date de debut : " + blank(terms.startDate(), "—"));
-        lines.add("Lieu : " + blank(terms.location(), "—"));
-        if (terms.extra() != null && !terms.extra().isBlank()) {
-            lines.add("Informations complementaires : " + terms.extra().trim());
+    /** Rebuilds the PDF of a draft with the latest terms, so going back and editing is never ignored. */
+    private Contract regenerateTemplateDraft(User employer, Contract draft, TalentPipeline recruitment, ContractTermsDto terms) {
+        User candidate = requireCandidate(recruitment.getCandidateId());
+        String company = employerName(employer);
+        byte[] pdf = DraftPdfWriter.write(
+                "Contrat — " + candidate.getDisplayName() + " — " + positionOf(recruitment, terms),
+                templateSections(employer, company, candidate, recruitment, terms),
+                true
+        );
+        UserUpload upload = uploadService.storePdfBytes(
+                employer.getId(),
+                "contract_original",
+                "contrat-" + slug(candidate.getDisplayName()) + ".pdf",
+                pdf
+        );
+        draft.setTitle("Contrat — " + candidate.getDisplayName() + " — " + positionOf(recruitment, terms));
+        draft.setTermsJson(writeTerms(terms));
+        draft.setOriginalUploadId(upload.getId());
+        draft.setUpdatedAt(Instant.now());
+        return contractRepository.save(draft);
+    }
+
+    private Map<String, String> profileOf(User user) {
+        return userProfileValueRepository.findByUserId(user.getId()).stream()
+                .filter(item -> item.getValue() != null && !item.getValue().isBlank())
+                .collect(Collectors.toMap(UserProfileValue::getFieldKey, item -> item.getValue().trim(), (left, right) -> left));
+    }
+
+    /** First readable text found in a repeatable field stored as JSON (e.g. the legal representative). */
+    private String firstEntryText(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
         }
-        lines.add("");
-        lines.add("Les clauses juridiques (duree, rupture, non-concurrence, propriete intellectuelle, droit applicable)");
-        lines.add("ne sont pas generees. Elles devront etre fournies par un modele valide.");
-        return lines;
+        try {
+            var node = objectMapper.readTree(json);
+            var first = node.isArray() ? (node.isEmpty() ? null : node.get(0)) : node;
+            if (first == null) {
+                return null;
+            }
+            if (first.isTextual()) {
+                return first.asText();
+            }
+            List<String> parts = new ArrayList<>();
+            first.fields().forEachRemaining(entry -> {
+                if (entry.getValue().isTextual() && !entry.getValue().asText().isBlank()) {
+                    parts.add(entry.getValue().asText().trim());
+                }
+            });
+            return parts.isEmpty() ? null : String.join(" - ", parts);
+        } catch (Exception ex) {
+            return json.length() > 120 ? null : json;
+        }
+    }
+
+    private List<DraftPdfWriter.Section> templateSections(
+            User employer,
+            String company,
+            User candidate,
+            TalentPipeline recruitment,
+            ContractTermsDto terms
+    ) {
+        Map<String, String> org = profileOf(employer);
+        Map<String, String> person = profileOf(candidate);
+        String legalName = org.get("legal_name");
+        List<DraftPdfWriter.Row> employerRows = new ArrayList<>();
+        employerRows.add(new DraftPdfWriter.Row("Raison sociale", legalName != null ? legalName : company));
+        if (legalName != null && !legalName.equalsIgnoreCase(company)) {
+            employerRows.add(new DraftPdfWriter.Row("Nom commercial", company));
+        }
+        employerRows.add(new DraftPdfWriter.Row("Matricule fiscal", org.get("tax_id")));
+        employerRows.add(new DraftPdfWriter.Row("Registre de commerce", org.get("trade_register_number")));
+        employerRows.add(new DraftPdfWriter.Row("Patente", org.get("patente_number")));
+        String address = String.join(", ", java.util.stream.Stream.of(org.get("org_address"), org.get("org_city"))
+                .filter(item -> item != null && !item.isBlank()).toList());
+        employerRows.add(new DraftPdfWriter.Row("Adresse", address));
+        employerRows.add(new DraftPdfWriter.Row("Téléphone", org.get("org_phone")));
+        employerRows.add(new DraftPdfWriter.Row("E-mail", blank(org.get("org_email"), employer.getEmail())));
+        employerRows.add(new DraftPdfWriter.Row("Représentant légal", firstEntryText(org.get("legal_representative"))));
+        employerRows.add(new DraftPdfWriter.Row("CIN du représentant", org.get("representative_cin")));
+
+        List<DraftPdfWriter.Row> candidateRows = new ArrayList<>();
+        candidateRows.add(new DraftPdfWriter.Row("Nom et prénom", candidate.getDisplayName()));
+        candidateRows.add(new DraftPdfWriter.Row("E-mail", candidate.getEmail()));
+        candidateRows.add(new DraftPdfWriter.Row("Téléphone", person.get("phone")));
+        candidateRows.add(new DraftPdfWriter.Row("Ville", person.get("city")));
+        candidateRows.add(new DraftPdfWriter.Row("Pièce d'identité", person.get("representative_cin")));
+
+        String salary = (blank(terms.salaryAmount(), "").isBlank() ? "-" : terms.salaryAmount().trim())
+                + (blank(terms.salaryCurrency(), "").isBlank() ? "" : " " + terms.salaryCurrency().trim());
+        List<DraftPdfWriter.Row> objectRows = new ArrayList<>();
+        objectRows.add(new DraftPdfWriter.Row("Poste", blank(terms.position(), positionOf(recruitment, terms))));
+        objectRows.add(new DraftPdfWriter.Row("Type de contrat", blank(terms.contractType(), "Non renseigné")));
+        objectRows.add(new DraftPdfWriter.Row("Rémunération", salary));
+        objectRows.add(new DraftPdfWriter.Row("Date de début", blank(terms.startDate(), "-")));
+        objectRows.add(new DraftPdfWriter.Row("Lieu de travail", blank(terms.location(), "-")));
+        if (terms.extra() != null && !terms.extra().isBlank()) {
+            objectRows.add(new DraftPdfWriter.Row("Informations complémentaires", terms.extra().trim()));
+        }
+
+        return List.of(
+                DraftPdfWriter.Section.rows("Entre l'employeur", employerRows),
+                DraftPdfWriter.Section.rows("Et le candidat", candidateRows),
+                DraftPdfWriter.Section.rows("Objet du contrat", objectRows),
+                DraftPdfWriter.Section.text("Clauses juridiques", List.of(
+                        "Les clauses juridiques (durée, rupture, non-concurrence, propriété intellectuelle, droit applicable) "
+                                + "ne sont pas générées. Elles devront être fournies par un modèle valide avant toute signature."
+                ))
+        );
     }
 
     private String writeTerms(ContractTermsDto terms) {

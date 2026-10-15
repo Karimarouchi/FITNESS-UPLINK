@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LocaleSwitch } from "./LocaleContext";
 import "./signup-flow.css";
 
@@ -11,12 +11,9 @@ type OnboardingFrameProps = {
 
 export function OnboardingBrand() {
   return (
-    <Link className="ob-brand" to="/" aria-label="Fitness Universe — accueil">
-      <span className="ob-brand-mark" aria-hidden="true">
-        F
-      </span>
-      <span className="ob-brand-word">Fitness Universe</span>
-    </Link>
+    <span className="ob-brand">
+      <BrandLogo to="/" />
+    </span>
   );
 }
 

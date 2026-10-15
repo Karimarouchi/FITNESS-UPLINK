@@ -1,0 +1,473 @@
+/* Forgot-password page: richer hero, step tracker, field icons, strength meter. */
+@keyframes fgx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fgx-slide {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fgx-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 81, 1, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(252, 81, 1, 0);
+  }
+}
+
+@keyframes fgx-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fgx-drift {
+  0%,
+  100% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.1) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+/* hero */
+.auth-hero img {
+  animation: fgx-drift 22s ease-in-out infinite;
+}
+
+.fgx-hero-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(11, 26, 51, 0.92) 0%, rgba(11, 26, 51, 0.35) 55%, rgba(11, 26, 51, 0.15) 100%);
+}
+
+.fgx-hero-copy {
+  position: absolute;
+  right: 40px;
+  bottom: 44px;
+  left: 40px;
+  z-index: 5;
+  color: #fff;
+  animation: fgx-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+}
+
+.fgx-hero-kicker {
+  margin: 0 0 10px;
+  color: #FC5101;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.fgx-hero-copy h2 {
+  margin: 0 0 24px;
+  font-family: Anton, "Bebas Neue", Impact, sans-serif;
+  font-size: clamp(34px, 3.6vw, 54px);
+  font-weight: 400;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.fgx-hero-copy h2 span {
+  color: #FC5101;
+}
+
+.fgx-hero-copy ul {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fgx-hero-copy li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: fgx-slide 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fgx-hero-copy li > .material-symbols-outlined {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(252, 81, 1, 0.14);
+  border: 1px solid rgba(252, 81, 1, 0.5);
+  color: #FC5101;
+  font-size: 24px;
+}
+
+.fgx-hero-copy li strong {
+  display: block;
+  font-size: 15px;
+}
+
+.fgx-hero-copy li small {
+  display: block;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+}
+
+/* form column */
+.fgx-form {
+  animation: fgx-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fgx-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 0 30px;
+  padding: 0;
+  list-style: none;
+}
+
+.fgx-steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.fgx-steps li:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 19px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: #d9dde3;
+}
+
+.fgx-steps li.is-done:not(:first-child)::before,
+.fgx-steps li.is-current:not(:first-child)::before {
+  background: #0b1a33;
+}
+
+.fgx-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #d9dde3;
+  background: #fff;
+  color: #a2a8b3;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.fgx-dot .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.fgx-steps li.is-done .fgx-dot {
+  border-color: #0b1a33;
+  background: #0b1a33;
+  color: #FC5101;
+  animation: fgx-pop 0.4s ease both;
+}
+
+.fgx-steps li.is-current .fgx-dot {
+  border-color: #0b1a33;
+  background: #FC5101;
+  color: #0b1a33;
+  animation: fgx-pulse 2s ease-in-out infinite;
+}
+
+.fgx-steps small {
+  color: #5b6472;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fgx-steps li.is-current small,
+.fgx-steps li.is-done small {
+  color: #0b1a33;
+}
+
+.fgx-head {
+  margin-bottom: 26px;
+  animation: fgx-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fgx-badge {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  background: #0b1a33;
+  color: #FC5101;
+  font-size: 30px;
+}
+
+.fgx-step {
+  animation: fgx-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* fields with a leading icon */
+.fgx-field {
+  position: relative;
+}
+
+.fgx-field > .material-symbols-outlined {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  color: #5b6472;
+  font-size: 22px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: color 0.2s ease;
+}
+
+.fgx-field .auth-input {
+  padding-left: 46px;
+}
+
+.fgx-field:focus-within > .material-symbols-outlined {
+  color: #0b1a33;
+}
+
+.fgx-code {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.6em;
+}
+
+.fgx-code::placeholder {
+  letter-spacing: 0.4em;
+}
+
+/* messages */
+.fgx-alert {
+  padding: 12px 14px;
+  border-left: 4px solid #c0392b;
+  background: #fdf1ef;
+  animation: fgx-slide 0.3s ease both;
+}
+
+.fgx-info {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid #FC5101;
+  background: #f6fbd8;
+  color: #0b1a33;
+  font-size: 14px;
+  animation: fgx-slide 0.3s ease both;
+}
+
+.fgx-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: #5b6472;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.fgx-note .material-symbols-outlined {
+  color: #0b1a33;
+  font-size: 18px;
+}
+
+.fgx-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fgx-pop 0.4s ease both;
+}
+
+.fgx-resend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  color: #5b6472;
+  font-size: 13px;
+}
+
+.fgx-resend span {
+  flex: 1 1 100%;
+}
+
+.fgx-resend button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-decoration-color: #FC5101;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fgx-resend button:disabled {
+  color: #a2a8b3;
+  cursor: not-allowed;
+  text-decoration-color: #d9dde3;
+}
+
+/* password strength */
+.fgx-meter {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.fgx-meter span {
+  height: 6px;
+  background: #e4e8ee;
+  transition: background 0.3s ease;
+}
+
+.fgx-meter[data-level="1"] span:nth-child(-n + 1) {
+  background: #c0392b;
+}
+
+.fgx-meter[data-level="2"] span:nth-child(-n + 2) {
+  background: #e08a1e;
+}
+
+.fgx-meter[data-level="3"] span:nth-child(-n + 3) {
+  background: #9bc51a;
+}
+
+.fgx-meter[data-level="4"] span:nth-child(-n + 4) {
+  background: #0b1a33;
+}
+
+.fgx-meter small {
+  min-width: 64px;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.fgx-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: gap 0.2s ease;
+}
+
+.fgx-back:hover {
+  gap: 14px;
+}
+
+/* blocked state */
+.fgx-locked {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid #0b1a33;
+  border-top: 6px solid #c0392b;
+  background: #fff;
+}
+
+.fgx-locked > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: #fdf1ef;
+  color: #c0392b;
+  font-size: 30px;
+}
+
+.fgx-locked strong {
+  color: #0b1a33;
+  font-family: Anton, "Bebas Neue", Impact, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fgx-locked p {
+  margin: 0;
+  color: #0b1a33;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.fgx-locked small {
+  color: #5b6472;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1023px) {
+  .fgx-hero-copy {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-hero img,
+  .fgx-hero-copy,
+  .fgx-hero-copy li,
+  .fgx-form,
+  .fgx-head,
+  .fgx-step,
+  .fgx-alert,
+  .fgx-info,
+  .fgx-ok,
+  .fgx-steps li.is-current .fgx-dot,
+  .fgx-steps li.is-done .fgx-dot {
+    animation: none;
+  }
+}

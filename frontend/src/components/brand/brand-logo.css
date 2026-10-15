@@ -1,0 +1,94 @@
+.fu-brand-link,
+.app-navbar-logo,
+.pn-logo,
+.fu-logo,
+.pf-logo,
+.ob-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.fu-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  line-height: 0;
+}
+
+.fu-brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  background: transparent;
+}
+
+.app-navbar-logo .fu-brand,
+.app-navbar-logo .fu-brand img {
+  width: 48px;
+  height: 48px;
+}
+
+.fu-logo .fu-brand img {
+  width: 40px;
+  height: 40px;
+}
+
+.fu-public .pn-logo .fu-brand img {
+  width: 56px;
+  height: 56px;
+}
+
+.sb-logo .fu-brand img,
+.bo-brand .fu-brand img {
+  width: 48px;
+  height: 48px;
+}
+
+.pf-logo .fu-brand img,
+.ob-brand .fu-brand img {
+  width: 44px;
+  height: 44px;
+}
+
+.fu-app .app-navbar-logo:focus,
+.fu-app .app-navbar-logo:focus-visible,
+.fu-app .bo-brand .fu-brand-link:focus,
+.fu-app .bo-brand .fu-brand-link:focus-visible,
+.fu-app .sb-logo .fu-brand-link:focus,
+.fu-app .sb-logo .fu-brand-link:focus-visible {
+  outline: none;
+}
+
+.fu-app .app-navbar-logo:focus-visible img,
+.fu-app .bo-brand .fu-brand-link:focus-visible img,
+.fu-app .sb-logo .fu-brand-link:focus-visible img {
+  filter: brightness(1.12);
+}
+
+@media (max-width: 720px) {
+  .fu-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-navbar-logo .fu-brand,
+  .app-navbar-logo .fu-brand img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .fu-public .pn-logo .fu-brand img {
+    width: 44px;
+    height: 44px;
+  }
+}

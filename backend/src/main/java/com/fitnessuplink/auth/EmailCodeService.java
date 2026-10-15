@@ -43,7 +43,7 @@ public class EmailCodeService {
         this.mailExecutor = mailExecutor;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void issueAndSend(User user, EmailCodePurpose purpose) {
         Instant now = Instant.now();
         emailCodeRepository.findTopByEmailAndPurposeOrderByCreatedAtDesc(user.getEmail(), purpose)
@@ -72,6 +72,23 @@ public class EmailCodeService {
         enqueueMail(user, purpose, code);
     }
 
+    /** How many codes of this kind were issued to the account since the given instant. */
+    @Transactional(readOnly = true)
+    public long issuedSince(User user, EmailCodePurpose purpose, Instant since) {
+        return emailCodeRepository.countByEmailAndPurposeAndCreatedAtAfter(user.getEmail(), purpose, since);
+    }
+
+    /** Makes the newest unused code unusable (e.g. after too many wrong guesses). */
+    @Transactional(noRollbackFor = ApiException.class)
+    public void invalidateOpen(User user, EmailCodePurpose purpose) {
+        emailCodeRepository
+                .findTopByEmailAndPurposeAndConsumedAtIsNullOrderByCreatedAtDesc(user.getEmail(), purpose)
+                .ifPresent(code -> {
+                    code.setConsumedAt(Instant.now());
+                    emailCodeRepository.save(code);
+                });
+    }
+
     private void enqueueMail(User user, EmailCodePurpose purpose, String code) {
         String email = user.getEmail();
         String firstName = user.getFirstName();
@@ -94,12 +111,12 @@ public class EmailCodeService {
         send.run();
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void assertValid(User user, EmailCodePurpose purpose, String rawCode) {
         match(user, purpose, rawCode, false);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void consume(User user, EmailCodePurpose purpose, String rawCode) {
         match(user, purpose, rawCode, true);
     }

@@ -28,9 +28,9 @@ export function OpportunitiesPage() {
       {items.length === 0 && !error ? (
         <p className="empty-hint">Aucune offre publiée pour le moment.</p>
       ) : (
-        <div className="hire-grid">
-          {items.map((item) => (
-            <OpportunityCard key={item.id} item={item} />
+        <div className="oppx-grid">
+          {items.map((item, index) => (
+            <OpportunityCard key={item.id} item={item} index={index} />
           ))}
         </div>
       )}

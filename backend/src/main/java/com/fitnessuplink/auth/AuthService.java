@@ -51,6 +51,10 @@ public class AuthService {
     private static final String SIGNUP_MAIL_FAILED =
             "Impossible d'envoyer le code de vérification pour le moment. Aucun compte n'a été créé, réessayez plus tard.";
     private static final Duration PENDING_SIGNUP_TTL = Duration.ofHours(24);
+    /** Password reset: 3 wrong codes, or more than 3 codes requested, blocks the reset for 30 minutes. */
+    private static final int RESET_MAX_WRONG_CODES = 3;
+    private static final int RESET_MAX_CODE_REQUESTS = 3;
+    private static final Duration RESET_BLOCK = Duration.ofMinutes(30);
 
     private final UserRepository userRepository;
     private final PendingSignupRepository pendingSignupRepository;
@@ -171,7 +175,7 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public IssuedAuth login(LoginRequest request) {
         String email = normalizeEmail(request.email());
         User user = userRepository.findByEmail(email).orElse(null);
@@ -184,10 +188,12 @@ public class AuthService {
         }
         Instant now = Instant.now();
         if (user.isLocked(now)) {
-            throw new ApiException(HttpStatus.LOCKED, "Account temporarily locked. Try again later.");
+            throw lockedLogin(user, now);
         }
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            registerFailure(user, now);
+            if (registerFailure(user, now)) {
+                throw lockedLogin(user, now);
+            }
             throw new ApiException(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS);
         }
 
@@ -243,12 +249,19 @@ public class AuthService {
         return userService.toResponse(user);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void forgotPassword(ForgotPasswordRequest request) {
         String email = normalizeEmail(request.email());
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null || !user.isEnabled()) {
             return;
+        }
+        Instant now = Instant.now();
+        assertResetAllowed(user, now);
+        // The first code plus two more are allowed; asking again within 30 minutes blocks the reset.
+        if (emailCodeService.issuedSince(user, EmailCodePurpose.RESET_PASSWORD, now.minus(RESET_BLOCK)) >= RESET_MAX_CODE_REQUESTS) {
+            blockReset(user, now);
+            throw resetBlocked(user.getResetBlockedUntil(), now);
         }
         try {
             emailCodeService.issueAndSend(user, EmailCodePurpose.RESET_PASSWORD);
@@ -264,7 +277,7 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void verifyResetCode(VerifyResetCodeRequest request) {
         String email = normalizeEmail(request.email());
         User user = userRepository.findByEmail(email)
@@ -272,10 +285,15 @@ public class AuthService {
         if (!user.isEnabled()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE);
         }
-        emailCodeService.assertValid(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+        assertResetAllowed(user, Instant.now());
+        try {
+            emailCodeService.assertValid(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+        } catch (ApiException ex) {
+            throw registerResetFailure(user, ex);
+        }
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ApiException.class)
     public void resetPassword(ResetPasswordRequest request) {
         String email = normalizeEmail(request.email());
         User user = userRepository.findByEmail(email)
@@ -283,10 +301,17 @@ public class AuthService {
         if (!user.isEnabled()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, EmailCodeService.INVALID_CODE);
         }
-        emailCodeService.consume(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+        assertResetAllowed(user, Instant.now());
+        try {
+            emailCodeService.consume(user, EmailCodePurpose.RESET_PASSWORD, request.code());
+        } catch (ApiException ex) {
+            throw registerResetFailure(user, ex);
+        }
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setFailedLoginAttempts(0);
         user.setLockedUntil(null);
+        user.setResetFailedAttempts(0);
+        user.setResetBlockedUntil(null);
         userRepository.save(user);
         refreshTokenRepository.revokeAllActiveByUserId(user.getId());
     }
@@ -385,7 +410,8 @@ public class AuthService {
         return new IssuedAuth(response, rawRefresh, refreshTtl, refreshToken.getId());
     }
 
-    private void registerFailure(User user, Instant now) {
+    private boolean registerFailure(User user, Instant now) {
+        boolean locked = false;
         int attempts = user.getFailedLoginAttempts() + 1;
         user.setFailedLoginAttempts(attempts);
         auditLogService.recordForUser(user.getId(), user.getId(), AuditAction.LOGIN_FAILED);
@@ -393,8 +419,63 @@ public class AuthService {
             user.setLockedUntil(now.plus(securityProperties.lockout().duration()));
             user.setFailedLoginAttempts(0);
             auditLogService.recordForUser(user.getId(), user.getId(), AuditAction.ACCOUNT_LOCKED);
+            locked = true;
         }
         userRepository.save(user);
+        return locked;
+    }
+
+    private ApiException lockedLogin(User user, Instant now) {
+        return new ApiException(
+                HttpStatus.LOCKED,
+                "Compte bloqué temporairement après trop de tentatives. Réessayez dans " + waitText(Duration.between(now, user.getLockedUntil())) + "."
+        );
+    }
+
+    private static String waitText(Duration remaining) {
+        long seconds = Math.max(1, remaining.toSeconds() + (remaining.toNanosPart() > 0 ? 1 : 0));
+        if (seconds < 60) {
+            return seconds + (seconds > 1 ? " secondes" : " seconde");
+        }
+        long minutes = (seconds + 59) / 60;
+        return minutes + (minutes > 1 ? " minutes" : " minute");
+    }
+
+    /** Refuses any password-reset step while the account's reset is blocked. */
+    private void assertResetAllowed(User user, Instant now) {
+        Instant until = user.getResetBlockedUntil();
+        if (until != null && now.isBefore(until)) {
+            throw resetBlocked(until, now);
+        }
+    }
+
+    private ApiException resetBlocked(Instant until, Instant now) {
+        return new ApiException(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "Réinitialisation bloquée après trop de tentatives. Réessayez dans " + waitText(Duration.between(now, until)) + "."
+        );
+    }
+
+    private void blockReset(User user, Instant now) {
+        user.setResetBlockedUntil(now.plus(RESET_BLOCK));
+        user.setResetFailedAttempts(0);
+        emailCodeService.invalidateOpen(user, EmailCodePurpose.RESET_PASSWORD);
+        userRepository.save(user);
+    }
+
+    /** Counts a wrong reset code; the 3rd one blocks the reset instead of just answering "invalid". */
+    private ApiException registerResetFailure(User user, ApiException cause) {
+        if (cause.getStatus() != HttpStatus.BAD_REQUEST) {
+            return cause;
+        }
+        Instant now = Instant.now();
+        user.setResetFailedAttempts(user.getResetFailedAttempts() + 1);
+        if (user.getResetFailedAttempts() >= RESET_MAX_WRONG_CODES) {
+            blockReset(user, now);
+            return resetBlocked(user.getResetBlockedUntil(), now);
+        }
+        userRepository.save(user);
+        return cause;
     }
 
     private boolean isRememberMe(RefreshToken token) {

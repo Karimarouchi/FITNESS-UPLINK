@@ -6,6 +6,7 @@ import { PERMS } from "@/features/auth/permissions";
 import { NotificationBell } from "@/features/notifications/NotificationBell";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { InboxCountBadge, useInboxCount } from "@/features/recruitment/useInboxCount";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { sidebarGroupsFor } from "./sidebarNav";
 import type { SidebarItem, SidebarLink } from "./sidebarTypes";
 
@@ -151,10 +152,7 @@ export function AppNavbar() {
   return (
     <header className="app-navbar">
       <Link className="app-navbar-logo" to="/app/dashboard">
-        <span className="mark" aria-hidden="true">
-          F
-        </span>
-        <span className="word">Fitness Universe</span>
+        <BrandLogo to={null} />
       </Link>
 
       <div className="app-navbar-menu" ref={navRef}>

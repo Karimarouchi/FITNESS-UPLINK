@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PUBLIC_NAV_LINKS } from "@/components/public/publicData";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 
@@ -152,13 +153,8 @@ export function PublicNavbar() {
   return (
     <header className={navClass}>
       <div className="pn-bar">
-        <Link className="pn-logo" to="/" aria-label="Fitness Universe — accueil">
-          <span className="pn-mark" aria-hidden="true">
-            F
-          </span>
-          <span className="pn-word">
-            Fitness <b>Universe</b>
-          </span>
+        <Link className="pn-logo" to="/" aria-label="Uplink Fitness — accueil">
+          <BrandLogo to={null} />
         </Link>
 
         <nav className="pn-links" aria-label="Navigation principale">

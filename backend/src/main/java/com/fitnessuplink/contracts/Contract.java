@@ -59,6 +59,10 @@ public class Contract {
     @Column(name = "signed_upload_id")
     private UUID signedUploadId;
 
+    /** PDF signed by hand and uploaded by the candidate. */
+    @Column(name = "candidate_upload_id")
+    private UUID candidateUploadId;
+
     @Column(name = "audit_trail_upload_id")
     private UUID auditTrailUploadId;
 

@@ -9,22 +9,22 @@
   --vt-grey: #a2a8b3;
   --vt-text: #5b6472;
   --vt-line: #d9dde3;
-  --vt-lime: #d4f53c;
+  --vt-lime: #FC5101;
   --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
   --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
   border-radius: 0;
   background:
-    radial-gradient(60% 50% at 50% 0%, rgba(37, 99, 235, 0.25), transparent 70%),
+    radial-gradient(60% 50% at 50% 0%, rgba(0, 72, 252, 0.25), transparent 70%),
     var(--vt-navy);
 }
 
 .pay-shell.pay-shell .pay-orb--lime {
-  background: rgba(212, 245, 60, 0.1);
+  background: rgba(252, 81, 1, 0.1);
 }
 
 .pay-shell.pay-shell .pay-orb--blue {
-  background: rgba(37, 99, 235, 0.28);
+  background: rgba(0, 72, 252, 0.28);
 }
 
 /* ---- header ---- */

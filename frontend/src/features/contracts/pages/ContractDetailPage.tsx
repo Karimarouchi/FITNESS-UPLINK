@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
@@ -11,11 +11,13 @@ import {
   contractError,
   contractStatusLabel,
   contractStatusTone,
+  fetchCandidateDocument,
   fetchContract,
   fetchContractDocument,
   fetchContractHistory,
   historyLabel,
   signContract,
+  uploadCandidateSigned,
   type Contract,
   type ContractHistory,
 } from "../api";
@@ -39,6 +41,8 @@ export function ContractDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const candidate = isCandidate(user);
   const employer = isBusiness(user);
 
@@ -70,6 +74,48 @@ export function ContractDetailPage() {
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank", "noopener");
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  }
+
+  async function downloadPdf(kind: "original" | "candidate" | "signed") {
+    if (!contract) {
+      return;
+    }
+    const blob =
+      kind === "candidate" ? await fetchCandidateDocument(contract.id) : await fetchContractDocument(contract.id, kind === "signed");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = kind === "original" ? `contrat-${contract.id}.pdf` : `contrat-signe-${contract.id}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+  }
+
+  async function sendSigned(file: File | null | undefined) {
+    if (!contract || !file) {
+      return;
+    }
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setError("Seuls les fichiers PDF sont acceptés.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Ce fichier est trop volumineux (10 Mo maximum).");
+      return;
+    }
+    setBusy(true);
+    try {
+      const updated = await uploadCandidateSigned(contract.id, file);
+      setContract(updated);
+      setHistory(await fetchContractHistory(updated.id));
+      setFlash("Contrat signé envoyé à l’employeur.");
+      setError(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? contractError(err.message) : "Le fichier n’a pas pu être envoyé.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function sign() {
@@ -109,7 +155,13 @@ export function ContractDetailPage() {
   const canSign =
     contract &&
     (contract.status === "SENT" || contract.status === "CANDIDATE_SIGNED" || contract.status === "EMPLOYER_SIGNED") &&
-    ((candidate && !contract.candidateSignedAt) || (employer && !contract.employerSignedAt));
+    employer &&
+    !contract.employerSignedAt;
+  const candidateMustSign =
+    candidate &&
+    contract &&
+    (contract.status === "SENT" || contract.status === "EMPLOYER_SIGNED") &&
+    !contract.candidateSignedAt;
   const position = contract?.jobOffer?.title || contract?.terms?.position || "Recrutement direct";
 
   return (
@@ -167,6 +219,65 @@ export function ContractDetailPage() {
               {contract.templateNotice ? <p className="empty-hint">{contract.templateNotice}</p> : null}
             </Panel>
 
+            {candidateMustSign ? (
+              <Panel title="À faire : signer votre contrat" body>
+                <ol className="sgx-steps">
+                  <li>
+                    <span className="sgx-n">1</span>
+                    <div>
+                      <strong>Téléchargez le contrat</strong>
+                      <p>Lisez-le attentivement, puis imprimez-le ou ouvrez-le dans un outil de signature.</p>
+                      <Button variant="outline" type="button" onClick={() => void downloadPdf("original")}>
+                        Télécharger le PDF
+                      </Button>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="sgx-n">2</span>
+                    <div>
+                      <strong>Signez-le</strong>
+                      <p>Signature à la main puis scan ou photo en PDF, ou signature électronique de votre choix.</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span className="sgx-n">3</span>
+                    <div>
+                      <strong>Renvoyez le PDF signé</strong>
+                      <div
+                        className={dragOver ? "sgx-drop is-over" : "sgx-drop"}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          setDragOver(true);
+                        }}
+                        onDragLeave={() => setDragOver(false)}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          setDragOver(false);
+                          void sendSigned(event.dataTransfer.files[0]);
+                        }}
+                      >
+                        <span className="material-symbols-outlined" aria-hidden="true">upload_file</span>
+                        <p>{busy ? "Envoi en cours…" : "Glissez le PDF signé ici (10 Mo maximum)"}</p>
+                        <button type="button" className="sgx-pick" disabled={busy} onClick={() => fileInput.current?.click()}>
+                          Choisir le fichier
+                        </button>
+                        <input
+                          ref={fileInput}
+                          type="file"
+                          accept="application/pdf,.pdf"
+                          hidden
+                          onChange={(event) => {
+                            void sendSigned(event.target.files?.[0]);
+                            event.target.value = "";
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </li>
+                </ol>
+              </Panel>
+            ) : null}
+
             <Panel title="Signatures" body>
               <div className="sign-list">
                 <div className={`sign-step${contract.candidateSignedAt ? " is-done" : ""}`}>
@@ -193,14 +304,22 @@ export function ContractDetailPage() {
                 <Button variant="outline" type="button" onClick={() => void openPdf(false)}>
                   Voir le contrat
                 </Button>
-                {contract.signedUploadId ? (
-                  <Button variant="outline" type="button" onClick={() => void openPdf(true)}>
-                    Télécharger le PDF
+                <Button variant="outline" type="button" onClick={() => void downloadPdf("original")}>
+                  Télécharger
+                </Button>
+                {contract.candidateUploadId ? (
+                  <Button variant="outline" type="button" onClick={() => void downloadPdf("candidate")}>
+                    {employer ? "Exemplaire signé du candidat" : "Mon exemplaire signé"}
+                  </Button>
+                ) : null}
+                {contract.signedUploadId && contract.signedUploadId !== contract.candidateUploadId ? (
+                  <Button variant="outline" type="button" onClick={() => void downloadPdf("signed")}>
+                    Télécharger le PDF final
                   </Button>
                 ) : null}
                 {canSign ? (
                   <Button variant="primary" type="button" disabled={busy} onClick={() => void sign()}>
-                    {busy ? "Signature…" : "Signer le contrat"}
+                    {busy ? "Signature…" : contract.candidateUploadId ? "Signer et finaliser" : "Signer le contrat"}
                   </Button>
                 ) : null}
                 {employer && contract.status === "COMPLETED" ? (

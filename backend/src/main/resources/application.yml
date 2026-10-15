@@ -80,8 +80,8 @@ app:
     cookie:
       secure: ${COOKIE_SECURE:false}
     lockout:
-      max-attempts: 5
-      duration: 15m
+      max-attempts: 3
+      duration: 1m
     super-admin:
       email: ${SUPER_ADMIN_EMAIL:Admin@Antigoneagency.com}
       password: ${SUPER_ADMIN_PASSWORD:Admin@123456}

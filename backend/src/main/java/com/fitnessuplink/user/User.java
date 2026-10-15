@@ -106,6 +106,13 @@ public class User {
     @Column(name = "locked_until")
     private Instant lockedUntil;
 
+    @Column(name = "reset_failed_attempts", nullable = false)
+    @Builder.Default
+    private int resetFailedAttempts = 0;
+
+    @Column(name = "reset_blocked_until")
+    private Instant resetBlockedUntil;
+
     @Column(name = "last_login_at")
     private Instant lastLoginAt;
 

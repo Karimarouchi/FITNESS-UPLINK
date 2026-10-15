@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApiError } from "@/shared/api/client";
 import {
   opportunityLabel,
@@ -9,6 +9,7 @@ import {
   contractError,
   createContract,
   emptyTerms,
+  fetchContract,
   fetchContractDocument,
   sendContract,
   uploadContractPdf,
@@ -16,28 +17,65 @@ import {
   type ContractSource,
   type ContractTerms,
 } from "./api";
+import { CONTRACT_TYPES } from "@/features/jobs/api";
 
 type Step = "source" | "form" | "file" | "preview";
 
 export function PrepareContractDrawer({
   item,
   employerName,
+  initialTerms,
+  draftId,
   onClose,
   onSent,
 }: {
   item: Recruitment;
   employerName: string;
+  /** Terms already agreed in the negotiation step. */
+  initialTerms?: Partial<ContractTerms>;
+  /** A draft already created for this recruitment: the drawer opens on its verification step. */
+  draftId?: string;
   onClose: () => void;
   onSent: (item: Recruitment) => void;
 }) {
   const [step, setStep] = useState<Step>("source");
   const [source, setSource] = useState<ContractSource>("TEMPLATE");
-  const [terms, setTerms] = useState<ContractTerms>(emptyTerms(item));
+  const [terms, setTerms] = useState<ContractTerms>({ ...emptyTerms(item), ...initialTerms });
   const [contract, setContract] = useState<Contract | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+
+  useEffect(() => {
+    if (!draftId) {
+      return;
+    }
+    let cancelled = false;
+    setBusy(true);
+    fetchContract(draftId)
+      .then((existing) => {
+        if (cancelled) {
+          return;
+        }
+        setContract(existing);
+        setSource(existing.source);
+        setStep("preview");
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Impossible de charger le brouillon du contrat.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setBusy(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [draftId]);
 
   async function createDraft(next: ContractSource, nextTerms?: ContractTerms) {
     setBusy(true);
@@ -70,6 +108,19 @@ export function PrepareContractDrawer({
   }
 
   async function continueFromForm() {
+    if (!terms.position.trim() || !terms.contractType.trim()) {
+      setError("Indiquez le poste et le type de contrat.");
+      return;
+    }
+    const salary = Number(String(terms.salaryAmount).replace(",", "."));
+    if (!salary || salary <= 0) {
+      setError("Indiquez un salaire supérieur à 0.");
+      return;
+    }
+    if (!terms.startDate) {
+      setError("Indiquez la date de début.");
+      return;
+    }
     const created = await createDraft("TEMPLATE", terms);
     if (created) {
       setStep("preview");
@@ -149,36 +200,61 @@ export function PrepareContractDrawer({
 
   return (
     <div className="fu-backdrop" role="presentation" onClick={onClose}>
-      <aside className="fu-drawer verify-drawer" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-        <button className="ob-link fiche-back" type="button" onClick={onClose}>
-          Fermer
-        </button>
-        <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
-        <h2 className="font-display-lg-mobile text-primary">Préparer un contrat</h2>
-        <p>Candidat : {item.candidate.displayName}</p>
-        <p>Employeur : {employerName}</p>
-        <p>Offre : {opportunityLabel(item)}</p>
-        {error ? <p className="auth-error">{error}</p> : null}
+      <aside className="fu-drawer verify-drawer pcd" role="dialog" aria-modal="true" aria-label="Préparer un contrat" onClick={(event) => event.stopPropagation()}>
+        <div className="pcd-top">
+          <p className="pcd-kicker">Recrutement</p>
+          <button className="pcd-close" type="button" onClick={onClose} aria-label="Fermer">
+            <span className="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <h2 className="pcd-title">Préparer un contrat</h2>
+        <dl className="pcd-parties">
+          <div>
+            <dt>Candidat</dt>
+            <dd>{item.candidate.displayName}</dd>
+          </div>
+          <div>
+            <dt>Employeur</dt>
+            <dd>{employerName}</dd>
+          </div>
+          <div>
+            <dt>Offre</dt>
+            <dd>{opportunityLabel(item)}</dd>
+          </div>
+        </dl>
+        <ol className="pcd-steps" aria-label="Étapes">
+          {["Document", "Détails", "Vérification"].map((label, index) => {
+            const active = step === "source" ? 0 : step === "preview" ? 2 : 1;
+            return (
+              <li key={label} className={index < active ? "is-done" : index === active ? "is-current" : ""}>
+                <span>{index < active ? "✓" : index + 1}</span>
+                {label}
+              </li>
+            );
+          })}
+        </ol>
+        {error ? <p className="pcd-error" role="alert">{error}</p> : null}
 
         {step === "source" ? (
           <>
-            <fieldset className="fu-radios">
-              <legend>Document</legend>
-              <label>
-                <input type="radio" checked={source === "TEMPLATE"} onChange={() => setSource("TEMPLATE")} />
-                Générer depuis un modèle
-              </label>
-              <label>
-                <input type="radio" checked={source === "IMPORT"} onChange={() => setSource("IMPORT")} />
-                Importer un PDF
-              </label>
-            </fieldset>
+            <div className="pcd-choices" role="radiogroup" aria-label="Document">
+              <button type="button" role="radio" aria-checked={source === "TEMPLATE"} className={source === "TEMPLATE" ? "is-on" : ""} onClick={() => setSource("TEMPLATE")}>
+                <span className="material-symbols-outlined" aria-hidden="true">description</span>
+                <strong>Générer depuis un modèle</strong>
+                <small>Remplissez les conditions : le contrat est créé avec les informations de l’entreprise (matricule fiscal, adresse…).</small>
+              </button>
+              <button type="button" role="radio" aria-checked={source === "IMPORT"} className={source === "IMPORT" ? "is-on" : ""} onClick={() => setSource("IMPORT")}>
+                <span className="material-symbols-outlined" aria-hidden="true">upload_file</span>
+                <strong>Importer mon PDF</strong>
+                <small>Vous avez déjà votre propre contrat : ajoutez-le en PDF (10 Mo maximum).</small>
+              </button>
+            </div>
             {source === "TEMPLATE" ? (
-              <p className="talent-meta">
+              <p className="pcd-note">
                 Le modèle juridique n’est pas encore validé. Le PDF généré est préparatoire et ne constitue pas un contrat opposable.
               </p>
             ) : null}
-            <div className="fiche-actions">
+            <div className="fiche-actions pcd-sticky">
               <button className="ob-secondary" type="button" onClick={onClose}>
                 Annuler
               </button>
@@ -203,7 +279,14 @@ export function PrepareContractDrawer({
             </label>
             <label className="fu-field">
               Type de contrat
-              <input className="custom-input" value={terms.contractType} onChange={(event) => setTerms({ ...terms, contractType: event.target.value })} />
+              <select className="custom-input" value={terms.contractType} onChange={(event) => setTerms({ ...terms, contractType: event.target.value })}>
+                <option value="">Choisir…</option>
+                {CONTRACT_TYPES.map((type) => (
+                  <option key={type.value} value={type.label}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
             </label>
             <div className="fu-inline">
               <label className="fu-field">
@@ -217,7 +300,7 @@ export function PrepareContractDrawer({
             </div>
             <label className="fu-field">
               Date de début
-              <input className="custom-input" type="date" value={terms.startDate} onChange={(event) => setTerms({ ...terms, startDate: event.target.value })} />
+              <input className="custom-input" type="date" min={new Date().toISOString().slice(0, 10)} value={terms.startDate} onChange={(event) => setTerms({ ...terms, startDate: event.target.value })} />
             </label>
             <label className="fu-field">
               Lieu
@@ -227,7 +310,7 @@ export function PrepareContractDrawer({
               Informations complémentaires
               <textarea className="custom-input custom-textarea" value={terms.extra} onChange={(event) => setTerms({ ...terms, extra: event.target.value })} />
             </label>
-            <div className="fiche-actions">
+            <div className="fiche-actions pcd-sticky">
               <button className="ob-secondary" type="button" onClick={() => setStep("source")}>
                 Retour
               </button>
@@ -267,7 +350,7 @@ export function PrepareContractDrawer({
                 </button>
               </div>
             ) : null}
-            <div className="fiche-actions">
+            <div className="fiche-actions pcd-sticky">
               <button
                 className="ob-secondary"
                 type="button"
@@ -308,7 +391,7 @@ export function PrepareContractDrawer({
                 </li>
               ))}
             </ol>
-            <div className="fiche-actions">
+            <div className="fiche-actions pcd-sticky">
               <button className="ob-secondary" type="button" onClick={() => setStep(source === "TEMPLATE" ? "form" : "file")}>
                 Retour
               </button>

@@ -79,6 +79,23 @@ public class ContractController {
         return contractService.sign(principal.getUser(), id);
     }
 
+    @PostMapping(path = "/{id}/candidate-signed", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ContractDto candidateSigned(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id,
+            @RequestParam MultipartFile file
+    ) {
+        return contractService.uploadCandidateSigned(principal.getUser(), id, file);
+    }
+
+    @GetMapping("/{id}/candidate-document")
+    public ResponseEntity<Resource> candidateDocument(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id
+    ) {
+        return file(contractService.candidateDocument(principal.getUser(), id));
+    }
+
     @PostMapping("/{id}/cancel")
     public ContractDto cancel(
             @AuthenticationPrincipal UserPrincipal principal,

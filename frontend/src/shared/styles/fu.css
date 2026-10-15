@@ -5,9 +5,13 @@
   --paper: #f4f7fb;
   --paper-2: #ffffff;
   --paper-line: #dde5f0;
-  --lime: #1d4ed8;
-  --lime-dim: #e8f0ff;
-  --coral: #ff5a36;
+  --brand: #0048FC;
+  --brand-600: #0036c4;
+  --lime: #0048FC;
+  --lime-dim: #e8eeff;
+  --orange: #FC5101;
+  --orange-dim: #fff1ea;
+  --coral: #FC5101;
   --slate: #475569;
   --slate-light: #94a3b8;
 }
@@ -78,7 +82,7 @@
 }
 .pub-nav--overlay .pub-logo .mark span,
 .pub-nav--home .pub-logo .mark span {
-  color: #1d4ed8;
+  color: #0048FC;
 }
 .pub-nav--overlay .word,
 .pub-nav--overlay .pub-links a,
@@ -127,7 +131,7 @@
 .pub-nav--overlay.pub-nav--open .pub-logo .mark,
 .pub-nav--home.pub-nav--scrolled .pub-logo .mark,
 .pub-nav--home.pub-nav--open .pub-logo .mark {
-  background: #1d4ed8;
+  background: #0048FC;
 }
 .pub-nav--overlay.pub-nav--scrolled .pub-logo .mark span,
 .pub-nav--overlay.pub-nav--open .pub-logo .mark span,
@@ -143,7 +147,7 @@
 .pub-nav--home.pub-nav--scrolled .pub-links a.is-active,
 .pub-nav--home.pub-nav--open .pub-links a:hover,
 .pub-nav--home.pub-nav--open .pub-links a.is-active {
-  border-bottom-color: #1d4ed8;
+  border-bottom-color: #0048FC;
 }
 .pub-nav--overlay .pub-panel a,
 .pub-nav--overlay .pub-panel .btn-ghost,
@@ -160,7 +164,7 @@
 .pub-logo .mark {
   width: 30px;
   height: 30px;
-  background: #1d4ed8;
+  background: #0048FC;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -201,7 +205,7 @@
 }
 .pub-links a:hover,
 .pub-links a.is-active {
-  border-bottom-color: #1d4ed8;
+  border-bottom-color: #0048FC;
 }
 
 .pub-actions {
@@ -256,7 +260,7 @@
   font-family: Geist, Inter, sans-serif;
 }
 .pub-footer-links a:hover {
-  color: #1d4ed8;
+  color: #0048FC;
 }
 .pub-footer-meta {
   display: flex;
@@ -286,7 +290,7 @@
   font-weight: 600;
   font-size: 13.5px;
   color: #fff;
-  background: #1d4ed8;
+  background: #0048FC;
   border: none;
   padding: 11px 20px;
   cursor: pointer;
@@ -300,7 +304,7 @@
   font-family: Manrope, Inter, sans-serif;
   font-weight: 700;
   color: #fff;
-  background: #1d4ed8;
+  background: #0048FC;
   border-radius: 999px;
 }
 .btn-outline {
@@ -467,8 +471,14 @@
 .app-navbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
   justify-self: start;
+  align-self: center;
+  gap: 0;
+  height: 52px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
   text-decoration: none;
 }
 
@@ -476,7 +486,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: flex;
   align-items: center;
@@ -485,7 +495,7 @@
   letter-spacing: -0.02em;
   font-weight: 800;
   font-size: 18px;
-  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.28);
+  box-shadow: 0 6px 16px rgba(0, 72, 252, 0.28);
 }
 
 .app-navbar-logo .word {
@@ -625,11 +635,11 @@
 }
 
 .app-navbar-avatar .app-avatar {
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.28);
+  box-shadow: 0 0 0 3px rgba(0, 72, 252, 0.28);
 }
 
 .app-navbar-avatar:hover .app-avatar {
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 72, 252, 0.5);
 }
 
 .app-navbar-toggle {
@@ -675,14 +685,16 @@
 }
 .sb-logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 9px;
-  padding: 0 22px 26px;
+  justify-content: center;
+  gap: 0;
+  padding: 10px 22px 4px;
 }
 .sb-logo .mark {
   width: 24px;
   height: 24px;
-  background: #1d4ed8;
+  background: #0048FC;
 }
 .sb-logo .word {
   font-family: Manrope, Inter, sans-serif;
@@ -813,7 +825,7 @@
 .sb-avatar {
   width: 34px;
   height: 34px;
-  background: #1d4ed8;
+  background: #0048FC;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1051,8 +1063,8 @@
   margin: 0 20px 18px;
 }
 .calendar-form-card-inner {
-  background: linear-gradient(180deg, #fff, var(--lime-dim, #e8f0ff));
-  border: 1px solid rgba(29, 78, 216, 0.55);
+  background: linear-gradient(180deg, #fff, var(--lime-dim, #e8eeff));
+  border: 1px solid rgba(0, 72, 252, 0.55);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   padding: 18px 20px 20px;
@@ -1102,7 +1114,7 @@
   color: #8a6200;
 }
 .status-pill.sent {
-  background: #e8f0ff;
+  background: #e8eeff;
   color: #3b5a0b;
 }
 .status-pill.refused {
@@ -1110,7 +1122,7 @@
   color: #8a1f1f;
 }
 .status-pill.verified {
-  background: #e8f0ff;
+  background: #e8eeff;
   color: #3b5a0b;
 }
 .status-pill.pending {
@@ -1130,7 +1142,7 @@
   border-radius: 2px;
 }
 .btn-mini.primary {
-  background: #1d4ed8;
+  background: #0048FC;
   border-color: var(--lime);
 }
 .btn-mini.primary:disabled,
@@ -1159,7 +1171,7 @@
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: flex;
   align-items: center;
@@ -1247,7 +1259,7 @@
   border-top: 1px solid var(--paper-line);
 }
 .fu-app .profile-banner .app-avatar {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   border: none;
   font-family: Manrope, Inter, sans-serif;
@@ -1273,7 +1285,7 @@
   font-size: 15px;
 }
 .fu-app .ob-embedded .ob-primary {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   border-radius: 2px;
 }
@@ -1438,7 +1450,7 @@ button.doc-card {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #1d4ed8;
+  background: #0048FC;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1644,7 +1656,7 @@ button.doc-card {
   color: var(--slate-light);
 }
 .plan-card .btn-mini {
-  background: #1d4ed8;
+  background: #0048FC;
   border-color: var(--lime);
 }
 
@@ -1823,7 +1835,7 @@ button.doc-card {
   font-family: Consolas, "Geist Mono", ui-monospace, monospace;
   font-size: 12px;
   color: #3b5a0b;
-  background: #e8f0ff;
+  background: #e8eeff;
   padding: 2px 6px;
   border-radius: 999px;
   direction: ltr;
@@ -1946,7 +1958,7 @@ button.doc-card {
   padding: 0;
 }
 .switch.on {
-  background: #1d4ed8;
+  background: #0048FC;
 }
 .switch::after {
   content: "";
@@ -2206,8 +2218,8 @@ button.doc-card {
 }
 
 .fu-app .sb-logo {
-  padding: 6px 10px 22px;
-  gap: 12px;
+  padding: 10px 10px 4px;
+  gap: 0;
 }
 .fu-app .sb-logo .mark {
   width: 34px;
@@ -2221,7 +2233,7 @@ button.doc-card {
   font-weight: 800;
   font-size: 18px;
   color: var(--ink);
-  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.28);
+  box-shadow: 0 6px 16px rgba(0, 72, 252, 0.28);
 }
 .fu-app .sb-logo .word {
   font-size: 15px;
@@ -2232,7 +2244,7 @@ button.doc-card {
   margin-top: 4px;
   padding: 2px 7px;
   border-radius: 999px;
-  background: rgba(29, 78, 216, 0.12);
+  background: rgba(0, 72, 252, 0.12);
   color: #93c5fd;
   font-size: 9px;
 }
@@ -2255,9 +2267,9 @@ button.doc-card {
 }
 .fu-app .sidebar .sb-link.active,
 .fu-app a.sb-link.active {
-  background: rgba(29, 78, 216, 0.14);
+  background: rgba(0, 72, 252, 0.14);
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(29, 78, 216, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(0, 72, 252, 0.28);
 }
 .fu-app .sb-drop-list {
   margin: 2px 6px 8px 16px;
@@ -2289,7 +2301,7 @@ button.doc-card {
   white-space: nowrap;
 }
 .fu-app .sb-avatar {
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.18);
+  box-shadow: 0 0 0 3px rgba(0, 72, 252, 0.18);
 }
 .fu-app .sb-logout {
   width: 100%;
@@ -2329,7 +2341,7 @@ button.doc-card {
 .fu-app .search:focus-within {
   background: #fff;
   border-color: var(--ink);
-  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 0 0 4px rgba(0, 72, 252, 0.35);
 }
 .fu-app .search input:focus-visible {
   outline: none;
@@ -2366,7 +2378,7 @@ button.doc-card {
 }
 .fu-app .topbar .sb-avatar.sm:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 0 0 3px rgba(0, 72, 252, 0.35);
 }
 
 .fu-app .main-content {
@@ -2595,7 +2607,7 @@ button.doc-card {
 .fu-app .custom-textarea:focus {
   outline: none;
   border-color: var(--ink);
-  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.35);
+  box-shadow: 0 0 0 4px rgba(0, 72, 252, 0.35);
 }
 
 .fu-app .ob-embedded .ob-section {
@@ -2835,7 +2847,7 @@ button.doc-card {
   margin-top: 5px;
   border-radius: 50%;
   background: var(--ink);
-  box-shadow: 0 0 0 3px #e8f0ff;
+  box-shadow: 0 0 0 3px #e8eeff;
 }
 .contract-timeline strong {
   display: block;
@@ -2986,7 +2998,7 @@ button.doc-card {
   color: var(--slate);
 }
 .filter-pill.is-active {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   border-color: var(--ink);
 }
@@ -2999,7 +3011,7 @@ button.doc-card {
   white-space: nowrap;
 }
 .check-chip.ok {
-  background: #e8f0ff;
+  background: #e8eeff;
   color: #3b5a0b;
 }
 .check-chip.wait {
@@ -3214,7 +3226,7 @@ button.doc-card {
 }
 .doc-lightbox-bar button {
   border: 0;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-weight: 700;
   padding: 8px 12px;
@@ -3318,7 +3330,7 @@ button.doc-card {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: grid;
   place-items: center;
@@ -3354,7 +3366,7 @@ button.doc-card {
   height: 22px;
   padding: 0 7px;
   border-radius: 999px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: inline-grid;
   place-items: center;
@@ -4043,7 +4055,7 @@ button.doc-card {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   padding: 5px 8px;
   border-radius: 8px;
@@ -4127,7 +4139,7 @@ button.doc-card {
   height: 56px;
   border: 0;
   border-radius: 50%;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   box-shadow: 0 12px 28px rgba(20, 26, 50, 0.28);
   cursor: pointer;
@@ -4149,7 +4161,7 @@ button.doc-card {
   height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -4191,7 +4203,7 @@ button.doc-card {
   height: 36px;
   border: 0;
   border-radius: 50%;
-  background: rgba(29, 78, 216, 0.12);
+  background: rgba(0, 72, 252, 0.12);
   color: #93c5fd;
   display: grid;
   place-items: center;
@@ -4237,7 +4249,7 @@ button.doc-card {
 }
 .fu-chat-tab.is-active {
   color: var(--ink);
-  background: rgba(29, 78, 216, 0.18);
+  background: rgba(0, 72, 252, 0.18);
 }
 .fu-chat-tab.is-active::after {
   content: "";
@@ -4246,11 +4258,11 @@ button.doc-card {
   right: 10px;
   bottom: -1px;
   height: 2px;
-  background: #1d4ed8;
+  background: #0048FC;
   border-radius: 2px;
 }
 .fu-chat-tab-badge {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   border-radius: 8px;
   padding: 1px 6px;
@@ -4294,7 +4306,7 @@ button.doc-card {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: grid;
   place-items: center;
@@ -4377,7 +4389,7 @@ button.doc-card {
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   cursor: pointer;
   display: grid;
@@ -4456,7 +4468,7 @@ button.doc-card {
 }
 .bill-switch.is-on .bill-switch-knob {
   transform: translateX(18px);
-  background: #1d4ed8;
+  background: #0048FC;
 }
 .bill-hub {
   display: grid;
@@ -4497,13 +4509,13 @@ button.doc-card {
   width: 64px;
   height: 64px;
   border-radius: 18px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   display: grid;
   place-items: center;
 }
 .bill-hub-card--tools .bill-hub-mark {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
 }
 .bill-hub-mark .material-symbols-outlined {
@@ -4576,7 +4588,7 @@ button.doc-card {
   border-top: 1px solid rgba(221, 229, 240, 0.7);
 }
 .bill-matrix-row:hover {
-  background: rgba(29, 78, 216, 0.08);
+  background: rgba(0, 72, 252, 0.08);
 }
 .bill-fn-col,
 .bill-plan-col,
@@ -4612,14 +4624,14 @@ button.doc-card {
 }
 .bill-plan-col.is-featured,
 .bill-cell.is-featured {
-  background: rgba(29, 78, 216, 0.18);
+  background: rgba(0, 72, 252, 0.18);
 }
 .bill-plan-badge {
   display: inline-block;
   margin-bottom: 8px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-size: 10px;
   font-weight: 800;
@@ -4674,7 +4686,7 @@ button.doc-card {
   position: relative;
 }
 .bill-cell input:checked + .bill-tick {
-  background: #1d4ed8;
+  background: #0048FC;
   border-color: #0f172a;
 }
 .bill-cell input:checked + .bill-tick::after {
@@ -4791,7 +4803,7 @@ button.doc-card {
   cursor: not-allowed;
 }
 .week-grid .slot.slot-pick.selected {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-weight: 700;
   transform: scale(1.03);
@@ -4844,7 +4856,7 @@ button.doc-card {
 }
 .fu-app .sb-logo .mark,
 .fu-app .app-navbar-logo .mark {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-family: Manrope, Inter, sans-serif;
   letter-spacing: -0.04em;

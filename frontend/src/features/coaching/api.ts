@@ -304,6 +304,10 @@ export function createAvailabilityRule(request: { dayOfWeek: number; startTime: 
   return api.post<AvailabilityRule>("/v1/coaching/availability/rules", request);
 }
 
+export function updateAvailabilityRule(id: string, request: { dayOfWeek: number; startTime: string; endTime: string }) {
+  return api.put<AvailabilityRule>(`/v1/coaching/availability/rules/${id}`, request);
+}
+
 export function deleteAvailabilityRule(id: string) {
   return api.delete<void>(`/v1/coaching/availability/rules/${id}`);
 }

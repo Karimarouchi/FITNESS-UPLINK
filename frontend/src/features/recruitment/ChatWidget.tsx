@@ -95,8 +95,8 @@ function CoachThread({
               key={m.id}
               style={{
                 alignSelf: mine ? "flex-end" : "flex-start",
-                background: mine ? "var(--lime, #d6ff3f)" : "var(--paper-2)",
-                color: mine ? "#141a32" : "var(--text)",
+                background: mine ? "var(--lime, #FC5101)" : "var(--paper-2)",
+                color: mine ? "#fff" : "var(--text)",
                 borderRadius: mine ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                 padding: "7px 12px",
                 maxWidth: "80%",
@@ -135,14 +135,14 @@ function CoachThread({
           disabled={sending || !text.trim()}
           onClick={() => void send()}
           style={{
-            background: "var(--lime, #d6ff3f)",
+            background: "var(--lime, #FC5101)",
             border: "none",
             borderRadius: 8,
             padding: "6px 12px",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
-            color: "#141a32",
+            color: "#fff",
           }}
         >
           {sending ? "…" : "↑"}
@@ -209,8 +209,8 @@ function MemberThread({
               key={m.id}
               style={{
                 alignSelf: mine ? "flex-end" : "flex-start",
-                background: mine ? "var(--lime, #d6ff3f)" : "var(--paper-2)",
-                color: mine ? "#141a32" : "var(--text)",
+                background: mine ? "var(--lime, #FC5101)" : "var(--paper-2)",
+                color: mine ? "#fff" : "var(--text)",
                 borderRadius: mine ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
                 padding: "7px 12px",
                 maxWidth: "80%",
@@ -249,14 +249,14 @@ function MemberThread({
           disabled={sending || !text.trim()}
           onClick={() => void send()}
           style={{
-            background: "var(--lime, #d6ff3f)",
+            background: "var(--lime, #FC5101)",
             border: "none",
             borderRadius: 8,
             padding: "6px 12px",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
-            color: "#141a32",
+            color: "#fff",
           }}
         >
           {sending ? "…" : "↑"}

@@ -58,7 +58,7 @@
 
 .plan-stage .ob-plan-card li.is-ok .material-symbols-outlined {
   color: #fff;
-  background: #1d4ed8;
+  background: #0048FC;
   border-radius: 50%;
   font-size: 14px;
   width: 20px;
@@ -75,8 +75,8 @@
   gap: 8px;
   padding: 8px 14px;
   border-radius: 999px;
-  background: rgba(29, 78, 216, 0.14);
-  border: 1px solid rgba(29, 78, 216, 0.4);
+  background: rgba(0, 72, 252, 0.14);
+  border: 1px solid rgba(0, 72, 252, 0.4);
   color: #93c5fd;
   font-size: 12px;
   font-weight: 700;
@@ -126,7 +126,7 @@
 }
 
 .pay-shell .ob-plans-switch.is-on .ob-plans-switch-track {
-  background: #1d4ed8;
+  background: #0048FC;
 }
 
 .pay-shell .ob-plans-switch.is-on .ob-plans-switch-knob {
@@ -192,37 +192,37 @@
 }
 
 .pay-shell .ob-plan-cta--lime {
-  background: #1d4ed8;
+  background: #FC5101;
   color: #fff;
 }
 
 .pay-shell .ob-plan-cta--lime:hover:not(:disabled) {
-  background: #e7ff7a;
+  background: #e04800;
 }
 
 .pay-shell .ob-plan-card.is-featured {
   padding-top: 44px;
-  background: rgba(29, 78, 216, 0.1);
-  border: 2px solid #1d4ed8;
+  background: rgba(0, 72, 252, 0.1);
+  border: 2px solid #0048FC;
   box-shadow:
-    0 0 0 1px rgba(29, 78, 216, 0.22),
-    0 28px 60px -20px rgba(29, 78, 216, 0.42);
+    0 0 0 1px rgba(0, 72, 252, 0.22),
+    0 28px 60px -20px rgba(0, 72, 252, 0.42);
   animation: plan-featured-glow 3.2s ease-in-out infinite;
 }
 
 .pay-shell .ob-plan-card.is-selected {
-  outline: 2px solid #1d4ed8;
+  outline: 2px solid #0048FC;
 }
 
 .pay-shell .ob-plan-badge {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   animation: plan-badge-pop 2.8s ease-in-out infinite;
 }
 
 .pay-shell .ob-plan-card.is-featured .ob-plan-price strong {
   color: #93c5fd;
-  text-shadow: 0 0 24px rgba(29, 78, 216, 0.35);
+  text-shadow: 0 0 24px rgba(0, 72, 252, 0.35);
 }
 
 @media (max-width: 720px) {
@@ -248,10 +248,10 @@
 @keyframes plan-cta-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.45);
+    box-shadow: 0 0 0 0 rgba(0, 72, 252, 0.45);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(29, 78, 216, 0);
+    box-shadow: 0 0 0 8px rgba(0, 72, 252, 0);
   }
 }
 
@@ -259,13 +259,13 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 1px rgba(29, 78, 216, 0.22),
-      0 28px 60px -20px rgba(29, 78, 216, 0.35);
+      0 0 0 1px rgba(0, 72, 252, 0.22),
+      0 28px 60px -20px rgba(0, 72, 252, 0.35);
   }
   50% {
     box-shadow:
-      0 0 0 4px rgba(29, 78, 216, 0.18),
-      0 32px 70px -16px rgba(29, 78, 216, 0.55);
+      0 0 0 4px rgba(0, 72, 252, 0.18),
+      0 32px 70px -16px rgba(0, 72, 252, 0.55);
   }
 }
 

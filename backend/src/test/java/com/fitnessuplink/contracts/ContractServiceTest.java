@@ -244,19 +244,64 @@ class ContractServiceTest {
     }
 
     @Test
-    void candidateSignUpdatesStatus() {
+    void candidateCannotSignInsideTheApp() {
         Contract contract = sent();
         when(contractRepository.findByIdAndCandidateId(contract.getId(), candidate.getId())).thenReturn(Optional.of(contract));
-        when(signatureProvider.sign("mock-1", ContractSignerRole.CANDIDATE))
-                .thenReturn(SignaturePartyResult.of(true, false));
+
+        ApiException error = assertThrows(ApiException.class, () -> service.sign(candidate, contract.getId()));
+        assertEquals("CANDIDATE_MUST_UPLOAD", error.getMessage());
+    }
+
+    @Test
+    void candidateUploadsSignedPdfThenWaitsForEmployer() {
+        Contract contract = sent();
+        MockMultipartFile file = new MockMultipartFile("file", "signe.pdf", "application/pdf", pdf);
+        when(contractRepository.findByIdAndCandidateId(contract.getId(), candidate.getId())).thenReturn(Optional.of(contract));
+        UserUpload stored = upload("signe.pdf");
+        when(uploadService.storePdf(eq(candidate.getId()), eq("contract_candidate_signed"), any())).thenReturn(stored);
         when(contractSignerRepository.findByContractIdOrderBySigningOrderAsc(contract.getId())).thenReturn(List.of());
         when(contractRepository.save(contract)).thenReturn(contract);
         stubDto(contract);
 
-        ContractDto dto = service.sign(candidate, contract.getId());
+        ContractDto dto = service.uploadCandidateSigned(candidate, contract.getId(), file);
+
         assertEquals(ContractStatus.CANDIDATE_SIGNED, dto.status());
+        assertEquals(stored.getId(), contract.getCandidateUploadId());
         assertNotNull(contract.getCandidateSignedAt());
         verify(notificationService).notify(eq(employer.getId()), eq(NotifyCategory.CONTRACT), eq("Contrat signé par le candidat"), any(), any(), any());
+    }
+
+    @Test
+    void candidateUploadIsRefusedTwice() {
+        Contract contract = sent();
+        contract.setStatus(ContractStatus.CANDIDATE_SIGNED);
+        contract.setCandidateSignedAt(Instant.now());
+        when(contractRepository.findByIdAndCandidateId(contract.getId(), candidate.getId())).thenReturn(Optional.of(contract));
+
+        ApiException error = assertThrows(ApiException.class, () ->
+                service.uploadCandidateSigned(candidate, contract.getId(), new MockMultipartFile("file", "x.pdf", "application/pdf", pdf)));
+        assertEquals("INVALID_CONTRACT_STATUS", error.getMessage());
+    }
+
+    @Test
+    void employerSigningAfterCandidateUploadFinalizesWithCandidateCopy() {
+        Contract contract = sent();
+        UUID candidateCopy = UUID.randomUUID();
+        contract.setStatus(ContractStatus.CANDIDATE_SIGNED);
+        contract.setCandidateSignedAt(Instant.now());
+        contract.setCandidateUploadId(candidateCopy);
+        when(contractRepository.findByIdAndEmployerId(contract.getId(), employer.getId())).thenReturn(Optional.of(contract));
+        when(signatureProvider.sign("mock-1", ContractSignerRole.EMPLOYER)).thenReturn(SignaturePartyResult.of(false, true));
+        when(contractSignerRepository.findByContractIdOrderBySigningOrderAsc(contract.getId())).thenReturn(List.of());
+        when(contractRepository.save(contract)).thenReturn(contract);
+        stubDto(contract);
+
+        ContractDto dto = service.sign(employer, contract.getId());
+
+        assertEquals(ContractStatus.COMPLETED, dto.status());
+        assertEquals(candidateCopy, contract.getSignedUploadId());
+        assertNotNull(contract.getCompletedAt());
+        verify(signatureProvider, never()).downloadSignedDocument(any());
     }
 
     @Test
