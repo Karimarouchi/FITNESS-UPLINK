@@ -2,6 +2,7 @@
 @import "./fu.css";
 @import "./backoffice.css";
 @import "./backoffice-theme.css";
+@import "@/components/brand/brand-logo.css";
 
 @theme {
   --font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
@@ -15,9 +16,9 @@
   --color-paper: #f4f7fb;
   --color-paper-2: #ffffff;
   --color-paper-line: #dde5f0;
-  --color-lime: #1d4ed8;
-  --color-lime-dim: #e8f0ff;
-  --color-coral: #ff5a36;
+  --color-lime: #0048FC;
+  --color-lime-dim: #e8eeff;
+  --color-coral: #FC5101;
   --color-slate: #475569;
   --color-slate-light: #94a3b8;
 
@@ -41,9 +42,9 @@
   --color-primary-container: #0f172a;
   --color-on-primary-container: #7c839f;
   --color-inverse-primary: #bfc5e4;
-  --color-secondary: #0040e0;
+  --color-secondary: #0048FC;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #2e5bff;
+  --color-secondary-container: #1a5cff;
   --color-on-secondary-container: #efefff;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
@@ -57,7 +58,7 @@
   --color-background: #fcf8fb;
   --color-on-background: #1b1b1d;
   --color-surface-variant: #e5e2e4;
-  --color-accent: #e8f0ff;
+  --color-accent: #e8eeff;
   --color-accent-foreground: #0f172a;
   --color-muted: #eef2f7;
   --color-muted-foreground: #475569;
@@ -255,8 +256,8 @@
 
   .auth-input:focus {
     outline: none;
-    border-color: #0040e0;
-    box-shadow: 0 0 0 1px #0040e0;
+    border-color: #0048FC;
+    box-shadow: 0 0 0 1px #0048FC;
   }
 
   .auth-input--password {
@@ -349,7 +350,7 @@
   }
 
   .auth-rule.is-ok {
-    color: #0040e0;
+    color: #0048FC;
   }
 
   .auth-input.is-invalid {
@@ -626,7 +627,7 @@
   }
 
   .fu-control:focus-within .fu-field-icon {
-    color: #0040e0;
+    color: #0048FC;
     transform: translateY(-50%) scale(1.08);
   }
 
@@ -684,7 +685,7 @@
 
   .fu-switch .auth-rule.is-ok {
     background: #e8eeff;
-    color: #0040e0;
+    color: #0048FC;
     transform: none;
   }
 
@@ -766,7 +767,7 @@
   .fu-check input {
     width: 16px;
     height: 16px;
-    accent-color: #0040e0;
+    accent-color: #0048FC;
   }
 
   .fu-check--terms {
@@ -784,7 +785,7 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #0040e0;
+    color: #0048FC;
   }
 
   .fu-link:hover {
@@ -832,7 +833,7 @@
   }
 
   .fu-recaptcha a {
-    color: #0040e0;
+    color: #0048FC;
   }
 
   .fu-panels {
@@ -887,7 +888,7 @@
     pointer-events: all;
   }
 
-  .fu-brand {
+  .fu-panel .fu-brand {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1071,7 +1072,7 @@
   }
 
   .ob-locale button.is-active {
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
   }
 
@@ -1204,7 +1205,7 @@
 
   .ob-dot.is-active {
     width: 24px;
-    background: #1d4ed8;
+    background: #0048FC;
   }
 
   .ob-main {
@@ -1431,7 +1432,7 @@
   }
 
   .profile-card.active {
-    background: #1d4ed8;
+    background: #0048FC;
     box-shadow: inset 0 0 0 2px var(--ink);
   }
 
@@ -1481,7 +1482,7 @@
     padding: 0 22px;
     border: 0;
     border-radius: 2px;
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
     font-size: 13.5px;
     font-weight: 600;
@@ -1538,7 +1539,7 @@
   }
 
   .ob-bar.is-active {
-    background: #1d4ed8;
+    background: #0048FC;
   }
 
   .ob-search {
@@ -1568,7 +1569,7 @@
 
   .ob-search input:focus {
     outline: none;
-    border-color: #0040e0;
+    border-color: #0048FC;
   }
 
   .country-list {
@@ -1661,7 +1662,7 @@
     padding: 0 22px;
     border: 0;
     border-radius: 2px;
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
     font-size: 13.5px;
     font-weight: 600;
@@ -1859,7 +1860,7 @@
 
   .ob-plans-switch.is-on .ob-plans-switch-knob {
     transform: translateX(20px);
-    background: #1d4ed8;
+    background: #0048FC;
   }
 
   .ob-plan-grid {
@@ -1982,12 +1983,12 @@
   }
 
   .ob-plan-cta--lime {
-    background: #1d4ed8;
+    background: #FC5101;
     color: #fff;
   }
 
   .ob-plan-cta--lime:hover:not(:disabled) {
-    background: #c8f02a;
+    background: #e04800;
   }
 
   .ob-plan-cta:disabled {
@@ -2201,7 +2202,7 @@
   .custom-input:focus {
     outline: none;
     border-color: var(--ink);
-    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.45);
+    box-shadow: 0 0 0 3px rgba(0, 72, 252, 0.45);
     background: var(--paper-2);
   }
 
@@ -2576,7 +2577,7 @@
     font-size: 14px;
     font-weight: 800;
     color: #fff;
-    background: #1d4ed8;
+    background: #0048FC;
     border-radius: 2px;
     padding: 4px 8px;
     min-width: 32px;
@@ -2641,7 +2642,7 @@
     height: 36px;
     padding: 0 16px;
     border-radius: 2px;
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
     cursor: pointer;
     font-size: 13.5px;
@@ -2670,7 +2671,7 @@
     gap: 4px;
     border: 0;
     border-radius: 2px;
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
     padding: 6px 10px;
     cursor: pointer;
@@ -2718,7 +2719,7 @@
 
   .slot-day.is-active {
     border-color: var(--ink);
-    background: #1d4ed8;
+    background: #0048FC;
   }
 
   .slot-time-row {
@@ -2743,7 +2744,7 @@
     padding: 0 16px;
     border: 0;
     border-radius: 2px;
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
     font-family: Inter, "Segoe UI", sans-serif;
     font-weight: 700;
@@ -2803,7 +2804,7 @@
 
   .bool-option.is-active {
     border-color: var(--ink);
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
   }
 
@@ -2840,7 +2841,7 @@
   .multi-card.is-active,
   .country-pill.is-active {
     border-color: var(--ink);
-    background: #1d4ed8;
+    background: #0048FC;
     color: #fff;
   }
 
@@ -3021,7 +3022,7 @@
 
   .app-avatar-link:hover .app-avatar,
   .app-avatar-link[aria-current="page"] .app-avatar {
-    border-color: #0040e0;
+    border-color: #0048FC;
   }
 
   .home-welcome {
@@ -3042,7 +3043,7 @@
   }
 
   .home-profile-card:hover {
-    border-color: #0040e0;
+    border-color: #0048FC;
   }
 
   .home-profile-name {
@@ -3057,7 +3058,7 @@
     align-items: center;
     gap: 6px;
     margin: 10px 0 0;
-    color: #0040e0;
+    color: #0048FC;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -3080,7 +3081,7 @@
     padding: 0 10px;
     border-radius: 999px;
     background: #dde1ff;
-    color: #0040e0;
+    color: #0048FC;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -3108,7 +3109,7 @@
     right: -2px;
     bottom: -2px;
     font-size: 16px;
-    color: #0040e0;
+    color: #0048FC;
     background: #ffffff;
     border-radius: 999px;
     font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
@@ -3159,7 +3160,7 @@
   }
 
   .talent-card:hover {
-    border-color: #0040e0;
+    border-color: #0048FC;
   }
 
   .talent-card-copy h2 {
@@ -3191,7 +3192,7 @@
 
   .talent-meta {
     margin: 4px 0 0;
-    color: #0040e0;
+    color: #0048FC;
     font-size: 12px;
     font-weight: 600;
   }
@@ -3254,8 +3255,8 @@
   }
 
   .pipeline-chip.is-active {
-    border-color: #0040e0;
-    color: #0040e0;
+    border-color: #0048FC;
+    color: #0048FC;
     background: #dde1ff;
   }
 
@@ -3269,7 +3270,7 @@
     padding: 12px 16px;
     border-radius: 8px;
     background: #dde1ff;
-    color: #0040e0;
+    color: #0048FC;
   }
 
   .fu-empty {
@@ -3380,7 +3381,7 @@
   }
 
   .pipeline-column.is-drop {
-    border-color: #0040e0;
+    border-color: #0048FC;
     background: #dde1ff;
   }
 
@@ -3422,7 +3423,7 @@
   }
 
   .pipeline-column.is-drop .pipeline-column-empty {
-    color: #0040e0;
+    color: #0048FC;
   }
 
   .pipeline-card {
@@ -3488,7 +3489,7 @@
 
   .pipeline-hired-mark {
     font-weight: 600;
-    color: #0040e0;
+    color: #0048FC;
     margin: 0;
   }
 
@@ -3502,7 +3503,7 @@
   }
 
   .fu-dropzone.is-over {
-    border-color: #0040e0;
+    border-color: #0048FC;
     background: #dde1ff;
   }
 
@@ -3523,7 +3524,7 @@
     padding: 0 8px;
     border-radius: 999px;
     background: #dde1ff;
-    color: #0040e0;
+    color: #0048FC;
     font-size: 12px;
     font-weight: 600;
   }
@@ -3611,7 +3612,7 @@
   }
 
   .verify-check.is-ok {
-    color: #0040e0;
+    color: #0048FC;
     font-weight: 600;
   }
 
@@ -3651,7 +3652,7 @@
     justify-content: center;
     border-radius: 16px;
     background: #f0edef;
-    color: #0040e0;
+    color: #0048FC;
     font-size: 36px;
   }
 }

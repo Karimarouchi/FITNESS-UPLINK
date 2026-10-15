@@ -43,12 +43,7 @@ public class CoachAvailabilityService {
     @Transactional
     public AvailabilityRuleDto createRule(User coach, UpsertAvailabilityRuleRequest request) {
         requireCoach(coach);
-        if (request.dayOfWeek() == null || request.dayOfWeek() < 0 || request.dayOfWeek() > 6) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "DAY_OF_WEEK_INVALID");
-        }
-        if (request.startTime() == null || request.endTime() == null || !request.startTime().isBefore(request.endTime())) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "TIME_RANGE_INVALID");
-        }
+        validateRule(coach, request, null);
         CoachAvailabilityRule rule = CoachAvailabilityRule.builder()
                 .id(UUID.randomUUID())
                 .coachId(coach.getId())
@@ -58,6 +53,35 @@ public class CoachAvailabilityService {
                 .active(true)
                 .build();
         return toDto(ruleRepository.save(rule));
+    }
+
+    @Transactional
+    public AvailabilityRuleDto updateRule(User coach, UUID id, UpsertAvailabilityRuleRequest request) {
+        requireCoach(coach);
+        CoachAvailabilityRule rule = ruleRepository.findByIdAndCoachId(id, coach.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "AVAILABILITY_RULE_NOT_FOUND"));
+        validateRule(coach, request, id);
+        rule.setDayOfWeek(request.dayOfWeek().shortValue());
+        rule.setStartTime(request.startTime());
+        rule.setEndTime(request.endTime());
+        return toDto(ruleRepository.save(rule));
+    }
+
+    /** Checks day and time range, and refuses a window that overlaps another one the same day. */
+    private void validateRule(User coach, UpsertAvailabilityRuleRequest request, UUID ignoreId) {
+        if (request.dayOfWeek() == null || request.dayOfWeek() < 0 || request.dayOfWeek() > 6) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "DAY_OF_WEEK_INVALID");
+        }
+        if (request.startTime() == null || request.endTime() == null || !request.startTime().isBefore(request.endTime())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "TIME_RANGE_INVALID");
+        }
+        boolean overlaps = ruleRepository.findByCoachIdOrderByDayOfWeekAscStartTimeAsc(coach.getId()).stream()
+                .filter(other -> other.isActive() && (ignoreId == null || !other.getId().equals(ignoreId)))
+                .filter(other -> other.getDayOfWeek() == request.dayOfWeek().shortValue())
+                .anyMatch(other -> request.startTime().isBefore(other.getEndTime()) && request.endTime().isAfter(other.getStartTime()));
+        if (overlaps) {
+            throw new ApiException(HttpStatus.CONFLICT, "AVAILABILITY_RULE_OVERLAP");
+        }
     }
 
     @Transactional

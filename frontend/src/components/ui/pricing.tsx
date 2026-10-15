@@ -52,7 +52,7 @@ export function Pricing({
         x: (rect.left + rect.width / 2) / window.innerWidth,
         y: (rect.top + rect.height / 2) / window.innerHeight,
       },
-      colors: ["#1d4ed8", "#60a5fa", "#0f172a", "#dbeafe"],
+      colors: ["#0048FC", "#4d7cff", "#0f172a", "#e8eeff"],
       ticks: 200,
       gravity: 1.2,
       decay: 0.94,

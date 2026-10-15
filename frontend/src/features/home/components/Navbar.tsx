@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import type { NavLinkItem } from "../data";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { PublicAuthActions } from "@/components/layout/PublicAuthActions";
 
 type NavbarProps = {
@@ -26,10 +27,7 @@ export function Navbar({ links }: NavbarProps) {
       <nav aria-label="Navigation principale">
         <div className="fu-nav-inner">
           <Link className="fu-logo" to="/" onClick={() => setOpen(false)}>
-            <span className="fu-logo-mark" aria-hidden="true">
-              FU
-            </span>
-            <span className="fu-logo-word">Fitness Universe</span>
+            <BrandLogo to={null} />
           </Link>
 
           <ul className="fu-nav-links">

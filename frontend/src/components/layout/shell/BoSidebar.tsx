@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, LogOut, X } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isSuperAdmin, shortNameOf } from "@/features/auth/types";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
 import { isSupplierWorkspace, shellSectionsFor, type ShellGroup, type ShellLink } from "./shellNav";
@@ -83,13 +84,7 @@ export function BoSidebar({ open, onClose }: { open: boolean; onClose: () => voi
   return (
     <aside className={`bo-sidebar${open ? " is-open" : ""}`} aria-label="Navigation principale">
       <div className="bo-brand">
-        <div className="bo-brand-mark" aria-hidden="true">
-          F
-        </div>
-        <div className="bo-brand-copy">
-          <div className="bo-brand-name">Fitness Uplink</div>
-          <div className="bo-brand-kicker">{supplier ? "Espace fournisseur" : "Back-office"}</div>
-        </div>
+        <BrandLogo to="/app/dashboard" />
         <button type="button" className="bo-sidebar-close" onClick={onClose} aria-label="Fermer le menu">
           <X size={18} />
         </button>

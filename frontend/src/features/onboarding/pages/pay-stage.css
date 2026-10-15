@@ -3,7 +3,7 @@
 .ob-shell.pay-shell,
 .ob-shell--wide.pay-shell {
   background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(29, 78, 216, 0.16), transparent 55%),
+    radial-gradient(1200px 600px at 50% -10%, rgba(0, 72, 252, 0.16), transparent 55%),
     radial-gradient(900px 500px at 100% 20%, rgba(0, 64, 224, 0.28), transparent 50%),
     #0f172a;
   color: #f4f7fb;
@@ -30,7 +30,7 @@
 }
 
 .pay-shell .ob-locale button.is-active {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
 }
 
@@ -64,7 +64,7 @@
   height: 280px;
   left: 8%;
   top: 20px;
-  background: rgba(29, 78, 216, 0.35);
+  background: rgba(0, 72, 252, 0.35);
 }
 
 .pay-orb--blue {
@@ -123,7 +123,7 @@
 
 .pay-shell .pay-plan {
   background: rgba(244, 245, 241, 0.08);
-  border-color: rgba(29, 78, 216, 0.35);
+  border-color: rgba(0, 72, 252, 0.35);
   color: #f4f7fb;
 }
 
@@ -192,7 +192,7 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  border: 2px solid #1d4ed8;
+  border: 2px solid #0048FC;
   background: transparent;
   flex-shrink: 0;
   margin-top: 1px;
@@ -200,7 +200,7 @@
 }
 
 .pay-cgv.is-on .pay-cgv-box {
-  background: #1d4ed8;
+  background: #0048FC;
 }
 
 .pay-cgv.is-on .pay-cgv-box::after {

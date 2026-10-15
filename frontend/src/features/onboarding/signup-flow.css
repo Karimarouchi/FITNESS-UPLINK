@@ -15,7 +15,7 @@
   --vt-text: #5b6472;
   --vt-paper: #f1f3f6;
   --vt-line: #d9dde3;
-  --vt-lime: #d4f53c;
+  --vt-lime: #FC5101;
   --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
   --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
@@ -512,15 +512,15 @@
 
 .fu-public.ob-shell.pay-shell .ob-locale button.is-active {
   background: var(--vt-lime);
-  color: var(--vt-navy);
+  color: #fff;
 }
 
 .fu-public.ob-shell.pay-shell .pay-orb--lime {
-  background: rgba(212, 245, 60, 0.12);
+  background: rgba(252, 81, 1, 0.12);
 }
 
 .fu-public.ob-shell.pay-shell .pay-orb--blue {
-  background: rgba(37, 99, 235, 0.3);
+  background: rgba(0, 72, 252, 0.3);
 }
 
 .fu-public.ob-shell.pay-shell .ob-plans-title,
@@ -571,7 +571,7 @@
 
 .fu-public.ob-shell.pay-shell .ob-plan-card.is-featured {
   border-color: var(--vt-lime);
-  background: rgba(212, 245, 60, 0.05);
+  background: rgba(252, 81, 1, 0.05);
   box-shadow: none;
   animation: none;
 }

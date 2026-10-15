@@ -7,7 +7,7 @@
    ================================================================== */
 .vx {
   --vx-gutter: clamp(20px, 4.4vw, 72px);
-  --vx-lime: #d4f53c;
+  --vx-lime: #FC5101;
   --vx-cond: "Barlow Condensed", "Oswald", sans-serif;
   --vx-display: Anton, "Bebas Neue", Impact, sans-serif;
   position: relative;

@@ -10,7 +10,7 @@
   --vt-text: #5b6472;
   --vt-paper: #f1f3f6;
   --vt-line: #d9dde3;
-  --vt-lime: #d4f53c;
+  --vt-lime: #FC5101;
   --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
   --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
@@ -28,13 +28,10 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.fu-app .vt-app .app-navbar-logo .mark {
-  border-radius: 0;
-  background: var(--vt-lime);
-  box-shadow: none;
-  color: var(--vt-navy);
-  font-family: var(--vt-display);
-  font-weight: 400;
+.fu-app .vt-app .app-navbar-logo .fu-brand {
+  background: transparent;
+  padding: 0;
+  margin: 0;
 }
 
 .fu-app .vt-app .app-navbar-logo .word {
@@ -105,7 +102,7 @@
 }
 
 .fu-app .vt-app .app-navbar-avatar .app-avatar {
-  box-shadow: 0 0 0 2px var(--vt-navy), 0 0 0 4px rgba(212, 245, 60, 0.6);
+  box-shadow: 0 0 0 2px var(--vt-navy), 0 0 0 4px rgba(252, 81, 1, 0.6);
 }
 
 /* ---------- page header ---------- */
@@ -177,7 +174,7 @@
 .fu-app .vt-app .btn-solid:hover:not(:disabled) {
   border-color: var(--vt-lime);
   background: var(--vt-lime);
-  color: var(--vt-navy);
+  color: #fff;
 }
 
 .fu-app .vt-app .btn-outline,
@@ -389,7 +386,7 @@
 .fu-app .vt-app .btn-mini.primary:hover:not(:disabled) {
   border-color: var(--vt-lime);
   background: var(--vt-lime);
-  color: var(--vt-navy);
+  color: #fff;
 }
 
 .fu-app .vt-app .btn-danger {
@@ -1485,6 +1482,55 @@
   margin-top: 10px;
 }
 
+/* candidate / talent file header: photo | copy, actions on their own row */
+.fu-app .vt-app .hire-fiche-banner.profile-banner {
+  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-areas:
+    "photo copy"
+    "actions actions";
+  align-items: start;
+  gap: 20px 28px;
+}
+
+.fu-app .vt-app .hire-fiche-banner.profile-banner > .profile-banner-copy {
+  grid-area: copy;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+  gap: 6px;
+}
+
+.fu-app .vt-app .hire-fiche-banner.profile-banner > .profile-banner-actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 0;
+}
+
+.fu-app .vt-app .hire-fiche-banner .profile-banner-actions .btn,
+.fu-app .vt-app .hire-fiche-banner .profile-banner-actions a,
+.fu-app .vt-app .hire-fiche-banner .profile-banner-actions button {
+  min-width: 190px;
+  justify-content: center;
+  text-align: center;
+}
+
+.fu-app .vt-app .hire-fiche-banner .pn {
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.05;
+}
+
+.fu-app .vt-app .hire-fiche-banner .pt {
+  margin-top: 0;
+}
+
+.fu-app .vt-app .hire-fiche-banner .ploc {
+  margin-top: 0;
+}
+
 @media (max-width: 640px) {
   .fu-app .vt-app .profile-banner {
     grid-template-columns: 1fr;
@@ -1494,4 +1540,5948 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* design tokens for the shared (member + back-office) blocks below */
+.fu-app .bo-shell {
+  --vt-navy: #0b1a33;
+  --vt-navy-2: #13264a;
+  --vt-grey: #a2a8b3;
+  --vt-text: #5b6472;
+  --vt-paper: #f1f3f6;
+  --vt-line: #d9dde3;
+  --vt-lime: #FC5101;
+  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
+  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-body: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+/* ---------- job offers (cards) ---------- */
+@keyframes jobx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes jobx-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 81, 1, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(252, 81, 1, 0);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 24px 20px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: jobx-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--vt-grey);
+  transition: width 0.28s ease, background 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card.is-published::before {
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 18px 36px -18px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card:hover::before {
+  width: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 24px;
+  transition: transform 0.35s ease, background 0.28s ease, color 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card:hover .jobx-icon {
+  transform: rotate(-8deg) scale(1.08);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-card.is-published .pill,
+.fu-app :is(.vt-app, .bo-shell) .jobx-card.is-published [class*="status"] {
+  animation: jobx-pulse 2.4s ease-in-out infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-facts li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vt-text);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-facts .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-empty {
+  margin: 0;
+  color: var(--vt-grey);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--vt-navy);
+  background: transparent;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn .material-symbols-outlined {
+  font-size: 18px;
+  transition: transform 0.22s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn:hover {
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn:hover .material-symbols-outlined {
+  transform: scale(1.2);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn.is-edit:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn.is-delete {
+  border-color: var(--vt-line);
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn.is-delete:hover {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobx-btn:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .jobx-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .jobx-card {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .jobx-card,
+  .fu-app :is(.vt-app, .bo-shell) .jobx-icon,
+  .fu-app :is(.vt-app, .bo-shell) .jobx-btn {
+    transition: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .jobx-card.is-published .pill,
+  .fu-app :is(.vt-app, .bo-shell) .jobx-card.is-published [class*="status"] {
+    animation: none;
+  }
+}
+
+/* ---------- opportunities (cards) ---------- */
+@keyframes oppx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes oppx-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0;
+  animation: oppx-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 4px;
+  background: var(--vt-lime);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 20px 38px -20px rgba(11, 26, 51, 0.5);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:hover::before {
+  transform: scaleX(1);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  transition: transform 0.35s ease, background 0.28s ease, color 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:hover .oppx-mark {
+  transform: rotate(-6deg) scale(1.08);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-badge .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-badge.is-contract {
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-employer {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-facts {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-facts li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-text);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-facts .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-salary {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-go .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:hover .oppx-go {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:hover .oppx-go .material-symbols-outlined {
+  animation: oppx-arrow 0.9s ease-in-out infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .oppx-card:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .oppx-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .oppx-card {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .oppx-card,
+  .fu-app :is(.vt-app, .bo-shell) .oppx-card::before,
+  .fu-app :is(.vt-app, .bo-shell) .oppx-mark,
+  .fu-app :is(.vt-app, .bo-shell) .oppx-go {
+    transition: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .oppx-card:hover .oppx-go .material-symbols-outlined {
+    animation: none;
+  }
+}
+
+/* ---------- talent search ---------- */
+@keyframes tlx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tlx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes tlx-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes tlx-arrow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-filters {
+  display: grid;
+  gap: 18px;
+  margin: 8px 0 26px;
+  padding: 22px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  animation: tlx-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border: 2px solid var(--vt-navy);
+  background: var(--vt-paper);
+  transition: box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-search:focus-within {
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-search > .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-search input {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-clear {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-clear:hover {
+  transform: rotate(90deg);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-clear .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-field label {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-field input,
+.fu-app :is(.vt-app, .bo-shell) .tlx-field select {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-field input:hover,
+.fu-app :is(.vt-app, .bo-shell) .tlx-field select:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-field input:focus,
+.fu-app :is(.vt-app, .bo-shell) .tlx-field select:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-filters-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggle,
+.fu-app :is(.vt-app, .bo-shell) .tlx-reset,
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggle .material-symbols-outlined,
+.fu-app :is(.vt-app, .bo-shell) .tlx-reset .material-symbols-outlined,
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggle:hover,
+.fu-app :is(.vt-app, .bo-shell) .tlx-reset:hover:not(:disabled),
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn:hover:not(:disabled) {
+  border-color: var(--vt-navy);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggle.is-on,
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn.is-primary {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-reset:disabled,
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-upsell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-upsell a {
+  color: var(--vt-navy);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-count {
+  margin: 0 0 14px;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-count b {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: tlx-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--vt-lime);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:not(.is-skeleton):hover {
+  transform: translateY(-6px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 20px 38px -20px rgba(11, 26, 51, 0.5);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:hover::before {
+  transform: scaleX(1);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-avatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  transition: transform 0.35s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-avatar > * {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 0 !important;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:hover .tlx-avatar {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-id {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-verified {
+  padding: 1px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-size: 18px;
+  font-variation-settings: "FILL" 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-title {
+  margin: 4px 0 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-fav {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-grey);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-fav:hover {
+  border-color: var(--vt-navy);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-fav.is-on {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-fav.is-on .material-symbols-outlined {
+  font-variation-settings: "FILL" 1;
+  animation: tlx-pop 0.4s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-facts {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-facts li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-facts .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-chip {
+  padding: 5px 10px;
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-line);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:hover .tlx-chip {
+  background: #fff;
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  margin-top: auto;
+  border: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.22s ease, color 0.22s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-cta .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:hover .tlx-cta,
+.fu-app :is(.vt-app, .bo-shell) .tlx-cta:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card:hover .tlx-cta .material-symbols-outlined {
+  animation: tlx-arrow 0.9s ease-in-out infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-card.is-skeleton {
+  gap: 12px;
+  min-height: 230px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-sk {
+  display: block;
+  background: linear-gradient(90deg, var(--vt-paper) 25%, #e4e8ee 50%, var(--vt-paper) 75%);
+  background-size: 200% 100%;
+  animation: tlx-shimmer 1.4s linear infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-sk-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-sk-line {
+  height: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-sk-line.is-short {
+  width: 55%;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  border: 1px dashed var(--vt-navy);
+  background: #fff;
+  text-align: center;
+  animation: tlx-rise 0.5s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-empty > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 34px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-empty strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-empty p {
+  max-width: 420px;
+  margin: 0 0 6px;
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-page-num {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-toggle:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .tlx-reset:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .tlx-fav:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .tlx-cta:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .tlx-grid {
+    grid-template-columns: 1fr;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .tlx-filters {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .tlx-card,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-filters,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-empty {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .tlx-sk,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-fav.is-on .material-symbols-outlined,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-card:hover .tlx-cta .material-symbols-outlined {
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .tlx-card,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-avatar,
+  .fu-app :is(.vt-app, .bo-shell) .tlx-card::before {
+    transition: none;
+  }
+}
+
+/* ---------- pipeline modal: stepper + messages ---------- */
+@keyframes stepx-rise {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes stepx-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 81, 1, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(252, 81, 1, 0);
+  }
+}
+
+@keyframes stepx-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel {
+  gap: 18px;
+  padding: 28px;
+  border-radius: 0;
+  border-top: 6px solid var(--vt-lime);
+  animation: modal-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-head h2 {
+  margin: 4px 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-hint {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--vt-line);
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-body {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx {
+  display: grid;
+  gap: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-list {
+  position: relative;
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  opacity: 0;
+  animation: stepx-rise 0.45s ease forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 52px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-done:not(:last-child)::after {
+  background: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-btn {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 8px 10px 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  text-align: left;
+  cursor: pointer;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-btn:disabled {
+  cursor: default;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-grey);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-dot .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-copy strong {
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-copy small {
+  color: var(--vt-text);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-done .stepx-dot {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-current .stepx-dot {
+  border-color: var(--vt-navy);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  animation: stepx-pulse 2s ease-in-out infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-current .stepx-copy small {
+  color: var(--vt-navy);
+  font-weight: 700;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-locked .stepx-copy {
+  opacity: 0.55;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step:not(.is-locked):not(.is-current) .stepx-btn:hover:not(:disabled) .stepx-dot,
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-pending .stepx-dot {
+  transform: scale(1.1);
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-step.is-pending .stepx-copy strong {
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-btn:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .stepx-next:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .stepx-action:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--vt-navy);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-link:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-link .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-confirm {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--vt-navy);
+  background: var(--vt-lime);
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-confirm p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-confirm > div {
+  display: flex;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-action,
+.fu-app :is(.vt-app, .bo-shell) .stepx-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-action:hover,
+.fu-app :is(.vt-app, .bo-shell) .stepx-next:hover {
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-action.is-primary,
+.fu-app :is(.vt-app, .bo-shell) .stepx-next {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-next {
+  width: 100%;
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-next .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* messages */
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-thread {
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-thread h3 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 14px;
+  border-radius: 0;
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble {
+  display: grid;
+  gap: 2px;
+  align-self: flex-start;
+  width: fit-content;
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 0;
+  border-left: 3px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble strong {
+  margin: 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble p {
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble.is-mine {
+  align-self: flex-end;
+  border-left: 0;
+  border-right: 3px solid var(--vt-lime);
+  background: var(--vt-navy);
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble.is-mine strong {
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-thread-compose input.custom-input {
+  height: 44px;
+  border-radius: 0;
+}
+
+@media (max-width: 980px) {
+  .fu-app :is(.vt-app, .bo-shell) .hire-stage-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .hire-stage-panel,
+  .fu-app :is(.vt-app, .bo-shell) .stepx-step,
+  .fu-app :is(.vt-app, .bo-shell) .stepx-confirm,
+  .fu-app :is(.vt-app, .bo-shell) .stepx-next,
+  .fu-app :is(.vt-app, .bo-shell) .hire-stage-panel .hire-bubble {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .stepx-step.is-current .stepx-dot {
+    animation: none;
+  }
+}
+
+/* ---------- my applications (candidate) ---------- */
+@keyframes appx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes appx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes appx-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 81, 1, 0.75);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(252, 81, 1, 0);
+  }
+}
+
+@keyframes appx-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes appx-slide {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  animation: appx-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--vt-grey);
+  transition: width 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card.is-hot::before {
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card.is-win::before {
+  background: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card.is-closed {
+  opacity: 0.75;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card:not(.is-skeleton):hover {
+  transform: translateY(-5px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 18px 36px -18px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card:hover::before {
+  width: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 20px;
+  transition: transform 0.35s ease, background 0.28s ease, color 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card:hover .appx-mark {
+  transform: rotate(-6deg) scale(1.08);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-badge .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-badge.is-hot {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-badge.is-win {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-badge.is-closed {
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-employer {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-interview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-interview .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* progress tracker */
+.fu-app :is(.vt-app, .bo-shell) .appx-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 10px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-done:not(:first-child)::before,
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-current:not(:first-child)::before {
+  background: var(--vt-navy);
+  transform-origin: right;
+  animation: appx-fill 0.6s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-pip {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--vt-line);
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-done .appx-pip {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-current .appx-pip {
+  border-color: var(--vt-navy);
+  background: var(--vt-lime);
+  animation: appx-pulse 2s ease-in-out infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track small {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-done small,
+.fu-app :is(.vt-app, .bo-shell) .appx-track li.is-current small {
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--vt-line);
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-go .material-symbols-outlined {
+  font-size: 18px;
+  transition: transform 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card:hover .appx-go .material-symbols-outlined {
+  transform: translateX(5px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-card:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .appx-btn:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .appx-close:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .appx-cta:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+/* loading + empty */
+.fu-app :is(.vt-app, .bo-shell) .appx-card.is-skeleton {
+  min-height: 190px;
+  cursor: default;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-sk {
+  display: block;
+  background: linear-gradient(90deg, var(--vt-paper) 25%, #e4e8ee 50%, var(--vt-paper) 75%);
+  background-size: 200% 100%;
+  animation: appx-shimmer 1.4s linear infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-sk-mark {
+  width: 48px;
+  height: 48px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-sk-line {
+  height: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-sk-line.is-short {
+  width: 55%;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  border: 1px dashed var(--vt-navy);
+  background: #fff;
+  text-align: center;
+  animation: appx-rise 0.5s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-empty > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 34px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-empty strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-empty p {
+  max-width: 420px;
+  margin: 0 0 6px;
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 20px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-cta:hover {
+  transform: translateY(-2px);
+}
+
+/* detail drawer */
+.fu-app :is(.vt-app, .bo-shell) .appx-drawer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 28px;
+  border-radius: 0;
+  border-top: 6px solid var(--vt-lime);
+  animation: appx-slide 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  padding: 6px 10px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-close:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-close .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-kicker {
+  margin: 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-drawer-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-drawer .appx-track {
+  width: 100%;
+  margin: 8px 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-block {
+  width: 100%;
+  padding: 14px 16px;
+  border-left: 3px solid var(--vt-lime);
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-block h3 {
+  margin: 0 0 6px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-block p {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-btn:hover {
+  transform: translateY(-2px);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-btn.is-danger {
+  margin-top: auto;
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-btn.is-danger:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-drawer .hire-thread {
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .appx-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .appx-card,
+  .fu-app :is(.vt-app, .bo-shell) .appx-empty,
+  .fu-app :is(.vt-app, .bo-shell) .appx-drawer {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .appx-sk,
+  .fu-app :is(.vt-app, .bo-shell) .appx-track li.is-current .appx-pip,
+  .fu-app :is(.vt-app, .bo-shell) .appx-track li.is-done:not(:first-child)::before,
+  .fu-app :is(.vt-app, .bo-shell) .appx-track li.is-current:not(:first-child)::before {
+    animation: none;
+  }
+}
+
+/* ---------- coaching agenda ---------- */
+@keyframes agx-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-nav-label {
+  min-width: 128px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-nav-btn:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-nav-today {
+  padding: 6px 10px;
+  border: 1px solid var(--vt-navy);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-slot-editable {
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-slot-editable:hover,
+.fu-app :is(.vt-app, .bo-shell) .agx-slot-editable:focus-visible {
+  filter: brightness(0.94);
+  box-shadow: inset 0 0 0 2px var(--vt-navy);
+  outline: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-range {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-flag {
+  display: block;
+  margin-top: 2px;
+  color: #c0392b;
+  font-family: var(--vt-cond);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked {
+  padding: 18px 22px 22px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked h3 {
+  margin: 0 0 10px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 10px;
+  border: 1px solid var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-text);
+  font-size: 13px;
+  animation: agx-in 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li .material-symbols-outlined {
+  color: #c0392b;
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li b {
+  color: var(--vt-navy);
+  text-transform: capitalize;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: transparent;
+  color: var(--vt-text);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li button:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-blocked li button .material-symbols-outlined {
+  color: inherit;
+  font-size: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-modal {
+  display: grid;
+  gap: 14px;
+  width: min(440px, calc(100vw - 32px));
+  margin: auto;
+  padding: 26px;
+  border-top: 6px solid var(--vt-lime);
+  background: #fff;
+  box-shadow: 0 30px 60px -20px rgba(11, 26, 51, 0.5);
+  animation: agx-in 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-modal h3 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 28px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-modal-sub {
+  margin: -6px 0 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-modal-times {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--vt-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-modal,
+  .fu-app :is(.vt-app, .bo-shell) .agx-blocked li {
+    animation: none;
+  }
+}
+
+/* ---------- weekly schedule editor ---------- */
+.fu-app :is(.vt-app, .bo-shell) .agx-week {
+  display: grid;
+  gap: 14px;
+  padding: 0 22px 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-week-hint {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-week-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day {
+  display: grid;
+  grid-template-columns: 52px 130px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 8px 16px;
+  border: 1px solid var(--vt-line);
+  border-left: 4px solid var(--vt-line);
+  background: #fff;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day.is-open {
+  border-left-color: var(--vt-lime);
+  background: #fbfdf2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-name {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-off {
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-times {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-times input {
+  width: 140px;
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 15px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-times input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-times small {
+  color: var(--vt-text);
+  font-size: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid var(--vt-navy);
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--vt-navy);
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-switch[aria-checked="true"] {
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-switch[aria-checked="true"] span {
+  transform: translateX(22px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-switch:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-day {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+  .fu-app :is(.vt-app, .bo-shell) .agx-day-times,
+  .fu-app :is(.vt-app, .bo-shell) .agx-day-off {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-switch,
+  .fu-app :is(.vt-app, .bo-shell) .agx-switch span,
+  .fu-app :is(.vt-app, .bo-shell) .agx-day {
+    transition: none;
+  }
+}
+
+/* ---------- weekly schedule editor: multi-window days ---------- */
+.fu-app :is(.vt-app, .bo-shell) .agx-day {
+  align-items: start;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day > .agx-switch,
+.fu-app :is(.vt-app, .bo-shell) .agx-day > .agx-day-name,
+.fu-app :is(.vt-app, .bo-shell) .agx-day > .agx-day-off {
+  margin-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-window {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-window.is-bad input {
+  border-color: #c0392b;
+  background: #fdf1ef;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-window input {
+  width: 140px;
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 15px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-window input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-text);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-icon-btn:hover {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-icon-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-day-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-link-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-link-btn.is-strong {
+  padding: 6px 14px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  text-decoration: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-link-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--vt-navy);
+  background: #fff;
+  color: var(--vt-text);
+  font-size: 13px;
+  animation: agx-in 0.25s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-chip {
+  padding: 5px 10px;
+  border: 1px solid var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-chip:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-chip.is-on {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-warn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-left: 4px solid #c9820a;
+  background: #fff6e5;
+  color: #6b4500;
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-warn button {
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 1px solid #6b4500;
+  background: #fff;
+  color: #6b4500;
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-warn button:hover {
+  background: #6b4500;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-copy {
+    animation: none;
+  }
+}
+
+/* ---------- collapsible panel ---------- */
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 22px;
+  border: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-head:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-head:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: -3px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-head h2 {
+  flex: 1;
+  margin: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-dot {
+  padding: 4px 10px;
+  background: #fff6e5;
+  border-left: 3px solid #c9820a;
+  color: #6b4500;
+  font-size: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-state {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold.is-open .agx-fold-icon {
+  transform: rotate(180deg);
+}
+
+/* height animation without measuring: 0fr -> 1fr */
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  border-top: 1px solid transparent;
+  transition: grid-template-rows 0.35s ease, border-color 0.35s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold.is-open .agx-fold-body {
+  grid-template-rows: 1fr;
+  border-top-color: var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold-inner {
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  padding-top: 14px;
+  transition: visibility 0s linear 0.35s;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-fold.is-open .agx-fold-inner {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-fold-body,
+  .fu-app :is(.vt-app, .bo-shell) .agx-fold-icon,
+  .fu-app :is(.vt-app, .bo-shell) .agx-fold-inner {
+    transition: none;
+  }
+}
+
+/* ---------- coaching packs ---------- */
+@keyframes pcx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pcx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pcx-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 8px 0 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-stat {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  grid-template-areas: "icon num" "icon label";
+  column-gap: 14px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: pcx-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-stat .material-symbols-outlined {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 26px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-stat b {
+  grid-area: num;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-stat small {
+  grid-area: label;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-title {
+  margin: 28px 0 14px;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* form */
+.fu-app :is(.vt-app, .bo-shell) .pcx-form {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 8px;
+  padding: 24px;
+  border: 1px solid var(--vt-navy);
+  border-top: 6px solid var(--vt-lime);
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-form h2 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-type:hover {
+  border-color: var(--vt-navy);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-type.is-on {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-type .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--vt-paper);
+  border-left: 3px solid var(--vt-lime);
+  color: var(--vt-navy);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-hint .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--vt-line);
+}
+
+/* offer cards */
+.fu-app :is(.vt-app, .bo-shell) .pcx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: pcx-rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--vt-lime);
+  transition: width 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card.is-off::before {
+  background: var(--vt-grey);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card.is-off .pcx-name,
+.fu-app :is(.vt-app, .bo-shell) .pcx-card.is-off .pcx-price,
+.fu-app :is(.vt-app, .bo-shell) .pcx-card.is-off .pcx-facts {
+  opacity: 0.6;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card:not(.is-skeleton):hover {
+  transform: translateY(-5px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 18px 36px -18px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card:hover::before {
+  width: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 26px;
+  transition: transform 0.35s ease, background 0.28s ease, color 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card:hover .pcx-icon {
+  transform: rotate(-8deg) scale(1.08);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-badge {
+  padding: 5px 10px;
+  border: 1px solid var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-badge.is-live,
+.fu-app :is(.vt-app, .bo-shell) .pcx-badge.is-active {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-badge.is-exhausted {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-badge.is-expired {
+  color: #c0392b;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-name {
+  margin: 4px 0 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-price {
+  margin: 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-price b {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-facts {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-facts li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-facts .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-meta {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-actions,
+.fu-app :is(.vt-app, .bo-shell) .pcx-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-confirm {
+  color: #c0392b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-confirm span {
+  flex: 1 1 100%;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn.is-primary {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn.is-ghost-danger {
+  margin-left: auto;
+  border-color: var(--vt-line);
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn.is-ghost-danger:hover,
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn.is-danger {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid var(--vt-navy);
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--vt-navy);
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-switch[aria-checked="true"] {
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-switch[aria-checked="true"] span {
+  transform: translateX(22px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-switch:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .pcx-btn:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .pcx-type:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+/* sold packs */
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold li {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.3fr) minmax(120px, 1fr) 56px auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--vt-line);
+  border-left: 4px solid var(--vt-navy);
+  background: #fff;
+  opacity: 0;
+  animation: pcx-rise 0.45s ease forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold-main strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold-main small {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sold-count {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 20px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-bar {
+  height: 10px;
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-line);
+  overflow: hidden;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-bar span {
+  display: block;
+  height: 100%;
+  background: var(--vt-navy);
+  transform-origin: left;
+  animation: pcx-grow 0.7s ease both;
+}
+
+/* empty + skeleton */
+.fu-app :is(.vt-app, .bo-shell) .pcx-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  border: 1px dashed var(--vt-navy);
+  background: #fff;
+  text-align: center;
+  animation: pcx-rise 0.5s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-empty.is-small {
+  padding: 28px 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-empty > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 30px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-empty strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-empty p {
+  max-width: 440px;
+  margin: 0 0 4px;
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-card.is-skeleton {
+  min-height: 170px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sk {
+  display: block;
+  height: 18px;
+  background: linear-gradient(90deg, var(--vt-paper) 25%, #e4e8ee 50%, var(--vt-paper) 75%);
+  background-size: 200% 100%;
+  animation: pcx-shimmer 1.4s linear infinite;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-sk.is-short {
+  width: 55%;
+}
+
+@media (max-width: 720px) {
+  .fu-app :is(.vt-app, .bo-shell) .pcx-sold li {
+    grid-template-columns: 1fr auto;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .pcx-sold .pcx-bar {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .pcx-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .pcx-stat,
+  .fu-app :is(.vt-app, .bo-shell) .pcx-card,
+  .fu-app :is(.vt-app, .bo-shell) .pcx-sold li,
+  .fu-app :is(.vt-app, .bo-shell) .pcx-empty {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .pcx-bar span,
+  .fu-app :is(.vt-app, .bo-shell) .pcx-sk {
+    animation: none;
+  }
+}
+
+/* ---------- coaching services (extras on top of the pcx blocks) ---------- */
+.fu-app :is(.vt-app, .bo-shell) .pcx-desc {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--vt-text);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-inline input {
+  width: 90px;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 15px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-inline input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcx-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--vt-navy);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- coaching agenda: brand theme ---------- */
+.fu-app .vt-app,
+.fu-app .bo-shell {
+  --vt-lime-soft: #ffe8dc;
+}
+
+/* stat cards */
+.fu-app :is(.vt-app, .bo-shell) .agx-page .cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin: 8px 0 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .kcard {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .kcard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .kcard:hover {
+  transform: translateY(-4px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 16px 30px -18px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .kcard .lbl {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .kcard .val {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* panels */
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel {
+  margin-bottom: 22px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel-head h2 {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .empty-hint {
+  color: var(--vt-text);
+}
+
+/* week calendar */
+.fu-app :is(.vt-app, .bo-shell) .agx-page .week-grid {
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .week-grid .hd {
+  padding: 12px 6px;
+  border-color: var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .week-grid .time {
+  border-color: var(--vt-line);
+  background: var(--vt-paper);
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .week-grid .slot {
+  border-color: var(--vt-line);
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .legend {
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .legend .sw {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: -2px;
+}
+
+/* inline forms (+ créneau / + indisponibilité) */
+.fu-app :is(.vt-app, .bo-shell) .agx-page .calendar-form-card-inner {
+  border: 1px solid var(--vt-navy);
+  border-top: 6px solid var(--vt-lime);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .calendar-form-card-title {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* form controls */
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field > span {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field input,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field select,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field textarea,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel input[type="datetime-local"],
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel input:not([type]) {
+  min-height: 44px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field input:hover,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field select:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field input:focus,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field select:focus,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field textarea:focus,
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .field-hint {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+/* the page itself rises in */
+@keyframes agx-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel {
+  animation: agx-page-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel:nth-of-type(2) {
+  animation-delay: 0.06s;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .agx-page .panel:nth-of-type(3) {
+  animation-delay: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .agx-page .panel {
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .agx-page .kcard {
+    transition: none;
+  }
+}
+
+/* ---------- professional dashboard ---------- */
+@keyframes pdx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pdx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pdx-ring {
+  from {
+    --pdx-fill: 0;
+  }
+}
+
+@property --pdx-fill {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx {
+  display: grid;
+  gap: 22px;
+}
+
+/* hero */
+.fu-app :is(.vt-app, .bo-shell) .pdx-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: clamp(24px, 3.4vw, 44px);
+  background:
+    linear-gradient(100deg, rgba(11, 26, 51, 0.96) 0%, rgba(11, 26, 51, 0.78) 100%),
+    url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+  color: #fff;
+  animation: pdx-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kicker {
+  margin: 0 0 8px;
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-hero h1 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-hero h1 span {
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-chip {
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-ring {
+  --pdx-fill: 0;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, var(--vt-navy) 82%, transparent 84%),
+    conic-gradient(var(--vt-lime) calc(var(--pdx-fill) * 1%), rgba(255, 255, 255, 0.18) 0);
+  animation: pdx-ring-fill 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+  text-align: center;
+}
+
+@keyframes pdx-ring-fill {
+  from {
+    --pdx-fill: 0;
+  }
+  to {
+    --pdx-fill: var(--p, 0);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-ring b {
+  display: block;
+  color: #fff;
+  font-family: var(--vt-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-ring small {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--vt-cond);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* KPI row */
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-areas: "icon num" "icon label";
+  column-gap: 14px;
+  align-items: center;
+  padding: 16px 18px;
+  overflow: hidden;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  opacity: 0;
+  animation: pdx-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms + 120ms);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi:hover {
+  transform: translateY(-4px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 16px 28px -18px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi .material-symbols-outlined {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 24px;
+  transition: transform 0.3s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi:hover .material-symbols-outlined {
+  transform: rotate(-8deg) scale(1.08);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi b {
+  grid-area: num;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi small {
+  grid-area: label;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-kpi.is-alert {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime-soft, #ffe8dc);
+}
+
+/* columns + cards */
+.fu-app :is(.vt-app, .bo-shell) .pdx-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-main,
+.fu-app :is(.vt-app, .bo-shell) .pdx-side {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card {
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: pdx-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s forwards;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header h2 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header a,
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header button,
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header span {
+  border: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header a,
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header button {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card > header span {
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 22px 20px;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-empty .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-empty a {
+  color: var(--vt-navy);
+  font-weight: 700;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-skeleton {
+  height: 110px;
+  margin: 16px 20px;
+  background: linear-gradient(90deg, var(--vt-paper) 25%, #e4e8ee 50%, var(--vt-paper) 75%);
+  background-size: 200% 100%;
+  animation: pdx-shimmer 1.4s linear infinite;
+}
+
+/* lists */
+.fu-app :is(.vt-app, .bo-shell) .pdx-card ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-card li + li {
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-tasks a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: var(--vt-navy);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-tasks a > span:nth-child(2) {
+  flex: 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-tasks li.is-urgent {
+  border-left: 4px solid var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-tasks a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-go {
+  transition: transform 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) a:hover > .pdx-go {
+  transform: translateX(5px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-apps a {
+  display: grid;
+  gap: 6px;
+  padding: 16px 20px;
+  color: var(--vt-navy);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-apps a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-app-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-app-top strong {
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-pill {
+  padding: 4px 10px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-apps small,
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps small,
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions small,
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs small {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-track {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-track span {
+  height: 6px;
+  background: var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-track span.is-done {
+  background: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-track span.is-current {
+  background: var(--vt-lime);
+  box-shadow: 0 0 0 1px var(--vt-navy) inset;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions time {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  text-align: center;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions time b {
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions time small {
+  color: #fff;
+  font-family: var(--vt-cond);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions div {
+  display: grid;
+  gap: 2px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-sessions strong,
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps strong,
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs strong {
+  color: var(--vt-navy);
+  font-size: 14px;
+}
+
+/* side cards */
+.fu-app :is(.vt-app, .bo-shell) .pdx-check a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  color: var(--vt-navy);
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-check a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-check li .material-symbols-outlined {
+  color: var(--vt-grey);
+  font-size: 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-check li.is-done .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-variation-settings: "FILL" 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-check li.is-done a {
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps a {
+  display: grid;
+  gap: 3px;
+  padding: 14px 20px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps b {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs a > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs a > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs li.is-unread a > .material-symbols-outlined {
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-notifs li.is-unread strong {
+  font-weight: 800;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx a:focus-visible,
+.fu-app :is(.vt-app, .bo-shell) .pdx button:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+@media (max-width: 980px) {
+  .fu-app :is(.vt-app, .bo-shell) .pdx-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .pdx-hero,
+  .fu-app :is(.vt-app, .bo-shell) .pdx-kpi,
+  .fu-app :is(.vt-app, .bo-shell) .pdx-card {
+    opacity: 1;
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .pdx-ring {
+    --pdx-fill: var(--p, 0);
+    animation: none;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .pdx-skeleton {
+    animation: none;
+  }
+}
+
+/* ---------- professional dashboard: shortcuts ---------- */
+.fu-app :is(.vt-app, .bo-shell) .pdx-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-links a:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-links .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-links a:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+/* ---------- employer dashboard extras ---------- */
+@keyframes pdx-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 22px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-cta:hover {
+  transform: translateY(-3px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-cta.is-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: transparent;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-cta.is-ghost:hover {
+  background: #fff;
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-cta:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* funnel */
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 18px 20px 6px;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel li {
+  display: grid;
+  grid-template-columns: 110px 1fr 36px;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel-label {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel-bar {
+  display: block;
+  height: 14px;
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel-bar > span {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--vt-navy);
+  transform-origin: left;
+  animation: pdx-bar 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 300ms);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel li:first-child .pdx-funnel-bar > span,
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel li:last-child .pdx-funnel-bar > span {
+  background: var(--vt-lime);
+  box-shadow: inset 0 0 0 1px var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-funnel b {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 20px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-foot {
+  margin: 0;
+  padding: 12px 20px 16px;
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-pill.is-muted {
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-line);
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-opps li a .pdx-pill {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .fu-app :is(.vt-app, .bo-shell) .pdx-funnel li {
+    grid-template-columns: 84px 1fr 30px;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .pdx-funnel-bar > span {
+    animation: none;
+  }
+}
+
+/* ---------- favourites + generic page tools ---------- */
+.fu-app :is(.vt-app, .bo-shell) .tlx-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-actions .tlx-cta {
+  margin-top: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-actions .tlx-btn {
+  justify-content: center;
+  min-height: 46px;
+  text-decoration: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn {
+  text-decoration: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-page .btn-outline,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .btn-outline {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-page .btn-outline:hover,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .btn-outline:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  transform: translateY(-2px);
+}
+
+/* ---------- applications inbox + contracts ---------- */
+.fu-app :is(.vt-app, .bo-shell) .dsx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 14px;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-title b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-card.is-new::before {
+  transform: scaleX(1);
+  background: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .dsx-actions .tlx-btn {
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 10px;
+  font-size: 12.5px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn.is-danger {
+  border-color: var(--vt-line);
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .tlx-btn.is-danger:hover:not(:disabled) {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+/* ---------- contracts ---------- */
+.fu-app :is(.vt-app, .bo-shell) .ctx-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin: 8px 0 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-item {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1.3fr) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  border: 1px solid var(--vt-line);
+  border-left: 4px solid var(--vt-grey);
+  background: #fff;
+  opacity: 0;
+  animation: pdx-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-item.is-action {
+  border-left-color: var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-item.is-done {
+  border-left-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-item:hover {
+  transform: translateX(4px);
+  border-color: var(--vt-navy);
+  box-shadow: 0 14px 28px -20px rgba(11, 26, 51, 0.45);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 26px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-main strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-main small,
+.fu-app :is(.vt-app, .bo-shell) .ctx-meta small {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-meta {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-meta span {
+  color: var(--vt-navy);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-item:hover .ctx-open,
+.fu-app :is(.vt-app, .bo-shell) .ctx-open:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ctx-open .material-symbols-outlined {
+  font-size: 18px;
+}
+
+@media (max-width: 900px) {
+  .fu-app :is(.vt-app, .bo-shell) .ctx-item {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+  }
+  .fu-app :is(.vt-app, .bo-shell) .ctx-meta {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .fu-app :is(.vt-app, .bo-shell) .dsx-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .ctx-item {
+    opacity: 1;
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ---------- job offer form (hire pages) ---------- */
+.fu-app :is(.vt-app, .bo-shell) .hire-page .panel {
+  margin-bottom: 22px;
+  border: 1px solid var(--vt-navy);
+  border-top: 6px solid var(--vt-lime);
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+  animation: pdx-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .panel-head h2 {
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 24px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-fields .field--full {
+  grid-column: 1 / -1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field label,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field input,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field select,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field textarea {
+  min-height: 130px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field input:hover,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field select:hover,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field textarea:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field input:focus,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field select:focus,
+.fu-app :is(.vt-app, .bo-shell) .hire-page .field textarea:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-salary {
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-chips .tag {
+  padding: 5px 10px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-chips .tag:hover {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .jobs-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .hire-page .panel {
+    animation: none;
+  }
+}
+
+/* ---------- opportunity detail ---------- */
+.fu-app :is(.vt-app, .bo-shell) .ofx {
+  display: grid;
+  gap: 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: gap 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-back:hover {
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-hero {
+  align-items: flex-end;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-hero-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(32px, 4.4vw, 56px);
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 30px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-mark.is-small {
+  width: 46px;
+  height: 46px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 19px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-chip.is-lime {
+  border-color: var(--vt-lime);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-chip.is-warn {
+  border-color: #ffb347;
+  color: #ffd391;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pdx-chip .material-symbols-outlined {
+  font-size: 16px;
+  vertical-align: -3px;
+}
+
+button.pdx-cta {
+  border: 0;
+  cursor: pointer;
+}
+
+/* key facts */
+.fu-app :is(.vt-app, .bo-shell) .ofx-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-fact {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-areas: "icon label" "icon value";
+  column-gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  opacity: 0;
+  animation: pdx-rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms + 150ms);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-fact .material-symbols-outlined {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  font-size: 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-fact small {
+  grid-area: label;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-fact b {
+  grid-area: value;
+  color: var(--vt-navy);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+/* body */
+.fu-app :is(.vt-app, .bo-shell) .ofx-body {
+  display: grid;
+  gap: 12px;
+  padding: 18px 22px 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-body p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 15.5px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-body p.ofx-muted {
+  color: var(--vt-text);
+  font-style: italic;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-sub {
+  margin: 6px 0 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-employer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px 22px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-employer div {
+  display: grid;
+  gap: 2px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-employer strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-employer small {
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+/* sticky side */
+.fu-app :is(.vt-app, .bo-shell) .ofx-sticky {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-apply {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-top: 6px solid var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-apply p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--vt-cond);
+  font-size: 16px !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-state.is-ok .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-variation-settings: "FILL" 1;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 20px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-btn:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-btn.is-primary {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-btn.is-primary:hover {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-btn:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-expiry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-expiry .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+/* other offers */
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list li + li {
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list a:hover {
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-copy strong {
+  color: var(--vt-navy);
+  font-size: 15px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-copy small {
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list b {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list a > .material-symbols-outlined {
+  color: var(--vt-navy);
+  transition: transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ofx-more-list a:hover > .material-symbols-outlined {
+  transform: translateX(5px);
+}
+
+@media (max-width: 980px) {
+  .fu-app :is(.vt-app, .bo-shell) .ofx-sticky {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .fu-app :is(.vt-app, .bo-shell) .ofx-hero-main {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .ofx-fact {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ---------- pipeline: interview form + details ---------- */
+.fu-app :is(.vt-app, .bo-shell) .stepx-form,
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 2px solid var(--vt-navy);
+  background: #fff;
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form h3 {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form > p {
+  margin: -4px 0 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-modes button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-modes button:hover {
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-modes button.is-on {
+  border-color: var(--vt-navy);
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form label {
+  display: grid;
+  gap: 5px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form label > span {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-tip .material-symbols-outlined {
+  color: var(--vt-navy);
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 4px solid #c0392b;
+  background: #fdf1ef;
+  color: #7a1f14;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-action:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* details of the planned interview */
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview {
+  border-color: var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview header strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview header button {
+  border: 0;
+  background: transparent;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+  margin: 0;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview dt {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview dd {
+  margin: 2px 0 0;
+  color: var(--vt-navy);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview dd a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vt-navy);
+  text-transform: none;
+  text-decoration: underline;
+  text-decoration-color: var(--vt-lime);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-interview dd .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-confirm .stepx-error {
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-meet {
+  border-left-color: var(--vt-navy);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-meet p b {
+  color: var(--vt-navy);
+  text-transform: capitalize;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-join {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 46px;
+  margin-top: 6px;
+  padding: 0 18px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .appx-join:hover {
+  transform: translateY(-2px);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+/* ---------- negotiation ---------- */
+.fu-app :is(.vt-app, .bo-shell) .ngx {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--vt-navy);
+  background: #fff;
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx > header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-agreed {
+  padding: 4px 10px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-deal {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-left: 4px solid var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-deal p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 15px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-deal small {
+  color: var(--vt-text);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-contract {
+  width: fit-content;
+  text-decoration: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-empty,
+.fu-app :is(.vt-app, .bo-shell) .ngx-wait {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer {
+  display: grid;
+  gap: 4px;
+  max-width: 92%;
+  padding: 12px 14px;
+  border-left: 3px solid var(--vt-navy);
+  background: var(--vt-paper);
+  animation: stepx-pop 0.3s ease both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer.is-mine {
+  justify-self: end;
+  border-left: 0;
+  border-right: 3px solid var(--vt-lime);
+  background: #eef0f6;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer.is-superseded,
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer.is-declined {
+  opacity: 0.65;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer.is-accepted {
+  border-color: var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer-top strong {
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-state {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer.is-proposed .ngx-state {
+  padding: 2px 8px;
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-money {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 26px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-meta,
+.fu-app :is(.vt-app, .bo-shell) .ngx-note {
+  margin: 0;
+  color: var(--vt-text);
+  font-size: 13.5px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-note {
+  color: var(--vt-navy);
+  font-style: italic;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-offer > small {
+  color: var(--vt-grey);
+  font-size: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-answer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .ngx-form {
+  border-color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-form select:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .ngx,
+  .fu-app :is(.vt-app, .bo-shell) .ngx-offer {
+    animation: none;
+  }
+}
+
+/* ---------- contract preparation drawer ---------- */
+@keyframes pcd-in {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: min(560px, 100%);
+  padding: 26px 28px 32px;
+  overflow-y: auto;
+  border-radius: 0;
+  border-top: 6px solid var(--vt-lime);
+  background: #fff;
+  animation: pcd-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-kicker {
+  margin: 0;
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-close:hover {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-title {
+  margin: 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-parties {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 14px 16px;
+  border-left: 4px solid var(--vt-lime);
+  background: var(--vt-paper);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-parties div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-parties dt {
+  color: var(--vt-text);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-parties dd {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* steps */
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--vt-line);
+  color: var(--vt-grey);
+  font-family: var(--vt-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid currentColor;
+  font-size: 12px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li.is-current {
+  border-bottom-color: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li.is-current span {
+  background: var(--vt-lime);
+  border-color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li.is-done {
+  border-bottom-color: var(--vt-navy);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-steps li.is-done span {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+/* source choice */
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices {
+  display: grid;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices button {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-areas: "icon title" "icon text";
+  column-gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+  color: var(--vt-navy);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices button:hover {
+  border-color: var(--vt-navy);
+  transform: translateY(-2px);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices button.is-on {
+  border-color: var(--vt-navy);
+  background: #fcfef2;
+  box-shadow: inset 4px 0 0 var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices .material-symbols-outlined {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 24px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices strong {
+  grid-area: title;
+  font-family: var(--vt-cond);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-choices small {
+  grid-area: text;
+  color: var(--vt-text);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-note,
+.fu-app :is(.vt-app, .bo-shell) .pcd .talent-meta {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 4px solid #c9820a;
+  background: #fff6e5;
+  color: #6b4500;
+  font-size: 13px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 4px solid #c0392b;
+  background: #fdf1ef;
+  color: #7a1f14;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* form + file + preview */
+.fu-app :is(.vt-app, .bo-shell) .pcd .fu-form {
+  display: grid;
+  gap: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fu-field {
+  display: grid;
+  gap: 6px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fu-inline {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 10px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .custom-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 0;
+  background: #fff;
+  color: var(--vt-navy);
+  font-family: var(--vt-body);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .custom-textarea {
+  min-height: 96px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .custom-input:focus {
+  outline: 0;
+  border-color: var(--vt-navy);
+  box-shadow: 0 0 0 3px var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fu-dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px 16px;
+  border: 2px dashed var(--vt-navy);
+  background: var(--vt-paper);
+  color: var(--vt-navy);
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fu-dropzone.is-over {
+  background: #fcfef2;
+  border-color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .verify-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--vt-line);
+  background: #fff;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd h3 {
+  margin: 4px 0 0;
+  color: var(--vt-navy);
+  font-family: var(--vt-display);
+  font-size: 22px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fiche-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .fiche-list li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--vt-navy);
+  background: var(--vt-paper);
+  font-size: 13px;
+}
+
+/* buttons */
+.fu-app :is(.vt-app, .bo-shell) .pcd .fiche-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-line);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-primary,
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 20px;
+  border: 1px solid var(--vt-navy);
+  border-radius: 0;
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-primary {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-secondary {
+  background: #fff;
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-primary:hover:not(:disabled),
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-primary:disabled,
+.fu-app :is(.vt-app, .bo-shell) .pcd .ob-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .pcd button:focus-visible {
+  outline: 3px solid var(--vt-lime);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app :is(.vt-app, .bo-shell) .pcd {
+    animation: none;
+  }
+}
+
+/* ---------- contract drawer: action bar always visible ---------- */
+.fu-app :is(.vt-app, .bo-shell) .pcd .pcd-sticky {
+  position: sticky;
+  bottom: -32px;
+  z-index: 2;
+  margin: 8px -28px -32px;
+  padding: 14px 28px;
+  border-top: 2px solid var(--vt-navy);
+  background: #fff;
+  box-shadow: 0 -12px 20px -16px rgba(11, 26, 51, 0.4);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-link.is-strong {
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .stepx-link.is-strong:hover {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+/* ---------- candidate: download, sign by hand, upload ---------- */
+.fu-app :is(.vt-app, .bo-shell) .sgx-steps {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-steps li {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-n {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-display);
+  font-size: 20px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-steps strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--vt-navy);
+  font-family: var(--vt-cond);
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-steps p {
+  margin: 0 0 10px;
+  color: var(--vt-text);
+  font-size: 14px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-drop {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 2px dashed var(--vt-navy);
+  background: var(--vt-paper);
+  text-align: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-drop.is-over {
+  border-color: var(--vt-lime);
+  background: #fcfef2;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-drop > .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-size: 26px;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-drop p {
+  margin: 0;
+  color: var(--vt-navy);
+  font-weight: 600;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-pick {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  background: var(--vt-navy);
+  color: var(--vt-lime);
+  font-family: var(--vt-cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-pick:hover:not(:disabled) {
+  background: var(--vt-lime);
+  color: var(--vt-navy);
+}
+
+.fu-app :is(.vt-app, .bo-shell) .sgx-pick:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }

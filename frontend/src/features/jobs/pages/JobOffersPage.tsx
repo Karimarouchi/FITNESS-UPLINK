@@ -370,29 +370,61 @@ export function JobOffersPage() {
           </Button>
         </div>
       ) : (
-        <div className="hire-grid">
-          {items.map((offer) => (
-            <article key={offer.id} className="hire-card">
-              <div className="hire-card-copy">
-                <strong>{offer.title}</strong>
-                <p>
-                  {[offer.position, offer.location, contractLabel(offer.contractType)].filter(Boolean).join(" · ") ||
-                    "Détails non renseignés"}
-                </p>
-                <StatusPill tone={offer.status === "PUBLISHED" ? "verified" : "pending"}>
-                  {offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"}
-                </StatusPill>
-              </div>
-              <div className="jobs-offer-actions">
-                <Button variant="mini" type="button" onClick={() => fill(offer)}>
-                  Modifier
-                </Button>
-                <Button variant="outline" type="button" onClick={() => void remove(offer.id)}>
-                  Supprimer
-                </Button>
-              </div>
-            </article>
-          ))}
+        <div className="jobx-grid">
+          {items.map((offer, index) => {
+            const published = offer.status === "PUBLISHED";
+            const salary = offer.salaryAmount ? `${offer.salaryAmount} ${offer.salaryCurrency ?? ""}`.trim() : null;
+            const facts = [
+              { icon: "badge", text: offer.position },
+              { icon: "location_on", text: offer.location },
+              { icon: "description", text: contractLabel(offer.contractType) },
+              { icon: "payments", text: salary },
+              { icon: "workspace_premium", text: offer.experience },
+            ].filter((fact) => fact.text);
+            return (
+              <article
+                key={offer.id}
+                className={published ? "jobx-card is-published" : "jobx-card"}
+                style={{ "--i": index } as React.CSSProperties}
+              >
+                <div className="jobx-top">
+                  <span className="jobx-icon material-symbols-outlined" aria-hidden="true">
+                    work
+                  </span>
+                  <StatusPill tone={published ? "verified" : "pending"}>{published ? "Publiée" : "Brouillon"}</StatusPill>
+                </div>
+                <h3 className="jobx-title">{offer.title}</h3>
+                {facts.length ? (
+                  <ul className="jobx-facts">
+                    {facts.map((fact) => (
+                      <li key={fact.icon}>
+                        <span className="material-symbols-outlined" aria-hidden="true">
+                          {fact.icon}
+                        </span>
+                        {fact.text}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="jobx-empty">Détails non renseignés</p>
+                )}
+                <div className="jobx-actions">
+                  <button className="jobx-btn is-edit" type="button" onClick={() => fill(offer)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      edit
+                    </span>
+                    Modifier
+                  </button>
+                  <button className="jobx-btn is-delete" type="button" onClick={() => void remove(offer.id)}>
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      delete
+                    </span>
+                    Supprimer
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

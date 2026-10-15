@@ -34,6 +34,7 @@ public record ContractDto(
         Instant sentAt,
         Instant candidateSignedAt,
         Instant employerSignedAt,
-        Instant completedAt
+        Instant completedAt,
+        UUID candidateUploadId
 ) {
 }

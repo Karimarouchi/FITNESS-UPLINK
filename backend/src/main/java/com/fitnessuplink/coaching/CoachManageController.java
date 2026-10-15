@@ -81,6 +81,15 @@ public class CoachManageController {
         return coachAvailabilityService.createRule(principal.getUser(), request);
     }
 
+    @PutMapping("/availability/rules/{id}")
+    public AvailabilityRuleDto updateRule(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID id,
+            @RequestBody UpsertAvailabilityRuleRequest request
+    ) {
+        return coachAvailabilityService.updateRule(principal.getUser(), id, request);
+    }
+
     @DeleteMapping("/availability/rules/{id}")
     public void deleteRule(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID id) {
         coachAvailabilityService.deleteRule(principal.getUser(), id);

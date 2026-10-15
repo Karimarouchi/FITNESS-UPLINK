@@ -1,4 +1,4 @@
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ApiError } from "@/shared/api/client";
 import { AuthHeroImage } from "../components/AuthHeroImage";
@@ -11,6 +11,37 @@ import {
   validateEmail,
   validatePassword,
 } from "../validation";
+import "../auth-extras.css";
+
+const RESEND_SECONDS = 60;
+
+const STEPS = [
+  { icon: "mail", label: "E-mail" },
+  { icon: "pin", label: "Code" },
+  { icon: "lock_reset", label: "Mot de passe" },
+];
+
+const PERKS = [
+  { icon: "shield_lock", title: "Accès sécurisé", text: "Un code à usage unique est envoyé par e-mail." },
+  { icon: "bolt", title: "Rapide", text: "Trois étapes, moins d’une minute." },
+  { icon: "fitness_center", title: "Votre espace vous attend", text: "Retrouvez vos séances, offres et contacts." },
+];
+
+/** True when the server blocked the reset (too many wrong codes or code requests). */
+function isBlock(err: unknown) {
+  return err instanceof ApiError && err.status === 429 && /bloqu/i.test(err.message);
+}
+
+/** The API answers in English for throttling; show it in French. */
+function friendlyError(err: unknown, fallback: string) {
+  if (!(err instanceof ApiError)) {
+    return fallback;
+  }
+  if (/too many/i.test(err.message)) {
+    return "Trop de tentatives. Patientez quelques minutes avant de réessayer.";
+  }
+  return err.message || fallback;
+}
 
 export function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -26,6 +57,8 @@ export function ForgotPasswordPage() {
   const [info, setInfo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [shakeCode, setShakeCode] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const [blocked, setBlocked] = useState<string | null>(null);
 
   const emailError = useMemo(() => validateEmail(email), [email]);
   const passwordError = useMemo(() => validatePassword(password, email), [password, email]);
@@ -34,6 +67,18 @@ export function ForgotPasswordPage() {
     [password, confirmPassword],
   );
   const rules = useMemo(() => passwordRules(password), [password]);
+  const strength = [rules.length, rules.uppercase, rules.number, rules.special].filter(Boolean).length;
+  const strengthLabel = ["", "Faible", "Moyen", "Bon", "Excellent"][strength];
+
+  const activeStep = step === "email" ? 0 : codeValid ? 2 : 1;
+
+  useEffect(() => {
+    if (cooldown <= 0) {
+      return;
+    }
+    const timer = window.setTimeout(() => setCooldown((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   async function onRequestCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,8 +93,30 @@ export function ForgotPasswordPage() {
       setStep("code");
       setCode("");
       setCodeValid(false);
+      setCooldown(RESEND_SECONDS);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d'envoyer le code.");
+      if (isBlock(err)) setBlocked((err as ApiError).message);
+      setError(friendlyError(err, "Impossible d'envoyer le code."));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onResend() {
+    if (cooldown > 0 || submitting) {
+      return;
+    }
+    setError(null);
+    setSubmitting(true);
+    try {
+      await forgotPassword(trimValue(email).toLowerCase());
+      setInfo("Un nouveau code vient d’être envoyé.");
+      setCode("");
+      setCodeValid(false);
+      setCooldown(RESEND_SECONDS);
+    } catch (err) {
+      if (isBlock(err)) setBlocked((err as ApiError).message);
+      setError(friendlyError(err, "Impossible de renvoyer le code."));
     } finally {
       setSubmitting(false);
     }
@@ -70,7 +137,8 @@ export function ForgotPasswordPage() {
       setCodeValid(false);
       setShakeCode(true);
       window.setTimeout(() => setShakeCode(false), 500);
-      setError(err instanceof ApiError ? err.message : "Code invalide.");
+      if (isBlock(err)) setBlocked((err as ApiError).message);
+      setError(friendlyError(err, "Code invalide."));
     } finally {
       setCheckingCode(false);
     }
@@ -94,7 +162,8 @@ export function ForgotPasswordPage() {
       });
       navigate("/login", { replace: true, state: { reset: true } });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible de réinitialiser le mot de passe.");
+      if (isBlock(err)) setBlocked((err as ApiError).message);
+      setError(friendlyError(err, "Impossible de réinitialiser le mot de passe."));
     } finally {
       setSubmitting(false);
     }
@@ -104,73 +173,172 @@ export function ForgotPasswordPage() {
     <div className="auth-shell">
       <section className="auth-hero auth-hero--signup">
         <AuthHeroImage className="absolute inset-0 h-full w-full object-cover" />
+        <div className="fgx-hero-shade" />
         <div className="absolute top-8 left-8 z-10 xl:top-10 xl:left-10">
           <span className="font-headline-md tracking-tight text-white drop-shadow-md">FITNESS UPLINK</span>
         </div>
+        <div className="fgx-hero-copy">
+          <p className="fgx-hero-kicker">Compte professionnel</p>
+          <h2>
+            Reprenez la main
+            <br />
+            <span>sur votre compte.</span>
+          </h2>
+          <ul>
+            {PERKS.map((perk, index) => (
+              <li key={perk.title} style={{ animationDelay: `${0.35 + index * 0.15}s` }}>
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  {perk.icon}
+                </span>
+                <div>
+                  <strong>{perk.title}</strong>
+                  <small>{perk.text}</small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
+
       <section className="auth-panel">
-        <div className="auth-form">
-          <div className="mb-8">
-            <h2 className="font-display-lg-mobile text-on-surface mb-1">Mot de passe oublié</h2>
+        <div className="auth-form fgx-form">
+          <ol className="fgx-steps" aria-label="Étapes">
+            {STEPS.map((item, index) => (
+              <li key={item.label} className={index < activeStep ? "is-done" : index === activeStep ? "is-current" : ""}>
+                <span className="fgx-dot">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {index < activeStep ? "check" : item.icon}
+                  </span>
+                </span>
+                <small>{item.label}</small>
+              </li>
+            ))}
+          </ol>
+
+          <div className="fgx-head" key={activeStep}>
+            <span className="fgx-badge material-symbols-outlined" aria-hidden="true">
+              {STEPS[activeStep].icon}
+            </span>
+            <h2 className="font-display-lg-mobile text-on-surface mb-1">
+              {blocked ? "Accès bloqué" : activeStep === 2 ? "Nouveau mot de passe" : activeStep === 1 ? "Entrez votre code" : "Mot de passe oublié"}
+            </h2>
             <p className="font-body-md text-on-surface-variant">
-              {step === "email"
+              {blocked
+                ? "Par sécurité, cette étape est suspendue pour un moment."
+                : step === "email"
                 ? "Entrez votre email pour recevoir un code de réinitialisation."
-                : `Un code a été envoyé à ${trimValue(email).toLowerCase()}.`}
+                : codeValid
+                  ? "Choisissez un mot de passe solide que vous n’utilisez nulle part ailleurs."
+                  : `Un code à 6 chiffres a été envoyé à ${trimValue(email).toLowerCase()}.`}
             </p>
           </div>
-          {step === "email" ? (
-            <form className="flex flex-col gap-5" onSubmit={onRequestCode} noValidate>
+
+          {blocked ? (
+            <div className="fgx-locked fgx-step" role="alert">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                lock_clock
+              </span>
+              <strong>Réinitialisation temporairement bloquée</strong>
+              <p>{blocked}</p>
+              <small>
+                C’est une protection de votre compte : trop de codes demandés ou trop de codes erronés. Vous pourrez
+                réessayer à la fin du délai.
+              </small>
+            </div>
+          ) : step === "email" ? (
+            <form className="flex flex-col gap-5 fgx-step" onSubmit={onRequestCode} noValidate>
               <div>
                 <label className="auth-label" htmlFor="email">
                   Email
                 </label>
-                <input
-                  className="auth-input"
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  maxLength={LIMITS.email}
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
+                <div className="fgx-field">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    mail
+                  </span>
+                  <input
+                    className="auth-input"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="vous@exemple.com"
+                    maxLength={LIMITS.email}
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </div>
               </div>
-              {error ? <p className="auth-error">{error}</p> : null}
+              {error ? <p className="auth-error fgx-alert" role="alert">{error}</p> : null}
               <button className="auth-btn mt-1" type="submit" disabled={submitting || Boolean(emailError)}>
                 {submitting ? "Envoi..." : "Envoyer le code"}
               </button>
+              <p className="fgx-note">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  info
+                </span>
+                Pour votre sécurité, nous ne confirmons pas si une adresse est enregistrée.
+              </p>
             </form>
           ) : (
-            <div className="flex flex-col gap-5">
-              {info && !codeValid ? <p className="font-body-md text-on-surface-variant">{info}</p> : null}
+            <div className="flex flex-col gap-5 fgx-step">
+              {info && !codeValid ? <p className="fgx-info">{info}</p> : null}
               <form className="flex flex-col gap-5" onSubmit={onCheckCode} noValidate>
                 <div>
                   <label className="auth-label" htmlFor="code">
                     Code
                   </label>
-                  <input
-                    className={`auth-input${shakeCode ? " auth-input--shake" : ""}${codeValid ? " is-ok" : ""}`}
-                    id="code"
-                    name="code"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    value={code}
-                    readOnly={codeValid}
-                    onChange={(event) => {
-                      const next = event.target.value.replace(/\D/g, "").slice(0, 6);
-                      setCode(next);
-                      setCodeValid(false);
-                      setError(null);
-                    }}
-                  />
+                  <div className="fgx-field">
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      pin
+                    </span>
+                    <input
+                      className={`auth-input fgx-code${shakeCode ? " auth-input--shake" : ""}${codeValid ? " is-ok" : ""}`}
+                      id="code"
+                      name="code"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      placeholder="••••••"
+                      maxLength={6}
+                      value={code}
+                      readOnly={codeValid}
+                      onChange={(event) => {
+                        const next = event.target.value.replace(/\D/g, "").slice(0, 6);
+                        setCode(next);
+                        setCodeValid(false);
+                        setError(null);
+                      }}
+                    />
+                  </div>
                 </div>
                 {!codeValid ? (
-                  <button className="auth-btn mt-1" type="submit" disabled={checkingCode || code.length !== 6}>
-                    {checkingCode ? "Vérification..." : "Vérifier le code"}
-                  </button>
+                  <>
+                    <button className="auth-btn mt-1" type="submit" disabled={checkingCode || code.length !== 6}>
+                      {checkingCode ? "Vérification..." : "Vérifier le code"}
+                    </button>
+                    <div className="fgx-resend">
+                      <span>Vous n’avez rien reçu ? Vérifiez vos courriers indésirables.</span>
+                      <button type="button" onClick={() => void onResend()} disabled={cooldown > 0 || submitting}>
+                        {cooldown > 0 ? `Renvoyer le code (${cooldown} s)` : "Renvoyer le code"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStep("email");
+                          setError(null);
+                          setInfo(null);
+                        }}
+                      >
+                        Changer d’adresse
+                      </button>
+                    </div>
+                  </>
                 ) : (
-                  <p className="auth-code-ok">Code confirmé</p>
+                  <p className="auth-code-ok fgx-ok">
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      verified
+                    </span>
+                    Code confirmé
+                  </p>
                 )}
               </form>
               {codeValid ? (
@@ -194,12 +362,19 @@ export function ForgotPasswordPage() {
                         className="auth-eye"
                         type="button"
                         onClick={() => setShowPassword((value) => !value)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                       >
                         <span className="material-symbols-outlined text-[22px]">
                           {showPassword ? "visibility_off" : "visibility"}
                         </span>
                       </button>
+                    </div>
+                    <div className="fgx-meter" data-level={strength} aria-hidden="true">
+                      <span />
+                      <span />
+                      <span />
+                      <span />
+                      <small>{strengthLabel}</small>
                     </div>
                     <div className="mt-3 flex flex-col gap-1">
                       <Rule ok={rules.length} label="8 caractères minimum" />
@@ -223,7 +398,7 @@ export function ForgotPasswordPage() {
                       onChange={(event) => setConfirmPassword(event.target.value)}
                     />
                   </div>
-                  {error ? <p className="auth-error">{error}</p> : null}
+                  {error ? <p className="auth-error fgx-alert" role="alert">{error}</p> : null}
                   <button
                     className="auth-btn mt-1"
                     type="submit"
@@ -233,12 +408,15 @@ export function ForgotPasswordPage() {
                   </button>
                 </form>
               ) : error ? (
-                <p className="auth-error">{error}</p>
+                <p className="auth-error fgx-alert" role="alert">{error}</p>
               ) : null}
             </div>
           )}
           <div className="mt-8 border-t border-surface-variant pt-6 text-center">
-            <Link className="font-semibold text-secondary hover:text-secondary-container" to="/login">
+            <Link className="fgx-back" to="/login">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                arrow_back
+              </span>
               Retour à la connexion
             </Link>
           </div>

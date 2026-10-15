@@ -1,20 +1,21 @@
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { useEffect, useState, type CSSProperties } from "react";
+import { Link } from "react-router-dom";
 import { can, useBilling } from "@/features/billing/useBilling";
-import { StatusPill } from "@/components/ui/StatusPill";
 import { ApiError } from "@/shared/api/client";
 import { CandidatePhoto } from "@/features/talent/CandidatePhoto";
 import { HireThread, canMessage } from "../HireThread";
-import { InterviewScheduleForm, type InterviewDraft } from "../InterviewScheduleForm";
-import { PipelineBoard } from "../PipelineBoard";
+import type { InterviewDraft } from "../InterviewScheduleForm";
+import { PipelineStepper } from "../PipelineStepper";
+import { PrepareContractDrawer } from "@/features/contracts/PrepareContractDrawer";
+import type { ContractTerms } from "@/features/contracts/api";
 import { openHireChat } from "../openHireChat";
 import {
   blockRecruitment,
+  fetchNegotiation,
   updateRecruitmentStatus,
   fetchRecruitments,
   formatPipelineDate,
   opportunityLabel,
-  pipelineTone,
   recruitmentError,
   statusLabel,
   type PipelineStatus,
@@ -29,17 +30,20 @@ export function InboxPage() {
   const billing = useBilling();
   const canContact = can(billing, "hire.contact");
   const canPipeline = can(billing, "hire.pipeline");
+  const canContracts = can(billing, "hire.contracts");
   const [items, setItems] = useState<Recruitment[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const [open, setOpen] = useState<Recruitment | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [interviewFor, setInterviewFor] = useState<Recruitment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [contractFor, setContractFor] = useState<{ item: Recruitment; terms: Partial<ContractTerms>; draftId?: string } | null>(null);
 
   useEffect(() => {
     fetchRecruitments()
       .then((list) => setItems(list.filter((row) => row.status !== "REJECTED" && row.status !== "ARCHIVED")))
-      .catch(() => setError("Impossible de charger les candidatures."));
+      .catch(() => setError("Impossible de charger les candidatures."))
+      .finally(() => setLoading(false));
   }, []);
 
   function replace(updated: Recruitment) {
@@ -79,22 +83,48 @@ export function InboxPage() {
     }
   }
 
-  async function changeStatus(item: Recruitment, status: PipelineStatus, interview?: InterviewDraft) {
-    if (status === "INTERVIEW_SCHEDULED" && !interview) {
-      setInterviewFor(item);
-      return;
-    }
-    const previous = item.status;
-    replace({ ...item, status });
+  /** Returns an error message to show inside the modal, or null when the step changed. */
+  async function changeStatus(item: Recruitment, status: PipelineStatus, interview?: InterviewDraft): Promise<string | null> {
     try {
       const updated = await updateRecruitmentStatus(item.id, status, interview);
       replace(updated);
-      setInterviewFor(null);
-      setFlash(`Étape : ${statusLabel(status)}.`);
+      setFlash(
+        status === "INTERVIEW_SCHEDULED"
+          ? `Entretien enregistré. ${updated.candidate.displayName} a été prévenu.`
+          : `Étape : ${statusLabel(status)}.`,
+      );
+      return null;
     } catch (err) {
-      replace({ ...item, status: previous });
-      setFlash(err instanceof ApiError ? recruitmentError(err.message) : "Impossible de changer l’étape.");
+      return err instanceof ApiError ? recruitmentError(err.message) : "Impossible de changer l’étape.";
     }
+  }
+
+  /** Opens the contract screen, prefilled with the last accepted proposal when there is one. */
+  async function prepareContract(item: Recruitment) {
+    let terms: Partial<ContractTerms> = {};
+    if (item.contract?.status === "DRAFT") {
+      setContractFor({ item, terms, draftId: item.contract.id });
+      return;
+    }
+    try {
+      const offers = await fetchNegotiation(item.id);
+      const agreed = [...offers].reverse().find((offer) => offer.status === "ACCEPTED");
+      if (agreed) {
+        terms = {
+          contractType: agreed.contractType,
+          salaryAmount: String(agreed.salaryAmount),
+          salaryCurrency: agreed.salaryCurrency,
+          startDate: agreed.startDate ?? "",
+          location: agreed.location ?? item.jobOffer?.location ?? "",
+          extra: agreed.note ?? "",
+        };
+        const label = ({ cdi: "CDI", cdd: "CDD", freelance: "Freelance", part_time: "Temps partiel", internship: "Stage", vacation: "Vacation" } as Record<string, string>)[agreed.contractType];
+        terms.contractType = label ?? agreed.contractType;
+      }
+    } catch {
+      /* no negotiation history: start from the offer */
+    }
+    setContractFor({ item, terms });
   }
 
   const waiting = items.filter((item) => needsRecruit(item.status));
@@ -108,20 +138,46 @@ export function InboxPage() {
           <h1>Candidatures</h1>
           <p className="sub">Contacter ouvre la discussion. Recruter d’abord si le dossier est nouveau. Pipeline change les étapes.</p>
         </div>
-        {waiting.length ? <span className="hire-count">{waiting.length}</span> : null}
+        {waiting.length ? (
+          <span className="dsx-badge">
+            <span className="material-symbols-outlined" aria-hidden="true">inbox</span>
+            {waiting.length} à examiner
+          </span>
+        ) : null}
       </div>
       {flash ? <p className="fu-flash">{flash}</p> : null}
       {error ? <p className="auth-error">{error}</p> : null}
-      {items.length === 0 && !error ? <p className="empty-hint">Aucune candidature pour le moment.</p> : null}
+      {loading ? (
+        <div className="dsx-grid" aria-busy="true">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="tlx-card is-skeleton" style={{ "--i": index } as CSSProperties}>
+              <span className="tlx-sk tlx-sk-avatar" />
+              <span className="tlx-sk tlx-sk-line" />
+              <span className="tlx-sk tlx-sk-line is-short" />
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {!loading && items.length === 0 && !error ? (
+        <div className="tlx-empty">
+          <span className="material-symbols-outlined" aria-hidden="true">inbox</span>
+          <strong>Aucune candidature</strong>
+          <p>Les candidatures à vos offres et vos recrutements en cours apparaîtront ici.</p>
+          <Link className="tlx-btn is-primary" to="/job-offers">
+            Gérer mes offres
+          </Link>
+        </div>
+      ) : null}
 
       {waiting.length ? (
         <>
-          <h2 className="hire-section-title">À recruter</h2>
-          <div className="hire-grid">
-            {waiting.map((item) => (
+          <h2 className="dsx-title">À recruter <b>{waiting.length}</b></h2>
+          <div className="dsx-grid">
+            {waiting.map((item, index) => (
               <ApplicationCard
                 key={item.id}
                 item={item}
+                index={index}
                 busy={busyId === item.id}
                 canContact={canContact}
                 canPipeline={canPipeline}
@@ -136,12 +192,13 @@ export function InboxPage() {
 
       {active.length ? (
         <>
-          <h2 className="hire-section-title">En cours</h2>
-          <div className="hire-grid">
-            {active.map((item) => (
+          <h2 className="dsx-title">En cours <b>{active.length}</b></h2>
+          <div className="dsx-grid">
+            {active.map((item, index) => (
               <ApplicationCard
                 key={item.id}
                 item={item}
+                index={index}
                 busy={busyId === item.id}
                 canContact={canContact}
                 canPipeline={canPipeline}
@@ -152,18 +209,6 @@ export function InboxPage() {
             ))}
           </div>
         </>
-      ) : null}
-
-      {interviewFor ? (
-        <div className="fu-backdrop hire-stage-overlay" role="presentation" onClick={() => setInterviewFor(null)}>
-          <div className="hire-stage-panel" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-            <InterviewScheduleForm
-              candidateName={interviewFor.candidate.displayName}
-              onCancel={() => setInterviewFor(null)}
-              onConfirm={(draft) => void changeStatus(interviewFor, "INTERVIEW_SCHEDULED", draft)}
-            />
-          </div>
-        </div>
       ) : null}
 
       {open ? (
@@ -179,13 +224,27 @@ export function InboxPage() {
                 Fermer
               </button>
             </div>
-            <p className="hire-stage-hint">Glissez la carte d’une colonne à l’autre pour changer l’étape.</p>
+            <p className="hire-stage-hint">Cliquez sur une étape, puis confirmez. Pour un entretien, indiquez la date, l’heure et le lien.</p>
             <div className="hire-stage-body">
-              <PipelineBoard items={[open]} onOpen={() => undefined} onStatus={changeStatus} />
+              <PipelineStepper item={open} onStatus={changeStatus} onPrepareContract={() => void prepareContract(open)} contractLocked={billing !== null && !canContracts} />
               {canMessage(open.status) ? <HireThread recruitmentId={open.id} /> : null}
             </div>
           </div>
         </div>
+      ) : null}
+      {contractFor ? (
+        <PrepareContractDrawer
+          item={contractFor.item}
+          employerName={contractFor.item.employer?.displayName ?? "Employeur"}
+          initialTerms={contractFor.terms}
+          draftId={contractFor.draftId}
+          onClose={() => setContractFor(null)}
+          onSent={(updated) => {
+            replace({ ...contractFor.item, ...updated });
+            setContractFor(null);
+            setFlash("Contrat envoyé pour signature. Le candidat a été prévenu.");
+          }}
+        />
       ) : null}
     </section>
   );
@@ -193,6 +252,7 @@ export function InboxPage() {
 
 function ApplicationCard({
   item,
+  index,
   busy,
   canContact,
   canPipeline,
@@ -201,6 +261,7 @@ function ApplicationCard({
   onPipeline,
 }: {
   item: Recruitment;
+  index: number;
   busy: boolean;
   canContact: boolean;
   canPipeline: boolean;
@@ -210,41 +271,70 @@ function ApplicationCard({
 }) {
   const recruit = needsRecruit(item.status);
   return (
-    <article className="hire-card hire-card--dossier">
-      <CandidatePhoto
-        candidateId={item.candidate.id}
-        uploadId={item.candidate.photoUploadId}
-        name={item.candidate.displayName}
-        size={56}
-      />
-      <div className="hire-card-copy">
-        <strong>{item.candidate.displayName}</strong>
-        <p>{opportunityLabel(item)}</p>
-        <p className="text-on-surface-variant">{formatPipelineDate(item.createdAt)}</p>
-        <StatusPill tone={pipelineTone(item.status)}>{statusLabel(item.status)}</StatusPill>
+    <article className={recruit ? "tlx-card dsx-card is-new" : "tlx-card dsx-card"} style={{ "--i": index } as CSSProperties}>
+      <div className="tlx-head">
+        <div className="tlx-avatar">
+          <CandidatePhoto
+            candidateId={item.candidate.id}
+            uploadId={item.candidate.photoUploadId}
+            name={item.candidate.displayName}
+            size={64}
+          />
+        </div>
+        <div className="tlx-id">
+          <h3 className="tlx-name">
+            {item.candidate.displayName}
+            {item.candidate.verified ? (
+              <span className="tlx-verified material-symbols-outlined" title="Compte vérifié" aria-label="Compte vérifié">
+                verified
+              </span>
+            ) : null}
+          </h3>
+          <p className="tlx-title">{opportunityLabel(item)}</p>
+        </div>
+        <span className={recruit ? "pdx-pill" : "pdx-pill is-muted"}>{statusLabel(item.status)}</span>
       </div>
-      <div className="hire-card-actions">
-        <Button variant="outline" to={`/candidates/${item.candidate.id}`}>
-          Voir le profil
-        </Button>
+
+      <ul className="tlx-facts">
+        <li>
+          <span className="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+          Reçue le {formatPipelineDate(item.createdAt)}
+        </li>
+        {item.status === "INTERVIEW_SCHEDULED" && item.interviewAt ? (
+          <li>
+            <span className="material-symbols-outlined" aria-hidden="true">event</span>
+            Entretien le {new Date(item.interviewAt).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}
+          </li>
+        ) : null}
+      </ul>
+
+      <div className="dsx-actions">
+        <Link className="tlx-btn" to={`/candidates/${item.candidate.id}`}>
+          <span className="material-symbols-outlined" aria-hidden="true">person</span>
+          Profil
+        </Link>
         {canContact ? (
-          <Button variant="primary" type="button" disabled={busy} onClick={onContact}>
+          <button className="tlx-btn is-primary" type="button" disabled={busy} onClick={onContact}>
+            <span className="material-symbols-outlined" aria-hidden="true">chat</span>
             {busy ? "…" : "Contacter"}
-          </Button>
+          </button>
         ) : (
-          <Button variant="outline" to="/app/profile/plan">
+          <Link className="tlx-btn" to="/app/profile/plan">
+            <span className="material-symbols-outlined" aria-hidden="true">lock</span>
             Débloquer Contacter
-          </Button>
+          </Link>
         )}
         {!recruit && canPipeline ? (
-          <Button variant="outline" type="button" onClick={onPipeline}>
+          <button className="tlx-btn" type="button" onClick={onPipeline}>
+            <span className="material-symbols-outlined" aria-hidden="true">account_tree</span>
             Pipeline
-          </Button>
+          </button>
         ) : null}
         {canPipeline ? (
-          <Button variant="danger" type="button" disabled={busy} onClick={onBlock}>
+          <button className="tlx-btn is-danger" type="button" disabled={busy} onClick={onBlock}>
+            <span className="material-symbols-outlined" aria-hidden="true">block</span>
             Bloquer
-          </Button>
+          </button>
         ) : null}
       </div>
     </article>

@@ -12,7 +12,7 @@ import { lucideFor } from "@/components/layout/shell/navIcons";
 import { ADMIN_CONFIG, ADMIN_MODULES } from "./adminNav";
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;
-const BAR_COLORS = ["#1d4ed8", "#0891b2", "#7c3aed", "#059669", "#d97706", "#db2777", "#64748b"];
+const BAR_COLORS = ["#0048FC", "#0891b2", "#7c3aed", "#059669", "#d97706", "#db2777", "#64748b"];
 
 export function AdminDashboard() {
   const { user } = useAuth();

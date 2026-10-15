@@ -9,11 +9,11 @@
   --paper: #f4f7fb;
   --paper-2: #ffffff;
   --paper-line: #d7e2f0;
-  --lime: #1d4ed8;
-  --lime-dim: #dbeafe;
+  --lime: #0048FC;
+  --lime-dim: #e8eeff;
   --slate: #475569;
   --slate-light: #64748b;
-  --volt: #d7ff3c;
+  --volt: #FC5101;
   --night: #070d1c;
   --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.12);
   --card-shadow-hover: 0 2px 4px rgba(15, 23, 42, 0.04), 0 24px 48px -20px rgba(15, 23, 42, 0.28);
@@ -47,7 +47,7 @@
 }
 
 .fu-public :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid #1A5CFF;
   outline-offset: 3px;
 }
 
@@ -70,7 +70,7 @@
 }
 
 .pub-kicker.ink {
-  color: #1d4ed8;
+  color: #0048FC;
 }
 
 .pub-lead {
@@ -119,14 +119,14 @@
 
 .fu-public a.pub-btn-lime,
 .pub-btn-lime {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
-  box-shadow: 0 10px 24px -12px rgba(29, 78, 216, 0.9);
+  box-shadow: 0 10px 24px -12px rgba(0, 72, 252, 0.9);
 }
 
 .fu-public a.pub-btn-lime:hover,
 .pub-btn-lime:hover {
-  background: #1e40af;
+  background: #0036C4;
   color: #fff;
 }
 
@@ -174,15 +174,15 @@
 .pub-btn-line.ink:hover,
 .pub-btn-ghost.ink:hover {
   background: #fff;
-  border-color: #1d4ed8;
-  color: #1d4ed8;
+  border-color: #0048FC;
+  color: #0048FC;
 }
 
 .fu-public .pub-link-arrow {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #1d4ed8;
+  color: #0048FC;
   font-size: 14.5px;
   font-weight: 600;
   text-decoration: none;
@@ -233,7 +233,7 @@
   background:
     linear-gradient(90deg, rgba(7, 13, 28, 0.86) 0%, rgba(7, 13, 28, 0.5) 50%, rgba(7, 13, 28, 0.15) 100%),
     linear-gradient(0deg, rgba(7, 13, 28, 0.75) 0%, rgba(7, 13, 28, 0) 45%),
-    radial-gradient(60% 80% at 0% 100%, rgba(29, 78, 216, 0.35), transparent 70%);
+    radial-gradient(60% 80% at 0% 100%, rgba(0, 72, 252, 0.35), transparent 70%);
 }
 
 .pub-hero-copy {
@@ -392,12 +392,12 @@
   margin-bottom: 22px;
   border-radius: 15px;
   background: linear-gradient(135deg, #eef4ff, #dbe7ff);
-  color: #1d4ed8;
+  color: #0048FC;
   font-size: 26px;
 }
 
 .pub-features li:hover .pub-feature-icon {
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
 }
 
@@ -539,9 +539,9 @@
 }
 
 .cat-search:focus-within {
-  border-color: #1d4ed8;
+  border-color: #0048FC;
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12);
+  box-shadow: 0 0 0 4px rgba(0, 72, 252, 0.12);
 }
 
 .cat-search > .material-symbols-outlined {
@@ -593,7 +593,7 @@
   padding: 0 22px;
   border: 0;
   border-radius: 12px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-size: 14.5px;
   font-weight: 600;
@@ -602,7 +602,7 @@
 }
 
 .cat-search-go:hover {
-  background: #1e40af;
+  background: #0036C4;
 }
 
 .cat-chips {
@@ -633,8 +633,8 @@
 }
 
 .fu-public .cat-chip:hover {
-  border-color: #1d4ed8;
-  color: #1d4ed8;
+  border-color: #0048FC;
+  color: #0048FC;
 }
 
 .fu-public .cat-chip.is-on {
@@ -667,7 +667,7 @@
   gap: 6px;
   border: 0;
   background: none;
-  color: #1d4ed8;
+  color: #0048FC;
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
@@ -815,7 +815,7 @@
 
 .fu-public .cat-eyebrow {
   margin: 0;
-  color: #1d4ed8;
+  color: #0048FC;
   font-family: var(--pub-mono);
   font-size: 11.5px;
   letter-spacing: 0.04em;
@@ -869,7 +869,7 @@
 
 .cat-meta .material-symbols-outlined {
   font-size: 16px;
-  color: #1d4ed8;
+  color: #0048FC;
 }
 
 .cat-foot {
@@ -893,7 +893,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   background: #eef4ff;
-  color: #1e3a8a;
+  color: #0033B8;
   font-size: 12px;
   font-weight: 600;
 }
@@ -908,7 +908,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #1d4ed8;
+  color: #0048FC;
   font-size: 13.5px;
   font-weight: 600;
 }
@@ -971,7 +971,7 @@
   margin-bottom: 8px;
   border-radius: 20px;
   background: #eef4ff;
-  color: #1d4ed8;
+  color: #0048FC;
   font-size: 30px;
 }
 
@@ -1022,8 +1022,8 @@
 }
 
 .fu-public .cat-pager button:hover:not(:disabled) {
-  border-color: #1d4ed8;
-  color: #1d4ed8;
+  border-color: #0048FC;
+  color: #0048FC;
 }
 
 .fu-public .cat-pager button.is-on {
@@ -1056,7 +1056,7 @@
   width: 52px;
   height: 52px;
   border-radius: 16px;
-  background: #1d4ed8;
+  background: #0048FC;
   color: #fff;
   font-size: 26px;
 }
@@ -1220,7 +1220,7 @@
   padding: clamp(36px, 6vw, 72px);
   border-radius: 32px;
   background:
-    radial-gradient(70% 120% at 100% 0%, rgba(37, 99, 235, 0.55), transparent 60%),
+    radial-gradient(70% 120% at 100% 0%, rgba(0, 72, 252, 0.55), transparent 60%),
     radial-gradient(50% 80% at 0% 100%, rgba(215, 255, 60, 0.12), transparent 70%),
     #0b1224;
   color: #fff;
@@ -1375,7 +1375,7 @@
   --vt-text: #5b6472;
   --vt-paper: #f1f3f6;
   --vt-line: #d9dde3;
-  --vt-lime: #d4f53c;
+  --vt-lime: #FC5101;
   --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
   --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
   background: var(--vt-paper);

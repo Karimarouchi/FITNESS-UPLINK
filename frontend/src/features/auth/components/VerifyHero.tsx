@@ -1,14 +1,13 @@
-import { Link } from "react-router-dom";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import "@/features/onboarding/signup-flow.css";
 
 /** Sky panel shared by the e-mail verification screens (same language as login / home hero). */
 export function VerifyHero() {
   return (
     <section className="vf-hero" aria-hidden="true">
-      <Link className="ob-brand" to="/" tabIndex={-1}>
-        <span className="ob-brand-mark">F</span>
-        <span className="ob-brand-word">Fitness Universe</span>
-      </Link>
+      <span className="ob-brand">
+        <BrandLogo to="/" />
+      </span>
       <div>
         <h2>
           Un code.

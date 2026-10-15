@@ -1,6 +1,19 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Briefcase,
+  Dumbbell,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Lock,
+  Mail,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ApiError } from "@/shared/api/client";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -20,6 +33,72 @@ import {
 import "./auth-switch.css";
 
 type Mode = "login" | "signup";
+
+const LOGIN_PERKS = [
+  { Icon: Briefcase, text: "Candidatez et suivez vos recrutements" },
+  { Icon: Dumbbell, text: "Réservez vos séances de coaching" },
+  { Icon: GraduationCap, text: "Formations et certifications" },
+];
+
+const SIGNUP_PERKS = [
+  { Icon: ShieldCheck, text: "Profils vérifiés par l’équipe" },
+  { Icon: Zap, text: "Inscription en moins d’une minute" },
+  { Icon: BadgeCheck, text: "Gratuit pour démarrer" },
+];
+
+/** Seconds announced by the server in "Réessayez dans 1 minute / 30 secondes". */
+function lockSecondsFrom(message: string) {
+  const match = /dans (\d+) (seconde|minute)/i.exec(message);
+  if (!match) {
+    return 60;
+  }
+  return Number(match[1]) * (match[2].toLowerCase() === "minute" ? 60 : 1);
+}
+
+function clock(seconds: number) {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+function loginErrorText(err: unknown) {
+  if (!(err instanceof ApiError)) {
+    return "Impossible de se connecter.";
+  }
+  if (err.status === 403 || /disabled/i.test(err.message)) {
+    return "Ce compte a été bloqué.";
+  }
+  if (err.status === 429) {
+    return "Trop de tentatives. Patientez quelques minutes avant de réessayer.";
+  }
+  if (/invalid email or password/i.test(err.message)) {
+    return "E-mail ou mot de passe incorrect.";
+  }
+  return err.message;
+}
+
+function signupErrorText(err: unknown) {
+  if (!(err instanceof ApiError)) {
+    return "Impossible de créer le compte.";
+  }
+  if (err.status === 429) {
+    return "Trop de tentatives. Patientez quelques minutes avant de réessayer.";
+  }
+  return err.message;
+}
+
+function PerkList({ perks }: { perks: { Icon: typeof Zap; text: string }[] }) {
+  return (
+    <ul className="fu-perks">
+      {perks.map(({ Icon, text }, index) => (
+        <li key={text} style={{ animationDelay: `${0.25 + index * 0.12}s` }}>
+          <span>
+            <Icon size={18} />
+          </span>
+          {text}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function BackHome() {
   return (
@@ -57,6 +136,8 @@ export function AuthSwitch() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginFieldErrors, setLoginFieldErrors] = useState<Record<string, string | undefined>>({});
   const [loginSubmitting, setLoginSubmitting] = useState(false);
+  const [lockSeconds, setLockSeconds] = useState(0);
+  const [shake, setShake] = useState(0);
 
   const [pendingDraft] = useState(readPendingSignup);
   const [firstName, setFirstName] = useState(pendingDraft?.firstName ?? "");
@@ -88,6 +169,19 @@ export function AuthSwitch() {
     loadRecaptcha().catch(() => undefined);
   }, []);
 
+  useEffect(() => {
+    if (lockSeconds <= 0) {
+      return;
+    }
+    const timer = window.setTimeout(() => setLockSeconds((value) => value - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [lockSeconds]);
+
+  const passwordStrength = [rules.length, rules.uppercase, rules.lowercase, rules.number, rules.special].filter(
+    Boolean,
+  ).length;
+  const strengthWord = ["", "Faible", "Faible", "Moyen", "Bon", "Excellent"][passwordStrength];
+
   function switchMode(next: Mode) {
     if (next === mode) return;
     setLoginError(null);
@@ -107,6 +201,7 @@ export function AuthSwitch() {
     };
     setLoginFieldErrors(nextErrors);
     if (nextErrors.email || nextErrors.password) return;
+    if (lockSeconds > 0) return;
     setLoginError(null);
     setLoginSubmitting(true);
     try {
@@ -114,13 +209,13 @@ export function AuthSwitch() {
       const redirect = safeRedirectTarget(searchParams.get("redirect"));
       navigate(redirect ?? destinationFor(user), { replace: true });
     } catch (err) {
-      setLoginError(
-        err instanceof ApiError && (err.status === 403 || /disabled/i.test(err.message))
-          ? "Ce compte a été bloqué."
-          : err instanceof ApiError
-            ? err.message
-            : "Impossible de se connecter.",
-      );
+      if (err instanceof ApiError && err.status === 423) {
+        setLockSeconds(lockSecondsFrom(err.message));
+        setLoginError(null);
+      } else {
+        setLoginError(loginErrorText(err));
+      }
+      setShake((value) => value + 1);
     } finally {
       setLoginSubmitting(false);
     }
@@ -134,7 +229,7 @@ export function AuthSwitch() {
       email: validateEmail(signupEmail) ?? undefined,
       password: validatePassword(signupPassword, signupEmail) ?? undefined,
       confirmPassword: validateConfirmPassword(signupPassword, confirmPassword) ?? undefined,
-      terms: acceptedTerms ? undefined : "You must accept the Terms and Privacy Policy.",
+      terms: acceptedTerms ? undefined : "Vous devez accepter les Conditions et la Politique de confidentialité.",
     };
     setSignupFieldErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
@@ -159,7 +254,7 @@ export function AuthSwitch() {
       });
       navigate("/signup/verify", { replace: true });
     } catch (err) {
-      setSignupError(err instanceof ApiError ? err.message : "Unable to create account");
+      setSignupError(signupErrorText(err));
     } finally {
       setSignupSubmitting(false);
     }
@@ -176,7 +271,7 @@ export function AuthSwitch() {
 
       <div className="fu-forms">
         <div className="fu-forms-inner">
-          <form className="fu-form fu-form--signin" onSubmit={onLogin} noValidate>
+          <form key={`login-${shake}`} className={cn("fu-form fu-form--signin", shake > 0 && "is-shake")} onSubmit={onLogin} noValidate>
             <BackHome />
             <p className="fu-form-kicker">Espace membre</p>
             <h2 className="fu-form-title">Bon retour.</h2>
@@ -257,14 +352,25 @@ export function AuthSwitch() {
               </Link>
             </div>
 
+            {lockSeconds > 0 ? (
+              <div className="fu-lock" role="alert">
+                <Lock size={20} />
+                <div>
+                  <strong>Compte bloqué temporairement</strong>
+                  <span>
+                    Trop de tentatives. Réessayez dans <b>{clock(lockSeconds)}</b>.
+                  </span>
+                </div>
+              </div>
+            ) : null}
             {loginError ? <p className="auth-error">{loginError}</p> : null}
 
             <button
               className="auth-btn fu-submit"
               type="submit"
-              disabled={loginSubmitting || Boolean(loginEmailError) || Boolean(loginPwError)}
+              disabled={loginSubmitting || lockSeconds > 0 || Boolean(loginEmailError) || Boolean(loginPwError)}
             >
-              {loginSubmitting ? "Connexion…" : "Se connecter"}
+              {loginSubmitting ? "Connexion…" : lockSeconds > 0 ? `Réessayez dans ${clock(lockSeconds)}` : "Se connecter"}
               <ArrowRight size={18} />
             </button>
 
@@ -423,6 +529,15 @@ export function AuthSwitch() {
               </div>
             </div>
 
+            <div className="fu-meter" data-level={passwordStrength} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <small>{signupPassword ? strengthWord : "Force du mot de passe"}</small>
+            </div>
+
             <div className="auth-rules fu-rules">
               <PasswordRule ok={rules.length} label="8–128 caractères" />
               <PasswordRule ok={rules.uppercase} label="Majuscule" />
@@ -451,15 +566,15 @@ export function AuthSwitch() {
               {signupError ? <p className="auth-error">{signupError}</p> : null}
               {recaptchaEnabled() ? (
                 <p className="fu-recaptcha">
-                  This site is protected by reCAPTCHA and the Google{" "}
+                  Ce site est protégé par reCAPTCHA ; la{" "}
                   <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">
-                    Privacy Policy
+                    politique de confidentialité
                   </a>{" "}
-                  and{" "}
+                  et les{" "}
                   <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer">
-                    Terms of Service
+                    conditions d’utilisation
                   </a>{" "}
-                  apply.
+                  de Google s’appliquent.
                 </p>
               ) : null}
               <button className="auth-btn fu-submit" type="submit" disabled={signupSubmitting || !signupValid}>
@@ -490,6 +605,7 @@ export function AuthSwitch() {
               Recrutement, coaching, formations, matériel et événements : rejoignez le circuit du fitness en quelques
               secondes.
             </p>
+            <PerkList perks={LOGIN_PERKS} />
             <button type="button" className="fu-ghost" onClick={() => switchMode("signup")}>
               Créer mon compte
               <ArrowRight size={18} />
@@ -507,6 +623,7 @@ export function AuthSwitch() {
             <p className="fu-panel-copy">
               Connectez-vous pour retrouver votre dossier, vos séances, vos devis et vos opportunités.
             </p>
+            <PerkList perks={SIGNUP_PERKS} />
             <button type="button" className="fu-ghost" onClick={() => switchMode("login")}>
               Se connecter
               <ArrowRight size={18} />

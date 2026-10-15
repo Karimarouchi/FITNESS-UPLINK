@@ -4,6 +4,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { isSuperAdmin, shortNameOf } from "@/features/auth/types";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { InboxCountBadge, useInboxCount } from "@/features/recruitment/useInboxCount";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { sidebarGroupsFor } from "./sidebarNav";
 import type { SidebarDropdown, SidebarLink } from "./sidebarTypes";
 
@@ -81,13 +82,7 @@ export function AppSidebar() {
   return (
     <aside className="sidebar">
       <div className="sb-logo">
-        <div className="mark" aria-hidden="true">
-          F
-        </div>
-        <div>
-          <div className="word">Fitness Uplink</div>
-          <div className="sb-kicker">Back-office</div>
-        </div>
+        <BrandLogo to="/app/dashboard" />
       </div>
 
       {sidebarGroupsFor(user).map((group) => (

@@ -179,6 +179,10 @@ export function recruitmentError(code: string) {
       return "Cette transition de statut n’est pas autorisée.";
     case "CONTRACT_NOT_FOUND":
       return "Contrat introuvable.";
+    case "CANDIDATE_MUST_UPLOAD":
+      return "Téléchargez le contrat, signez-le, puis téléversez le PDF signé.";
+    case "CONTRACT_ALREADY_SIGNED":
+      return "Vous avez déjà renvoyé ce contrat signé.";
     case "CONTRACT_ALREADY_SENT":
       return "Un contrat est déjà en cours pour ce recrutement.";
     case "SIGNATURE_PROVIDER_ERROR":
@@ -353,4 +357,70 @@ export type FavoriteCard = {
 
 export function fetchFavorites() {
   return api.get<FavoriteCard[]>("/v1/favorites");
+}
+
+export type NegotiationOffer = {
+  id: string;
+  proposerName: string;
+  proposerRole: "EMPLOYER" | "CANDIDATE";
+  mine: boolean;
+  salaryAmount: number;
+  salaryCurrency: string;
+  contractType: string;
+  startDate: string | null;
+  location: string | null;
+  note: string | null;
+  status: "PROPOSED" | "ACCEPTED" | "DECLINED" | "SUPERSEDED";
+  createdAt: string;
+  respondedAt: string | null;
+};
+
+export type NegotiationDraft = {
+  salaryAmount: number;
+  salaryCurrency: string;
+  contractType: string;
+  startDate: string | null;
+  location: string | null;
+  note: string | null;
+};
+
+export function fetchNegotiation(recruitmentId: string) {
+  return api.get<NegotiationOffer[]>(`/v1/recruitments/${recruitmentId}/negotiation`);
+}
+
+export function proposeNegotiation(recruitmentId: string, body: NegotiationDraft) {
+  return api.post<NegotiationOffer>(`/v1/recruitments/${recruitmentId}/negotiation`, body);
+}
+
+export function respondNegotiation(recruitmentId: string, offerId: string, accept: boolean) {
+  return api.post<NegotiationOffer>(
+    `/v1/recruitments/${recruitmentId}/negotiation/${offerId}/${accept ? "accept" : "decline"}`,
+  );
+}
+
+export function negotiationError(code: string) {
+  switch (code) {
+    case "NEGOTIATION_NOT_OPEN":
+      return "La négociation n’est pas ouverte pour ce dossier.";
+    case "NEGOTIATION_SALARY_INVALID":
+      return "Indiquez un salaire supérieur à 0.";
+    case "NEGOTIATION_CURRENCY_INVALID":
+      return "Devise invalide.";
+    case "NEGOTIATION_CONTRACT_INVALID":
+      return "Choisissez un type de contrat.";
+    case "NEGOTIATION_DATE_INVALID":
+      return "La date de début ne peut pas être dans le passé.";
+    case "NEGOTIATION_TEXT_TOO_LONG":
+      return "Le texte est trop long.";
+    case "NEGOTIATION_LIMIT":
+      return "Trop de propositions échangées sur ce dossier.";
+    case "NEGOTIATION_OFFER_CLOSED":
+      return "Cette proposition a déjà reçu une réponse ou a été remplacée.";
+    case "NEGOTIATION_OWN_OFFER":
+      return "Vous ne pouvez pas répondre à votre propre proposition.";
+    case "NEGOTIATION_OFFER_NOT_FOUND":
+      return "Proposition introuvable.";
+    default:
+      return recruitmentError(code);
+  }
 }

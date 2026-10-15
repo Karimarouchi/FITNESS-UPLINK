@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { PUBLIC_NAV_LINKS } from "@/components/public/publicData";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useAuth } from "@/features/auth/AuthContext";
 
 const PLATFORM_LINKS = [
@@ -32,8 +33,7 @@ export function PublicFooter() {
         <div className="pf-grid">
           <div className="pf-brand">
             <Link className="pf-logo" to="/">
-              <span aria-hidden="true">F</span>
-              Fitness Universe
+              <BrandLogo to={null} />
             </Link>
             <p>
               Le circuit mondial du fitness : recrutement d’élite, coaching privé, formation, matériel et événements —
@@ -83,7 +83,7 @@ export function PublicFooter() {
         </div>
 
         <div className="pf-meta">
-          <span>© {new Date().getFullYear()} Fitness Universe. Tous droits réservés.</span>
+          <span>© {new Date().getFullYear()} Uplink Fitness. Tous droits réservés.</span>
           <span>Confidentialité · Conditions · Contact</span>
         </div>
       </div>

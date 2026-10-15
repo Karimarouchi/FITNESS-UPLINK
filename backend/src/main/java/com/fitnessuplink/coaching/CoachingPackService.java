@@ -239,8 +239,11 @@ public class CoachingPackService {
 
     private void apply(CoachPackOffer offer, CoachPackType type, UpsertPackOfferRequest request) {
         BigDecimal price = request.priceAmount();
-        if (price == null || price.signum() < 0) {
+        if (price == null || price.signum() <= 0) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "PACK_PRICE_INVALID");
+        }
+        if (request.sessionCount() != null && request.sessionCount() < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "PACK_SESSION_COUNT_INVALID");
         }
         String currency = request.priceCurrency() == null ? "" : request.priceCurrency().trim().toUpperCase();
         if (currency.length() != 3) {

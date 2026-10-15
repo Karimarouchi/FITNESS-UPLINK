@@ -2,7 +2,7 @@ export function Footer() {
   return (
     <footer className="fu-footer">
       <div className="fu-footer-inner">
-        <p className="fu-footer-copy">© 2026 Fitness Universe</p>
+        <p className="fu-footer-copy">© 2026 Uplink Fitness</p>
         <div className="fu-footer-links">
           <a href="#confidentialite">Confidentialité</a>
           <span className="fu-footer-sep" aria-hidden="true">

@@ -17,8 +17,8 @@
   --bo-primary-hover: #13264a;
   --bo-primary-soft: #e8ebf1;
   --bo-primary-ring: rgba(11, 26, 51, 0.14);
-  --bo-lime: #d4f53c;
-  --bo-brand: #1d4ed8;
+  --bo-lime: #FC5101;
+  --bo-brand: #0048FC;
   --bo-radius: 0px;
   --bo-radius-sm: 0px;
   --bo-shadow-xs: none;
@@ -174,7 +174,7 @@
   color: #fff;
 }
 .fu-app .bo-brand-mark {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8 55%, #1e3a8a);
+  background: linear-gradient(135deg, #1A5CFF, #0048FC 55%, #0033B8);
   box-shadow: none;
   font-family: Manrope, Inter, sans-serif;
   font-size: 17px;
@@ -209,7 +209,7 @@
   color: #fff;
 }
 .fu-app .bo-nav-link.is-active {
-  background: rgba(212, 245, 60, 0.1);
+  background: rgba(252, 81, 1, 0.1);
   color: var(--bo-lime);
 }
 .fu-app .bo-nav-link.is-active .bo-nav-icon {
