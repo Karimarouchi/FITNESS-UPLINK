@@ -1,49 +1,38 @@
 /* ==================================================================
-   WORKSPACE THEME — aligns the back-office with the public site:
-   Anton titles, Barlow Condensed labels, Geist body, navy + lime,
-   square shapes.
+   WORKSPACE THEME — cream canvas, Outfit titles, orange / blue CTAs.
    ================================================================== */
 :root {
-  --bo-bg: #f1f3f6;
+  --bo-bg: #f3eee6;
   --bo-surface: #ffffff;
-  --bo-surface-2: #f7f8fa;
-  --bo-border: #d9dde3;
-  --bo-border-strong: #c3c9d2;
+  --bo-surface-2: #fffdf8;
+  --bo-border: #e4ddd2;
+  --bo-border-strong: #d4cdc2;
   --bo-text: #0b1a33;
-  --bo-text-2: #26334a;
-  --bo-muted: #5b6472;
-  --bo-subtle: #a2a8b3;
+  --bo-text-2: #13264a;
+  --bo-muted: #5c6578;
+  --bo-subtle: #8b93a3;
   --bo-primary: #0b1a33;
   --bo-primary-hover: #13264a;
-  --bo-primary-soft: #e8ebf1;
-  --bo-primary-ring: rgba(11, 26, 51, 0.14);
+  --bo-primary-soft: #ece6dc;
+  --bo-primary-ring: rgba(252, 81, 1, 0.18);
   --bo-lime: #FC5101;
   --bo-brand: #0048FC;
-  --bo-radius: 0px;
-  --bo-radius-sm: 0px;
+  --bo-radius: 16px;
+  --bo-radius-sm: 10px;
   --bo-shadow-xs: none;
   --bo-shadow: none;
-  --bo-shadow-lg: 0 30px 60px -30px rgba(11, 26, 51, 0.45);
+  --bo-shadow-lg: 0 30px 60px -30px rgba(11, 26, 51, 0.28);
   --bo-font: Geist, Inter, "Segoe UI", system-ui, sans-serif;
-  --bo-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --bo-cond: "Barlow Condensed", Oswald, sans-serif;
+  --bo-display: Outfit, Manrope, Inter, sans-serif;
+  --bo-cond: Outfit, Manrope, Inter, sans-serif;
 }
 
-/* ---- square shapes ---- */
-.fu-app .bo-shell *,
-.fu-app .bo-shell *::before,
-.fu-app .bo-shell *::after,
-.fu-app.bo-overlay *,
-.fu-app.bo-overlay *::before,
-.fu-app.bo-overlay *::after {
-  border-radius: 0 !important;
-}
 .fu-app .bo-shell :is(.bo-dot, .vf-dot, .bo-pill)::before,
 .fu-app .bo-shell :is(.bo-dot, .vf-dot) {
-  border-radius: 50% !important;
+  border-radius: 50%;
 }
 
-/* ---- display titles (Anton) ---- */
+/* ---- display titles (Outfit ExtraBold) ---- */
 .fu-app .bo-head h1,
 .fu-app .bo-welcome h1,
 .fu-app .bo-shell .page-head h1,
@@ -52,10 +41,10 @@
 .fu-app .bo-brand-name,
 .fu-app .bo-product-price {
   font-family: var(--bo-display);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  letter-spacing: -0.04em;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .fu-app .bo-head h1,
 .fu-app .bo-shell .page-head h1 {
@@ -85,9 +74,9 @@
 .fu-app .bo-shell .panel-head h2,
 .fu-app .bo-shell .panel h2 {
   font-family: var(--bo-cond);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: none;
   color: var(--bo-text);
 }
 .fu-app .bo-card-head h2,
@@ -123,7 +112,7 @@
 .fu-app .bo-shell th {
   font-family: var(--bo-cond);
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .fu-app .bo-btn {
   font-size: 14px;
@@ -281,14 +270,14 @@
   flex: none;
 }
 .fu-app .bo-btn--primary {
-  border-color: var(--bo-primary);
-  background: var(--bo-primary);
+  border-color: var(--bo-lime);
+  background: var(--bo-lime);
   color: #fff;
 }
 .fu-app .bo-btn--primary:hover:not(:disabled) {
-  border-color: var(--bo-lime);
-  background: var(--bo-lime);
-  color: var(--bo-primary);
+  border-color: var(--bo-brand);
+  background: var(--bo-brand);
+  color: #fff;
 }
 .fu-app .bo-btn:not(.bo-btn--primary, .bo-btn--ghost, .bo-btn--danger, .bo-btn--danger-solid) {
   border-color: var(--bo-primary);

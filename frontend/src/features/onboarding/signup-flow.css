@@ -11,13 +11,13 @@
 .auth-shell.vf {
   --vt-navy: #0b1a33;
   --vt-navy-2: #13264a;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-paper: #f1f3f6;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-paper: #f3eee6;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
 }
 
@@ -57,8 +57,9 @@
 .ob-shell .ob-brand-word {
   font-family: var(--vt-display);
   font-size: 22px;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
 }
 
 .fu-public.ob-shell .ob-nav-back,
@@ -120,10 +121,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(46px, 6vw, 88px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-public.ob-shell .ob-country .ob-heading h1 {
@@ -234,7 +235,7 @@
 
 /* selected: navy card, white copy, lime accents (readable) */
 .fu-public.ob-shell .profile-card.active {
-  background: var(--vt-navy);
+  background: #0048fc;
   box-shadow: none;
 }
 
@@ -266,9 +267,9 @@
   height: 52px;
   min-width: 200px;
   padding: 0 24px;
-  border: 1px solid var(--vt-navy);
-  border-radius: 0;
-  background: var(--vt-navy);
+  border: 1px solid var(--vt-lime);
+  border-radius: 999px;
+  background: var(--vt-lime);
   color: #fff;
   font-family: var(--vt-cond);
   font-size: 16px;
@@ -528,10 +529,10 @@
   color: #fff;
   font-family: var(--vt-display);
   font-size: clamp(46px, 6vw, 88px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-public.ob-shell.pay-shell .pay-kicker {
@@ -772,16 +773,19 @@
 .vf-hero .ob-brand-word {
   font-family: var(--vt-display);
   font-size: 22px;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
 }
 
 .vf-hero h2 {
   margin: 0;
   font-family: var(--vt-display);
   font-size: clamp(56px, 6vw, 96px);
-  font-weight: 400;
-  line-height: 1;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .vf-hero h2 span {
@@ -835,9 +839,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(40px, 4vw, 56px);
-  font-weight: 400;
-  line-height: 1;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .auth-shell.vf .vf-nowrap {

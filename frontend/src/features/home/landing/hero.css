@@ -1,193 +1,192 @@
 /* ==================================================================
-   HOME HERO — "Vantage" style
-   layer 1: sky · layer 2: headline · layer 3: athlete (overflows down)
-   The athlete PNG shares the sky canvas (1672×1163, sky = top 941px),
-   so the athlete is drawn at 1163/941 = 123.6% of the hero height,
-   anchored to the top: its legs spill onto the next section.
+   HOME HERO — cream canvas + precomposed athlete (gradient blob in PNG)
    ================================================================== */
 .vx {
+  --vx-cream: #f3eee6;
+  --vx-blue: #0048fc;
+  --vx-orange: #fc5101;
+  --vx-ink: #0b1a33;
+  --vx-muted: #5c6578;
   --vx-gutter: clamp(20px, 4.4vw, 72px);
-  --vx-lime: #FC5101;
-  --vx-cond: "Barlow Condensed", "Oswald", sans-serif;
-  --vx-display: Anton, "Bebas Neue", Impact, sans-serif;
   position: relative;
   z-index: 3;
-  height: clamp(640px, 56.28vw, 100svh);
-  overflow-x: clip;
-  overflow-y: visible;
-  color: #fff;
+  overflow: clip;
+  background: var(--vx-cream);
+  color: var(--vx-ink);
   font-family: Geist, Inter, sans-serif;
 }
 
-.vx-sky {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    linear-gradient(0deg, rgba(4, 38, 92, 0.38) 0%, rgba(4, 38, 92, 0) 38%),
-    url("/media/sky-hero.jpg") 50% 50% / cover no-repeat;
+.vx-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 56px);
+  width: min(1240px, calc(100% - var(--vx-gutter) * 2));
+  min-height: 100svh;
+  margin-inline: auto;
+  padding: 108px 0 48px;
+}
+
+.vx-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 560px;
+  animation: vx-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .fu-public .vx .vx-title {
-  position: absolute;
-  z-index: 1;
-  top: 30%;
-  left: var(--vx-gutter);
-  right: var(--vx-gutter);
   margin: 0;
-  color: #fff;
-  font-family: var(--vx-display);
-  font-size: min(11.9vw, 214px);
-  font-weight: 400;
-  line-height: 0.86;
-  letter-spacing: 0;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  user-select: none;
-  animation: vx-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  color: var(--vx-ink);
+  font-family: Outfit, Manrope, Inter, sans-serif;
+  font-size: clamp(52px, 6.4vw, 92px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  text-transform: none;
+  text-align: left;
 }
 
-.vx-athlete {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: 50%;
-  height: 123.6%;
-  width: auto;
-  max-width: none;
-  transform: translateX(-50%);
-  pointer-events: none;
-  user-select: none;
-  animation: vx-athlete 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
+.fu-public .vx .vx-title span {
+  display: block;
 }
 
-/* ---------- UI ---------- */
-.vx-ui {
-  position: absolute;
-  z-index: 3;
-  left: var(--vx-gutter);
-  right: var(--vx-gutter);
-  bottom: 0;
-  pointer-events: none;
-}
-
-.vx-ui a {
-  pointer-events: auto;
-}
-
-.vx-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
-  padding-bottom: 40px;
+.fu-public .fu-home .vx .vx-pitch {
+  max-width: 42ch;
+  margin: 22px 0 0;
+  color: var(--vx-muted);
+  font-size: 16.5px;
+  line-height: 1.65;
+  text-shadow: none;
 }
 
 .vx-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
+  margin-top: 32px;
 }
 
 .fu-public.fu-public .vx .vx-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   height: 52px;
   padding: 0 22px;
-  border-width: 1px;
+  border-width: 1.5px;
   border-style: solid;
-  border-radius: 0;
-  font-family: var(--vx-cond);
-  font-size: 16px;
+  border-radius: 999px;
+  font-family: Geist, Inter, sans-serif;
+  font-size: 14.5px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: -0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.vx-btn .material-symbols-outlined {
-  font-size: 19px;
-  transition: transform 0.2s ease;
-}
-
-.fu-public .vx-btn-lime {
-  border-color: var(--vx-lime);
-  background: var(--vx-lime);
-  color: #0b1a33;
-}
-
-.fu-public .vx-btn-lime:hover {
-  border-color: #fff;
-  background: #fff;
-  color: #0b1a33;
-}
-
-.vx-btn-lime:hover .material-symbols-outlined {
-  transform: translateX(4px);
-}
-
-.fu-public .vx-btn-line {
-  border-color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.04);
+.fu-public.fu-public .vx .vx-btn.vx-btn-fill {
+  border-color: var(--vx-orange);
+  background: var(--vx-orange);
   color: #fff;
 }
 
-.fu-public .vx-btn-line:hover {
-  border-color: #fff;
-  background: #fff;
-  color: #0b1a33;
-}
-
-.vx-btn-line:hover .material-symbols-outlined {
-  transform: translate(2px, -2px);
-}
-
-.fu-public .fu-home .vx .vx-pitch {
-  max-width: 34ch;
-  margin: 0;
+.fu-public.fu-public .vx .vx-btn.vx-btn-fill:hover {
+  border-color: var(--vx-blue);
+  background: var(--vx-blue);
   color: #fff;
-  font-size: 17px;
-  line-height: 1.45;
-  text-shadow: 0 1px 12px rgba(4, 38, 92, 0.35);
+  transform: translateY(-1px);
 }
 
-.vx-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 14px 0 18px;
+.fu-public.fu-public .vx .vx-btn.vx-btn-line {
+  border-color: rgba(11, 26, 51, 0.28);
+  background: transparent;
+  color: var(--vx-ink);
 }
 
-.vx-meta div {
-  display: grid;
-  gap: 2px;
+.fu-public.fu-public .vx .vx-btn.vx-btn-line:hover {
+  border-color: var(--vx-blue);
+  background: var(--vx-blue);
+  color: #fff;
 }
 
-.vx-meta div:last-child {
-  text-align: right;
+.vx-stage {
+  position: relative;
+  height: clamp(540px, 72vh, 740px);
+  animation: vx-stage 1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.08s both;
 }
 
-.vx-meta b {
-  font-family: var(--vx-cond);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.vx-athlete {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 0;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  transform: translateX(-50%);
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 68%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 68%, transparent 96%);
 }
 
-.vx-meta span {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 12.5px;
+.vx-orbit {
+  position: absolute;
+  z-index: 2;
+  border: 1.5px dashed rgba(0, 72, 252, 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.vx-orbit-a {
+  width: 42%;
+  aspect-ratio: 1;
+  left: 2%;
+  bottom: 14%;
+}
+
+.vx-orbit-b {
+  width: 22%;
+  aspect-ratio: 1;
+  right: 2%;
+  top: 12%;
+}
+
+.vx-ball {
+  position: absolute;
+  z-index: 3;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 22px 28px rgba(11, 26, 51, 0.28));
+  animation: vx-float 5.5s ease-in-out infinite;
+}
+
+.vx-ball-basket {
+  width: 26%;
+  left: -2%;
+  bottom: 20%;
+  transform: rotate(-24deg);
+  animation-delay: -1.2s;
+}
+
+.vx-ball-foot-sm {
+  width: 13%;
+  right: 8%;
+  top: 16%;
+  animation-duration: 6.4s;
 }
 
 @keyframes vx-rise {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(28px);
   }
   to {
     opacity: 1;
@@ -195,64 +194,66 @@
   }
 }
 
-@keyframes vx-athlete {
+@keyframes vx-stage {
   from {
     opacity: 0;
-    transform: translate(-50%, 60px);
+    transform: translateY(36px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%);
+    transform: none;
   }
 }
 
-/* ---------- responsive ---------- */
-@media (max-width: 900px) {
-  .vx-row {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 20px;
-    padding-bottom: 28px;
+@keyframes vx-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -14px;
+  }
+}
+
+@media (max-width: 980px) {
+  .vx-inner {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 108px 0 36px;
   }
 
-  .fu-public .fu-home .vx .vx-pitch {
-    max-width: 40ch;
-    font-size: 15.5px;
+  .vx-copy {
+    max-width: 40rem;
+  }
+
+  .vx-stage {
+    height: 520px;
+    order: -1;
   }
 }
 
 @media (max-width: 640px) {
-  .vx {
-    height: max(680px, 100svh);
-  }
-
   .fu-public .vx .vx-title {
-    top: 18%;
-    font-size: 17vw;
-    white-space: normal;
+    font-size: clamp(44px, 12vw, 64px);
   }
 
-  .vx-athlete {
-    height: 100%;
+  .vx-stage {
+    height: 430px;
   }
 
   .vx-actions {
     width: 100%;
   }
 
-  .fu-public .vx-btn {
-    flex: 1 1 100%;
-    justify-content: space-between;
-  }
-
-  .vx-meta {
-    display: none;
+  .fu-public.fu-public .vx .vx-btn {
+    flex: 1 1 auto;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fu-public .vx .vx-title,
-  .vx-athlete {
+  .vx-copy,
+  .vx-stage,
+  .vx-ball {
     animation: none;
   }
 }

@@ -1,0 +1,1101 @@
+/* ==================================================================
+   UPLINK FITNESS — site-wide cream / ink / orange / blue language
+   Matches the home hero. Outfit ExtraBold for display titles
+   (closest public match to the stacked wordmark).
+   Loaded last from main.tsx so it wins over vantage overrides.
+   ================================================================== */
+
+:root {
+  --uf-cream: #f3eee6;
+  --uf-cream-2: #efe8dc;
+  --uf-ink: #0b1a33;
+  --uf-ink-2: #13264a;
+  --uf-muted: #5c6578;
+  --uf-grey: #8b93a3;
+  --uf-line: #e4ddd2;
+  --uf-orange: #fc5101;
+  --uf-blue: #0048fc;
+  --uf-display: Outfit, Manrope, Inter, sans-serif;
+  --uf-ui: Outfit, Manrope, Geist, Inter, sans-serif;
+}
+
+.fu-public,
+.fu-home.vt,
+.fu-app,
+.fu-app .vt-app,
+.fu-app .bo-shell,
+.fu-switch.fu-auth,
+.ob-shell,
+.auth-shell.vf,
+.pay-shell.pay-shell,
+.fd {
+  --vt-navy: var(--uf-ink);
+  --vt-navy-2: var(--uf-ink-2);
+  --vt-grey: var(--uf-grey);
+  --vt-text: var(--uf-muted);
+  --vt-paper: var(--uf-cream);
+  --vt-line: var(--uf-line);
+  --vt-lime: var(--uf-orange);
+  --vt-display: var(--uf-display);
+  --vt-cond: var(--uf-ui);
+  --vt-body: Geist, Inter, "Segoe UI", sans-serif;
+  --night: var(--uf-ink);
+  --night-2: var(--uf-ink-2);
+}
+
+.fu-app {
+  --bo-bg: var(--uf-cream);
+  --bo-surface: #fff;
+  --bo-surface-2: var(--uf-cream-2);
+  --bo-border: var(--uf-line);
+  --bo-border-strong: #d4cdc2;
+  --bo-text: var(--uf-ink);
+  --bo-text-2: var(--uf-ink-2);
+  --bo-muted: var(--uf-muted);
+  --bo-subtle: var(--uf-grey);
+  --bo-primary: var(--uf-ink);
+  --bo-primary-hover: var(--uf-ink-2);
+  --bo-primary-soft: #ece6dc;
+  --bo-primary-ring: rgba(252, 81, 1, 0.18);
+  --bo-lime: var(--uf-orange);
+  --bo-brand: var(--uf-blue);
+  --bo-radius: 16px;
+  --bo-radius-sm: 10px;
+  --bo-display: var(--uf-display);
+  --bo-cond: var(--uf-ui);
+}
+
+.fu-public {
+  background: var(--uf-cream);
+  color: var(--uf-ink);
+}
+
+/* ---------- display titles (wordmark-like) ---------- */
+.fu-public :is(h1, h2, .vt-title),
+.fu-public.fu-public :is(
+    .pub-hero h1,
+    .pub-section-head h2,
+    .pub-promise h2,
+    .pub-cta h2,
+    .cat-empty h3,
+    .pf-band h2,
+    .pf-logo,
+    .vt-title,
+    .vt-eco-copy h3,
+    .coach-rating b
+  ),
+.fu-public .vx .vx-title,
+.fu-switch.fu-auth :is(.fu-panel-title, .fu-form-title),
+.ob-shell :is(.ob-brand-word, h1, h2, .ob-title, .vf-title),
+.auth-shell.vf :is(h1, h2),
+.pay-shell.pay-shell .pay-title,
+.fd :is(h1, h2, .fd-title),
+.fu-app :is(
+    h1,
+    .bo-head h1,
+    .bo-welcome h1,
+    .page-head h1,
+    .bo-kpi-value,
+    .bo-brand-name,
+    .bo-product-price
+  ),
+.fgx-hero-copy h2 {
+  font-family: var(--uf-display);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  text-transform: none;
+}
+
+.fu-public.fu-public .pub-hero h1 {
+  color: var(--uf-ink);
+  font-size: clamp(44px, 6vw, 88px);
+}
+
+.fu-public.fu-public .pub-section-head h2,
+.fu-public .fu-home.vt .vt-title {
+  color: var(--uf-ink);
+}
+
+/* ---------- labels / kickers / condensed UI ---------- */
+.fu-public.fu-public :is(
+    .pub-kicker,
+    .pub-crumbs,
+    .pub-features h3,
+    .pub-steps h3,
+    .cat-body h3,
+    .pub-hero-highlights li,
+    .pub-btn,
+    .cat-search-go,
+    .pf-cta,
+    .pub-link-arrow,
+    .cat-toolbar button,
+    .cat-cta,
+    .cat-go,
+    .cat-chip,
+    .cat-tags span,
+    .cat-lock,
+    .cat-seats,
+    .cat-eyebrow,
+    .cat-foot b,
+    .cat-nudge strong,
+    .coach-specs li,
+    .pub-tab,
+    .pf-kicker,
+    .pf-col h3,
+    .vt-idx,
+    .vt-link,
+    .vt-btn,
+    .vt-rows strong,
+    .vt-rows em,
+    .vt-tag,
+    .vt-lock,
+    .vt-eco-copy em
+  ),
+.fu-public .fu-home.vt :is(h3, .vt-link, .vt-btn),
+.fu-switch.fu-auth :is(.fu-panel-kicker, .fu-ghost, .fu-back, .fu-form-kicker, .fu-submit, .fu-tab),
+.ob-shell :is(.ob-nav-back, .ob-kicker, .ob-label, .font-label-caps, button, .ob-chip),
+.pay-shell.pay-shell :is(.pay-kicker, .pay-btn, .pay-label),
+.fd :is(.fd-kicker, .fd-chip, .fd-btn),
+.fu-app :is(
+    .bo-btn,
+    .bo-seg button,
+    .bo-tabs button,
+    .bo-table th,
+    .bo-kpi-label,
+    .bo-nav-title,
+    .bo-eyebrow,
+    .bo-field-label,
+    .bo-pill,
+    .bo-crumbs,
+    .bo-card-head h2,
+    .bo-empty-title,
+    .bo-list-title,
+    .bo-quick-title,
+    .vf-group-title strong,
+    .vf-row-title strong,
+    .vf-section-title strong,
+    .panel-head h2,
+    .panel h2
+  ),
+.fgx-hero-kicker {
+  font-family: var(--uf-ui);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.fu-app .bo-card-head h2,
+.fu-app :is(.bo-drawer-head, .bo-modal-head) h2,
+.fu-app .bo-empty-title,
+.fu-app .vf-profile .vf-row-title strong,
+.fu-app .vf-section-title strong {
+  font-weight: 800;
+}
+
+/* ---------- public hero (cream, two-column) ---------- */
+.fu-public.fu-public .pub-hero {
+  min-height: 0;
+  display: block;
+  align-items: stretch;
+  padding: 116px 0 56px;
+  color: var(--uf-ink);
+  background: var(--uf-cream);
+  overflow: hidden;
+}
+
+.fu-public.fu-public .pub-hero.is-compact {
+  padding: 108px 0 40px;
+}
+
+.fu-public .pub-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.fu-public .pub-hero-copy {
+  position: relative;
+  z-index: 1;
+  animation: none;
+}
+
+.fu-public .pub-hero-copy > * {
+  max-width: 38rem;
+}
+
+.fu-public.fu-public .pub-hero .pub-lead {
+  max-width: 46ch;
+  margin: 18px 0 0;
+  color: var(--uf-muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.fu-public.fu-public .pub-crumbs,
+.fu-public.fu-public .pub-crumbs a {
+  color: var(--uf-muted);
+}
+
+.fu-public.fu-public .pub-crumbs a:hover,
+.fu-public.fu-public .pub-crumbs [aria-current] {
+  color: var(--uf-orange);
+}
+
+.fu-public .pub-hero-visual {
+  position: relative;
+  min-height: clamp(280px, 46vh, 520px);
+}
+
+.fu-public .pub-hero-visual img {
+  display: block;
+  width: 100%;
+  height: clamp(280px, 46vh, 520px);
+  object-fit: cover;
+  object-position: center;
+  border-radius: 28px;
+  box-shadow: 0 28px 60px -28px rgba(11, 26, 51, 0.35);
+}
+
+.fu-public.fu-public .pub-hero-highlights li {
+  border: 1px solid var(--uf-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--uf-ink);
+}
+
+.fu-public.fu-public .pub-hero-highlights .material-symbols-outlined {
+  color: var(--uf-orange);
+}
+
+@media (max-width: 860px) {
+  .fu-public .pub-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fu-public .pub-hero-visual {
+    min-height: 0;
+    order: -1;
+  }
+
+  .fu-public .pub-hero-visual img {
+    height: min(52vw, 320px);
+  }
+}
+
+/* ---------- buttons & chips ---------- */
+.fu-public.fu-public :is(.pub-btn, .cat-search-go, .pf-cta, .vt-btn, .cat-chip, .pub-tab, .cat-pager button),
+.fu-public .fu-home.vt .vt-btn,
+.fu-public.fu-public .pn-btn,
+.fu-switch.fu-auth :is(.fu-submit, .fu-ghost, .fu-btn),
+.ob-shell :is(.ob-btn, .pay-btn, button.ob-next, .ob-cta),
+.pay-shell.pay-shell :is(.pay-submit, .pay-btn),
+.fd :is(.fd-btn, .fd-cta),
+.fu-app .bo-btn {
+  border-radius: 999px;
+}
+
+.fu-public.fu-public :is(.pub-btn-lime, .pub-btn-volt),
+.fu-public .fu-home.vt .vt-btn-lime,
+.fu-public.fu-public .pf-cta,
+.fu-public.fu-public .cat-search-go {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-public.fu-public :is(.pub-btn-lime, .pub-btn-volt):hover,
+.fu-public .fu-home.vt .vt-btn-lime:hover,
+.fu-public.fu-public .pf-cta:hover,
+.fu-public.fu-public .cat-search-go:hover {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+  color: #fff;
+}
+
+.fu-public.fu-public :is(.pub-btn-line, .pub-btn-ghost) {
+  border-color: rgba(11, 26, 51, 0.28);
+  background: transparent;
+  color: var(--uf-ink);
+}
+
+.fu-public.fu-public :is(.pub-btn-line, .pub-btn-ghost):hover,
+.fu-public .fu-home.vt .vt-btn-line:hover {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-navy {
+  border-color: var(--uf-ink);
+  background: var(--uf-ink);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-navy:hover {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+}
+
+/* ---------- rounded surfaces ---------- */
+.fu-public.fu-public :is(
+    .pub-features li,
+    .pub-steps li,
+    .cat-panel,
+    .cat-search,
+    .cat-card,
+    .cat-empty,
+    .cat-nudge,
+    .cat-nudge-icon,
+    .pub-tabs,
+    .pub-tab,
+    .pub-cta-card,
+    .pub-feature-icon,
+    .pub-step-icon,
+    .coach-specs li,
+    .pf-band,
+    .pf-badges li,
+    .pf-logo span
+  ) {
+  border-radius: 18px;
+}
+
+.fu-public.fu-public :is(.pub-feature-icon, .pub-step-icon, .cat-empty > .material-symbols-outlined, .cat-nudge-icon) {
+  background: var(--uf-ink);
+  color: #fff;
+}
+
+.fu-public.fu-public .pub-features li:hover .pub-feature-icon {
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-public.fu-public :is(.cat-chip.is-on, .cat-pager button.is-on, .pub-tab.is-on) {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-public.fu-public .cat-tags span.is-volt {
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+/* ---------- home dark bands → cream / ink ---------- */
+.fu-home.vt .vt-section.vt-dark,
+.fu-home.vt .vt-cta {
+  background: var(--uf-cream);
+  color: var(--uf-ink);
+}
+
+.fu-public .fu-home.vt .vt-dark .vt-title,
+.fu-public .fu-home.vt .vt-dark h3,
+.fu-public .fu-home.vt .vt-cta .vt-title {
+  color: var(--uf-ink);
+}
+
+.fu-home.vt .vt-dark .vt-muted,
+.fu-home.vt .vt-dark .vt-idx,
+.fu-home.vt .vt-lime {
+  color: var(--uf-orange);
+}
+
+.fu-public .fu-home.vt .vt-dark p,
+.fu-public .fu-home.vt .vt-cta p {
+  color: var(--uf-muted);
+}
+
+.fu-public .fu-home.vt .vt-eco-grid a {
+  background: #fff;
+  color: var(--uf-ink);
+  border-radius: 16px;
+}
+
+.fu-public .fu-home.vt .vt-eco-grid a:hover {
+  background: var(--uf-cream-2);
+}
+
+.fu-home.vt .vt-eco-grid {
+  gap: 12px;
+  border: none;
+  background: transparent;
+}
+
+.fu-home.vt .vt-eco-go {
+  color: var(--uf-grey);
+}
+
+.fu-home.vt .vt-eco-grid a:hover .vt-eco-go {
+  color: var(--uf-orange);
+}
+
+.fu-public .fu-home.vt .vt-eco-copy h3,
+.fu-public .fu-home.vt .vt-eco-copy p {
+  color: #fff;
+}
+
+.fu-home.vt .vt-eco-feature::after {
+  background: linear-gradient(0deg, rgba(11, 26, 51, 0.88) 0%, rgba(11, 26, 51, 0.12) 62%);
+}
+
+.fu-home.vt .vt-eco-copy em {
+  color: var(--uf-orange);
+}
+
+/* ---------- public CTA / promise cards ---------- */
+.fu-public.fu-public :is(.pub-promise, .pub-cta-card) {
+  background-color: var(--uf-ink);
+  border-radius: 28px;
+}
+
+.fu-public.fu-public .pub-promise .pub-kicker,
+.fu-public.fu-public .pub-cta .pub-kicker {
+  color: var(--uf-orange);
+}
+
+.fu-public.fu-public .pub-cta h2,
+.fu-public.fu-public .pub-promise h2 {
+  color: #fff;
+}
+
+/* ---------- navbar ---------- */
+.fu-public.fu-public .pn-bar {
+  min-height: 72px;
+  padding: 8px 10px 8px 16px;
+  border-radius: 20px;
+  gap: 16px;
+}
+
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-bar {
+  background: transparent;
+  color: var(--uf-ink);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.fu-public.fu-public .pn--overlay.pn--light:not(.pn--solid) .pn-bar {
+  color: var(--uf-ink);
+}
+
+.fu-public.fu-public .pn--solid {
+  padding: 12px clamp(12px, 3vw, 32px);
+  background: transparent;
+  border-bottom: none;
+}
+
+.fu-public.fu-public .pn--solid .pn-bar {
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid rgba(11, 26, 51, 0.08);
+  box-shadow: 0 14px 40px -22px rgba(11, 26, 51, 0.28);
+  color: var(--uf-ink);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  padding-inline: 16px;
+}
+
+.fu-public.fu-public .pn-word {
+  font-family: var(--uf-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+.fu-public.fu-public .pn-word b {
+  font-weight: 800;
+}
+
+.fu-public.fu-public .pn-links a,
+.fu-public.fu-public .pn-links a:hover,
+.fu-public.fu-public .pn-links a.is-active {
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--uf-ui);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.fu-public.fu-public .pn-links a {
+  opacity: 0.78;
+  color: inherit;
+}
+
+.fu-public.fu-public .pn-links a:hover {
+  opacity: 1;
+  color: var(--uf-orange);
+  background: rgba(252, 81, 1, 0.08);
+}
+
+.fu-public.fu-public .pn-links a.is-active {
+  opacity: 1;
+  color: var(--uf-blue);
+  font-weight: 700;
+  background: rgba(0, 72, 252, 0.08);
+}
+
+.fu-public.fu-public .pn--solid .pn-links a {
+  color: var(--uf-ink);
+}
+
+.fu-public.fu-public .pn--solid .pn-links a.is-active {
+  color: var(--uf-blue);
+}
+
+.fu-public.fu-public .pn-btn {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-family: var(--uf-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.fu-public.fu-public .pn-btn-ghost:hover {
+  background: rgba(11, 26, 51, 0.05);
+  text-decoration: none;
+}
+
+.fu-public.fu-public .pn-btn-solid,
+.fu-public.fu-public .pn--solid .pn-btn-solid,
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-btn-solid {
+  background: var(--uf-orange);
+  box-shadow: 0 10px 22px -12px rgba(252, 81, 1, 0.85);
+  color: #fff;
+}
+
+.fu-public.fu-public .pn-btn-solid:hover,
+.fu-public.fu-public .pn--solid .pn-btn-solid:hover,
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-btn-solid:hover {
+  background: var(--uf-blue);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.fu-public.fu-public :is(
+    .pn-user-trigger,
+    .pn-toggle,
+    .pn-user-menu,
+    .pn-sheet,
+    .pn-sheet-icon,
+    .pn-sheet-links a,
+    .pn-user-menu a,
+    .pn-user-menu button
+  ) {
+  border-radius: 14px;
+}
+
+.fu-public.fu-public .pn--open .pn-bar {
+  background: #fff;
+  color: var(--uf-ink);
+}
+
+/* ---------- footer ---------- */
+.fu-public.fu-public .pf {
+  background: var(--uf-ink);
+}
+
+.fu-public.fu-public .pf-band {
+  border-radius: 24px;
+}
+
+.fu-public.fu-public .pf-band h2,
+.fu-public.fu-public .pf-logo {
+  color: #fff;
+}
+
+.fu-public.fu-public .pf-kicker {
+  color: var(--uf-orange);
+}
+
+.fu-public.fu-public .pf-cta {
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-public.fu-public .pf-cta:hover {
+  background: var(--uf-blue);
+  color: #fff;
+}
+
+/* ---------- auth / onboarding / pay ---------- */
+.fu-switch.fu-auth {
+  background: var(--uf-cream);
+}
+
+.fu-switch.fu-auth .fu-panel-title,
+.fu-switch.fu-auth .fu-panel-copy,
+.fu-switch.fu-auth .fu-panel-kicker {
+  color: #fff;
+}
+
+.fu-switch.fu-auth .fu-panel-title span {
+  color: var(--uf-orange);
+}
+
+.fu-switch.fu-auth .fu-form-title {
+  color: var(--uf-ink);
+}
+
+.fu-switch.fu-auth .fu-ghost {
+  border-radius: 999px;
+}
+
+.fu-switch.fu-auth .fu-ghost:hover {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.pay-shell.pay-shell {
+  border-radius: 28px;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(0, 72, 252, 0.18), transparent 70%),
+    var(--uf-ink);
+}
+
+.pay-shell.pay-shell .pay-title {
+  color: #fff;
+}
+
+.fd {
+  background: var(--uf-cream);
+}
+
+.fd-hero {
+  background-color: var(--uf-cream) !important;
+  color: var(--uf-ink);
+}
+
+.fgx-hero-copy h2 {
+  color: var(--uf-ink);
+}
+
+/* ---------- member app + back-office ---------- */
+.fu-app .vt-app,
+.fu-app .vt-app .main,
+.fu-app .bo-shell {
+  background: var(--uf-cream);
+}
+
+.fu-app .bo-shell *,
+.fu-app .bo-shell *::before,
+.fu-app .bo-shell *::after,
+.fu-app.bo-overlay *,
+.fu-app.bo-overlay *::before,
+.fu-app.bo-overlay *::after {
+  border-radius: revert-layer;
+}
+
+.fu-app .bo-shell .bo-card,
+.fu-app .bo-shell .bo-panel,
+.fu-app .bo-shell .panel,
+.fu-app .bo-shell .kcard,
+.fu-app .bo-drawer,
+.fu-app .bo-modal {
+  border-radius: 18px;
+}
+
+.fu-app .bo-btn--primary {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-app .bo-btn--primary:hover:not(:disabled) {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+  color: #fff;
+}
+
+.fu-app .bo-welcome {
+  background: var(--uf-ink);
+  border-radius: 22px;
+}
+
+.fu-app .bo-welcome h1 {
+  color: #fff;
+}
+
+.fu-app .bo-welcome .bo-btn--primary {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-app .bo-welcome .bo-btn--primary:hover {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+  color: #fff;
+}
+
+.fu-app .vt-app .app-navbar-logo .word {
+  font-family: var(--uf-display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+.fu-app .vt-app .app-nav-link,
+.fu-app .vt-app .app-nav-drop > button {
+  border-radius: 999px;
+  font-family: var(--uf-ui);
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.fu-app .bo-btn.bo-btn--icon {
+  border-radius: 10px;
+}
+
+/* Force display titles onto Outfit ExtraBold (wordmark), even where
+   older vantage rules still set Anton 400 + uppercase. */
+.fu-public h1,
+.fu-public h2,
+.fu-public .vt-title,
+.fu-public .vx-title,
+.fu-switch .fu-panel-title,
+.fu-switch .fu-form-title,
+.ob-shell h1,
+.ob-shell h2,
+.vf-title,
+.vf-hero h2,
+.pay-shell .pay-title,
+.pay-shell .ob-plans-title,
+.fd h1,
+.fd h2,
+.fu-app h1,
+.fu-app .page-head h1,
+.fu-app .bo-head h1,
+.fu-app .bo-welcome h1,
+.fu-app .bo-kpi-value {
+  font-family: Outfit, Manrope, Inter, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.045em !important;
+  text-transform: none !important;
+  line-height: 0.95 !important;
+}
+
+/* ---------- AUTH (login / signup / verify) — one cream surface ---------- */
+.fu-switch.fu-auth,
+.auth-shell,
+.auth-shell .auth-panel,
+.auth-shell.vf,
+.auth-shell.vf .auth-panel {
+  background: var(--uf-cream) !important;
+  color: var(--uf-ink);
+}
+
+.fu-switch.fu-auth .fu-form-kicker,
+.auth-shell.vf .vf-kicker {
+  color: var(--uf-blue) !important;
+  font-family: var(--uf-ui) !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-switch.fu-auth .fu-form-title,
+.auth-shell.vf .vf-title {
+  color: var(--uf-ink) !important;
+}
+
+.fu-switch.fu-auth .auth-label,
+.auth-shell.vf .auth-label,
+.fu-public.ob-shell .auth-label {
+  color: var(--uf-muted) !important;
+  font-family: var(--uf-ui) !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+.fu-switch.fu-auth .auth-input,
+.fu-switch.fu-auth .auth-input:hover:not(:focus):not(.is-invalid),
+.auth-shell.vf .auth-input,
+.fu-public.ob-shell .custom-input,
+.fu-public.ob-shell .custom-textarea,
+.fu-public.ob-shell .ui-select-trigger,
+.auth-shell.vf .otp-cell {
+  border: 1px solid var(--uf-line) !important;
+  border-radius: 14px !important;
+  background: var(--uf-cream-2) !important;
+  color: var(--uf-ink) !important;
+  box-shadow: none !important;
+}
+
+.fu-switch.fu-auth .auth-input:focus,
+.auth-shell.vf .auth-input:focus,
+.fu-public.ob-shell .custom-input:focus,
+.fu-public.ob-shell .custom-textarea:focus,
+.auth-shell.vf .otp-cell:focus,
+.auth-shell.vf .otp-cell.is-active,
+.auth-shell.vf .otp-cell.is-filled {
+  border-color: var(--uf-blue) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 4px rgba(0, 72, 252, 0.14) !important;
+}
+
+.fu-switch.fu-auth .fu-control:focus-within .auth-label,
+.fu-switch.fu-auth .fu-control:focus-within .fu-field-icon {
+  color: var(--uf-blue) !important;
+}
+
+.fu-switch.fu-auth .fu-field-icon,
+.fu-switch.fu-auth .auth-eye {
+  color: var(--uf-grey);
+}
+
+.fu-switch.fu-auth .auth-eye:hover {
+  background: var(--uf-cream-2);
+  color: var(--uf-blue);
+}
+
+.fu-switch.fu-auth .auth-rule {
+  border-radius: 999px !important;
+  background: var(--uf-cream-2) !important;
+  color: var(--uf-muted);
+}
+
+.fu-switch.fu-auth .auth-rule.is-ok {
+  background: rgba(0, 72, 252, 0.1) !important;
+  color: var(--uf-blue) !important;
+}
+
+.fu-switch.fu-auth .fu-link,
+.fu-switch.fu-auth .fu-switch-hint button,
+.fu-switch.fu-auth .fu-check--terms .text-secondary,
+.auth-shell.vf .text-secondary {
+  color: var(--uf-blue) !important;
+}
+
+.fu-switch.fu-auth .fu-check input {
+  accent-color: var(--uf-blue);
+}
+
+.fu-switch.fu-auth .auth-btn,
+.auth-shell.vf .auth-btn,
+.fu-public.ob-shell .ob-primary-pill,
+.fu-public.ob-shell .ob-primary {
+  height: 52px;
+  border: 1px solid var(--uf-orange) !important;
+  border-radius: 999px !important;
+  background: var(--uf-orange) !important;
+  box-shadow: 0 12px 24px -12px rgba(252, 81, 1, 0.8) !important;
+  color: #fff !important;
+  font-family: var(--uf-ui) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-switch.fu-auth .auth-btn:hover:not(:disabled),
+.auth-shell.vf .auth-btn:hover:not(:disabled),
+.fu-public.ob-shell .ob-primary-pill:hover:not(:disabled),
+.fu-public.ob-shell .ob-primary:hover:not(:disabled) {
+  border-color: var(--uf-blue) !important;
+  background: var(--uf-blue) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+.fu-switch.fu-auth .auth-btn:disabled,
+.auth-shell.vf .auth-btn:disabled,
+.fu-public.ob-shell .ob-primary:disabled,
+.fu-public.ob-shell .ob-primary-pill:disabled {
+  border-color: #d4cdc2 !important;
+  background: #d4cdc2 !important;
+  box-shadow: none !important;
+  color: #fff !important;
+}
+
+.fu-switch.fu-auth .fu-ghost {
+  border-radius: 999px !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-switch.fu-auth .fu-ghost:hover {
+  border-color: var(--uf-orange);
+  background: var(--uf-orange);
+  color: #fff;
+}
+
+.fu-switch.fu-auth .fu-back {
+  border-radius: 999px !important;
+  color: var(--uf-blue) !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-switch.fu-auth .fu-blob {
+  background: var(--uf-blue);
+}
+
+.auth-shell.vf .otp-cell.is-success {
+  border-color: var(--uf-blue) !important;
+  background: rgba(0, 72, 252, 0.12) !important;
+}
+
+.auth-shell.vf .otp-digit {
+  font-weight: 800;
+}
+
+/* ---------- ONBOARDING — cream cards, blue selected, orange CTA ---------- */
+.ob-shell .ob-top,
+.ob-shell .ob-profile-nav {
+  background: var(--uf-cream) !important;
+  border-bottom-color: var(--uf-line) !important;
+}
+
+.fu-public.ob-shell .ob-audience-tab {
+  border-radius: 999px !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.ob-shell .ob-audience-indicator {
+  border-radius: 999px !important;
+  background: var(--uf-blue) !important;
+}
+
+.ob-shell .ob-role-grid,
+.ob-shell .ob-intent-grid {
+  gap: 14px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.fu-public.ob-shell .profile-card {
+  border: 1px solid var(--uf-line);
+  border-radius: 20px !important;
+  background: var(--uf-cream-2) !important;
+}
+
+.fu-public.ob-shell .profile-card:hover {
+  background: var(--uf-cream-2) !important;
+  box-shadow: inset 0 0 0 2px var(--uf-blue) !important;
+}
+
+.fu-public.ob-shell .profile-card.active {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue) !important;
+}
+
+.fu-public.ob-shell .profile-card.active .profile-card-icon {
+  background: var(--uf-orange) !important;
+  color: #fff !important;
+  border-radius: 14px;
+}
+
+.fu-public.ob-shell .profile-card-icon {
+  border-radius: 14px;
+  background: #fff;
+  color: var(--uf-blue);
+}
+
+.fu-public.ob-shell .profile-card h3 {
+  font-family: var(--uf-display) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .profile-card .check-icon {
+  color: #fff !important;
+}
+
+.fu-public.ob-shell .ob-ghost,
+.fu-public.ob-shell .ob-secondary,
+.fu-public.ob-shell .ob-upload {
+  border-radius: 999px !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-link,
+.fu-public.ob-shell .ob-nav-back {
+  color: var(--uf-blue) !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .chip {
+  border-radius: 999px !important;
+  background: var(--uf-blue) !important;
+}
+
+.fu-public.ob-shell .chip,
+.fu-public.ob-shell .bool-option {
+  border-radius: 999px !important;
+  text-transform: none !important;
+  letter-spacing: -0.02em !important;
+}
+
+.ob-shell .ob-section,
+.ob-shell .ob-cv-import,
+.ob-shell .ob-profile-card,
+.ob-shell .ob-role-badge {
+  border-radius: 18px !important;
+  background: var(--uf-cream-2) !important;
+  border-color: var(--uf-line) !important;
+}
+
+.fu-public.ob-shell .ob-section-index {
+  border-radius: 10px !important;
+  background: var(--uf-blue) !important;
+  color: #fff !important;
+}
+
+.ob-shell .ob-audience-tabs {
+  border-radius: 999px !important;
+  overflow: hidden;
+  background: var(--uf-cream-2) !important;
+  border-color: var(--uf-line) !important;
+}
+
+.vf-steps li {
+  border-radius: 999px !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.vf-steps li.is-on {
+  border-color: var(--uf-orange) !important;
+  background: var(--uf-orange) !important;
+  color: #fff !important;
+}
+
+.fu-public.fu-public .pub-kicker,
+.fu-public.fu-public .pub-kicker.ink,
+.fu-home.vt .vt-idx,
+.fu-public.fu-public .pub-crumbs [aria-current] {
+  color: var(--uf-blue);
+}
+
+.fu-app .bo-welcome {
+  background: var(--uf-ink);
+}
+
+.fu-app .bo-nav-link.is-active {
+  color: var(--uf-orange);
+}
+
+.ob-shell .fu-dropzone,
+.fu-switch .fu-dropzone {
+  border-color: var(--uf-line) !important;
+  border-radius: 14px !important;
+  background: var(--uf-cream) !important;
+}
+
+.ob-shell .fu-dropzone.is-over,
+.fu-switch .fu-dropzone.is-over {
+  border-color: var(--uf-blue) !important;
+  background: rgba(0, 72, 252, 0.1) !important;
+}

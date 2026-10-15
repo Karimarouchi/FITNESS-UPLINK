@@ -90,7 +90,8 @@
 
 .fu-auth .fu-panel-title {
   margin-bottom: 20px;
-  font-family: Manrope, Inter, sans-serif;
+  color: #fff;
+  font-family: Outfit, Manrope, Inter, sans-serif;
   font-size: clamp(40px, 4.2vw, 62px);
   font-weight: 800;
   line-height: 0.96;
@@ -437,13 +438,13 @@
    ================================================================== */
 .fu-switch.fu-auth {
   --vt-navy: #0b1a33;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-paper: #f1f3f6;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-paper: #f3eee6;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   background: var(--vt-paper);
 }
 
@@ -477,10 +478,10 @@
 .fu-switch.fu-auth .fu-panel-title {
   font-family: var(--vt-display);
   font-size: clamp(52px, 5.6vw, 92px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-switch.fu-auth .fu-panel-title span {
@@ -543,10 +544,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(44px, 4vw, 60px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-switch.fu-auth .fu-form--signup .fu-form-title {
@@ -572,8 +573,8 @@
 
 .fu-switch.fu-auth .auth-input {
   border-color: var(--vt-line);
-  border-radius: 0;
-  background: #fff;
+  border-radius: 14px;
+  background: #efe8dc;
 }
 
 .fu-switch.fu-auth .auth-input:hover:not(:focus):not(.is-invalid) {
@@ -613,22 +614,22 @@
 }
 
 .fu-switch.fu-auth .auth-btn {
-  border-radius: 0;
-  background: var(--vt-navy);
-  box-shadow: none;
+  border-radius: 999px;
+  background: var(--vt-lime);
+  box-shadow: 0 12px 24px -12px rgba(252, 81, 1, 0.8);
   color: #fff;
   font-family: var(--vt-cond);
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .fu-switch.fu-auth .auth-btn:hover:not(:disabled) {
-  background: var(--vt-lime);
-  box-shadow: none;
-  color: var(--vt-navy);
-  transform: none;
+  background: #0048fc;
+  box-shadow: 0 12px 24px -12px rgba(0, 72, 252, 0.8);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 .fu-switch.fu-auth .auth-btn:disabled {

@@ -3,13 +3,13 @@
    ================================================================== */
 .fd {
   --vt-navy: #0b1a33;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-paper: #f1f3f6;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-paper: #f3eee6;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
   background: var(--vt-paper);
   color: var(--vt-navy);
@@ -24,18 +24,15 @@
 /* ---- hero ---- */
 .fd-hero {
   position: relative;
-  padding: 72px 0 56px;
-  background-color: var(--vt-navy);
+  padding: 48px 0 56px;
+  background-color: var(--vt-paper);
   background-position: center;
   background-size: cover;
-  color: #fff;
+  color: var(--vt-navy);
 }
 
 .fd-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(11, 26, 51, 0.92) 0%, rgba(11, 26, 51, 0.6) 60%, rgba(11, 26, 51, 0.35) 100%);
+  display: none;
 }
 
 .fd-hero-inner {
@@ -51,13 +48,13 @@
   gap: 6px;
   padding-bottom: 3px;
   border-bottom: 1px solid currentColor;
-  color: #fff;
+  color: var(--vt-navy);
   font-family: var(--vt-cond);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: -0.02em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .fd-back .material-symbols-outlined {
@@ -74,14 +71,15 @@
 }
 
 .fu-public .fd .fd-tags li {
-  padding: 5px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  color: #fff;
+  padding: 5px 12px;
+  border: 1px solid var(--vt-line);
+  border-radius: 999px;
+  color: var(--vt-navy);
   font-family: var(--vt-cond);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .fu-public .fd .fd-tags li.is-lime {
@@ -93,13 +91,13 @@
 .fu-public .fd .fd-hero h1 {
   max-width: 18ch;
   margin: 0;
-  color: #fff;
+  color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(44px, 6vw, 88px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-public .fd .fd-by {
@@ -129,10 +127,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: 34px;
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: none;
 }
 
 .fu-public .fd .fd-block > p,

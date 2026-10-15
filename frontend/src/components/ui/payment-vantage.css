@@ -6,12 +6,12 @@
    ================================================================== */
 .pay-shell.pay-shell {
   --vt-navy: #0b1a33;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
   border-radius: 0;
   background:
@@ -41,10 +41,10 @@
   color: #fff;
   font-family: var(--vt-display);
   font-size: clamp(48px, 6vw, 92px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .pay-shell.pay-shell .pay-lead {

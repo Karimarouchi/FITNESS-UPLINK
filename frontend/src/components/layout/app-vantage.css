@@ -6,13 +6,13 @@
 .fu-app .vt-app {
   --vt-navy: #0b1a33;
   --vt-navy-2: #13264a;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-paper: #f1f3f6;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-paper: #f3eee6;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
   background: var(--vt-paper);
   font-family: var(--vt-body);
@@ -37,21 +37,21 @@
 .fu-app .vt-app .app-navbar-logo .word {
   font-family: var(--vt-display);
   font-size: 22px;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
 }
 
 .fu-app .vt-app .app-nav-link,
 .fu-app .vt-app .app-nav-drop > button {
-  border-radius: 0;
+  border-radius: 999px;
   background: transparent;
   color: rgba(255, 255, 255, 0.82);
   font-family: var(--vt-cond);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .fu-app .vt-app .app-nav-link:hover,
@@ -117,10 +117,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(40px, 4.6vw, 68px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-app .vt-app .page-head .sub {
@@ -1240,10 +1240,10 @@
   color: var(--vt-navy);
   font-family: var(--vt-display);
   font-size: clamp(40px, 4.6vw, 68px);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  text-transform: none;
 }
 
 .fu-app .vt-app .settings-page .page-head .sub {
@@ -1546,13 +1546,13 @@
 .fu-app .bo-shell {
   --vt-navy: #0b1a33;
   --vt-navy-2: #13264a;
-  --vt-grey: #a2a8b3;
-  --vt-text: #5b6472;
-  --vt-paper: #f1f3f6;
-  --vt-line: #d9dde3;
+  --vt-grey: #8b93a3;
+  --vt-text: #5c6578;
+  --vt-paper: #f3eee6;
+  --vt-line: #e4ddd2;
   --vt-lime: #FC5101;
-  --vt-display: Anton, "Bebas Neue", Impact, sans-serif;
-  --vt-cond: "Barlow Condensed", "Oswald", sans-serif;
+  --vt-display: Outfit, Manrope, Inter, sans-serif;
+  --vt-cond: Outfit, Manrope, Inter, sans-serif;
   --vt-body: Geist, Inter, "Segoe UI", sans-serif;
 }
 

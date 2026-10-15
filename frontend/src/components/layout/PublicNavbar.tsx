@@ -144,6 +144,7 @@ export function PublicNavbar() {
   const navClass = [
     "pn",
     overlay ? "pn--overlay" : "",
+    overlay ? "pn--light" : "",
     solid ? "pn--solid" : "",
     open ? "pn--open" : "",
   ]

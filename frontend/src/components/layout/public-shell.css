@@ -211,9 +211,10 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.pn--solid .pn-user-trigger {
-  border-color: #e2e8f0;
-  background: #fff;
+.pn--solid .pn-user-trigger,
+.pn--light .pn-user-trigger {
+  border-color: rgba(11, 26, 51, 0.12);
+  background: rgba(243, 238, 230, 0.72);
 }
 
 .pn-user-trigger:hover {
@@ -243,11 +244,11 @@
   display: grid;
   min-width: 248px;
   padding: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e4ddd2;
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.35);
-  color: #0f172a;
+  background: #f3eee6;
+  box-shadow: 0 24px 60px -20px rgba(11, 26, 51, 0.28);
+  color: #0b1a33;
   animation: pn-pop 0.18s ease both;
 }
 
@@ -256,7 +257,7 @@
   gap: 2px;
   padding: 10px 12px 12px;
   margin-bottom: 6px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid #e4ddd2;
 }
 
 .pn-user-head strong {
@@ -280,7 +281,7 @@
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #0f172a;
+  color: #0b1a33;
   font: 500 14px Geist, Inter, sans-serif;
   text-align: left;
   text-decoration: none;
@@ -289,7 +290,8 @@
 
 .fu-public .pn-user-menu a:hover,
 .pn-user-menu button:hover {
-  background: #f1f5f9;
+  background: rgba(0, 72, 252, 0.08);
+  color: #0048fc;
 }
 
 .pn-user-menu .material-symbols-outlined {
@@ -299,13 +301,13 @@
 
 .pn-user-menu .is-danger {
   margin-top: 4px;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid #e4ddd2;
   border-radius: 0 0 10px 10px;
-  color: #b91c1c;
+  color: #fc5101;
 }
 
 .pn-user-menu .is-danger .material-symbols-outlined {
-  color: #b91c1c;
+  color: #fc5101;
 }
 
 /* mobile */
@@ -530,8 +532,9 @@
 
 .fu-public .pf-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -12px rgba(215, 255, 60, 0.6);
-  color: #0b1224;
+  box-shadow: 0 14px 30px -12px rgba(0, 72, 252, 0.55);
+  background: #0048fc;
+  color: #fff;
 }
 
 .pf-grid {
@@ -657,47 +660,55 @@
    same square shapes in both states. */
 .fu-public.fu-public .pn-bar {
   max-width: 1320px;
-  min-height: 84px;
-  padding: 10px 12px 10px 6px;
+  min-height: 72px;
+  padding: 8px 10px 8px 16px;
   border: 1px solid transparent;
-  border-radius: 0;
+  border-radius: 20px;
   box-shadow: none;
   gap: 16px;
 }
 
 .fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-bar {
   background: transparent;
-  color: #fff;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.fu-public.fu-public .pn--solid {
-  padding: 0;
-  background: #fff;
-  border-bottom: 1px solid #e8ecf1;
-}
-
-.fu-public.fu-public .pn--solid .pn-bar {
-  background: transparent;
-  border: none;
-  box-shadow: none;
   color: #0b1a33;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  padding-inline: clamp(16px, 4vw, 40px);
+}
+
+.fu-public.fu-public .pn--overlay.pn--light:not(.pn--solid) .pn-bar {
+  color: #0b1a33;
+}
+
+.fu-public.fu-public .pn--overlay.pn--light:not(.pn--solid) .pn-toggle {
+  border-color: rgba(11, 26, 51, 0.18);
+}
+
+.fu-public.fu-public .pn--solid {
+  padding: 12px clamp(12px, 3vw, 32px);
+  background: transparent;
+  border-bottom: none;
+}
+
+.fu-public.fu-public .pn--solid .pn-bar {
+  background: rgba(255, 253, 248, 0.9);
+  border: 1px solid rgba(11, 26, 51, 0.08);
+  box-shadow: 0 14px 40px -22px rgba(11, 26, 51, 0.28);
+  color: #0b1a33;
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  padding-inline: 16px;
 }
 
 .fu-public.fu-public .pn-word {
-  font-family: Anton, "Bebas Neue", Impact, sans-serif;
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  font-family: Outfit, Manrope, Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: none;
 }
 
 .fu-public.fu-public .pn-word b {
-  font-weight: 400;
+  font-weight: 800;
 }
 
 .fu-public.fu-public .pn-links {
@@ -707,14 +718,14 @@
 .fu-public.fu-public .pn-links a,
 .fu-public.fu-public .pn-links a:hover,
 .fu-public.fu-public .pn-links a.is-active {
-  padding: 10px 14px;
-  border-radius: 0;
+  padding: 8px 13px;
+  border-radius: 999px;
   background: transparent;
-  font-family: "Barlow Condensed", "Oswald", sans-serif;
-  font-size: 16px;
+  font-family: Outfit, Manrope, Inter, sans-serif;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-transform: none;
   text-decoration: none;
 }
 
@@ -754,14 +765,14 @@
 }
 
 .fu-public.fu-public .pn-btn {
-  min-height: 46px;
+  min-height: 42px;
   padding: 0 18px;
-  border-radius: 0;
-  font-family: "Barlow Condensed", "Oswald", sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  border-radius: 999px;
+  font-family: Outfit, Manrope, Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .fu-public.fu-public .pn-btn-ghost:hover {
@@ -770,20 +781,18 @@
   text-underline-offset: 6px;
 }
 
-.fu-public.fu-public .pn-btn-solid {
-  background: #fff;
+.fu-public.fu-public .pn-btn-solid,
+.fu-public.fu-public .pn--solid .pn-btn-solid,
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-btn-solid {
+  background: #fc5101;
   box-shadow: none;
-  color: #0b1a33;
-}
-
-.fu-public.fu-public .pn--solid .pn-btn-solid {
-  background: #0b1a33;
   color: #fff;
 }
 
 .fu-public.fu-public .pn-btn-solid:hover,
-.fu-public.fu-public .pn--solid .pn-btn-solid:hover {
-  background: #FC5101;
+.fu-public.fu-public .pn--solid .pn-btn-solid:hover,
+.fu-public.fu-public .pn--overlay:not(.pn--solid) .pn-btn-solid:hover {
+  background: #0048fc;
   color: #fff;
   transform: none;
 }
@@ -801,7 +810,7 @@
 .fu-public.fu-public .pn-user-menu a,
 .fu-public.fu-public .pn-user-menu button,
 .fu-public.fu-public .pn-user-trigger .app-avatar {
-  border-radius: 0;
+  border-radius: 14px;
 }
 
 .fu-public.fu-public .pn-sheet {

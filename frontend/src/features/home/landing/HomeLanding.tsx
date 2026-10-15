@@ -48,7 +48,6 @@ export function HomeLanding() {
     <div className="fu-home vt">
       <HomeHero />
 
-      {/* the athlete's legs land on this section */}
       <section className="vt-section vt-intro">
         <div className="vt-wrap">
           <div className="vt-split" data-reveal>
