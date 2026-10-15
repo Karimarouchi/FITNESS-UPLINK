@@ -31,6 +31,7 @@ import {
   RepeatableField,
   TagInput,
 } from "../ProfileWidgets";
+import "../signup-flow.css";
 
 function parseJson<T>(value: string, fallback: T): T {
   try {
@@ -363,6 +364,10 @@ export function CompleteProfilePage() {
   }
 
   function sectionMeta(section: Section) {
+    const issues = section.fields.filter((field) => issueFor(field)).length;
+    if (issues && attempted) {
+      return `${issues} à corriger`;
+    }
     const requiredFields = section.fields.filter((field) => isFieldRequired(field));
     if (requiredFields.length) {
       const done = requiredFields.filter((field) => !issueFor(field)).length;
@@ -372,7 +377,18 @@ export function CompleteProfilePage() {
     return filled > 0 ? `${filled} renseigné${filled > 1 ? "s" : ""}` : "Optionnel";
   }
 
-  const requiredBlocking = fields.some((field) => issueFor(field));
+  // Every field that currently prevents submitting (missing required value OR invalid optional value).
+  const blockingFields = fields.filter((field) => issueFor(field));
+
+  function goToField(field: ProfileField) {
+    const key = field.sectionKey || "profile";
+    setCollapsed((current) => ({ ...current, [key]: false }));
+    requestAnimationFrame(() => {
+      const node = document.getElementById(`field-${field.fieldKey}`);
+      node?.scrollIntoView({ behavior: "smooth", block: "center" });
+      node?.querySelector<HTMLElement>("input, select, textarea, button")?.focus({ preventScroll: true });
+    });
+  }
   const cvField = fields.find((field) => field.fieldKey === "cv") ?? null;
   const cvUploadId = cvField ? firstUploadId(values.cv) : null;
 
@@ -819,7 +835,25 @@ export function CompleteProfilePage() {
               </section>
             );
           })}
-          {error ? <p className="auth-error">{error}</p> : null}
+          {attempted && blockingFields.length ? (
+            <div className="ob-missing" role="alert">
+              <strong>
+                {blockingFields.length} champ{blockingFields.length > 1 ? "s" : ""} à corriger avant de continuer
+              </strong>
+              <ul>
+                {blockingFields.map((field) => (
+                  <li key={field.fieldKey}>
+                    <button type="button" onClick={() => goToField(field)}>
+                      <span>{field.label}</span>
+                      <em>{issueFor(field)}</em>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : error ? (
+            <p className="auth-error">{error}</p>
+          ) : null}
           <div className="ob-profile-footer">
             <p>
               {editing
@@ -830,7 +864,7 @@ export function CompleteProfilePage() {
               <button className="ob-secondary" type="button" onClick={goBack}>
                 {t.back}
               </button>
-              <button className="ob-primary" type="submit" disabled={submitting || loading || requiredBlocking}>
+              <button className="ob-primary" type="submit" disabled={submitting || loading}>
                 {submitting ? t.saving : editing ? t.save : memberFlow ? t.continue : t.finish}
                 <span className="material-symbols-outlined text-[16px]">{editing ? "check" : "arrow_forward"}</span>
               </button>

@@ -94,18 +94,22 @@ export function TagInput({
 
 const WEEK_DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] as const;
 
-function classTimes() {
-  const items: string[] = [];
-  for (let hour = 6; hour <= 22; hour += 1) {
-    items.push(`${String(hour).padStart(2, "0")}:00`);
-    if (hour < 22) {
-      items.push(`${String(hour).padStart(2, "0")}:30`);
-    }
-  }
-  return items;
+const HOURS = Array.from({ length: 18 }, (_, index) => `${String(index + 6).padStart(2, "0")}:00`); // 06:00 → 23:00
+
+type SlotRange = { day: (typeof WEEK_DAYS)[number]; from: string; to: string };
+
+/** "Lundi 08:00–12:00" ⇄ range. Legacy single times ("Lundi 07:00") are read as a one-hour range. */
+function parseRange(raw: string): SlotRange | null {
+  const match = raw.match(/^(\S+)\s+(\d{2}:\d{2})(?:\s*[–-]\s*(\d{2}:\d{2}))?$/);
+  if (!match || !(WEEK_DAYS as readonly string[]).includes(match[1])) return null;
+  const from = match[2];
+  const to = match[3] ?? `${String(Math.min(23, Number(from.slice(0, 2)) + 1)).padStart(2, "0")}:${from.slice(3)}`;
+  return { day: match[1] as SlotRange["day"], from, to };
 }
 
-const CLASS_TIMES = classTimes();
+function formatRange(range: SlotRange) {
+  return `${range.day} ${range.from}–${range.to}`;
+}
 
 export function GroupClassSlotsField({
   value,
@@ -116,35 +120,56 @@ export function GroupClassSlotsField({
   onChange: (value: string) => void;
   invalid: boolean;
 }) {
-  const slots = parseJson<string[]>(value || "[]", []).filter((item) => typeof item === "string");
+  const ranges = parseJson<string[]>(value || "[]", [])
+    .filter((item) => typeof item === "string")
+    .map(parseRange)
+    .filter((item): item is SlotRange => item !== null)
+    .sort((a, b) => WEEK_DAYS.indexOf(a.day) - WEEK_DAYS.indexOf(b.day) || a.from.localeCompare(b.from));
   const [days, setDays] = useState<(typeof WEEK_DAYS)[number][]>([]);
-  const [time, setTime] = useState("");
+  const [from, setFrom] = useState("09:00");
+  const [to, setTo] = useState("12:00");
+  const [problem, setProblem] = useState<string | null>(null);
+
+  function save(next: SlotRange[]) {
+    onChange(JSON.stringify(next.map(formatRange)));
+  }
 
   function toggleDay(item: (typeof WEEK_DAYS)[number]) {
+    setProblem(null);
     setDays((current) => (current.includes(item) ? current.filter((day) => day !== item) : [...current, item]));
   }
 
-  function addSlot() {
-    if (!time || days.length === 0) {
+  function addRange() {
+    if (!days.length) {
+      setProblem("Choisissez au moins un jour.");
       return;
     }
-    const additions = days.map((day) => `${day} ${time}`).filter((next) => !slots.includes(next));
-    if (additions.length === 0) {
+    if (to <= from) {
+      setProblem("L’heure de fin doit être après l’heure de début.");
       return;
     }
-    const next = [...slots, ...additions].slice(0, 40);
-    onChange(JSON.stringify(next));
-    setTime("");
+    const overlapping = days.filter((day) => ranges.some((range) => range.day === day && from < range.to && to > range.from));
+    if (overlapping.length) {
+      setProblem(`Chevauche une plage existante : ${overlapping.join(", ")}.`);
+      return;
+    }
+    save([...ranges, ...days.map((day) => ({ day, from, to }))].slice(0, 40));
     setDays([]);
+    setProblem(null);
   }
 
+  const byDay = WEEK_DAYS.map((day) => ({ day, items: ranges.filter((range) => range.day === day) })).filter(
+    (entry) => entry.items.length,
+  );
+
   return (
-    <div className={`chip-box slot-picker${invalid ? " is-invalid" : ""}`}>
+    <div className={`slot-ranges${invalid ? " is-invalid" : ""}`}>
       <div className="slot-days" role="group" aria-label="Jours">
         {WEEK_DAYS.map((item) => (
           <button
             key={item}
             type="button"
+            aria-pressed={days.includes(item)}
             className={days.includes(item) ? "slot-day is-active" : "slot-day"}
             onClick={() => toggleDay(item)}
           >
@@ -152,37 +177,52 @@ export function GroupClassSlotsField({
           </button>
         ))}
       </div>
-      <div className="slot-time-row">
-        <label className="slot-time-label" htmlFor="group-class-time">
-          Heure
-          <Select
-            id="group-class-time"
-            value={time}
-            onChange={setTime}
-            placeholder="Choisir un horaire"
-            options={CLASS_TIMES.map((item) => ({ value: item, label: item }))}
-          />
+
+      <div className="slot-range-row">
+        <label>
+          <span>De</span>
+          <Select id="slot-from" value={from} onChange={setFrom} options={HOURS.slice(0, -1).map((item) => ({ value: item, label: item }))} />
         </label>
-        <button className="slot-add" type="button" disabled={!time || days.length === 0} onClick={addSlot}>
-          Ajouter {days.length > 1 ? `(${days.length} jours)` : days.length === 1 ? days[0] : ""}
+        <label>
+          <span>À</span>
+          <Select id="slot-to" value={to} onChange={setTo} options={HOURS.slice(1).map((item) => ({ value: item, label: item }))} />
+        </label>
+        <button className="slot-add" type="button" onClick={addRange}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            add
+          </span>
+          Ajouter{days.length > 1 ? ` (${days.length} jours)` : ""}
         </button>
       </div>
-      <div className="chip-list">
-        {slots.length === 0 ? (
-          <span className="slot-empty">Aucun créneau. Choisissez un ou plusieurs jours, puis un horaire.</span>
-        ) : null}
-        {slots.map((slot) => (
-          <button
-            key={slot}
-            type="button"
-            className="chip"
-            onClick={() => onChange(JSON.stringify(slots.filter((item) => item !== slot)))}
-          >
-            {slot}
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        ))}
-      </div>
+      {problem ? <p className="slot-problem">{problem}</p> : null}
+
+      {byDay.length === 0 ? (
+        <p className="slot-empty">Aucune plage. Sélectionnez un ou plusieurs jours, puis une plage horaire (ex. 09:00 → 12:00).</p>
+      ) : (
+        <ul className="slot-week">
+          {byDay.map((entry) => (
+            <li key={entry.day}>
+              <strong>{entry.day}</strong>
+              <div>
+                {entry.items.map((range) => (
+                  <button
+                    key={formatRange(range)}
+                    type="button"
+                    className="slot-range"
+                    aria-label={`Retirer ${formatRange(range)}`}
+                    onClick={() => save(ranges.filter((item) => formatRange(item) !== formatRange(range)))}
+                  >
+                    {range.from} → {range.to}
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      close
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

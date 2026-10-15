@@ -887,3 +887,315 @@
     width: 100%;
   }
 }
+
+/* ---------- "à corriger" list above Terminer ---------- */
+.ob-shell .ob-missing,
+.fu-app .ob-missing {
+  margin: 8px 0 0;
+  padding: 18px 20px;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #b91c1c;
+  background: #fef2f2;
+}
+
+.ob-missing strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #991b1b;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ob-missing ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ob-missing button {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #0b1a33;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ob-missing button:hover {
+  background: rgba(185, 28, 28, 0.08);
+}
+
+.ob-missing button span {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ob-missing button em {
+  color: #b91c1c;
+  font-size: 13.5px;
+  font-style: normal;
+}
+
+/* ---------- availability ranges (day + De → À) ---------- */
+.slot-ranges {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #d9dde3;
+  background: #fff;
+}
+
+.slot-ranges.is-invalid {
+  border-color: #b91c1c;
+}
+
+.slot-ranges .slot-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.fu-public.ob-shell .slot-ranges .slot-day,
+.slot-ranges .slot-day {
+  height: 44px;
+  border: 1px solid #d9dde3;
+  border-radius: 0;
+  background: #fff;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .slot-ranges .slot-day.is-active,
+.slot-ranges .slot-day.is-active {
+  border-color: #0b1a33;
+  background: #0b1a33;
+  color: #d4f53c;
+}
+
+.slot-range-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.slot-range-row label {
+  display: grid;
+  gap: 6px;
+}
+
+.slot-range-row label > span {
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.slot-range-row .ui-select-trigger {
+  height: 48px;
+  border-radius: 0;
+}
+
+.fu-public.ob-shell .slot-ranges .slot-add,
+.slot-ranges .slot-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 48px;
+  padding: 0 18px;
+  border: 1px solid #0b1a33;
+  border-radius: 0;
+  background: #0b1a33;
+  color: #fff;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.slot-ranges .slot-add:hover {
+  border-color: #d4f53c;
+  background: #d4f53c;
+  color: #0b1a33;
+}
+
+.slot-add .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.slot-problem {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 13.5px;
+}
+
+.slot-ranges .slot-empty {
+  margin: 0;
+  color: #5b6472;
+  font-size: 14px;
+}
+
+.slot-week {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #d9dde3;
+  list-style: none;
+}
+
+.slot-week li {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #d9dde3;
+}
+
+.slot-week strong {
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slot-week li > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  border: 1px solid #0b1a33;
+  background: #fff;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.slot-range .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.slot-range:hover {
+  border-color: #b91c1c;
+  color: #b91c1c;
+}
+
+/* contract types & other multi-choice cards: navy instead of bright blue */
+.fu-public.ob-shell .multi-card,
+.fu-app .multi-card {
+  border-radius: 0;
+}
+
+.fu-public.ob-shell .multi-card.is-active,
+.fu-app .multi-card.is-active {
+  border-color: #0b1a33;
+  background: #0b1a33;
+  color: #fff;
+}
+
+.fu-public.ob-shell .multi-card.is-active .material-symbols-outlined,
+.fu-app .multi-card.is-active .material-symbols-outlined {
+  color: #d4f53c;
+}
+
+/* ---------- booking modal duration picker ---------- */
+.bk-duration {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #d9dde3;
+}
+
+.bk-duration-label {
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.bk-duration-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bk-duration-options button {
+  min-width: 70px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #0b1a33;
+  background: #fff;
+  color: #0b1a33;
+  font-family: "Barlow Condensed", "Oswald", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.bk-duration-options button.is-on {
+  background: #0b1a33;
+  color: #d4f53c;
+}
+
+.bk-summary {
+  margin: 0;
+  color: #0b1a33;
+  font-size: 15px;
+}
+
+.bk-hint {
+  margin: 0;
+  color: #5b6472;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .slot-ranges .slot-days {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .slot-range-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slot-ranges .slot-add {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}

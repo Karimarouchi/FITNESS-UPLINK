@@ -53,6 +53,9 @@ public class CoachingBookingService {
     private final PermissionService permissionService;
     private final ObjectMapper objectMapper;
 
+    /** A client may book up to this many consecutive service blocks in one booking. */
+    private static final int MAX_BLOCKS = 4;
+
     @Transactional
     public BookingDto book(User client, CreateBookingRequest request) {
         requireClient(client);
@@ -64,12 +67,26 @@ public class CoachingBookingService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "SLOT_INVALID");
         }
         Instant start = request.scheduledAt();
-        Instant end = start.plusSeconds(service.getDurationMinutes() * 60L);
+        int unit = service.getDurationMinutes();
+        int blocks = 1;
+        if (request.durationMinutes() != null) {
+            if (request.durationMinutes() < unit || request.durationMinutes() % unit != 0 || request.durationMinutes() / unit > MAX_BLOCKS) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "DURATION_INVALID");
+            }
+            blocks = request.durationMinutes() / unit;
+        }
+        int totalMinutes = unit * blocks;
+        Instant end = start.plusSeconds(totalMinutes * 60L);
         LocalDate slotDate = LocalDate.ofInstant(start, ZoneOffset.UTC);
-        boolean validSlot = coachAvailabilityService.slotsFor(coach.getId(), service.getId(), slotDate).stream()
-                .anyMatch(slot -> slot.available() && slot.start().equals(start));
-        if (!validSlot) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "SLOT_INVALID");
+        // Every consecutive block must be a free slot of the coach's availability (same day, no gap, no booking).
+        java.util.Set<Instant> freeStarts = coachAvailabilityService.slotsFor(coach.getId(), service.getId(), slotDate).stream()
+                .filter(slot -> slot.available())
+                .map(slot -> slot.start())
+                .collect(java.util.stream.Collectors.toSet());
+        for (int i = 0; i < blocks; i++) {
+            if (!freeStarts.contains(start.plusSeconds((long) unit * 60L * i))) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, blocks > 1 ? "RANGE_UNAVAILABLE" : "SLOT_INVALID");
+            }
         }
         boolean overlap = bookingRepository.findByCoachIdAndScheduledAtBetween(coach.getId(), start.minusSeconds(1), end).stream()
                 .filter(CoachAvailabilityService::holdsSlot)
@@ -86,9 +103,10 @@ public class CoachingBookingService {
                 .coachServiceId(service.getId())
                 .packId(null)
                 .scheduledAt(start)
-                .durationMinutes(service.getDurationMinutes())
+                .durationMinutes(totalMinutes)
                 .status(CoachingBookingStatus.PENDING)
-                .priceAmount(service.getPriceAmount())
+                .priceAmount(service.getPriceAmount() == null ? null
+                        : service.getPriceAmount().multiply(java.math.BigDecimal.valueOf(blocks)))
                 .priceCurrency(service.getPriceCurrency())
                 .paymentId(null)
                 .createdAt(now)

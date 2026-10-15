@@ -232,7 +232,7 @@ export function fetchCoachPhoto(coachId: string, uploadId: string) {
   return api.getBlob(`/v1/coaches/${coachId}/files/${uploadId}`);
 }
 
-export function createBooking(request: { coachServiceId: string; scheduledAt: string }) {
+export function createBooking(request: { coachServiceId: string; scheduledAt: string; durationMinutes?: number }) {
   return api.post<Booking>("/v1/coaching/bookings", request);
 }
 

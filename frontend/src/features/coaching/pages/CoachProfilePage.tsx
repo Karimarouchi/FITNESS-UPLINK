@@ -24,6 +24,7 @@ import {
 import { CoachPhoto } from "../CoachPhoto";
 import { RatingStars } from "../RatingStars";
 import { openCoachChat } from "@/features/recruitment/openHireChat";
+import "@/features/onboarding/signup-flow.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 type Tab = "services" | "availability" | "reviews";
@@ -294,6 +295,7 @@ function BookingModal({
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selected, setSelected] = useState<TimeSlot | null>(null);
+  const [blocks, setBlocks] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [sending, setSending] = useState(false);
@@ -301,6 +303,7 @@ function BookingModal({
   useEffect(() => {
     let cancelled = false;
     setSelected(null);
+    setBlocks(1);
     setLoadingSlots(true);
     void (async () => {
       try {
@@ -339,16 +342,50 @@ function BookingModal({
     setError(null);
     setSending(true);
     try {
-      await createBooking({ coachServiceId: service.serviceId, scheduledAt: selected.start });
+      await createBooking({
+        coachServiceId: service.serviceId,
+        scheduledAt: selected.start,
+        durationMinutes: blockMinutes * blocks,
+      });
       navigate("/app/coaching/bookings", { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d'envoyer la demande.");
+      const code = err instanceof ApiError ? err.message : "";
+      setError(
+        code === "RANGE_UNAVAILABLE"
+          ? "Cette durée dépasse les disponibilités du coach ou chevauche une autre séance."
+          : code === "SLOT_TAKEN" || code === "SLOT_INVALID"
+            ? "Ce créneau n’est plus disponible. Choisissez-en un autre."
+            : code || "Impossible d'envoyer la demande.",
+      );
     } finally {
       setSending(false);
     }
   }
 
   const available = slots.filter((slot) => slot.available);
+  // Length of one block = the service duration (all slots of a day share it).
+  const blockMinutes = slots.length ? Math.round((Date.parse(slots[0].end) - Date.parse(slots[0].start)) / 60000) : 60;
+  // How many consecutive free blocks follow the chosen start (no gap, same availability range).
+  const maxBlocks = (() => {
+    if (!selected) return 1;
+    let count = 0;
+    let cursor = selected.start;
+    for (let i = 0; i < 4; i += 1) {
+      const slot = slots.find((item) => Date.parse(item.start) === Date.parse(cursor));
+      if (!slot || !slot.available) break;
+      count += 1;
+      cursor = slot.end;
+    }
+    return Math.max(1, count);
+  })();
+  const unitPrice = Number(service.price) || 0;
+  const endLabel = selected
+    ? new Date(Date.parse(selected.start) + blockMinutes * blocks * 60000).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+    : "";
+  function durationLabel(count: number) {
+    const minutes = blockMinutes * count;
+    return minutes % 60 === 0 ? `${minutes / 60} h` : `${Math.floor(minutes / 60) ? `${Math.floor(minutes / 60)} h ` : ""}${minutes % 60} min`;
+  }
 
   return (
     <motion.div
@@ -391,7 +428,10 @@ function BookingModal({
                       type="button"
                       disabled={!slot.available}
                       className={`slot slot-pick ${slot.available ? "avail" : "booked"} ${isSelected ? "selected" : ""}`}
-                      onClick={() => setSelected(slot)}
+                      onClick={() => {
+                        setSelected(slot);
+                        setBlocks(1);
+                      }}
                     >
                       {label}
                     </button>
@@ -404,6 +444,38 @@ function BookingModal({
                   <p className="empty-hint">Aucun créneau libre ce jour-là. Changez de date.</p>
                 ) : null}
               </div>
+
+              {selected ? (
+                <div className="bk-duration">
+                  <span className="bk-duration-label">Durée de la séance</span>
+                  <div className="bk-duration-options" role="radiogroup" aria-label="Durée">
+                    {Array.from({ length: maxBlocks }, (_, index) => index + 1).map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        role="radio"
+                        aria-checked={blocks === count}
+                        className={blocks === count ? "is-on" : undefined}
+                        onClick={() => setBlocks(count)}
+                      >
+                        {durationLabel(count)}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="bk-summary">
+                    {new Date(selected.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} → {endLabel}
+                    {unitPrice > 0 ? (
+                      <strong>
+                        {" "}
+                        · {new Intl.NumberFormat("fr-FR").format(unitPrice * blocks)} {service.currency}
+                      </strong>
+                    ) : null}
+                  </p>
+                  {maxBlocks === 1 ? (
+                    <p className="bk-hint">Le créneau suivant n’est pas libre : séance d’un seul bloc possible ici.</p>
+                  ) : null}
+                </div>
+              ) : null}
 
               {error ? <p className="auth-error mt-6">{error}</p> : null}
 

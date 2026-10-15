@@ -136,7 +136,9 @@ public final class CoachingDtos {
             UUID coachServiceId,
             Instant scheduledAt,
             UUID packId,
-            String cardNumber
+            String cardNumber,
+            /** Optional: total length, a multiple of the service duration (e.g. 2–3 consecutive hours). */
+            Integer durationMinutes
     ) {
     }
 
