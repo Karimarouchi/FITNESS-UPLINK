@@ -1,6 +1,15 @@
 /* ==================================================================
    HOME HERO — cream canvas + precomposed athlete (gradient blob in PNG)
    ================================================================== */
+@font-face {
+  font-family: "Kalila";
+  src:
+    url("/fonts/Kalila.otf") format("opentype"),
+    url("/fonts/Kalila.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 .vx {
   --vx-cream: #f3eee6;
   --vx-blue: #0048fc;
@@ -30,43 +39,47 @@
 .vx-copy {
   position: relative;
   z-index: 2;
-  max-width: 560px;
+  max-width: 680px;
   animation: vx-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 .fu-public .vx .vx-title {
   margin: 0;
-  color: var(--vx-ink);
-  font-family: "Big Shoulders Display", Oswald, sans-serif !important;
-  font-size: clamp(76px, 8.4vw, 124px);
-  font-weight: 800 !important;
-  line-height: 0.78 !important;
-  letter-spacing: -0.03em !important;
-  text-transform: uppercase !important;
+  color: var(--vx-blue);
+  font-family: "Exo 2", Outfit, sans-serif !important;
+  font-size: clamp(64px, 7.2vw, 108px);
+  font-weight: 900 !important;
+  line-height: 0.8 !important;
+  letter-spacing: -0.04em !important;
+  text-transform: lowercase !important;
   text-align: left;
 }
 
-.fu-public .vx .vx-title-lead {
+.fu-public .vx .vx-title-lead,
+.fu-public .vx .vx-title-impact {
+  position: relative;
   display: block;
-  margin-bottom: 2px;
   color: var(--vx-blue);
-  font-family: Oswald, "Barlow Condensed", sans-serif !important;
-  font-size: 0.34em;
-  font-style: italic;
-  font-weight: 500 !important;
-  letter-spacing: 0.22em !important;
-  line-height: 1 !important;
-  text-transform: uppercase !important;
+  font-style: normal;
+  line-height: 0.82 !important;
+  text-transform: lowercase !important;
+}
+
+.fu-public .vx .vx-title-lead {
+  color: var(--vx-orange);
+  font-family: Kalila, "Exo 2", sans-serif !important;
+  font-size: 0.62em;
+  white-space: nowrap;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
 }
 
 .fu-public .vx .vx-title-impact {
-  display: block;
-  color: var(--vx-orange);
-  font-family: "Big Shoulders Display", Impact, sans-serif !important;
-  font-weight: 800 !important;
+  font-family: Kalila, "Exo 2", sans-serif !important;
+  font-size: 1.02em;
+  white-space: nowrap;
+  font-weight: 400 !important;
   letter-spacing: -0.02em !important;
-  line-height: 0.78 !important;
-  text-transform: uppercase !important;
 }
 
 .fu-public .fu-home .vx .vx-pitch {
@@ -253,7 +266,7 @@
 
 @media (max-width: 640px) {
   .fu-public .vx .vx-title {
-    font-size: clamp(68px, 18vw, 92px);
+    font-size: clamp(46px, 12vw, 68px);
   }
 
   .vx-stage {
