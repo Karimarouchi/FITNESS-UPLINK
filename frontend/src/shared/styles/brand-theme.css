@@ -84,7 +84,6 @@
     .vt-eco-copy h3,
     .coach-rating b
   ),
-.fu-public .vx .vx-title,
 .fu-switch.fu-auth :is(.fu-panel-title, .fu-form-title),
 .ob-shell :is(.ob-brand-word, h1, h2, .ob-title, .vf-title),
 .auth-shell.vf :is(h1, h2),
@@ -759,7 +758,6 @@
 .fu-public h1,
 .fu-public h2,
 .fu-public .vt-title,
-.fu-public .vx-title,
 .fu-switch .fu-panel-title,
 .fu-switch .fu-form-title,
 .ob-shell h1,

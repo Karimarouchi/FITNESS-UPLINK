@@ -15,8 +15,8 @@ export function HomeHero() {
       <div className="vx-inner">
         <div className="vx-copy">
           <h1 className="vx-title">
-            Plus de
-            <span>mouvement</span>
+            <span className="vx-title-lead">Plus de</span>
+            <span className="vx-title-impact">mouvement</span>
           </h1>
           <p className="vx-pitch">
             {user
