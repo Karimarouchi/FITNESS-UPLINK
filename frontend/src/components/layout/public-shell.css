@@ -467,19 +467,12 @@
 .pf {
   position: relative;
   overflow: hidden;
-  background: var(--night);
-  color: #cbd5e1;
+  background: #efe8dc;
+  color: #5c6578;
 }
 
 .pf::before {
-  content: "";
-  position: absolute;
-  inset: -40% -10% auto auto;
-  width: 720px;
-  height: 720px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 72, 252, 0.35), transparent 65%);
-  pointer-events: none;
+  content: none;
 }
 
 .pf-wrap {
@@ -496,9 +489,9 @@
   justify-content: space-between;
   gap: 24px;
   padding: 32px clamp(22px, 4vw, 40px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
-  background: linear-gradient(120deg, rgba(0, 72, 252, 0.22), rgba(255, 255, 255, 0.03));
+  border: 1px solid #e4ddd2;
+  border-radius: 28px;
+  background: #f7f3ec;
 }
 
 .fu-public .pf-kicker {
@@ -509,10 +502,14 @@
 }
 
 .fu-public.fu-public .pf-band h2 {
-  max-width: 22ch;
-  color: #fff;
-  font-size: clamp(24px, 3vw, 34px);
-  line-height: 1.1;
+  max-width: 16ch;
+  color: #0b1a33;
+  font-family: Kalila, "Exo 2", sans-serif;
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
 }
 
 .fu-public .pf-cta {
@@ -521,9 +518,9 @@
   gap: 8px;
   min-height: 52px;
   padding: 0 22px;
-  border-radius: 14px;
+  border-radius: 999px;
   background: var(--volt);
-  color: #0b1224;
+  color: #fff;
   font-weight: 700;
   font-size: 15px;
   text-decoration: none;
@@ -532,7 +529,7 @@
 
 .fu-public .pf-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px -12px rgba(0, 72, 252, 0.55);
+  box-shadow: none;
   background: #0048fc;
   color: #fff;
 }
@@ -556,20 +553,18 @@
   text-decoration: none;
 }
 
-.pf-logo span {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: var(--brand);
-  font-size: 16px;
+.fu-public .pf-logo .fu-brand,
+.fu-public .pf-logo span {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
 }
 
 .fu-public .pf-brand p {
   max-width: 42ch;
   margin: 16px 0 0;
-  color: #94a3b8;
+  color: #5c6578;
   font-size: 14.5px;
   line-height: 1.7;
 }
@@ -588,9 +583,10 @@
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #e4ddd2;
   border-radius: 999px;
-  color: #cbd5e1;
+  background: #f3eee6;
+  color: #0b1a33;
   font-size: 12.5px;
 }
 
@@ -607,24 +603,24 @@
 
 .fu-public.fu-public .pf-col h3 {
   margin-bottom: 6px;
-  color: #fff;
-  font-family: "Geist Mono", monospace;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: #0b1a33;
+  font-family: Geist, Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .fu-public .pf-col a {
   width: fit-content;
-  color: #94a3b8;
+  color: #5c6578;
   font-size: 14.5px;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .fu-public .pf-col a:hover {
-  color: #fff;
+  color: #fc5101;
 }
 
 .pf-meta {
@@ -633,8 +629,8 @@
   justify-content: space-between;
   gap: 12px;
   padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  color: #64748b;
+  border-top: 1px solid #e4ddd2;
+  color: #8b93a3;
   font-size: 13px;
 }
 

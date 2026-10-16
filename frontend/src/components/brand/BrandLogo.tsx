@@ -8,7 +8,7 @@ type BrandLogoProps = {
 export function BrandLogo({ to = "/", className = "" }: BrandLogoProps) {
   const inner = (
     <span className={["fu-brand", className].filter(Boolean).join(" ")}>
-      <img src="/brand/icon-uplink-fitness.png?v=4" alt="Uplink Fitness" />
+      <img src="/brand/logo-uplink-fitness.png?v=5" alt="Uplink Fitness" />
     </span>
   );
 

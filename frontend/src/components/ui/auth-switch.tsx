@@ -28,7 +28,6 @@ import {
   validateEmail,
   validateLoginPassword,
   validateName,
-  validatePassword,
 } from "@/features/auth/validation";
 import "./auth-switch.css";
 
@@ -109,15 +108,6 @@ function BackHome() {
   );
 }
 
-function PasswordRule({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <div className={`auth-rule ${ok ? "is-ok" : ""}`}>
-      <span className="material-symbols-outlined">{ok ? "check_circle" : "radio_button_unchecked"}</span>
-      <span>{label}</span>
-    </div>
-  );
-}
-
 export function AuthSwitch() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -145,7 +135,6 @@ export function AuthSwitch() {
   const [signupEmail, setSignupEmail] = useState(pendingDraft?.email ?? "");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [signupShowPw, setSignupShowPw] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
   const [signupFieldErrors, setSignupFieldErrors] = useState<Record<string, string | undefined>>({});
@@ -155,15 +144,13 @@ export function AuthSwitch() {
   const firstNameError = useMemo(() => validateName(firstName), [firstName]);
   const lastNameError = useMemo(() => validateName(lastName), [lastName]);
   const signupEmailError = useMemo(() => validateEmail(signupEmail), [signupEmail]);
-  const signupPwError = useMemo(() => validatePassword(signupPassword, signupEmail), [signupPassword, signupEmail]);
   const confirmError = useMemo(
-    () => validateConfirmPassword(signupPassword, confirmPassword),
+    () => (confirmPassword ? validateConfirmPassword(signupPassword, confirmPassword) : null),
     [signupPassword, confirmPassword],
   );
   const loginEmailError = useMemo(() => validateEmail(loginEmail), [loginEmail]);
   const loginPwError = useMemo(() => validateLoginPassword(loginPassword), [loginPassword]);
-  const signupValid =
-    !firstNameError && !lastNameError && !signupEmailError && !signupPwError && !confirmError && acceptedTerms;
+  const signupValid = !firstNameError && !lastNameError && !signupEmailError && signupPassword.length > 0 && !confirmError;
 
   useEffect(() => {
     loadRecaptcha().catch(() => undefined);
@@ -227,9 +214,8 @@ export function AuthSwitch() {
       firstName: validateName(firstName) ?? undefined,
       lastName: validateName(lastName) ?? undefined,
       email: validateEmail(signupEmail) ?? undefined,
-      password: validatePassword(signupPassword, signupEmail) ?? undefined,
+      password: signupPassword ? undefined : "Choisissez un mot de passe.",
       confirmPassword: validateConfirmPassword(signupPassword, confirmPassword) ?? undefined,
-      terms: acceptedTerms ? undefined : "Vous devez accepter les Conditions et la Politique de confidentialité.",
     };
     setSignupFieldErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
@@ -243,7 +229,7 @@ export function AuthSwitch() {
         email: trimValue(signupEmail).toLowerCase(),
         password: signupPassword,
         confirmPassword,
-        acceptedTerms,
+        acceptedTerms: true,
         recaptchaToken,
       });
       storePendingSignup({
@@ -529,7 +515,7 @@ export function AuthSwitch() {
               </div>
             </div>
 
-            <div className="fu-meter" data-level={passwordStrength} aria-hidden="true">
+            <div className="fu-meter" data-level={signupPassword ? passwordStrength : 0}>
               <span />
               <span />
               <span />
@@ -538,31 +524,7 @@ export function AuthSwitch() {
               <small>{signupPassword ? strengthWord : "Force du mot de passe"}</small>
             </div>
 
-            <div className="auth-rules fu-rules">
-              <PasswordRule ok={rules.length} label="8–128 caractères" />
-              <PasswordRule ok={rules.uppercase} label="Majuscule" />
-              <PasswordRule ok={rules.lowercase} label="Minuscule" />
-              <PasswordRule ok={rules.number} label="Chiffre" />
-              <PasswordRule ok={rules.special} label="Caractère spécial" />
-              <PasswordRule ok={rules.noSpace} label="Sans espace" />
-            </div>
-
             <div className="fu-signup-foot">
-              <label className="fu-check fu-check--terms">
-                <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(event) => {
-                    setAcceptedTerms(event.target.checked);
-                    setSignupFieldErrors((current) => ({ ...current, terms: undefined }));
-                  }}
-                />
-                <span>
-                  J’accepte les <span className="text-secondary">Conditions</span> et la{" "}
-                  <span className="text-secondary">Politique de confidentialité</span>.
-                </span>
-              </label>
-              {signupFieldErrors.terms ? <p className="auth-field-error">{signupFieldErrors.terms}</p> : null}
               {signupError ? <p className="auth-error">{signupError}</p> : null}
               {recaptchaEnabled() ? (
                 <p className="fu-recaptcha">
@@ -597,9 +559,9 @@ export function AuthSwitch() {
           <div className="fu-panel-content">
             <p className="fu-panel-kicker">Nouveau sur le réseau ?</p>
             <h2 className="fu-panel-title">
-              Plus de mouvement.
+              Dépasse
               <br />
-              <span>Plus de réseau.</span>
+              <span>tes limites.</span>
             </h2>
             <p className="fu-panel-copy">
               Recrutement, coaching, formations, matériel et événements : rejoignez le circuit du fitness en quelques
@@ -616,9 +578,9 @@ export function AuthSwitch() {
           <div className="fu-panel-content">
             <p className="fu-panel-kicker">Déjà membre ?</p>
             <h2 className="fu-panel-title">
-              Content de
+              Ton circuit
               <br />
-              <span>vous revoir.</span>
+              <span>t'attend.</span>
             </h2>
             <p className="fu-panel-copy">
               Connectez-vous pour retrouver votre dossier, vos séances, vos devis et vos opportunités.

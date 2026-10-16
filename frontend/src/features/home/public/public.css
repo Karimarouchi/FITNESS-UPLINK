@@ -1756,14 +1756,22 @@
 }
 
 /* ---- footer: square shapes ---- */
-.fu-public.fu-public .pf-band,
 .fu-public.fu-public .pf-badges li,
 .fu-public.fu-public .pf-logo span {
   border-radius: 0;
 }
 
+.fu-public.fu-public .pf-band {
+  border-radius: 28px;
+  background: #f7f3ec;
+}
+
+.fu-public.fu-public .pf-band h2 {
+  color: #0b1a33;
+}
+
 .fu-public.fu-public .pf {
-  background: var(--vt-navy);
+  background: #efe8dc;
 }
 
 .fu-public.fu-public .pf-band h2 {
@@ -1775,11 +1783,12 @@
 
 .fu-public.fu-public .pf-cta {
   background: var(--vt-lime);
-  color: var(--vt-navy);
+  color: #fff;
 }
 
 .fu-public.fu-public .pf-cta:hover {
-  background: #fff;
+  background: #0048fc;
+  color: #fff;
   box-shadow: none;
   transform: none;
 }

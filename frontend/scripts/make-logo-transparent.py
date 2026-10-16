@@ -56,6 +56,10 @@ def knock_out_black(src: Path, dest: Path, square_crop: bool = False) -> None:
             dest_xy = (src_box[0] - crop[0], src_box[1] - crop[1])
             canvas.paste(img.crop(src_box), dest_xy)
             img = canvas
+    else:
+        bbox = img.getbbox()
+        if bbox:
+            img = img.crop(bbox)
     img.save(dest, "PNG")
     print(f"transparent: {dest.name} {img.size} mode={img.mode}")
 

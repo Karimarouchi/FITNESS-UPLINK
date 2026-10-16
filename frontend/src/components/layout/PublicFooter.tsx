@@ -17,19 +17,6 @@ export function PublicFooter() {
   return (
     <footer className="pf">
       <div className="pf-wrap">
-        <div className="pf-band">
-          <div>
-            <p className="pf-kicker">{user ? `Content de vous revoir, ${user.firstName}` : "Rejoignez le réseau"}</p>
-            <h2>{user ? "Votre espace vous attend." : "Un compte. Tout le circuit du fitness."}</h2>
-          </div>
-          <Link className="pf-cta" to={user ? "/app/dashboard" : "/signup"}>
-            {user ? "Ouvrir mon tableau de bord" : "Créer mon compte gratuitement"}
-            <span className="material-symbols-outlined" aria-hidden="true">
-              arrow_forward
-            </span>
-          </Link>
-        </div>
-
         <div className="pf-grid">
           <div className="pf-brand">
             <Link className="pf-logo" to="/">

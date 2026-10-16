@@ -1,7 +1,6 @@
 /* ==================================================================
-   HOME — "Vantage" sections
-   Anton headlines (navy + grey tail), Barlow Condensed labels,
-   Geist body copy, square shapes, lime accent.
+   HOME — sections under the hero
+   Kalila titles (blue + orange tail), cream bands, orange pills.
    ================================================================== */
 .fu-home.vt {
   --vt-navy: #0b1a33;
@@ -10,10 +9,12 @@
   --vt-text: #5c6578;
   --vt-paper: #f3eee6;
   --vt-line: #e4ddd2;
-  --vt-lime: #FC5101;
+  --vt-blue: #0048fc;
+  --vt-orange: #fc5101;
+  --vt-lime: #fc5101;
   --vt-gutter: clamp(20px, 4.4vw, 72px);
-  --vt-display: Outfit, Manrope, Inter, sans-serif;
-  --vt-cond: Outfit, Manrope, Inter, sans-serif;
+  --vt-display: Kalila, "Exo 2", Outfit, sans-serif;
+  --vt-cond: Geist, Inter, sans-serif;
   background: var(--vt-paper);
   color: var(--vt-navy);
 }
@@ -29,43 +30,43 @@
 }
 
 .vt-section-white {
-  background: #fff;
+  background: #efe8dc;
 }
 
 /* ---------- type ---------- */
 .fu-public .fu-home.vt .vt-title {
   margin: 0;
-  color: var(--vt-navy);
+  color: var(--vt-blue);
   font-family: var(--vt-display);
-  font-size: clamp(44px, 5.2vw, 76px);
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-  text-transform: none;
+  font-size: clamp(48px, 5.4vw, 84px);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.03em;
+  text-transform: lowercase;
 }
 
 .fu-home.vt .vt-muted {
-  color: var(--vt-grey);
+  color: var(--vt-orange);
 }
 
 .fu-home.vt .vt-idx {
   display: block;
   margin-bottom: 14px;
-  color: var(--vt-grey);
+  color: var(--vt-orange);
   font-family: var(--vt-cond);
   font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
 }
 
 .fu-public .fu-home.vt h3 {
   margin: 0;
   color: var(--vt-navy);
-  font-family: var(--vt-display);
+  font-family: Geist, Inter, sans-serif;
   font-size: 22px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   text-transform: none;
 }
 
@@ -82,12 +83,12 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--vt-cond);
+  font-family: Geist, Inter, sans-serif;
   font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: -0.01em;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -101,6 +102,10 @@
   padding-bottom: 6px;
   border-bottom: 1px solid currentColor;
   color: var(--vt-navy);
+}
+
+.fu-public .fu-home.vt .vt-link:hover {
+  color: var(--vt-orange);
 }
 
 .fu-home.vt .vt-link:hover .material-symbols-outlined,
@@ -120,44 +125,43 @@
 
 .fu-public .fu-home.vt .vt-btn-line:hover,
 .fu-public .fu-home.vt .vt-btn-navy {
-  background: var(--vt-navy);
+  border-color: var(--vt-orange);
+  background: var(--vt-orange);
   color: #fff;
 }
 
 .fu-public .fu-home.vt .vt-btn-navy:hover,
-.fu-public .fu-home.vt .vt-btn-lime {
-  border-color: var(--vt-lime);
-  background: var(--vt-lime);
-  color: var(--vt-navy);
-}
-
-.fu-public .fu-home.vt .vt-btn-lime:hover {
-  border-color: #fff;
-  background: #fff;
-}
-
-.fu-public .fu-home.vt .vt-btn-ghost {
-  border-color: rgba(255, 255, 255, 0.6);
+.fu-public .fu-home.vt .vt-btn-lime:hover,
+.fu-public .fu-home.vt .vt-btn-ghost:hover {
+  border-color: var(--vt-blue);
+  background: var(--vt-blue);
   color: #fff;
 }
 
-.fu-public .fu-home.vt .vt-btn-ghost:hover {
-  border-color: #fff;
-  background: #fff;
+.fu-public .fu-home.vt .vt-btn-lime {
+  border-color: var(--vt-orange);
+  background: var(--vt-orange);
+  color: #fff;
+}
+
+.fu-public .fu-home.vt .vt-btn-ghost {
+  border-color: rgba(11, 26, 51, 0.22);
+  background: transparent;
   color: var(--vt-navy);
 }
 
 .fu-home.vt .vt-tag,
 .fu-home.vt .vt-lock {
   display: inline-block;
-  padding: 5px 9px;
-  background: var(--vt-lime);
-  color: var(--vt-navy);
-  font-family: var(--vt-cond);
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--vt-orange);
+  color: #fff;
+  font-family: Geist, Inter, sans-serif;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 /* ---------- header row (title left, copy right) ---------- */
@@ -216,9 +220,11 @@
 
 .vt-stats dt {
   color: var(--vt-navy);
-  font-family: var(--vt-display);
+  font-family: Geist, Inter, sans-serif;
   font-size: clamp(44px, 4.4vw, 64px);
+  font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.04em;
 }
 
 .vt-stats dt.is-symbol {
@@ -278,12 +284,12 @@
   gap: 8px;
   margin-top: 8px;
   color: var(--vt-navy);
-  font-family: var(--vt-cond);
+  font-family: Geist, Inter, sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  text-transform: none;
 }
 
 .vt-cols-links em .material-symbols-outlined {
@@ -322,7 +328,8 @@
   aspect-ratio: 4 / 5;
   margin-bottom: 14px;
   overflow: hidden;
-  background: #d5d9df;
+  border-radius: 22px;
+  background: #e7e0d4;
 }
 
 .vt-card-media.is-wide {
@@ -373,12 +380,12 @@
 
 .vt-card strong {
   color: var(--vt-navy);
-  font-family: var(--vt-cond);
+  font-family: Geist, Inter, sans-serif;
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .vt-card small {
@@ -420,11 +427,11 @@
 
 .vt-rows strong {
   color: var(--vt-navy);
-  font-family: var(--vt-cond);
-  font-size: 20px;
+  font-family: Geist, Inter, sans-serif;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 .vt-rows span {
@@ -435,13 +442,14 @@
 .vt-rows em {
   padding: 5px 10px;
   border: 1px solid var(--vt-navy);
+  border-radius: 999px;
   color: var(--vt-navy);
-  font-family: var(--vt-cond);
+  font-family: Geist, Inter, sans-serif;
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .vt-rows .material-symbols-outlined {
@@ -484,6 +492,7 @@
   align-items: flex-end;
   min-height: 560px;
   overflow: hidden;
+  border-radius: 28px;
   color: #fff;
   text-decoration: none;
 }
@@ -598,6 +607,7 @@
 
 .vt-method-photo {
   min-height: 620px;
+  border-radius: 28px;
   background:
     url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1400&q=70")
       center / cover no-repeat;
@@ -618,10 +628,11 @@
 }
 
 .vt-steps li > span {
-  color: var(--vt-grey);
-  font-family: var(--vt-display);
-  font-size: 44px;
-  line-height: 1;
+  color: var(--vt-orange);
+  font-family: Geist, Inter, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .fu-public .fu-home.vt .vt-steps h3 {
@@ -662,12 +673,12 @@
   gap: 20px;
   padding: 24px 0;
   color: var(--vt-navy);
-  font-family: var(--vt-cond);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-family: Geist, Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   list-style: none;
-  text-transform: uppercase;
+  text-transform: none;
   cursor: pointer;
 }
 
@@ -682,7 +693,9 @@
   width: 34px;
   height: 34px;
   border: 1px solid var(--vt-navy);
-  transition: background 0.25s ease, border-color 0.25s ease;
+  border-radius: 999px;
+  color: var(--vt-navy);
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
 .vt-faq-ico .material-symbols-outlined {
@@ -691,8 +704,9 @@
 }
 
 .vt-faq details[open] .vt-faq-ico {
-  border-color: var(--vt-lime);
-  background: var(--vt-lime);
+  border-color: var(--vt-orange);
+  background: var(--vt-orange);
+  color: #fff;
 }
 
 .vt-faq details[open] .vt-faq-ico .material-symbols-outlined {
