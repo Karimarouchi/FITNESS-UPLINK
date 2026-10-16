@@ -167,54 +167,6 @@
   mask-image: linear-gradient(to bottom, #000 68%, transparent 96%);
 }
 
-.vx-orbit {
-  position: absolute;
-  z-index: 2;
-  border: 1.5px dashed rgba(0, 72, 252, 0.35);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.vx-orbit-a {
-  width: 42%;
-  aspect-ratio: 1;
-  left: 2%;
-  bottom: 14%;
-}
-
-.vx-orbit-b {
-  width: 22%;
-  aspect-ratio: 1;
-  right: 2%;
-  top: 12%;
-}
-
-.vx-ball {
-  position: absolute;
-  z-index: 3;
-  height: auto;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  filter: drop-shadow(0 22px 28px rgba(11, 26, 51, 0.28));
-  animation: vx-float 5.5s ease-in-out infinite;
-}
-
-.vx-ball-basket {
-  width: 26%;
-  left: -2%;
-  bottom: 20%;
-  transform: rotate(-24deg);
-  animation-delay: -1.2s;
-}
-
-.vx-ball-foot-sm {
-  width: 13%;
-  right: 8%;
-  top: 16%;
-  animation-duration: 6.4s;
-}
-
 @keyframes vx-rise {
   from {
     opacity: 0;
@@ -234,16 +186,6 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@keyframes vx-float {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -14px;
   }
 }
 
@@ -284,8 +226,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vx-copy,
-  .vx-stage,
-  .vx-ball {
+  .vx-stage {
     animation: none;
   }
 }

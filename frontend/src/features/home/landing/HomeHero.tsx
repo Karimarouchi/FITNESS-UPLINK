@@ -34,11 +34,7 @@ export function HomeHero() {
         </div>
 
         <div className="vx-stage" aria-hidden="true">
-          <span className="vx-orbit vx-orbit-a" />
-          <span className="vx-orbit vx-orbit-b" />
           <img className="vx-athlete" src="/media/tennis-hero-gradient.png" alt="" />
-          <img className="vx-ball vx-ball-basket" src="/media/basket.png" alt="" />
-          <img className="vx-ball vx-ball-foot-sm" src="/media/foot.png" alt="" />
         </div>
       </div>
     </section>
