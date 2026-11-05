@@ -1,13 +1,29 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, LogOut, Menu, MessagesSquare, Search, Settings, UserRound } from "lucide-react";
+import { Bell, ChevronDown, ChevronRight, LogOut, Menu, MessagesSquare, Search, Settings, UserRound } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
-import { hasPermission, isVerified, shortNameOf } from "@/features/auth/types";
+import { hasPermission, isBackOfficeUser, isVerified, shortNameOf } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { useNotifications } from "@/features/notifications/useNotifications";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { isSupplierWorkspace, shellSectionsFor } from "./shellNav";
+
+type SearchTarget = { path: string; placeholder: string };
+
+/** Where the header search sends the query: the same destinations the previous top navbar used, per role. */
+function searchTargetFor(user: ReturnType<typeof useAuth>["user"]): SearchTarget | null {
+  if (isSupplierWorkspace(user)) return { path: "/app/marketplace/mine", placeholder: "Rechercher un article…" };
+  if (hasPermission(user, PERMS.ADMIN_USERS)) return { path: "/users", placeholder: "Rechercher un utilisateur…" };
+  if (isBackOfficeUser(user)) return null;
+  if (hasPermission(user, PERMS.HIRE_SEARCH)) return { path: "/candidates", placeholder: "Rechercher un talent…" };
+  if (hasPermission(user, PERMS.HIRE_APPLY)) return { path: "/app/opportunities", placeholder: "Rechercher une offre…" };
+  if (hasPermission(user, PERMS.COACHING_DISCOVER)) return { path: "/coaches", placeholder: "Rechercher un coach…" };
+  if (hasPermission(user, PERMS.ACADEMY_BROWSE)) return { path: "/academie", placeholder: "Rechercher une formation…" };
+  if (hasPermission(user, PERMS.MARKETPLACE_BROWSE)) return { path: "/marketplace/products", placeholder: "Rechercher un article…" };
+  return null;
+}
 
 function useCrumbs() {
   const { user } = useAuth();
@@ -34,14 +50,18 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const crumbs = useCrumbs();
+  const { pathname } = useLocation();
+  // The dashboard already carries its own title, so the trail only appears on inner pages.
+  const showCrumbs = pathname !== "/app/dashboard";
   const supplier = isSupplierWorkspace(user);
-  const unreadMessages = useMarketplaceUnread(supplier);
+  const hasMessages = supplier || hasPermission(user, PERMS.MARKETPLACE_BROWSE);
+  const unreadMessages = useMarketplaceUnread(hasMessages);
   const { unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
   const displayName = user?.displayName || "Profil";
-  const canSearchUsers = hasPermission(user, PERMS.ADMIN_USERS);
+  const searchTarget = searchTargetFor(user);
 
   useEffect(() => {
     if (!open) return;
@@ -62,11 +82,8 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
   function onSearch(event: FormEvent) {
     event.preventDefault();
     const q = query.trim();
-    if (supplier) {
-      navigate(q ? `/app/marketplace/mine?q=${encodeURIComponent(q)}` : "/app/marketplace/mine");
-    } else {
-      navigate(q ? `/users?q=${encodeURIComponent(q)}` : "/users");
-    }
+    if (!searchTarget) return;
+    navigate(q ? `${searchTarget.path}?q=${encodeURIComponent(q)}` : searchTarget.path);
   }
 
   return (
@@ -75,6 +92,7 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
         <Menu size={20} />
       </button>
 
+      {showCrumbs ? (
       <div className="bo-crumbs" aria-label="Fil d'Ariane">
         {crumbs ? (
           <>
@@ -83,17 +101,18 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
             <span className="bo-crumb-current">{crumbs.label}</span>
           </>
         ) : (
-          <span className="bo-crumb-current">{supplier ? "Espace fournisseur" : "Back-office"}</span>
+          <span className="bo-crumb-current">{supplier ? "Espace fournisseur" : isBackOfficeUser(user) ? "Back-office" : "Mon espace"}</span>
         )}
       </div>
+      ) : null}
 
-      {supplier || canSearchUsers ? (
+      {searchTarget ? (
         <form className="bo-search" onSubmit={onSearch} role="search">
           <Search size={16} className="bo-search-icon" aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={supplier ? "Rechercher un article…" : "Rechercher un utilisateur…"}
+            placeholder={searchTarget?.placeholder}
             aria-label="Recherche"
           />
         </form>
@@ -102,7 +121,8 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
       )}
 
       <div className="bo-top-actions">
-        {supplier ? (
+        <ThemeToggle />
+        {hasMessages ? (
           <Link className="bo-icon-btn" to="/app/marketplace/messages" aria-label="Messages" title="Messages">
             <MessagesSquare size={19} strokeWidth={1.8} />
             {unreadMessages > 0 ? <span className="bo-dot-count">{unreadMessages > 9 ? "9+" : unreadMessages}</span> : null}
@@ -122,6 +142,7 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
           >
             <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={32} />
             <span className="bo-account-name">{user ? shortNameOf(user) : "Profil"}</span>
+            <ChevronDown size={16} className="bo-account-chevron" aria-hidden="true" />
           </button>
           {open ? (
             <div className="bo-menu" role="menu">

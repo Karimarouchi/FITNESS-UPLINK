@@ -15,6 +15,7 @@ import {
   type CandidateCard,
 } from "../api";
 import { CandidatePhoto } from "../CandidatePhoto";
+import "@/shared/styles/backoffice-coaching.css";
 
 const SPECIALTIES = [
   { value: "musculation", label: "Musculation" },
@@ -150,7 +151,7 @@ export function CandidatesPage() {
 
   if (!canSearch) {
     return (
-      <section>
+      <section className="cg-skin">
         <div className="page-head">
           <div>
             <h1>Recherche de talents</h1>
@@ -215,7 +216,7 @@ export function CandidatesPage() {
   }
 
   return (
-    <section className="tlx-page">
+    <section className="tlx-page cg-skin">
       <div className="page-head">
         <div>
           <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>

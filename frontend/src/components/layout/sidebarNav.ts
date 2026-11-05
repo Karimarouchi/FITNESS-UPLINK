@@ -158,6 +158,7 @@ export function sidebarGroupsFor(user: AuthUser | null): SidebarGroup[] {
       icon: "school",
       children: [
         { label: "Mes formations", to: "/app/academy/formations", icon: "menu_book" },
+        { label: "Contrôle d'entrée", to: "/app/academy/checkin", icon: "qr_code_scanner" },
       ],
     });
   } else if (hasPermission(user, PERMS.ACADEMY_BROWSE)) {

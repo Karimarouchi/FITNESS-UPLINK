@@ -6,8 +6,13 @@ import type { CountrySummary } from "@/features/auth/types";
 import { fetchCountries, selectCountry } from "../api";
 import { OnboardingBrand } from "../OnboardingFrame";
 import { LocaleSwitch, useOnboardingLocale } from "../LocaleContext";
+import "@/features/onboarding/onboarding-premium.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 export function ChooseCountryPage() {
+  const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const { t } = useOnboardingLocale();
   const navigate = useNavigate();
@@ -74,14 +79,17 @@ export function ChooseCountryPage() {
   const backTo = longFlow ? "/onboarding/intent" : "/onboarding/role";
 
   return (
-    <div className="fu-public ob-shell ob-shell--narrow">
+    <div data-bo-theme={theme} className="fu-public ob-shell ob-shell--narrow">
       <main className="ob-country">
         <header className="ob-country-header">
           <div className="ob-country-brand">
             <OnboardingBrand />
             <span className="ob-step-label">{memberFlow ? t.stepCountryMember : longFlow ? t.stepCountryLong : t.stepCountry}</span>
           </div>
-          <LocaleSwitch />
+          <span className="ob-theme-slot">
+            <LocaleSwitch />
+            <ThemeToggle />
+          </span>
         </header>
         <div className="ob-heading">
           <h1>{t.countryTitle}</h1>
@@ -99,7 +107,7 @@ export function ChooseCountryPage() {
           />
         </div>
         <div className="country-list custom-scrollbar">
-          {loading ? <p className="country-empty">{t.countryLoading}</p> : null}
+          {loading ? <SkeletonRows rows={5} label={t.countryLoading} /> : null}
           {!loading && filtered.length === 0 ? <p className="country-empty">{t.countryEmpty}</p> : null}
           {filtered.map((country) => {
             const active = selectedId === country.id;

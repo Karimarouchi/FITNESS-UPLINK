@@ -36,6 +36,17 @@ public class FormationRegistration {
     private Integer waitlistPosition;
     @Column(name = "payment_id")
     private UUID paymentId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", length = 16)
+    private PaymentMethod paymentMethod;
+    @Column(name = "hold_expires_at")
+    private Instant holdExpiresAt;
+    @Column(name = "ticket_token", nullable = false, length = 64, updatable = false)
+    private String ticketToken;
+    @Column(name = "checked_in_at")
+    private Instant checkedInAt;
+    @Column(name = "checked_in_by")
+    private UUID checkedInBy;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)

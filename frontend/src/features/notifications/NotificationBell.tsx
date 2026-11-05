@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { notificationIcon, notificationTime, useNotifications } from "./useNotifications";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 const PREVIEW = 6;
 
@@ -61,7 +62,7 @@ export function NotificationBell() {
           </header>
 
           {!loaded ? (
-            <p className="nb-empty">Chargement…</p>
+            <div className="nb-empty"><SkeletonRows rows={3} /></div>
           ) : latest.length === 0 ? (
             <div className="nb-empty">
               <span className="material-symbols-outlined" aria-hidden="true">

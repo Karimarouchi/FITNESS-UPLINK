@@ -38,7 +38,7 @@ export function PayRegistrationPage() {
   if (!loaded) {
     return null;
   }
-  if (registration && registration.status !== "PENDING_PAYMENT") {
+  if (registration && !["PENDING_PAYMENT", "PENDING_ON_SITE", "NO_SHOW"].includes(registration.status)) {
     return <Navigate to="/app/academy/registrations" replace />;
   }
 

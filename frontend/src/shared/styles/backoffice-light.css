@@ -1,0 +1,1605 @@
+/* ==================================================================
+   PREMIUM LIGHT — back-office shell (sidebar + header) and Dashboard.
+
+   Scope
+   - `.bo-light`  : set on the back-office shell by AppLayout. Restyles the
+                    sidebar and header only (white surfaces, orange accent).
+   - `.bo-dash`   : the Dashboard page. Every dashboard rule starts with it.
+
+   Cascade note
+   brand-theme.css resets every radius inside `.fu-app .bo-shell` (specificity
+   0,2,0) and is loaded after this file, so rules here use `.fu-app .bo-shell`
+   prefixes (0,3,0+) instead of `!important`.
+   Tokens come from brand-theme.css (--uf-*): cream #f3eee6, ink var(--bt-text),
+   orange #fc5101, blue #0048fc, line var(--bt-border), muted var(--bt-muted).
+   ================================================================== */
+
+.fu-app .bo-shell.bo-light {
+  /* tokens (--bt-*) are defined in backoffice-tokens.css, light and dark */
+  background: #f3eee6;
+}
+
+/* pages that follow the theme also paint the column under the sidebar */
+.fu-app .bo-shell.bo-light:has(.bo-main.is-themed) {
+  background: var(--bt-page);
+}
+
+/* ------------------------------------------------------------------
+   SIDEBAR — white, 280px
+   ------------------------------------------------------------------ */
+.fu-app .bo-shell.bo-light .bo-sidebar {
+  flex: 0 0 var(--bt-sidebar-w);
+  width: var(--bt-sidebar-w);
+  background: var(--bt-chrome);
+  border-right: 1px solid var(--bt-border);
+  color: var(--bt-text);
+  transition: flex-basis 0.25s ease, width 0.25s ease;
+}
+
+.fu-app .bo-shell.bo-light .bo-brand {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 18px 16px 22px;
+}
+
+.fu-app .bo-shell.bo-light .bo-brand .fu-brand img {
+  height: 44px;
+  max-width: 170px;
+}
+
+.fu-app .bo-shell.bo-light .bo-collapse-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell.bo-light .bo-collapse-btn:hover {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-sidebar-close {
+  position: static;
+  transform: none;
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav {
+  padding: 4px 16px 16px;
+  scrollbar-color: var(--bt-scroll) transparent;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-section {
+  padding-top: 14px;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-section + .bo-nav-section {
+  margin-top: 14px;
+  border-top: 1px solid var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-section:first-child {
+  padding-top: 6px;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-title {
+  padding: 6px 12px 10px;
+  color: var(--bt-subtle);
+  font-family: Geist, Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link {
+  min-height: 46px;
+  gap: 14px;
+  margin-bottom: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: var(--bt-text);
+  font-family: Geist, Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-icon,
+.fu-app .bo-shell.bo-light .bo-nav-chevron {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link:hover {
+  background: var(--bt-hover-3);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link:hover .bo-nav-icon {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link.is-active {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  font-weight: 600;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link.is-active .bo-nav-icon {
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-link.is-active::before {
+  left: -16px;
+  top: 9px;
+  bottom: 9px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--bt-orange);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-group.has-active > .bo-nav-toggle {
+  color: var(--bt-text);
+  font-weight: 600;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-sub {
+  margin: 2px 0 6px 24px;
+  padding-left: 10px;
+  border-left: 1px solid var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-sub .bo-nav-link {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-count {
+  background: var(--bt-orange);
+  color: #fff;
+}
+
+/* profile card at the bottom */
+.fu-app .bo-shell.bo-light .bo-sidebar-foot {
+  padding: 14px 16px 18px;
+  border-top: 1px solid var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-user {
+  padding: 10px 12px;
+  border: 1px solid var(--bt-border);
+  border-radius: 16px;
+  background: var(--bt-card-soft);
+}
+
+.fu-app .bo-shell.bo-light .bo-user-name {
+  color: var(--bt-text);
+  font-family: Outfit, Manrope, sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.fu-app .bo-shell.bo-light .bo-user-role {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-user .bo-icon-btn {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-user .bo-icon-btn:hover {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+/* collapsed (icons only), desktop only */
+@media (min-width: 1025px) {
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-sidebar {
+    flex-basis: var(--bt-sidebar-w-collapsed);
+    width: var(--bt-sidebar-w-collapsed);
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-brand {
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 0 12px;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-brand .fu-brand {
+    width: 40px;
+    overflow: hidden;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-brand .fu-brand img {
+    width: 40px;
+    height: 40px;
+    max-width: none;
+    object-fit: cover;
+    object-position: left center;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav {
+    padding: 0 14px 12px;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-title {
+    height: 1px;
+    padding: 0;
+    margin: 4px 8px 6px;
+    overflow: hidden;
+    font-size: 0;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-link {
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-label,
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-chevron,
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-sub,
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-user-copy {
+    display: none;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-count {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-nav-link.is-active::before {
+    left: -14px;
+  }
+  .fu-app .bo-shell.bo-light.is-collapsed .bo-user {
+    flex-direction: column;
+    padding: 10px 6px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .fu-app .bo-shell.bo-light .bo-sidebar {
+    flex: none;
+    width: min(var(--bt-sidebar-w), 86vw);
+  }
+  .fu-app .bo-shell.bo-light .bo-collapse-btn {
+    display: none;
+  }
+  .fu-app .bo-shell.bo-light .bo-sidebar-close {
+    display: inline-grid;
+  }
+}
+
+/* ------------------------------------------------------------------
+   HEADER — white, search on the left, bell + account on the right
+   ------------------------------------------------------------------ */
+.fu-app .bo-shell.bo-light .bo-topbar {
+  gap: 20px;
+  height: 76px;
+  padding: 0 32px;
+  background: var(--bt-chrome-glass);
+  border-bottom: 1px solid var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-crumbs {
+  flex: none;
+  font-family: Geist, Inter, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.fu-app .bo-shell.bo-light .bo-search {
+  flex: 1;
+  width: auto;
+  max-width: 620px;
+  margin-left: 0;
+}
+
+.fu-app .bo-shell.bo-light .bo-search-spacer {
+  flex: 1;
+}
+
+.fu-app .bo-shell.bo-light .bo-search input {
+  height: 46px;
+  padding: 0 16px 0 46px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: var(--bt-input);
+  color: var(--bt-text);
+  font: 400 14.5px Geist, Inter, sans-serif;
+}
+
+.fu-app .bo-shell.bo-light .bo-search input::placeholder {
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell.bo-light .bo-search input:focus {
+  background: var(--bt-surface);
+  border-color: var(--bt-orange);
+  box-shadow: 0 0 0 4px var(--bt-orange-focus);
+}
+
+.fu-app .bo-shell.bo-light .bo-search-icon {
+  left: 16px;
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-top-actions {
+  margin-left: auto;
+  gap: 14px;
+}
+
+.fu-app .bo-shell.bo-light .bo-icon-btn {
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-icon-btn:hover {
+  border-color: var(--bt-orange);
+  background: var(--bt-surface);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-dot-count {
+  top: -7px;
+  right: -7px;
+  min-width: 20px;
+  height: 20px;
+  background: var(--bt-orange);
+  box-shadow: 0 0 0 2px var(--bt-surface);
+}
+
+.fu-app .bo-shell.bo-light .bo-account-btn {
+  gap: 10px;
+  height: 50px;
+  padding: 0 14px 0 8px;
+  border: 1px solid var(--bt-border);
+  border-radius: 16px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font-family: Outfit, Manrope, sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.fu-app .bo-shell.bo-light .bo-account-btn:hover,
+.fu-app .bo-shell.bo-light .bo-account-btn[aria-expanded="true"] {
+  border-color: var(--bt-orange);
+}
+
+.fu-app .bo-shell.bo-light .bo-account-chevron {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu {
+  border-radius: 16px;
+  border-color: var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-content {
+  padding: 28px 32px 56px;
+}
+
+@media (max-width: 1024px) {
+  .fu-app .bo-shell.bo-light .bo-topbar {
+    height: 68px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .fu-app .bo-shell.bo-light .bo-account-name,
+  .fu-app .bo-shell.bo-light .bo-account-chevron {
+    display: none;
+  }
+  .fu-app .bo-shell.bo-light .bo-account-btn {
+    padding: 0 6px;
+    border-radius: 50%;
+    width: 46px;
+    height: 46px;
+    justify-content: center;
+  }
+  .fu-app .bo-shell.bo-light .bo-content {
+    padding: 22px 16px 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .fu-app .bo-shell.bo-light .bo-search {
+    display: block;
+    max-width: none;
+  }
+  .fu-app .bo-shell.bo-light .bo-crumbs {
+    display: none;
+  }
+}
+
+/* focus rings reachable by keyboard */
+.fu-app .bo-shell.bo-light :is(.bo-nav-link, .bo-collapse-btn, .bo-icon-btn, .bo-account-btn):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+/* ==================================================================
+   DASHBOARD — .bo-dash
+   ================================================================== */
+@keyframes bo-dash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bo-dash-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bo-dash-arc {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fu-app .bo-shell .bo-dash {
+  display: grid;
+  gap: 22px;
+  color: var(--bt-text);
+  font-family: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash > * {
+  animation: bo-dash-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app .bo-shell .bo-dash > *:nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.fu-app .bo-shell .bo-dash > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.fu-app .bo-shell .bo-dash > *:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.fu-app .bo-shell .bo-dash > *:nth-child(n + 5) {
+  animation-delay: 0.2s;
+}
+
+/* header */
+.fu-app .bo-shell .bo-dash .bo-dash-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-head h1 {
+  margin: 0;
+  color: var(--bt-text);
+  font-size: clamp(34px, 3.6vw, 48px);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-head p {
+  max-width: 62ch;
+  margin: 10px 0 0;
+  color: var(--bt-muted);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-error,
+.fu-app .bo-shell .bo-dash .bo-dash-note {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 4px solid var(--bt-rose);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-error-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-note {
+  border-left-color: var(--bt-subtle);
+  color: var(--bt-muted);
+  font-weight: 500;
+}
+
+/* dropdown */
+.fu-app .bo-shell .bo-dash-select {
+  position: relative;
+}
+
+.fu-app .bo-shell .bo-dash-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 500 14.5px Geist, Inter, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash-select-btn:hover,
+.fu-app .bo-shell .bo-dash-select-btn[aria-expanded="true"] {
+  border-color: var(--bt-orange);
+}
+
+.fu-app .bo-shell .bo-dash-select-btn svg:last-child {
+  color: var(--bt-muted);
+  transition: transform 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash-select-btn svg.is-open {
+  transform: rotate(180deg);
+}
+
+.fu-app .bo-shell .bo-dash-select-btn:focus-visible,
+.fu-app .bo-shell .bo-dash-select-list button:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash-select-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 30;
+  min-width: 100%;
+  width: max-content;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow-lg);
+  animation: bo-dash-rise 0.18s ease both;
+}
+
+.fu-app .bo-shell .bo-dash-select-list.is-right {
+  right: 0;
+}
+
+.fu-app .bo-shell .bo-dash-select-list.is-left {
+  left: 0;
+}
+
+.fu-app .bo-shell .bo-dash-select-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bt-text);
+  font: 500 14px Geist, Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash-select-list button:hover {
+  background: var(--bt-hover-3);
+}
+
+.fu-app .bo-shell .bo-dash-select-list button.is-on {
+  color: var(--bt-orange-text);
+  font-weight: 600;
+}
+
+/* shared bits */
+.fu-app .bo-shell .bo-dash .bo-dash-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-icon.is-blue {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-icon.is-rose {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-icon.is-neutral {
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-badge.is-up {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-badge.is-down {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-badge.is-flat {
+  background: var(--bt-chip-2);
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-badge.is-info {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+/* KPI cards */
+.fu-app .bo-shell .bo-dash .bo-dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon label label"
+    "value meta visual";
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 18px;
+  min-height: 150px;
+  padding: 22px;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi:hover {
+  transform: translateY(-4px);
+  border-color: rgba(252, 81, 1, 0.35);
+  box-shadow: var(--bt-shadow-hover);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 3px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi > .bo-dash-icon {
+  grid-area: icon;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-label {
+  grid-area: label;
+  color: var(--bt-text);
+  font: 700 16px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-value {
+  grid-area: value;
+  color: var(--bt-text);
+  font: 800 52px/1 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-meta {
+  grid-area: meta;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-meta small {
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-visual {
+  grid-area: visual;
+  display: grid;
+  place-items: end;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-kpi-skel {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 60%;
+  height: 52px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-spark {
+  width: 110px;
+  height: 44px;
+  overflow: visible;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-spark-line {
+  stroke: #fc5101;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-spark-fill {
+  fill: var(--bt-orange-soft-2);
+  stroke: none;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring {
+  width: 64px;
+  height: 64px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring-bg {
+  fill: none;
+  stroke: var(--bt-line-3);
+  stroke-width: 6;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring-fg {
+  fill: none;
+  stroke: #fc5101;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring.is-blue .bo-dash-ring-fg {
+  stroke: var(--bt-donut-blue);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring.is-rose .bo-dash-ring-fg {
+  stroke: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-ring text {
+  fill: var(--bt-text);
+  font: 700 11.5px Outfit, Manrope, sans-serif;
+}
+
+/* cards */
+.fu-app .bo-shell .bo-dash .bo-dash-card {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 19px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head p {
+  margin: 4px 0 0;
+  color: var(--bt-muted);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head.is-compact {
+  margin-bottom: 14px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head.is-compact h2 {
+  flex: 1;
+  font-size: 18px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-card-head.is-compact p {
+  margin: 0;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-head-icon {
+  flex: none;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-head-icon.is-blue {
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-head-icon.is-orange {
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid var(--bt-link-border);
+  border-radius: 10px;
+  background: var(--bt-surface);
+  color: var(--bt-blue-text);
+  font: 600 13px Outfit, Manrope, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-link:hover {
+  border-color: #0048fc;
+  background: rgba(0, 72, 252, 0.06);
+}
+
+/* chart + donut row */
+.fu-app .bo-shell .bo-dash .bo-dash-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-chart {
+  position: relative;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-grid {
+  stroke: var(--bt-line-soft);
+  stroke-width: 1;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-axis {
+  fill: var(--bt-muted);
+  font: 400 12.5px Geist, Inter, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-line {
+  stroke: #fc5101;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: bo-dash-draw 1.1s ease both;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-guide {
+  stroke: rgba(252, 81, 1, 0.35);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-dot {
+  fill: #fc5101;
+  stroke: var(--bt-surface);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: r 0.15s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-dot:focus {
+  outline: none;
+  stroke: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-tip {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+  padding: 9px 13px;
+  border-radius: 12px;
+  background: var(--bt-tip-bg);
+  color: #fff;
+  font-size: 12.5px;
+  pointer-events: none;
+  text-transform: capitalize;
+  transform: translate(-50%, calc(-100% - 14px));
+  white-space: nowrap;
+  box-shadow: 0 14px 30px -12px var(--bt-shadow-modal-color);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-tip strong {
+  color: var(--bt-tip-accent);
+  font: 700 14px Outfit, Manrope, sans-serif;
+  text-transform: none;
+}
+
+/* donut */
+.fu-app .bo-shell .bo-dash .bo-dash-donut-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-donut {
+  width: min(210px, 100%);
+  height: auto;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-donut-arc {
+  animation: bo-dash-arc 0.8s ease both;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-donut-total {
+  fill: var(--bt-text);
+  font: 800 38px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-donut-label {
+  fill: var(--bt-muted);
+  font: 400 13px Geist, Inter, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-legend {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-legend li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto 36px;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-legend em {
+  padding: 2px 9px;
+  border-radius: 8px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  font-style: normal;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-legend strong {
+  text-align: right;
+  font: 700 15px Outfit, Manrope, sans-serif;
+}
+
+/* three bottom cards */
+.fu-app .bo-shell .bo-dash .bo-dash-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-countries,
+.fu-app .bo-shell .bo-dash .bo-dash-activity,
+.fu-app .bo-shell .bo-dash .bo-dash-actions {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-countries li {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1.5fr) minmax(56px, 1fr) 28px;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 14.5px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-flag {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bt-chip);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-country-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-bar {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bt-track);
+  overflow: hidden;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left;
+  animation: bo-dash-bar 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes bo-dash-bar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-countries strong {
+  text-align: right;
+  font: 700 15px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity li + li,
+.fu-app .bo-shell .bo-dash .bo-dash-actions li + li {
+  border-top: 1px solid var(--bt-line-3);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity a,
+.fu-app .bo-shell .bo-dash .bo-dash-actions a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 6px;
+  margin: 0 -6px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity a:hover,
+.fu-app .bo-shell .bo-dash .bo-dash-actions a:hover {
+  background: var(--bt-hover-2);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity a:focus-visible,
+.fu-app .bo-shell .bo-dash .bo-dash-actions a:focus-visible,
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item:focus-visible,
+.fu-app .bo-shell .bo-dash .bo-dash-link:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity-copy,
+.fu-app .bo-shell .bo-dash .bo-dash-action-copy {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity-copy strong,
+.fu-app .bo-shell .bo-dash .bo-dash-action-copy strong {
+  overflow: hidden;
+  color: var(--bt-text);
+  font: 700 14.5px Outfit, Manrope, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity-copy small,
+.fu-app .bo-shell .bo-dash .bo-dash-action-copy small {
+  overflow: hidden;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-activity-meta {
+  display: grid;
+  flex: none;
+  justify-items: end;
+  gap: 4px;
+  color: var(--bt-subtle);
+  font-size: 12px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-status {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-status.is-new {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-status.is-verified {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-status.is-blocked {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-actions a > svg:last-child {
+  flex: none;
+  color: var(--bt-subtle);
+  transition: transform 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-actions a:hover > svg:last-child {
+  transform: translateX(3px);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-actions .bo-dash-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-count {
+  flex: none;
+  min-width: 34px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bt-chip-2);
+  color: var(--bt-muted);
+  font: 700 12.5px Outfit, Manrope, sans-serif;
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-count.is-hot {
+  background: #fc5101;
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-pill-skel {
+  width: 34px;
+  height: 22px;
+  border-radius: 999px;
+}
+
+/* quick access */
+.fu-app .bo-shell .bo-dash .bo-dash-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item:hover {
+  border-color: #fc5101;
+  transform: translateY(-2px);
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item .bo-dash-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item strong {
+  display: block;
+  font: 700 14px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-quick-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--bt-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* states */
+.fu-app .bo-shell .bo-dash .bo-dash-block {
+  height: 250px;
+  border-radius: 16px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-block.is-short {
+  height: 180px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 28px 12px;
+  color: var(--bt-muted);
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .bo-dash .bo-dash-empty svg {
+  padding: 13px;
+  box-sizing: content-box;
+  border-radius: 14px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+/* KPI cards on mid-width desktops: value and visual share a row, badge and hint sit below */
+@media (min-width: 1281px) and (max-width: 1760px) {
+  .fu-app .bo-shell .bo-dash .bo-dash-kpi {
+    grid-template-areas:
+      "icon label label"
+      "value value visual"
+      "meta meta meta";
+    row-gap: 12px;
+    min-height: 0;
+    padding: 20px;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-kpi-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-kpi-value {
+    font-size: 48px;
+  }
+}
+
+/* responsive */
+@media (max-width: 1280px) {
+  .fu-app .bo-shell .bo-dash .bo-dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-trio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-trio > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1024px) {
+  .fu-app .bo-shell .bo-dash .bo-dash-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-donut-wrap {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-dash .bo-dash-kpis,
+  .fu-app .bo-shell .bo-dash .bo-dash-trio {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-trio > :last-child {
+    grid-column: auto;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-donut-wrap {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-card {
+    padding: 18px;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-card-head {
+    flex-wrap: wrap;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-card-head .bo-dash-select {
+    flex: 1 0 100%;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-card-head .bo-dash-select-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-kpi-value {
+    font-size: 44px;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-countries li {
+    grid-template-columns: 34px minmax(0, 1fr) minmax(48px, 0.8fr) 24px;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app .bo-shell .bo-dash > *,
+  .fu-app .bo-shell .bo-dash .bo-dash-line,
+  .fu-app .bo-shell .bo-dash .bo-dash-donut-arc,
+  .fu-app .bo-shell .bo-dash .bo-dash-bar > span,
+  .fu-app .bo-shell .bo-dash-select-list {
+    animation: none;
+  }
+  .fu-app .bo-shell .bo-dash .bo-dash-kpi,
+  .fu-app .bo-shell .bo-dash .bo-dash-quick-item,
+  .fu-app .bo-shell.bo-light .bo-sidebar {
+    transition: none;
+  }
+}
+
+
+/* ==================================================================
+   THEME-AWARE DETAILS (tokens come from backoffice-tokens.css)
+   ================================================================== */
+
+/* The themed pages paint the canvas; every other page keeps its own light background. */
+.fu-app .bo-shell.bo-light .bo-main.is-themed {
+  background: var(--bt-page);
+  transition: background 0.3s ease;
+}
+
+/* the account menu and notification badge sit on the chrome */
+.fu-app .bo-shell.bo-light .bo-menu {
+  background: var(--bt-surface);
+  border-color: var(--bt-border);
+  box-shadow: var(--bt-shadow-lg);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu-head {
+  border-bottom-color: var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu-name {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu-sub {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu a,
+.fu-app .bo-shell.bo-light .bo-menu button {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu a:hover,
+.fu-app .bo-shell.bo-light .bo-menu button:hover {
+  background: var(--bt-hover-3);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu .is-danger,
+.fu-app .bo-shell.bo-light .bo-menu .is-danger:hover {
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell.bo-light .bo-menu .is-danger:hover {
+  background: var(--bt-rose-soft);
+}
+
+.fu-app .bo-shell.bo-light .bo-dot-count {
+  box-shadow: 0 0 0 2px var(--bt-chrome);
+}
+
+.fu-app .bo-shell.bo-light .bo-sidebar-close {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-nav-sub {
+  border-left-color: var(--bt-border);
+}
+
+.fu-app .bo-shell.bo-light .bo-search input {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-crumb-muted,
+.fu-app .bo-shell.bo-light .bo-crumb-sep {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell.bo-light .bo-crumb-current {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .bo-brand-name {
+  color: var(--bt-text);
+}
+
+/* loading placeholders follow the theme on the themed pages and modals only */
+.fu-app .bo-shell .bo-dash .bo-skeleton,
+.fu-app.bo-overlay.um-overlay .bo-skeleton {
+  background: linear-gradient(90deg, var(--bt-skel-a) 25%, var(--bt-skel-b) 50%, var(--bt-skel-a) 75%);
+  background-size: 200% 100%;
+}
+
+/* the logo is blue on transparent: in dark it sits on a light plate so its colours stay true */
+.fu-app .bo-shell.bo-light[data-bo-theme="dark"] .bo-brand .fu-brand {
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: #f3eee6;
+}
+
+.fu-app .bo-shell.bo-light[data-bo-theme="dark"] .bo-brand .fu-brand img {
+  height: 34px;
+}
+
+@media (min-width: 1025px) {
+  .fu-app .bo-shell.bo-light[data-bo-theme="dark"].is-collapsed .bo-brand .fu-brand {
+    width: 44px;
+    padding: 4px;
+  }
+  .fu-app .bo-shell.bo-light[data-bo-theme="dark"].is-collapsed .bo-brand .fu-brand img {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   THEME TOGGLE — 64 × 32 pill, sun / moon
+   ------------------------------------------------------------------ */
+.fu-app .bo-shell.bo-light .bo-theme-toggle {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid var(--bt-toggle-border);
+  border-radius: 999px;
+  background: var(--bt-toggle-bg);
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle:hover {
+  border-color: var(--bt-orange);
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.5);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle-ghost {
+  position: absolute;
+  top: 50%;
+  color: var(--bt-toggle-ghost);
+  transform: translateY(-50%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle-ghost.is-sun {
+  left: 7px;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle-ghost.is-moon {
+  right: 7px;
+}
+
+/* the active side is carried by the knob */
+.fu-app .bo-shell.bo-light .bo-theme-toggle:not(.is-dark) .bo-theme-toggle-ghost.is-sun,
+.fu-app .bo-shell.bo-light .bo-theme-toggle.is-dark .bo-theme-toggle-ghost.is-moon {
+  opacity: 0;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bt-toggle-knob);
+  color: var(--bt-toggle-ink);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, color 0.3s ease;
+}
+
+.fu-app .bo-shell.bo-light .bo-theme-toggle.is-dark .bo-theme-toggle-knob {
+  transform: translateX(32px);
+}
+
+@media (max-width: 1024px) {
+  .fu-app .bo-shell.bo-light .bo-top-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .fu-app .bo-shell.bo-light .bo-topbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .fu-app .bo-shell.bo-light .bo-top-actions {
+    gap: 6px;
+  }
+  .fu-app .bo-shell.bo-light .bo-icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app .bo-shell.bo-light .bo-theme-toggle,
+  .fu-app .bo-shell.bo-light .bo-theme-toggle-knob,
+  .fu-app .bo-shell.bo-light .bo-theme-toggle-ghost,
+  .fu-app .bo-shell.bo-light .bo-main.is-themed {
+    transition: none;
+  }
+}

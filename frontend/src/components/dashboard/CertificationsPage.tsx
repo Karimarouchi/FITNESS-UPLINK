@@ -5,6 +5,7 @@ import { fetchUploadBlob } from "@/features/onboarding/api";
 import type { FileRef } from "@/features/talent/api";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isVerified } from "@/features/auth/types";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 export function CertificationsPage() {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ export function CertificationsPage() {
           </Button>
         </div>
       </div>
-      {loading ? <p className="empty-hint">Chargement…</p> : null}
+      {loading ? <SkeletonRows rows={3} /> : null}
       {error ? <p className="empty-hint">{error}</p> : null}
       <div className="doc-grid">
         {docs.map(({ file, kind }) => (

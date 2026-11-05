@@ -6,12 +6,16 @@ import { useAuth } from "../AuthContext";
 import { VerifyHero } from "../components/VerifyHero";
 import { clearPendingSignup, readPendingSignup, resendSignupCode, storePendingSignup, verifySignup } from "../api";
 import { destinationFor, type AuthResponse } from "../types";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import "@/features/auth/auth-recovery.css";
 
 function secondsUntil(timestamp: number) {
   return Math.max(0, Math.ceil((timestamp - Date.now()) / 1000));
 }
 
 export function VerifySignupPage() {
+  const { theme } = useTheme();
   const { startSession } = useAuth();
   const navigate = useNavigate();
   const otpRef = useRef<OtpInputHandle>(null);
@@ -90,9 +94,12 @@ export function VerifySignupPage() {
   }
 
   return (
-    <div className="auth-shell vf">
+    <div data-bo-theme={theme} className="auth-shell vf">
       <VerifyHero />
       <section className="auth-panel">
+        <div className="ar-theme-slot">
+          <ThemeToggle />
+        </div>
         <div className="auth-form">
           <div className="mb-8">
             <p className="vf-kicker">Vérification</p>

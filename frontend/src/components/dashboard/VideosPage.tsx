@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { useOwnProfile } from "@/features/me/ownProfile";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 export function VideosPage() {
   const { profile, error, loading } = useOwnProfile();
@@ -18,7 +19,7 @@ export function VideosPage() {
           </Button>
         </div>
       </div>
-      {loading ? <p className="empty-hint">Chargement…</p> : null}
+      {loading ? <SkeletonRows rows={3} /> : null}
       {error ? <p className="empty-hint">{error}</p> : null}
       <div className="video-grid">
         {videos.map((url) => (

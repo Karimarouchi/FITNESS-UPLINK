@@ -7,6 +7,7 @@ import { hasPermission } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { ApiError } from "@/shared/api/client";
 import { fetchReceivedQuoteRequests, fetchSentQuoteRequests, handleQuoteRequest, providerLocation, type QuoteRequest } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -27,7 +28,7 @@ function SentView() {
   }, []);
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Mes demandes de devis</h1>
@@ -83,7 +84,7 @@ function ReceivedView() {
   const handled = requests.filter((r) => r.status === "HANDLED");
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Demandes de devis reçues</h1>

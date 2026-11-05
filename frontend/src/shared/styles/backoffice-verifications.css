@@ -1,0 +1,1032 @@
+/* ==================================================================
+   VERIFICATIONS PAGE — Premium Light / Dark.
+   Built on the Dashboard + Users blocks: the page wrapper carries
+   `bo-dash bo-users bo-vx`, so header, KPI cards, tabs, search, dropdown,
+   buttons and status badges come from backoffice-light.css and
+   backoffice-users.css. Only what is specific to this page lives here, and
+   it starts with `.vx-`.
+
+   Colours come from the `--bt-*` tokens (backoffice-tokens.css): nothing
+   here knows about the theme. The drawer is rendered in a portal by
+   BoDrawer (premium), which receives `um-overlay` + `data-bo-theme`.
+   P = `.fu-app .bo-shell .bo-dash.bo-users.bo-vx`
+   D = `.fu-app.bo-overlay.um-overlay .vx-drawer`
+   ================================================================== */
+
+/* ---------- KPI cards: same card, but clickable filters ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi:hover {
+  border-color: var(--bt-orange-soft-2);
+  box-shadow: var(--bt-shadow-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi.is-selected {
+  border-color: var(--bt-orange);
+  box-shadow: 0 0 0 3px var(--bt-orange-focus), var(--bt-shadow);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 3px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi-meta {
+  grid-column: 2 / -1;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-icon.is-green {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi .bo-dash-kpi-value,
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .bo-dash-kpi.vx-kpi .bo-dash-kpi-meta {
+  align-self: start;
+}
+
+/* ---------- toolbar ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-toolbar-card .bo-users-toolbar {
+  border-bottom: 0;
+  border-radius: 20px;
+}
+
+/* four status tabs: wrap in a 2 x 2 grid on narrow phones instead of overflowing */
+@media (max-width: 520px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-toolbar-card .bo-users-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- groups ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-skel {
+  height: 84px;
+  border-radius: 18px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group {
+  border: 1px solid var(--bt-border);
+  border-radius: 18px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group:hover {
+  box-shadow: var(--bt-shadow-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group.is-open {
+  border-color: var(--bt-orange-soft-2);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 20px 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--bt-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-head:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-head:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: -3px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile.is-blue {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile.is-amber {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile.is-green {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile.is-violet {
+  background: var(--bt-violet-soft);
+  color: var(--bt-violet-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-tile.is-rose {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-title {
+  display: grid;
+  flex: 1 1 200px;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-title strong {
+  color: var(--bt-text);
+  font: 800 18px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-title span {
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-pill {
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-pill.is-info {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-pill.is-warn {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-pill.is-danger {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-progress {
+  display: grid;
+  flex: none;
+  gap: 6px;
+  width: 150px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-progress-label {
+  color: var(--bt-muted);
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bt-track);
+  overflow: hidden;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--bt-ok);
+  transition: width 0.35s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-chevron {
+  flex: none;
+  color: var(--bt-muted);
+  transition: transform 0.25s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group.is-open .vx-chevron {
+  transform: rotate(180deg);
+}
+
+/* ---------- account rows ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-body {
+  border-top: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.4fr) minmax(0, 1.2fr) auto;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--bt-line-row);
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row:last-child {
+  border-bottom: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person,
+.fu-app.bo-overlay.um-overlay .vx-drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-title,
+.fu-app.bo-overlay.um-overlay .vx-person-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-title strong {
+  color: var(--bt-text);
+  font: 700 16px/1.25 Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-verified,
+.fu-app.bo-overlay.um-overlay .vx-verified {
+  flex: none;
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-sub,
+.fu-app.bo-overlay.um-overlay .vx-person-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-sub > span,
+.fu-app.bo-overlay.um-overlay .vx-person-sub > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-person-sub > i,
+.fu-app.bo-overlay.um-overlay .vx-person-sub > i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 12px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-mail,
+.fu-app.bo-overlay.um-overlay .vx-mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-mail svg,
+.fu-app.bo-overlay.um-overlay .vx-mail svg {
+  flex: none;
+}
+
+/* control badges — soft, no dashed borders */
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-check,
+.fu-app.bo-overlay.um-overlay .vx-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-check.is-ok,
+.fu-app.bo-overlay.um-overlay .vx-check.is-ok {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-check.is-wait,
+.fu-app.bo-overlay.um-overlay .vx-check.is-wait {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-check.is-no,
+.fu-app.bo-overlay.um-overlay .vx-check.is-no {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row-side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row-progress {
+  display: grid;
+  gap: 6px;
+  width: 128px;
+  color: var(--bt-muted);
+  font: 500 12.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row-progress strong {
+  color: var(--bt-text);
+  font-weight: 700;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 148px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open:hover:not(:disabled) {
+  border-color: var(--bt-orange);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open.is-primary {
+  border-color: var(--bt-orange);
+  background: var(--bt-orange);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open.is-primary:hover:not(:disabled) {
+  border-color: var(--bt-blue);
+  background: var(--bt-blue);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.vx-spin {
+  animation: vx-rotate 0.9s linear infinite;
+}
+
+@keyframes vx-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* dark theme: white on the brand orange is 3.3:1, dark text reaches AA */
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users.bo-vx .vx-open.is-primary {
+  color: #0d111b;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1280px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-checks {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-stats {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-head {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-title {
+    flex: 1 1 calc(100% - 120px);
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-stats {
+    display: flex;
+    order: 4;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-group-progress {
+    order: 3;
+    flex: 1 1 100%;
+    width: auto;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-chevron {
+    margin-left: auto;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-checks {
+    grid-row: auto;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-row-side {
+    justify-content: space-between;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-open {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* ==================================================================
+   DRAWER (portal — tokens from `.um-overlay`)
+   ================================================================== */
+.fu-app.bo-overlay.um-overlay .bo-drawer.vx-drawer {
+  border-radius: 20px 0 0 20px;
+  background: var(--bt-surface);
+  box-shadow: 0 40px 90px -30px var(--bt-shadow-modal-color);
+  color: var(--bt-text);
+  font-family: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .bo-drawer.vx-drawer:focus {
+  outline: none;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer .bo-drawer-head {
+  align-items: flex-start;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--bt-line-soft);
+  background: var(--bt-surface);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer-head {
+  align-items: flex-start;
+  flex: 1;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer-id {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-eyebrow {
+  color: var(--bt-orange-badge);
+  font: 700 12px Outfit, Manrope, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-person-title h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 23px/1.15 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 4px;
+  color: var(--bt-muted);
+  font: 500 13px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer-progress strong {
+  color: var(--bt-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-steps {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-steps i {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bt-track);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-steps i.is-ok {
+  background: var(--bt-ok);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-steps i.is-wait {
+  background: var(--bt-orange);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-steps i.is-no {
+  background: var(--bt-rose);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer .bo-icon-btn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer .bo-icon-btn:hover {
+  border-color: var(--bt-orange);
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer .bo-icon-btn:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-drawer .bo-drawer-body {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 22px 24px 28px;
+  background: var(--bt-page);
+}
+
+/* global status badge (same as the Users table, redeclared for the portal) */
+.fu-app.bo-overlay.um-overlay .bo-users-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app.bo-overlay.um-overlay .bo-users-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.fu-app.bo-overlay.um-overlay .bo-users-status.is-success {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app.bo-overlay.um-overlay .bo-users-status.is-warn {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app.bo-overlay.um-overlay .bo-users-status.is-danger {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+}
+
+/* notes (hint, success, error) */
+.fu-app.bo-overlay.um-overlay .vx-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: var(--bt-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-note > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--bt-blue-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-note.is-ok {
+  border-color: var(--bt-ok-border);
+  color: var(--bt-ok-strong);
+  font-weight: 600;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-note.is-ok > svg {
+  color: var(--bt-ok-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-note.is-error {
+  border-color: transparent;
+  border-left: 4px solid var(--bt-rose);
+  background: var(--bt-error-bg);
+  color: var(--bt-error-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-note.is-error > svg {
+  color: var(--bt-rose);
+}
+
+/* sections */
+.fu-app.bo-overlay.um-overlay .vx-sections {
+  display: grid;
+  gap: 16px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section {
+  border: 1px solid var(--bt-border);
+  border-radius: 18px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+  overflow: hidden;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bt-line-soft);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-icon.is-ok {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-icon.is-wait {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-icon.is-no {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-title {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-title strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--bt-text);
+  font: 700 16px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-title em {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 11.5px Outfit, Manrope, sans-serif;
+  font-style: normal;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-title span {
+  color: var(--bt-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-section-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts > .is-wide {
+  grid-column: 1 / -1;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts dt {
+  color: var(--bt-muted);
+  font-size: 12.5px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts dd {
+  margin: 0;
+  color: var(--bt-text);
+  font-size: 14.5px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-facts .is-missing dd {
+  color: var(--bt-muted);
+  font-weight: 400;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-missing {
+  margin: 0;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-people {
+  display: grid;
+  gap: 10px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-rep {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--bt-panel);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-rep-avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-rep strong {
+  display: block;
+  color: var(--bt-text);
+  font: 700 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-rep > div > span {
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-rep-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin-top: 4px;
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+/* documents */
+.fu-app.bo-overlay.um-overlay .vx-files {
+  display: grid;
+  gap: 12px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-files .doc-preview {
+  border-color: var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-panel);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-files .doc-preview-cap {
+  border-top-color: var(--bt-line-soft);
+  background: var(--bt-panel);
+  color: var(--bt-muted);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-files .doc-preview-cap button,
+.fu-app.bo-overlay.um-overlay .vx-files .doc-preview-cap a {
+  color: var(--bt-blue-text);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-files .doc-preview-status {
+  color: var(--bt-muted);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-files .doc-pdf {
+  background: var(--bt-track);
+}
+
+/* reject reason */
+.fu-app.bo-overlay.um-overlay .vx-reject {
+  display: grid;
+  gap: 8px;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-reject > span {
+  color: var(--bt-text);
+  font: 700 14px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-reject textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-input);
+  color: var(--bt-text);
+  font: 400 14.5px/1.5 Geist, Inter, sans-serif;
+  resize: vertical;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-reject textarea::placeholder {
+  color: var(--bt-subtle);
+}
+
+.fu-app.bo-overlay.um-overlay .vx-reject textarea:focus {
+  border-color: var(--bt-orange);
+  box-shadow: 0 0 0 4px var(--bt-orange-focus);
+  outline: none;
+}
+
+.fu-app.bo-overlay.um-overlay .vx-reject small {
+  color: var(--bt-muted);
+  font-size: 12.5px;
+}
+
+/* actions */
+.fu-app.bo-overlay.um-overlay .vx-section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--bt-line-soft);
+  background: var(--bt-hover);
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.vx-sm {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-soft-danger {
+  border-color: var(--bt-rose-soft-2);
+  background: var(--bt-surface);
+  color: var(--bt-rose-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-soft-danger:hover:not(:disabled) {
+  border-color: var(--bt-danger-solid);
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose-text);
+}
+
+.fu-app.bo-overlay.um-overlay[data-bo-theme="dark"] .um-btn.is-primary {
+  color: #0d111b;
+}
+
+.fu-app.bo-overlay.um-overlay[data-bo-theme="dark"] .um-btn.is-primary:hover:not(:disabled) {
+  color: #fff;
+}
+
+/* phones: the drawer takes the whole screen (the shared modal rule would pad and bottom-align the overlay) */
+@media (max-width: 560px) {
+  .fu-app.bo-overlay.um-overlay:has(.vx-drawer) {
+    align-items: stretch;
+    padding: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .fu-app.bo-overlay.um-overlay .bo-drawer.vx-drawer {
+    border-radius: 0;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-drawer .bo-drawer-head {
+    padding: 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-drawer .bo-drawer-body {
+    padding: 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fu-app.bo-overlay.um-overlay .vx-section-head {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-section-body {
+    padding: 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-section-actions {
+    justify-content: stretch;
+    padding: 12px 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .vx-section-actions .um-btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vx-spin {
+    animation: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-bar > span,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-vx .vx-chevron {
+    transition: none;
+  }
+}

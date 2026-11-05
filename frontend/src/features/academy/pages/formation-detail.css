@@ -393,3 +393,10 @@
     justify-content: flex-start;
   }
 }
+
+.fd .fd-pay-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}

@@ -26,25 +26,13 @@ public class AcademyJobs {
                     session.setStatus(FormationSessionStatus.COMPLETED);
                     session.setUpdatedAt(now);
                     sessionRepository.save(session);
+                    registrationService.markNoShows(session);
                 });
     }
 
-    @Scheduled(cron = "0 */10 * * * *")
-    @Transactional
-    public void expireUnresolvedRegistrations() {
-        Instant now = Instant.now();
-        registrationRepository.findByStatus(FormationRegistrationStatus.PENDING_PAYMENT).forEach(registration -> {
-            FormationSession session = sessionRepository.findById(registration.getSessionId()).orElse(null);
-            if (session == null || session.getScheduledAt().isAfter(now)) {
-                return;
-            }
-            Formation formation = formationRepository.findById(session.getFormationId()).orElse(null);
-            registration.setStatus(FormationRegistrationStatus.CANCELLED);
-            registration.setUpdatedAt(now);
-            registrationRepository.save(registration);
-            if (formation != null) {
-                registrationService.promoteNextWaitlisted(session, formation);
-            }
-        });
+    /** Online seats are held for 5 minutes: free them as soon as the window ends. */
+    @Scheduled(cron = "0 * * * * *")
+    public void expireHolds() {
+        registrationService.expireHolds();
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { Navigate } from "react-router-dom";
 import {
   BadgeCheck,
@@ -46,7 +46,11 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { DocumentPreview } from "@/shared/components/DocumentPreview";
 import { BoDrawer } from "@/components/ui/BoOverlay";
+import { DashSelect } from "@/components/admin/dash/DashSelect";
 import { shortDate } from "@/features/marketplace/format";
+
+import "@/shared/styles/backoffice-users.css";
+import "@/shared/styles/backoffice-verifications.css";
 
 type IconType = ComponentType<{ size?: number }>;
 type StatusFilter = "" | VerificationStatus;
@@ -149,6 +153,7 @@ export function AdminVerificationsPage() {
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [rejectKey, setRejectKey] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const opener = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!allowed) return;
@@ -229,7 +234,8 @@ export function AdminVerificationsPage() {
   }
   const allOpen = groups.length > 0 && groups.every(isOpen);
 
-  async function openDossier(id: string) {
+  async function openDossier(id: string, trigger?: HTMLElement | null) {
+    opener.current = trigger ?? (document.activeElement as HTMLElement | null);
     setLoadingId(id);
     try {
       setDossier(await fetchVerificationDossier(id));
@@ -276,137 +282,177 @@ export function AdminVerificationsPage() {
   }
 
   const kpis: { id: StatusFilter; label: string; value: number; hint: string; icon: IconType; tone: string }[] = [
-    { id: "", label: "Comptes suivis", value: counts.total, hint: `${groupsCount(items)} rôles · ${counts.toReview} avec des pièces à valider`, icon: Users, tone: "" },
-    { id: "pending", label: "En attente", value: counts.pending, hint: "Badge non encore attribué", icon: Hourglass, tone: "is-amber" },
-    { id: "verified", label: "Vérifiés", value: counts.verified, hint: "Badge visible sur le profil", icon: BadgeCheck, tone: "is-green" },
-    { id: "rejected", label: "Refusés", value: counts.rejected, hint: "Corrections demandées", icon: CircleX, tone: "is-rose" },
+    { id: "", label: "Comptes suivis", value: counts.total, hint: `${groupsCount(items)} rôles · ${counts.toReview} avec des pièces à valider`, icon: Users, tone: "blue" },
+    { id: "pending", label: "En attente", value: counts.pending, hint: "Badge non encore attribué", icon: Hourglass, tone: "orange" },
+    { id: "verified", label: "Vérifiés", value: counts.verified, hint: "Badge visible sur le profil", icon: BadgeCheck, tone: "green" },
+    { id: "rejected", label: "Refusés", value: counts.rejected, hint: "Corrections demandées", icon: CircleX, tone: "rose" },
   ];
+  const kindOptions: { value: "" | VerificationAccount["kind"]; label: string }[] = [
+    { value: "", label: "Tous les types" },
+    { value: "COMPANY", label: "Entreprises" },
+    { value: "PROFESSIONAL", label: "Professionnels" },
+  ];
+  const filtersActive = searching || status !== "" || kind !== "";
 
   return (
-    <div className="bo-page">
-      <div className="bo-head">
+    <section className="bo-dash bo-users bo-vx">
+      <header className="bo-dash-head">
         <div>
           <h1>Vérifications</h1>
-          <p>Contrôlez les dossiers par type de compte. Le badge « Vérifié » n’apparaît que lorsque chaque contrôle est validé.</p>
+          <p>Contrôlez les dossiers et validez les informations de chaque compte.</p>
         </div>
-      </div>
+      </header>
 
-      <div className="bo-kpis">
+      <div className="bo-dash-kpis">
         {kpis.map((kpi) => {
           const Icon = kpi.icon;
           return (
             <button
               key={kpi.label}
               type="button"
-              className={`bo-kpi vf-kpi${status === kpi.id ? " is-selected" : ""}`}
+              className={`bo-dash-kpi vx-kpi${status === kpi.id ? " is-selected" : ""}`}
+              aria-pressed={status === kpi.id}
               onClick={() => setStatus(kpi.id)}
             >
-              <div className="bo-kpi-top">
-                <span className="bo-kpi-label">{kpi.label}</span>
-                <span className={`bo-kpi-icon ${kpi.tone}`}>
-                  <Icon size={18} />
-                </span>
-              </div>
-              <span className="bo-kpi-value">{loading ? "–" : kpi.value}</span>
-              <span className="bo-kpi-hint">{kpi.hint}</span>
+              <span className={`bo-dash-icon is-${kpi.tone}`}>
+                <Icon size={22} aria-hidden="true" />
+              </span>
+              <span className="bo-dash-kpi-label">{kpi.label}</span>
+              {loading ? (
+                <span className="bo-skeleton bo-dash-kpi-skel" />
+              ) : (
+                <>
+                  <span className="bo-dash-kpi-value">{kpi.value}</span>
+                  <span className="bo-dash-kpi-meta">
+                    <small>{kpi.hint}</small>
+                  </span>
+                </>
+              )}
             </button>
           );
         })}
       </div>
 
-      <div className="bo-card vf-toolbar-card">
-        <div className="bo-toolbar">
-          <div className="bo-seg">
+      {flash && !dossier ? (
+        <div className="bo-users-alert" role="status">
+          <CircleCheck size={18} aria-hidden="true" />
+          <span>{flash}</span>
+          <button type="button" onClick={() => setFlash(null)} aria-label="Masquer le message">
+            <X size={16} />
+          </button>
+        </div>
+      ) : null}
+      {error && !dossier ? (
+        <p className="bo-dash-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="bo-dash-card bo-users-card vx-toolbar-card">
+        <div className="bo-users-toolbar">
+          <div className="bo-users-tabs" role="tablist" aria-label="Filtrer les dossiers par statut">
             {STATUS_TABS.map((tab) => (
-              <button key={tab.id || "all"} type="button" className={status === tab.id ? "is-active" : ""} onClick={() => setStatus(tab.id)}>
+              <button
+                key={tab.id || "all"}
+                type="button"
+                role="tab"
+                aria-selected={status === tab.id}
+                className={status === tab.id ? "is-active" : ""}
+                onClick={() => setStatus(tab.id)}
+              >
                 {tab.label}
-                <span className="bo-seg-count">{tab.id ? counts[tab.id] : counts.total}</span>
+                <span>{tab.id ? counts[tab.id] : counts.total}</span>
               </button>
             ))}
           </div>
-          <select className="bo-select vf-kind" value={kind} onChange={(event) => setKind(event.target.value as typeof kind)}>
-            <option value="">Tous les types</option>
-            <option value="COMPANY">Entreprises</option>
-            <option value="PROFESSIONAL">Professionnels</option>
-          </select>
-          <div className="bo-toolbar-search">
-            <Search size={16} />
-            <input className="bo-input" value={query} placeholder="Nom, e-mail ou rôle" onChange={(event) => setQuery(event.target.value)} />
+          <label className="bo-users-search">
+            <Search size={16} aria-hidden="true" />
+            <input value={query} placeholder="Nom, e-mail ou rôle" aria-label="Rechercher un dossier" onChange={(event) => setQuery(event.target.value)} />
+          </label>
+          <div className="bo-users-filters">
+            <DashSelect label="Type" value={kind} options={kindOptions} onChange={setKind} align="left" />
+            <button type="button" className="bo-users-btn" disabled={!groups.length} onClick={() => setAll(!allOpen)}>
+              {allOpen ? <ChevronsDownUp size={16} aria-hidden="true" /> : <ChevronsUpDown size={16} aria-hidden="true" />}
+              {allOpen ? "Tout replier" : "Tout déplier"}
+            </button>
           </div>
-          <div className="bo-toolbar-spacer" />
-          <button type="button" className="bo-btn bo-btn--ghost bo-btn--sm" disabled={!groups.length} onClick={() => setAll(!allOpen)}>
-            {allOpen ? <ChevronsDownUp size={15} /> : <ChevronsUpDown size={15} />}
-            {allOpen ? "Tout replier" : "Tout déplier"}
-          </button>
         </div>
       </div>
 
-      {flash ? (
-        <div className="bo-alert vf-flash">
-          <Check size={16} />
-          <span>{flash}</span>
-        </div>
-      ) : null}
-      {error ? <p className="bo-error">{error}</p> : null}
-
       {loading ? (
-        <div className="vf-groups">
+        <div className="vx-groups" aria-busy="true">
           {[0, 1, 2].map((index) => (
-            <div key={index} className="bo-skeleton" style={{ height: 76, borderRadius: 14 }} />
+            <div key={index} className="bo-skeleton vx-group-skel" />
           ))}
         </div>
       ) : groups.length === 0 ? (
-        <div className="bo-card">
-          <div className="bo-empty">
-            <span className="bo-empty-icon">
-              <ShieldCheck size={24} />
+        <div className="bo-dash-card bo-users-card">
+          <div className="bo-users-empty">
+            <span>
+              <ShieldCheck size={22} aria-hidden="true" />
             </span>
-            <span className="bo-empty-title">Aucun dossier</span>
-            <p>{searching || status || kind ? "Aucun compte ne correspond à ces filtres." : "Aucun compte à vérifier pour le moment."}</p>
+            <strong>Aucun dossier</strong>
+            <p>{filtersActive ? "Aucun compte ne correspond à ces filtres." : "Aucun compte à vérifier pour le moment."}</p>
+            {filtersActive ? (
+              <button
+                type="button"
+                className="bo-users-btn"
+                onClick={() => {
+                  setQuery("");
+                  setStatus("");
+                  setKind("");
+                }}
+              >
+                <RotateCcw size={15} aria-hidden="true" />
+                Réinitialiser les filtres
+              </button>
+            ) : null}
           </div>
         </div>
       ) : (
-        <div className="vf-groups">
+        <div className="vx-groups">
           {groups.map((group) => {
             const Icon = group.icon;
             const expanded = isOpen(group);
             const ratio = group.items.length ? group.verified / group.items.length : 0;
+            const bodyId = `vx-group-${group.key}`;
             return (
-              <section key={group.key} className={`vf-group${expanded ? " is-open" : ""}`}>
+              <section key={group.key} className={`vx-group${expanded ? " is-open" : ""}`}>
                 <button
                   type="button"
-                  className="vf-group-head"
+                  className="vx-group-head"
                   aria-expanded={expanded}
+                  aria-controls={bodyId}
                   onClick={() => setOpen((current) => ({ ...current, [group.key]: !expanded }))}
                 >
-                  <span className={`vf-group-icon ${group.tone}`}>
+                  <span className={`vx-tile ${group.tone}`}>
                     <Icon size={20} />
                   </span>
-                  <span className="vf-group-title">
+                  <span className="vx-group-title">
                     <strong>{group.label}</strong>
                     <span>
                       {group.items.length} compte{group.items.length > 1 ? "s" : ""} · {group.kind === "COMPANY" ? "Entreprise" : "Professionnel"}
                     </span>
                   </span>
-                  <span className="vf-group-stats">
-                    {group.toReview ? <span className="bo-pill is-info">{group.toReview} à examiner</span> : null}
-                    {group.pending ? <span className="bo-pill is-warn">{group.pending} en attente</span> : null}
-                    {group.rejected ? <span className="bo-pill is-danger">{group.rejected} refusé{group.rejected > 1 ? "s" : ""}</span> : null}
+                  <span className="vx-group-stats">
+                    {group.toReview ? <span className="vx-pill is-info">{group.toReview} à examiner</span> : null}
+                    {group.pending ? <span className="vx-pill is-warn">{group.pending} en attente</span> : null}
+                    {group.rejected ? <span className="vx-pill is-danger">{group.rejected} refusé{group.rejected > 1 ? "s" : ""}</span> : null}
                   </span>
-                  <span className="vf-group-progress" title={`${group.verified} sur ${group.items.length} vérifiés`}>
-                    <span className="vf-group-progress-label">
+                  <span className="vx-group-progress" title={`${group.verified} sur ${group.items.length} vérifiés`}>
+                    <span className="vx-group-progress-label">
                       {group.verified}/{group.items.length} vérifiés
                     </span>
-                    <span className="bo-bar">
-                      <span style={{ width: `${Math.round(ratio * 100)}%`, background: "var(--bo-success)" }} />
+                    <span className="vx-bar" aria-hidden="true">
+                      <span style={{ width: `${Math.round(ratio * 100)}%` }} />
                     </span>
                   </span>
-                  <ChevronDown size={18} className="vf-group-chevron" />
+                  <ChevronDown size={18} className="vx-chevron" aria-hidden="true" />
                 </button>
                 {expanded ? (
-                  <div className="vf-group-body">
+                  <div className="vx-group-body" id={bodyId}>
                     {group.items.map((item) => (
-                      <AccountRow key={item.id} item={item} loading={loadingId === item.id} onOpen={() => void openDossier(item.id)} />
+                      <AccountRow key={item.id} item={item} loading={loadingId === item.id} onOpen={(trigger) => void openDossier(item.id, trigger)} />
                     ))}
                   </div>
                 ) : null}
@@ -422,6 +468,8 @@ export function AdminVerificationsPage() {
           busyKey={busyKey}
           rejectKey={rejectKey}
           rejectReason={rejectReason}
+          error={error}
+          flash={flash}
           onRejectReason={setRejectReason}
           onStartReject={(key) => {
             setRejectKey(key);
@@ -429,10 +477,14 @@ export function AdminVerificationsPage() {
           }}
           onCancelReject={() => setRejectKey(null)}
           onChange={(key, next, reason) => void changeCheck(key, next, reason)}
-          onClose={() => setDossier(null)}
+          onClose={() => {
+            setDossier(null);
+            setError(null);
+            window.setTimeout(() => opener.current?.focus(), 0);
+          }}
         />
       ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -440,51 +492,57 @@ function groupsCount(items: VerificationAccount[]) {
   return new Set(items.map(groupKey)).size;
 }
 
-function AccountRow({ item, loading, onOpen }: { item: VerificationAccount; loading: boolean; onOpen: () => void }) {
+function AccountRow({ item, loading, onOpen }: { item: VerificationAccount; loading: boolean; onOpen: (trigger: HTMLElement) => void }) {
   const progress = progressOf(item.checks);
   const meta = STATUS_META[item.verificationStatus];
   const needsAction = progress.toReview > 0;
   return (
-    <div className="vf-row">
-      <ProfileAvatar uploadId={item.avatarUploadId} name={item.displayName} size={42} />
-      <div className="vf-row-main">
-        <div className="vf-row-title">
-          <strong>{item.displayName}</strong>
-          {item.verificationStatus === "verified" ? <BadgeCheck size={16} className="vf-verified-icon" /> : null}
-          <span className={`bo-pill ${meta.pill}`}>{meta.label}</span>
-          {!item.onboardingCompleted ? <span className="bo-pill no-dot">Inscription incomplète</span> : null}
-        </div>
-        <div className="vf-row-sub">
-          <Mail size={13} />
-          <span>{item.email}</span>
-          <span className="vf-dot" />
-          <span>Inscrit le {shortDate(item.createdAt)}</span>
-        </div>
-        <div className="vf-checks">
-          {item.checks.map((check) => {
-            const state = checkState(check);
-            const Icon = CHECK_META[state].icon;
-            return (
-              <span key={check.key} className={`vf-check is-${state}`} title={`${check.label} : ${CHECK_META[state].label}`}>
-                <Icon size={13} />
-                {check.label}
-              </span>
-            );
-          })}
+    <div className="vx-row">
+      <div className="vx-person">
+        <ProfileAvatar uploadId={item.avatarUploadId} name={item.displayName} size={42} />
+        <div className="vx-person-main">
+          <div className="vx-person-title">
+            <strong>{item.displayName}</strong>
+            {item.verificationStatus === "verified" ? <BadgeCheck size={16} className="vx-verified" aria-label="Compte vérifié" /> : null}
+            <span className={`bo-users-status ${meta.pill}`}>{meta.label}</span>
+            {!item.onboardingCompleted ? <span className="vx-chip">Inscription incomplète</span> : null}
+          </div>
+          <div className="vx-person-sub">
+            <span className="vx-mail">
+              <Mail size={13} aria-hidden="true" />
+              {item.email}
+            </span>
+            <i aria-hidden="true" />
+            <span>Inscrit le {shortDate(item.createdAt)}</span>
+          </div>
         </div>
       </div>
-      <div className="vf-row-progress">
-        <span>
-          <strong>{progress.done}</strong>/{progress.total} contrôles
-        </span>
-        <span className="bo-bar">
-          <span style={{ width: `${Math.round(progress.ratio * 100)}%`, background: "var(--bo-success)" }} />
-        </span>
+      <div className="vx-checks">
+        {item.checks.map((check) => {
+          const state = checkState(check);
+          const Icon = CHECK_META[state].icon;
+          return (
+            <span key={check.key} className={`vx-check is-${state}`} title={`${check.label} : ${CHECK_META[state].label}`}>
+              <Icon size={13} aria-hidden="true" />
+              {check.label}
+            </span>
+          );
+        })}
       </div>
-      <button type="button" className={`bo-btn bo-btn--sm ${needsAction ? "bo-btn--primary" : "bo-btn--ghost"}`} disabled={loading} onClick={onOpen}>
-        {loading ? <Loader2 size={15} className="bo-spin" /> : <FileText size={15} />}
-        {needsAction ? "Examiner" : "Voir le dossier"}
-      </button>
+      <div className="vx-row-side">
+        <div className="vx-row-progress">
+          <span>
+            <strong>{progress.done}</strong>/{progress.total} contrôles
+          </span>
+          <span className="vx-bar" aria-hidden="true">
+            <span style={{ width: `${Math.round(progress.ratio * 100)}%` }} />
+          </span>
+        </div>
+        <button type="button" className={`vx-open${needsAction ? " is-primary" : ""}`} disabled={loading} onClick={(event) => onOpen(event.currentTarget)}>
+          {loading ? <Loader2 size={15} className="vx-spin" aria-hidden="true" /> : <FileText size={15} aria-hidden="true" />}
+          {needsAction ? "Examiner" : "Voir le dossier"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -494,6 +552,8 @@ type DossierDrawerProps = {
   busyKey: string | null;
   rejectKey: string | null;
   rejectReason: string;
+  error: string | null;
+  flash: string | null;
   onRejectReason: (value: string) => void;
   onStartReject: (key: string) => void;
   onCancelReject: () => void;
@@ -506,6 +566,8 @@ function DossierDrawer({
   busyKey,
   rejectKey,
   rejectReason,
+  error,
+  flash,
   onRejectReason,
   onStartReject,
   onCancelReject,
@@ -515,51 +577,76 @@ function DossierDrawer({
   const account = dossier.account;
   const meta = STATUS_META[account.verificationStatus];
   const progress = progressOf(account.checks);
+  const roleLabel = account.role?.label ?? (account.kind === "COMPANY" ? "Entreprise" : "Professionnel");
   return (
     <BoDrawer
+      premium
       title="Dossier de vérification"
-      subtitle={`${account.role?.label ?? (account.kind === "COMPANY" ? "Entreprise" : "Professionnel")} · ${progress.done}/${progress.total} contrôles validés`}
       onClose={onClose}
       width={720}
-    >
-      <div className="vf-profile">
-        <ProfileAvatar uploadId={account.avatarUploadId} name={account.displayName} size={60} />
-        <div className="vf-profile-main">
-          <div className="vf-row-title">
-            <strong>{account.displayName}</strong>
-            {account.verificationStatus === "verified" ? <BadgeCheck size={18} className="vf-verified-icon" /> : null}
-            <span className={`bo-pill ${meta.pill}`}>{meta.label}</span>
-          </div>
-          <div className="vf-row-sub">
-            <Mail size={13} />
-            <span>{account.email}</span>
-            {account.country ? (
-              <>
-                <span className="vf-dot" />
-                <span>{account.country.name}</span>
-              </>
-            ) : null}
-            <span className="vf-dot" />
-            <span>Inscrit le {shortDate(account.createdAt)}</span>
-          </div>
-          <div className="vf-steps">
-            {account.checks.map((check) => (
-              <span key={check.key} className={`vf-step is-${checkState(check)}`} title={`${check.label} : ${CHECK_META[checkState(check)].label}`} />
-            ))}
+      headerContent={
+        <div className="vx-drawer-head">
+          <ProfileAvatar uploadId={account.avatarUploadId} name={account.displayName} size={52} />
+          <div className="vx-drawer-id">
+            <span className="vx-eyebrow">Dossier de vérification</span>
+            <div className="vx-person-title">
+              <h2>{account.displayName}</h2>
+              {account.verificationStatus === "verified" ? <BadgeCheck size={18} className="vx-verified" aria-label="Compte vérifié" /> : null}
+              <span className={`bo-users-status ${meta.pill}`}>{meta.label}</span>
+            </div>
+            <div className="vx-person-sub">
+              <span>{roleLabel}</span>
+              <i aria-hidden="true" />
+              <span className="vx-mail">
+                <Mail size={13} aria-hidden="true" />
+                {account.email}
+              </span>
+              {account.country ? (
+                <>
+                  <i aria-hidden="true" />
+                  <span>{account.country.name}</span>
+                </>
+              ) : null}
+              <i aria-hidden="true" />
+              <span>Inscrit le {shortDate(account.createdAt)}</span>
+            </div>
+            <div className="vx-drawer-progress">
+              <span>
+                <strong>{progress.done}</strong>/{progress.total} contrôles validés
+              </span>
+              <span className="vx-steps" aria-hidden="true">
+                {account.checks.map((check) => (
+                  <i key={check.key} className={`is-${checkState(check)}`} title={`${check.label} : ${CHECK_META[checkState(check)].label}`} />
+                ))}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      }
+    >
+      {flash ? (
+        <p className="vx-note is-ok" role="status">
+          <CircleCheck size={16} aria-hidden="true" />
+          <span>{flash}</span>
+        </p>
+      ) : null}
+      {error ? (
+        <p className="vx-note is-error" role="alert">
+          <CircleX size={16} aria-hidden="true" />
+          <span>{error}</span>
+        </p>
+      ) : null}
 
-      <div className="bo-alert vf-guide">
-        <ShieldCheck size={16} />
+      <p className="vx-note">
+        <ShieldCheck size={16} aria-hidden="true" />
         <span>
           {account.kind === "PROFESSIONAL"
             ? "Validez l’identité seulement si photo, téléphone et ville sont fournis, puis le CV, les diplômes et les certifications s’ils sont présents."
             : "Validez séparément l’existence de l’entreprise, les documents légaux et le représentant légal."}
         </span>
-      </div>
+      </p>
 
-      <div className="vf-sections">
+      <div className="vx-sections">
         {dossier.sections.map((section) => {
           const state = checkState(section);
           const StateIcon = CHECK_META[state].icon;
@@ -567,24 +654,24 @@ function DossierDrawer({
           const rejecting = rejectKey === section.key;
           const facts = section.facts.map(splitFact);
           return (
-            <section key={section.key} className={`vf-section is-${state}`}>
-              <header className="vf-section-head">
-                <span className={`vf-section-icon is-${state}`}>
-                  <StateIcon size={18} />
+            <section key={section.key} className={`vx-section is-${state}`}>
+              <header className="vx-section-head">
+                <span className={`vx-section-icon is-${state}`}>
+                  <StateIcon size={18} aria-hidden="true" />
                 </span>
-                <div className="vf-section-title">
+                <div className="vx-section-title">
                   <strong>
                     {section.label}
                     {section.required ? <em>Obligatoire</em> : null}
                   </strong>
                   {section.hint ? <span>{section.hint}</span> : null}
                 </div>
-                <span className={`vf-check is-${state}`}>{sectionLabel(section)}</span>
+                <span className={`vx-check is-${state}`}>{sectionLabel(section)}</span>
               </header>
 
-              <div className="vf-section-body">
+              <div className="vx-section-body">
                 {facts.length ? (
-                  <dl className="vf-facts">
+                  <dl className="vx-facts">
                     {facts.map((fact, index) =>
                       fact.key ? (
                         <div key={index} className={/^non fourni/i.test(fact.value) ? "is-missing" : undefined}>
@@ -599,20 +686,20 @@ function DossierDrawer({
                     )}
                   </dl>
                 ) : !section.people.length && !section.files.length ? (
-                  <p className="vf-missing">Aucun élément renseigné dans cette section.</p>
+                  <p className="vx-missing">Aucun élément renseigné dans cette section.</p>
                 ) : null}
 
                 {section.people.length ? (
-                  <div className="vf-people">
+                  <div className="vx-people">
                     {section.people.map((person, index) => (
-                      <div key={`${person.name}-${index}`} className="vf-person">
-                        <span className="vf-person-avatar">
-                          <UserRound size={16} />
+                      <div key={`${person.name}-${index}`} className="vx-rep">
+                        <span className="vx-rep-avatar">
+                          <UserRound size={16} aria-hidden="true" />
                         </span>
                         <div>
                           <strong>{person.name}</strong>
                           {person.title ? <span>{person.title}</span> : null}
-                          <div className="vf-person-meta">
+                          <div className="vx-rep-meta">
                             {person.idNumber ? <span>Pièce d’identité : {person.idNumber}</span> : null}
                             {person.email ? <span>{person.email}</span> : null}
                             {person.phone ? <span>{person.phone}</span> : null}
@@ -624,7 +711,7 @@ function DossierDrawer({
                 ) : null}
 
                 {section.files.length ? (
-                  <div className="vf-files">
+                  <div className="vx-files">
                     {section.files.map((file) => (
                       <DocumentPreview key={file.id} file={file} />
                     ))}
@@ -632,19 +719,18 @@ function DossierDrawer({
                 ) : null}
 
                 {section.reviewStatus === "rejected" && section.rejectionReason ? (
-                  <div className="bo-alert is-danger">
-                    <CircleX size={16} />
+                  <p className="vx-note is-error">
+                    <CircleX size={16} aria-hidden="true" />
                     <span>
                       <strong>Motif du refus :</strong> {section.rejectionReason}
                     </span>
-                  </div>
+                  </p>
                 ) : null}
 
                 {rejecting ? (
-                  <label className="bo-field vf-reject">
-                    <span className="bo-field-label">Motif du refus (obligatoire)</span>
+                  <label className="vx-reject">
+                    <span>Motif du refus (obligatoire)</span>
                     <textarea
-                      className="bo-textarea"
                       rows={3}
                       maxLength={500}
                       autoFocus
@@ -652,50 +738,52 @@ function DossierDrawer({
                       placeholder="Expliquez ce qui doit être corrigé…"
                       onChange={(event) => onRejectReason(event.target.value)}
                     />
+                    <small>Le motif sera envoyé au compte par notification et par e-mail.</small>
                   </label>
                 ) : null}
               </div>
 
-              <footer className="vf-section-actions">
+              <footer className="vx-section-actions">
                 {rejecting ? (
                   <>
-                    <button type="button" className="bo-btn bo-btn--ghost bo-btn--sm" onClick={onCancelReject}>
+                    <button type="button" className="um-btn vx-sm" onClick={onCancelReject}>
                       Annuler
                     </button>
                     <button
                       type="button"
-                      className="bo-btn bo-btn--danger-solid bo-btn--sm"
+                      className="um-btn is-danger vx-sm"
                       disabled={busy || !rejectReason.trim()}
                       onClick={() => onChange(section.key, "rejected", rejectReason)}
                     >
-                      <X size={15} />
+                      {busy ? <Loader2 size={15} className="vx-spin" aria-hidden="true" /> : <X size={15} aria-hidden="true" />}
                       Confirmer le refus
                     </button>
                   </>
                 ) : (
                   <>
                     {section.reviewStatus !== "pending" ? (
-                      <button type="button" className="bo-btn bo-btn--ghost bo-btn--sm" disabled={busy} onClick={() => onChange(section.key, "pending")}>
-                        <RotateCcw size={14} />
+                      <button type="button" className="um-btn vx-sm" disabled={busy} onClick={() => onChange(section.key, "pending")}>
+                        <RotateCcw size={14} aria-hidden="true" />
                         Remettre en attente
                       </button>
                     ) : null}
                     <button
                       type="button"
-                      className="bo-btn bo-btn--danger bo-btn--sm"
+                      className="um-btn is-soft-danger vx-sm"
                       disabled={section.reviewStatus === "rejected" || busy}
                       onClick={() => onStartReject(section.key)}
                     >
-                      <X size={15} />
+                      <X size={15} aria-hidden="true" />
                       Refuser
                     </button>
                     <button
                       type="button"
-                      className="bo-btn bo-btn--primary bo-btn--sm"
+                      className="um-btn is-primary vx-sm"
                       disabled={!section.complete || section.reviewStatus === "verified" || busy}
+                      title={section.complete ? "Valide ce contrôle et notifie le compte" : "Contrôle incomplet : validation impossible"}
                       onClick={() => onChange(section.key, "verified")}
                     >
-                      {busy ? <Loader2 size={15} className="bo-spin" /> : <Check size={15} />}
+                      {busy ? <Loader2 size={15} className="vx-spin" aria-hidden="true" /> : <Check size={15} aria-hidden="true" />}
                       Valider
                     </button>
                   </>

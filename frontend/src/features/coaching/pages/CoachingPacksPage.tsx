@@ -15,6 +15,8 @@ import {
   type CoachingPack,
   type PackOffer,
 } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
+import { SkeletonCards } from "@/components/ui/Skeleton";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -177,7 +179,7 @@ function CoachPacksView() {
   const unit = form.sessionCount && form.sessionCount >= 2 ? perSession({ priceAmount: form.priceAmount.replace(",", "."), sessionCount: form.sessionCount }) : null;
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Packs de séances</h1>
@@ -422,14 +424,16 @@ function MemberPacksView() {
   }, []);
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Mes packs</h1>
           <p className="sub">Suivez vos séances achetées, utilisées et restantes.</p>
         </div>
       </div>
-      {!loading && packs.length === 0 ? (
+      {loading ? (
+        <SkeletonCards count={3} h={180} />
+      ) : packs.length === 0 ? (
         <div className="pcx-empty">
           <span className="material-symbols-outlined" aria-hidden="true">inventory_2</span>
           <strong>Aucun pack</strong>

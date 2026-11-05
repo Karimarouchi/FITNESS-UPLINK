@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { ApiError } from "@/shared/api/client";
+import "@/shared/styles/backoffice-coaching.css";
+import "./academy-tickets.css";
 import {
   CONTENT_TYPE_LABELS,
   createFormation,
@@ -33,6 +35,8 @@ const EMPTY = {
   priceCurrency: "TND",
   hasCertification: false,
   imageUploadId: null as string | null,
+  acceptsOnline: true,
+  acceptsOnSite: false,
 };
 
 export function MyFormationsPage() {
@@ -72,6 +76,8 @@ export function MyFormationsPage() {
       priceCurrency: formation.priceCurrency ?? "TND",
       hasCertification: formation.hasCertification,
       imageUploadId: formation.imageUploadId,
+      acceptsOnline: formation.acceptsOnline,
+      acceptsOnSite: formation.acceptsOnSite,
     });
     setShowForm(true);
   }
@@ -108,6 +114,8 @@ export function MyFormationsPage() {
         priceCurrency: form.priceCurrency,
         hasCertification: form.hasCertification,
         imageUploadId: form.imageUploadId,
+        acceptsOnline: form.acceptsOnline,
+        acceptsOnSite: form.acceptsOnSite,
       };
       if (editing) {
         await updateFormation(editing, request);
@@ -128,7 +136,7 @@ export function MyFormationsPage() {
   }
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Mes formations</h1>
@@ -206,6 +214,17 @@ export function MyFormationsPage() {
                 </select>
               </label>
             </div>
+            <fieldset className="field" style={{ border: 0, padding: 0 }}>
+              <span>Modes de paiement acceptés (formation payante)</span>
+              <label className="settings-row" style={{ maxWidth: 360 }}>
+                <span>Payer en ligne dans l’application</span>
+                <input type="checkbox" checked={form.acceptsOnline} onChange={(e) => setForm({ ...form, acceptsOnline: e.target.checked })} />
+              </label>
+              <label className="settings-row" style={{ maxWidth: 360 }}>
+                <span>Payer sur place le jour de l’événement</span>
+                <input type="checkbox" checked={form.acceptsOnSite} onChange={(e) => setForm({ ...form, acceptsOnSite: e.target.checked })} />
+              </label>
+            </fieldset>
             <label className="field">
               <span>Image</span>
               <input type="file" accept="image/*" disabled={uploading} onChange={(e) => void onPickImage(e.target.files)} />
@@ -244,7 +263,9 @@ export function MyFormationsPage() {
             <div className="t">{formation.title}</div>
             <div className="org">{CONTENT_TYPE_LABELS[formation.contentType]}</div>
             <div className="meta">
-              {Number(formation.priceAmount) > 0 ? `${formation.priceAmount} ${formation.priceCurrency}` : "Gratuit"}
+              {Number(formation.priceAmount) > 0
+                ? `${formation.priceAmount} ${formation.priceCurrency} · ${[formation.acceptsOnline ? "en ligne" : "", formation.acceptsOnSite ? "sur place" : ""].filter(Boolean).join(" + ") || "aucun mode"}`
+                : "Gratuit"}
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
               <Button variant="mini" onClick={() => startEdit(formation)}>
@@ -392,7 +413,21 @@ function ParticipantsList({ formationId, sessionId }: { formationId: string; ses
             <div className="exp-body">
               <div className="t">{p.memberDisplayName}</div>
               <div className="d">
-                {p.status === "CONFIRMED" ? "Confirmé" : p.status === "PENDING_PAYMENT" ? "En attente de paiement" : `Liste d'attente #${p.waitlistPosition}`}
+                {p.status === "CONFIRMED"
+                  ? "Confirmé"
+                  : p.status === "PENDING_PAYMENT"
+                    ? "En attente de paiement en ligne"
+                    : p.status === "PENDING_ON_SITE"
+                      ? "Paiement sur place"
+                      : p.status === "NO_SHOW"
+                        ? "Absent"
+                        : `Liste d'attente #${p.waitlistPosition}`}
+                {p.paid ? (
+                  <span className="pill-paid">Payé</span>
+                ) : p.status === "PENDING_ON_SITE" || p.status === "NO_SHOW" ? (
+                  <span className="pill-due">À encaisser {p.amountDue} {p.currency}</span>
+                ) : null}
+                {p.checkedInAt ? <span className="pill-paid">Présent</span> : null}
               </div>
             </div>
           </div>

@@ -1,9 +1,23 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate } from "react-router-dom";
+import { ArrowRight, CircleCheck, FileText, FileSignature, Hourglass } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isBusiness, isCandidate } from "@/features/auth/types";
 import { contractStatusLabel, fetchContracts, type Contract } from "../api";
 import { formatPipelineDate } from "@/features/recruitment/api";
+import "@/shared/styles/backoffice-users.css";
+import "@/shared/styles/backoffice-modules.css";
+import "@/shared/styles/backoffice-hire.css";
+
+function Kpi({ icon, tone = "", label, value }: { icon: ReactNode; tone?: string; label: string; value: number }) {
+  return (
+    <div className="bo-dash-kpi">
+      <span className={`bo-dash-icon ${tone}`}>{icon}</span>
+      <span className="bo-dash-kpi-label">{label}</span>
+      <span className="bo-dash-kpi-value">{value}</span>
+    </div>
+  );
+}
 
 export function ContractsPage() {
   const { user } = useAuth();
@@ -59,92 +73,83 @@ export function ContractsPage() {
   const pending = items.filter((item) => !needsMySignature(item) && item.status !== "COMPLETED" && (item.status === "SENT" || item.status === "CANDIDATE_SIGNED" || item.status === "EMPLOYER_SIGNED")).length;
 
   return (
-    <section className="tlx-page">
-      <div className="page-head">
+    <section className="bo-dash bo-users bo-bm bo-hr">
+      <header className="bo-dash-head">
         <div>
-          <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
           <h1>{candidate ? "Mes contrats" : "Contrats"}</h1>
-          <p className="sub">
+          <p>
             {candidate
               ? "Consultez et signez les contrats envoyés par les employeurs."
               : "Suivez les signatures et ouvrez le document de chaque recrutement."}
           </p>
         </div>
-      </div>
-      {error ? <p className="auth-error">{error}</p> : null}
+      </header>
+      {error ? (
+        <p className="bo-dash-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       {items.length > 0 ? (
-        <div className="pcx-stats ctx-stats">
-          <div className="pcx-stat" style={{ "--i": 0 } as CSSProperties}>
-            <span className="material-symbols-outlined" aria-hidden="true">draw</span>
-            <b>{toSign}</b>
-            <small>{candidate ? "À signer par vous" : "À signer par vous"}</small>
-          </div>
-          <div className="pcx-stat" style={{ "--i": 1 } as CSSProperties}>
-            <span className="material-symbols-outlined" aria-hidden="true">hourglass_top</span>
-            <b>{pending}</b>
-            <small>En attente de l’autre partie</small>
-          </div>
-          <div className="pcx-stat" style={{ "--i": 2 } as CSSProperties}>
-            <span className="material-symbols-outlined" aria-hidden="true">task_alt</span>
-            <b>{done}</b>
-            <small>Finalisé{done > 1 ? "s" : ""}</small>
-          </div>
+        <div className="bo-dash-kpis hr-kpis">
+          <Kpi icon={<FileSignature size={22} />} label="À signer par vous" value={toSign} />
+          <Kpi icon={<Hourglass size={22} />} tone="is-blue" label="En attente de l’autre partie" value={pending} />
+          <Kpi icon={<CircleCheck size={22} />} tone="is-neutral" label={`Finalisé${done > 1 ? "s" : ""}`} value={done} />
         </div>
       ) : null}
 
-      {loading ? (
-        <ul className="ctx-list" aria-busy="true">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <li key={index} className="tlx-card is-skeleton" style={{ "--i": index, minHeight: 84 } as CSSProperties}>
-              <span className="tlx-sk tlx-sk-line" />
-              <span className="tlx-sk tlx-sk-line is-short" />
-            </li>
-          ))}
-        </ul>
-      ) : items.length === 0 && !error ? (
-        <div className="tlx-empty">
-          <span className="material-symbols-outlined" aria-hidden="true">description</span>
-          <strong>Aucun contrat</strong>
-          <p>Un contrat apparaîtra ici dès qu’il sera envoyé depuis le pipeline de recrutement.</p>
-          {employer ? (
-            <Link className="tlx-btn is-primary" to="/applications">
-              Ouvrir le pipeline
-            </Link>
-          ) : null}
-        </div>
-      ) : (
-        <ul className="ctx-list">
-          {items.map((item, index) => {
-            const action = needsMySignature(item);
-            const finished = item.status === "COMPLETED";
-            return (
-              <li
-                key={item.id}
-                className={action ? "ctx-item is-action" : finished ? "ctx-item is-done" : "ctx-item"}
-                style={{ "--i": index } as CSSProperties}
-              >
-                <span className="ctx-icon material-symbols-outlined" aria-hidden="true">
-                  {finished ? "task_alt" : action ? "draw" : "description"}
-                </span>
-                <div className="ctx-main">
-                  <strong>{candidate ? item.employerName : item.candidateName}</strong>
-                  <small>{item.jobOffer?.title || item.terms?.position || "Recrutement direct"}</small>
-                </div>
-                <div className="ctx-meta">
-                  <span>{statusCopy(item)}</span>
-                  <small>Créé le {formatPipelineDate(item.createdAt)}</small>
-                </div>
-                <span className={action ? "pdx-pill" : "pdx-pill is-muted"}>{contractStatusLabel(item.status)}</span>
-                <Link className="ctx-open" to={`/contracts/${item.id}`}>
-                  {action ? "Signer" : "Consulter"}
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <div className="bo-dash-card bo-users-card">
+        {loading ? (
+          <div className="hr-list" aria-busy="true">
+            {[0, 1, 2].map((key) => (
+              <div key={key} className="bo-skeleton hr-skel-row" />
+            ))}
+          </div>
+        ) : items.length === 0 && !error ? (
+          <div className="bo-users-empty">
+            <span>
+              <FileText size={22} aria-hidden="true" />
+            </span>
+            <strong>Aucun contrat</strong>
+            <p>Un contrat apparaîtra ici dès qu’il sera envoyé depuis le pipeline de recrutement.</p>
+            {employer ? (
+              <Link className="bm-btn" to="/applications">
+                Ouvrir le pipeline
+              </Link>
+            ) : null}
+          </div>
+        ) : (
+          <ul className="hr-list">
+            {items.map((item) => {
+              const action = needsMySignature(item);
+              const finished = item.status === "COMPLETED";
+              const Icon = finished ? CircleCheck : action ? FileSignature : FileText;
+              return (
+                <li key={item.id} className={action ? "hr-row is-action" : finished ? "hr-row is-done" : "hr-row"}>
+                  <span className="hr-row-icon" aria-hidden="true">
+                    <Icon size={20} />
+                  </span>
+                  <div className="hr-row-main">
+                    <strong>{candidate ? item.employerName : item.candidateName}</strong>
+                    <small>{item.jobOffer?.title || item.terms?.position || "Recrutement direct"}</small>
+                  </div>
+                  <div className="hr-row-meta">
+                    <span>{statusCopy(item)}</span>
+                    <small>Créé le {formatPipelineDate(item.createdAt)}</small>
+                  </div>
+                  <span className={`bo-users-status ${action ? "is-warn" : finished ? "is-success" : "is-neutral"}`}>
+                    {contractStatusLabel(item.status)}
+                  </span>
+                  <Link className={action ? "bm-btn" : "bm-btn is-outline"} to={`/contracts/${item.id}`}>
+                    {action ? "Signer" : "Consulter"}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

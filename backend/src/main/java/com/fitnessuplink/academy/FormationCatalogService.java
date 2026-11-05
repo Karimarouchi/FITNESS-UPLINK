@@ -30,10 +30,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FormationCatalogService {
 
-    /** A seat is taken only once the registration is confirmed (paid, or free formation). */
-    private static final List<FormationRegistrationStatus> SEAT_STATUSES =
-            List.of(FormationRegistrationStatus.CONFIRMED);
-
     private final FormationRepository formationRepository;
     private final FormationSessionRepository sessionRepository;
     private final FormationRegistrationRepository registrationRepository;
@@ -87,7 +83,7 @@ public class FormationCatalogService {
     }
 
     private FormationSessionDto toSessionDto(FormationSession session) {
-        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), SEAT_STATUSES);
+        long confirmed = registrationRepository.countSeatsTaken(session.getId(), Instant.now());
         int seatsLeft = Math.max(0, session.getCapacity() - (int) confirmed);
         return new FormationSessionDto(
                 session.getId(),
@@ -110,7 +106,7 @@ public class FormationCatalogService {
         Instant nextAt = next == null ? null : next.getScheduledAt();
         Integer seatsLeft = null;
         if (next != null) {
-            long confirmed = registrationRepository.countBySessionIdAndStatusIn(next.getId(), SEAT_STATUSES);
+            long confirmed = registrationRepository.countSeatsTaken(next.getId(), Instant.now());
             seatsLeft = Math.max(0, next.getCapacity() - (int) confirmed);
         }
         return new FormationCardDto(
@@ -127,7 +123,9 @@ public class FormationCatalogService {
                 formation.getImageUploadId(),
                 organizerSummary(organizer),
                 nextAt,
-                seatsLeft
+                seatsLeft,
+                formation.isAcceptsOnline(),
+                formation.isAcceptsOnSite()
         );
     }
 

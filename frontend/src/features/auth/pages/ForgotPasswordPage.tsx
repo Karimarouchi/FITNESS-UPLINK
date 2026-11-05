@@ -12,6 +12,9 @@ import {
   validatePassword,
 } from "../validation";
 import "../auth-extras.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import "@/features/auth/auth-recovery.css";
 
 const RESEND_SECONDS = 60;
 
@@ -44,6 +47,7 @@ function friendlyError(err: unknown, fallback: string) {
 }
 
 export function ForgotPasswordPage() {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -170,7 +174,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="auth-shell">
+    <div data-bo-theme={theme} className="auth-shell">
       <section className="auth-hero auth-hero--signup">
         <AuthHeroImage className="absolute inset-0 h-full w-full object-cover" />
         <div className="fgx-hero-shade" />
@@ -201,6 +205,9 @@ export function ForgotPasswordPage() {
       </section>
 
       <section className="auth-panel">
+        <div className="ar-theme-slot">
+          <ThemeToggle />
+        </div>
         <div className="auth-form fgx-form">
           <ol className="fgx-steps" aria-label="Étapes">
             {STEPS.map((item, index) => (

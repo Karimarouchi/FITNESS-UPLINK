@@ -4,6 +4,7 @@ import { PUBLIC_NAV_LINKS } from "@/components/public/publicData";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const OVERLAY_PATHS = new Set([
   "/",
@@ -167,6 +168,7 @@ export function PublicNavbar() {
         </nav>
 
         <div className="pn-actions">
+          <ThemeToggle />
           {user ? (
             <>
               <Link className="pn-btn pn-btn-ghost" to="/app/dashboard">
@@ -224,6 +226,7 @@ export function PublicNavbar() {
           ))}
         </div>
         <div className="pn-sheet-actions">
+          <ThemeToggle />
           {user ? (
             <>
               <Link className="pn-btn pn-btn-solid" to="/app/dashboard">

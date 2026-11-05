@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ApiError } from "@/shared/api/client";
 import { deleteCoachService, fetchCoachServices, saveCoachService, type CoachService } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -136,7 +137,7 @@ export function CoachServicesPage() {
   const activeCount = services.filter((service) => service.active).length;
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Mes services</h1>

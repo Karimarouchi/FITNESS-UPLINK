@@ -11,6 +11,7 @@ import {
   formationImageUrl,
   registerForSession,
   type FormationDetail,
+  type PaymentMethod,
   type Registration,
 } from "../api";
 import "./formation-detail.css";
@@ -56,7 +57,7 @@ export function FormationDetailPage() {
       .catch(() => undefined);
   }, [user]);
 
-  async function register(sessionId: string) {
+  async function register(sessionId: string, method: PaymentMethod = "ONLINE") {
     if (!user) {
       navigate(`/login?redirect=${encodeURIComponent(`/academie/formations/${id}`)}`);
       return;
@@ -64,7 +65,7 @@ export function FormationDetailPage() {
     setError(null);
     setRegistering(sessionId);
     try {
-      const registration = await registerForSession(sessionId);
+      const registration = await registerForSession(sessionId, method);
       setMine((current) => ({ ...current, [sessionId]: registration }));
       // Refresh seat counts (a free formation is confirmed — and takes its seat — right away).
       await loadDetail();
@@ -171,6 +172,13 @@ export function FormationDetailPage() {
                               </span>
                             </Link>
                           </>
+                        ) : reg?.status === "PENDING_ON_SITE" ? (
+                          <>
+                            <span className="fd-status is-ok">Place réservée · paiement sur place</span>
+                            <Link className="fd-btn" to="/app/academy/registrations">
+                              Mon billet
+                            </Link>
+                          </>
                         ) : reg?.status === "CONFIRMED" ? (
                           <span className="fd-status is-ok">
                             <span className="material-symbols-outlined" aria-hidden="true">
@@ -181,18 +189,38 @@ export function FormationDetailPage() {
                         ) : reg?.status === "WAITLISTED" ? (
                           <span className="fd-status">Liste d’attente #{reg.waitlistPosition}</span>
                         ) : (
-                          <button
-                            className="fd-btn"
-                            type="button"
-                            disabled={registering !== null}
-                            onClick={() => void register(session.id)}
-                          >
-                            {registering === session.id
-                              ? "…"
-                              : session.seatsLeft > 0
-                                ? "S’inscrire"
-                                : "Liste d’attente"}
-                          </button>
+                          <div className="fd-pay-choice">
+                            {paid && session.seatsLeft > 0 && formation.acceptsOnline ? (
+                              <button
+                                className="fd-btn"
+                                type="button"
+                                disabled={registering !== null}
+                                onClick={() => void register(session.id, "ONLINE")}
+                              >
+                                {registering === session.id ? "…" : "Réserver et payer en ligne"}
+                              </button>
+                            ) : null}
+                            {paid && session.seatsLeft > 0 && formation.acceptsOnSite ? (
+                              <button
+                                className="fd-btn"
+                                type="button"
+                                disabled={registering !== null}
+                                onClick={() => void register(session.id, "ON_SITE")}
+                              >
+                                {registering === session.id ? "…" : "Réserver et payer sur place"}
+                              </button>
+                            ) : null}
+                            {!paid || session.seatsLeft <= 0 ? (
+                              <button
+                                className="fd-btn"
+                                type="button"
+                                disabled={registering !== null}
+                                onClick={() => void register(session.id, "ONLINE")}
+                              >
+                                {registering === session.id ? "…" : session.seatsLeft > 0 ? "S’inscrire" : "Liste d’attente"}
+                              </button>
+                            ) : null}
+                          </div>
                         )}
                       </div>
                     </li>

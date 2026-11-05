@@ -1,0 +1,1207 @@
+/* ==================================================================
+   USERS PAGE — Premium Light.
+   Built on top of the dashboard block (`.bo-dash`): the page wrapper carries
+   both classes (`bo-dash bo-users`), so KPI cards, badges and dropdowns are
+   shared. Everything specific to this page starts with `.bo-users`.
+
+   Cascade: brand-theme.css resets radii inside `.fu-app .bo-shell` (0,2,0)
+   and loads after this file, so selectors use P = `.fu-app .bo-shell
+   .bo-dash.bo-users` (0,4,0) to win without `!important`.
+   The modals live in a portal outside `.bo-shell`: they are scoped with
+   `.fu-app.bo-overlay.um-overlay`.
+   ================================================================== */
+
+/* the KPI cards are information only on this page */
+.fu-app .bo-shell .bo-dash.bo-users .bo-dash-kpi:hover {
+  transform: none;
+  border-color: var(--bt-border);
+  box-shadow: var(--bt-shadow);
+}
+
+/* ---------- flash message ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid var(--bt-ok-border);
+  border-left: 4px solid var(--bt-ok-text);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: var(--bt-ok-strong);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-alert span {
+  flex: 1;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-alert button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--bt-muted);
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-alert button:hover {
+  background: var(--bt-chip-2);
+}
+
+/* ---------- card + toolbar ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-card {
+  padding: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  min-height: 84px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--bt-line-soft);
+  border-radius: 20px 20px 0 0;
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-toolbar.is-bulk {
+  background: var(--bt-orange-wash);
+  box-shadow: inset 4px 0 0 #fc5101;
+  justify-content: space-between;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bt-tabs);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bt-muted);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button:hover {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button span {
+  min-width: 24px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: var(--bt-tab-count);
+  color: var(--bt-muted);
+  font: 700 12px Outfit, Manrope, sans-serif;
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button.is-active {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button.is-active span {
+  background: #fc5101;
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-search {
+  position: relative;
+  flex: 1 1 190px;
+  min-width: 190px;
+  max-width: 340px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-search svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  color: var(--bt-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-search input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 42px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 400 14.5px Geist, Inter, sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-search input::placeholder {
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-search input:focus {
+  outline: 0;
+  border-color: #fc5101;
+  box-shadow: 0 0 0 4px var(--bt-orange-focus);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-dash-select-btn {
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more,
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-reset {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 500 14px Geist, Inter, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-reset {
+  width: 46px;
+  padding: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more:hover,
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-reset:hover,
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more.is-on {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more i {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fc5101;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--bt-line-soft);
+  background: var(--bt-panel);
+  animation: bo-dash-rise 0.2s ease both;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel > span {
+  color: var(--bt-muted);
+  font: 600 13px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 999px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 500 13.5px Geist, Inter, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel button:hover {
+  border-color: #fc5101;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel button.is-on {
+  border-color: #fc5101;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  font-weight: 600;
+}
+
+/* ---------- bulk actions ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-bulk-count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  color: var(--bt-text);
+  font: 600 15px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-bulk-count > span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: #fc5101;
+  color: #fff;
+  font-weight: 800;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-link {
+  border: 0;
+  background: transparent;
+  color: var(--bt-blue-text);
+  font: 600 13.5px Outfit, Manrope, sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn:hover:not(:disabled) {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn.is-danger {
+  border-color: rgba(217, 83, 79, 0.45);
+  color: var(--bt-rose-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn.is-danger:hover:not(:disabled) {
+  border-color: var(--bt-danger-solid);
+  background: var(--bt-danger-solid);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn.is-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---------- table ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table-wrap {
+  overflow-x: auto;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table th {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--bt-line-soft);
+  background: var(--bt-thead);
+  color: var(--bt-muted);
+  font: 600 13px Outfit, Manrope, sans-serif;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--bt-line-row);
+  color: var(--bt-text);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table th.is-check,
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table td.is-check {
+  width: 52px;
+  padding-left: 22px;
+  padding-right: 4px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table th.is-actions {
+  text-align: right;
+  padding-right: 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table td.is-actions {
+  padding-right: 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td {
+  transition: background 0.15s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr:hover td {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr.is-selected td,
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr.is-selected:hover td {
+  background: var(--bt-orange-wash);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #fc5101;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-person > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-person strong {
+  overflow: hidden;
+  color: var(--bt-text);
+  font: 700 14.5px Outfit, Manrope, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-person small {
+  overflow: hidden;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role.is-orange {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role.is-blue {
+  background: var(--bt-blue-soft-2);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role.is-violet {
+  background: var(--bt-violet-soft);
+  color: var(--bt-violet-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role.is-ink {
+  background: var(--bt-ink);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-role.is-neutral {
+  background: var(--bt-chip-2);
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-muted {
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-country {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-country > span {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bt-chip);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-country > div {
+  display: grid;
+  gap: 1px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-country strong {
+  font: 500 13.5px Geist, Inter, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-country small {
+  color: var(--bt-subtle);
+  font-size: 11.5px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-status.is-success {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-status.is-warn {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-status.is-danger {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table td.is-date {
+  color: var(--bt-muted);
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--bt-border);
+  border-radius: 10px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-icon:hover:not(:disabled) {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-icon.is-danger:hover:not(:disabled) {
+  border-color: var(--bt-rose);
+  background: var(--bt-rose-wash);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-protected {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--bt-ink);
+  color: #fff;
+  font: 600 12px Outfit, Manrope, sans-serif;
+}
+
+/* ---------- states ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-skel {
+  height: 52px;
+  border-radius: 12px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table tr.is-skeleton td {
+  padding: 8px 22px;
+  border-bottom: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 44px 16px;
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-empty > span {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-empty strong {
+  font: 800 18px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-empty p {
+  margin: 0 0 6px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+/* ---------- pagination ---------- */
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 18px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--bt-line-soft);
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pages button {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid var(--bt-border);
+  border-radius: 10px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pages button:hover:not(:disabled):not(.is-current) {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pages button.is-current {
+  border-color: #fc5101;
+  background: #fc5101;
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-pages button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-gap {
+  padding: 0 4px;
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-dash-select-list.is-up {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+/* ---------- focus ---------- */
+.fu-app .bo-shell .bo-dash.bo-users :is(.bo-users-tabs button, .bo-users-btn, .bo-users-icon, .bo-users-more, .bo-users-reset, .bo-users-pages button, .bo-users-link, .bo-users-more-panel button):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users .bo-users-table input[type="checkbox"]:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1024px) {
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-filters {
+    margin-left: 0;
+    flex: 1 1 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-search {
+    max-width: none;
+    flex: 1 1 260px;
+  }
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-toolbar {
+    padding: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs {
+    width: 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-tabs button {
+    flex: 1;
+    justify-content: center;
+    padding: 0 8px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-search {
+    flex: 1 1 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-filters > * {
+    flex: 1 1 140px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-filters .bo-dash-select-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  /* each user becomes a compact card */
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody {
+    display: block;
+    min-width: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table thead {
+    display: block;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table thead tr {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 14px;
+    background: var(--bt-thead);
+    border-bottom: 1px solid var(--bt-line-soft);
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table thead th {
+    display: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table thead th.is-check,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table thead th.is-user {
+    display: block;
+    width: auto;
+    padding: 10px 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "check user actions"
+      ". role status";
+    align-items: center;
+    gap: 8px 10px;
+    padding: 14px;
+    border-bottom: 1px solid var(--bt-line-row);
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td {
+    padding: 0;
+    border: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-check {
+    grid-area: check;
+    width: auto;
+    padding: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-user {
+    grid-area: user;
+    min-width: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-actions {
+    grid-area: actions;
+    padding: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-role {
+    grid-area: role;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-status {
+    grid-area: status;
+    justify-self: end;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-country,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td.is-date,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table th.is-country,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table th.is-date {
+    display: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tr.is-skeleton {
+    display: block;
+    padding: 8px 14px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tr.is-skeleton td {
+    display: block;
+    padding: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody tr:not(.is-skeleton) td[colspan] {
+    grid-column: 1 / -1;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-actions {
+    gap: 4px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-pager {
+    justify-content: center;
+    padding: 14px 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-pages {
+    margin-left: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-bulk-actions {
+    width: 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-bulk-actions .bo-users-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* ==================================================================
+   MODALS (portal) — activity timeline and delete confirmation
+   ================================================================== */
+@keyframes um-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fu-app.bo-overlay.um-overlay {
+  background: var(--bt-overlay);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.fu-app.bo-overlay.um-overlay .um-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(620px, 100%);
+  max-height: min(86vh, 760px);
+  border-radius: 20px;
+  background: var(--bt-surface);
+  box-shadow: 0 40px 90px -30px var(--bt-shadow-modal-color);
+  color: var(--bt-text);
+  font-family: Geist, Inter, "Segoe UI", sans-serif;
+  overflow: hidden;
+  animation: um-pop 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.fu-app.bo-overlay.um-overlay .um-modal.is-sm {
+  width: min(460px, 100%);
+}
+
+.fu-app.bo-overlay.um-overlay .um-modal:focus {
+  outline: none;
+}
+
+.fu-app.bo-overlay.um-overlay .um-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--bt-line-soft);
+}
+
+.fu-app.bo-overlay.um-overlay .um-head h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 23px/1.15 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.fu-app.bo-overlay.um-overlay .um-head p {
+  margin: 6px 0 0;
+  color: var(--bt-muted);
+  font-size: 14.5px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.fu-app.bo-overlay.um-overlay .um-close:hover:not(:disabled) {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-body {
+  flex: 1;
+  min-height: 0;
+  padding: 22px 28px;
+  overflow-y: auto;
+}
+
+.fu-app.bo-overlay.um-overlay .um-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 28px;
+  border-top: 1px solid var(--bt-line-soft);
+  background: var(--bt-hover);
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 600 14.5px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn:hover:not(:disabled) {
+  border-color: #fc5101;
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-primary {
+  border-color: #fc5101;
+  background: #fc5101;
+  color: #fff;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-primary:hover:not(:disabled) {
+  border-color: #0048fc;
+  background: #0048fc;
+  color: #fff;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-danger {
+  border-color: var(--bt-danger-solid);
+  background: var(--bt-danger-solid);
+  color: #fff;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn.is-danger:hover:not(:disabled) {
+  border-color: var(--bt-rose-text);
+  background: var(--bt-rose-text);
+  color: #fff;
+}
+
+.fu-app.bo-overlay.um-overlay .um-btn:disabled,
+.fu-app.bo-overlay.um-overlay .um-close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fu-app.bo-overlay.um-overlay :is(.um-btn, .um-close, .um-timeline):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+/* timeline */
+.fu-app.bo-overlay.um-overlay .um-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app.bo-overlay.um-overlay .um-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 16px;
+  padding-bottom: 20px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .um-timeline li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 46px;
+  bottom: 4px;
+  left: 20px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--bt-line-soft);
+}
+
+.fu-app.bo-overlay.um-overlay .um-dot {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bt-chip-2);
+  color: var(--bt-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-dot.is-ok {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-dot.is-rose {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose);
+}
+
+.fu-app.bo-overlay.um-overlay .um-dot.is-blue {
+  background: var(--bt-blue-soft-2);
+  color: var(--bt-blue-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-dot.is-orange {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-event {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-event strong {
+  color: var(--bt-text);
+  font: 700 15.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .um-event time {
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-event small {
+  color: var(--bt-subtle);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+/* states inside modals */
+.fu-app.bo-overlay.um-overlay .um-skeletons {
+  display: grid;
+  gap: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-skeleton {
+  height: 56px;
+  border-radius: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-error {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid var(--bt-rose);
+  border-radius: 12px;
+  background: var(--bt-error-bg);
+  color: var(--bt-error-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app.bo-overlay.um-overlay .um-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px 8px;
+  color: var(--bt-muted);
+  text-align: center;
+}
+
+.fu-app.bo-overlay.um-overlay .um-empty svg {
+  box-sizing: content-box;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+.fu-app.bo-overlay.um-overlay .um-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .um-warning {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.fu-app.bo-overlay.um-overlay .um-warning > span {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose);
+}
+
+.fu-app.bo-overlay.um-overlay .um-warning p {
+  margin: 0;
+  color: var(--bt-muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.fu-app.bo-overlay.um-overlay .um-warning strong {
+  color: var(--bt-text);
+}
+
+@media (max-width: 560px) {
+  .fu-app.bo-overlay.um-overlay {
+    align-items: flex-end;
+    padding: 12px;
+  }
+  .fu-app.bo-overlay.um-overlay .um-modal {
+    max-height: 92vh;
+    border-radius: 20px;
+  }
+  .fu-app.bo-overlay.um-overlay .um-head,
+  .fu-app.bo-overlay.um-overlay .um-body,
+  .fu-app.bo-overlay.um-overlay .um-foot {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .fu-app.bo-overlay.um-overlay .um-foot .um-btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app.bo-overlay.um-overlay .um-modal,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-more-panel {
+    animation: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-table tbody td,
+  .fu-app .bo-shell .bo-dash.bo-users .bo-users-toolbar {
+    transition: none;
+  }
+}
+
+/* dark theme: small solid-orange badges carry dark text (white on #fc5101 is only 3.3:1) */
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash .bo-dash-count.is-hot,
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users .bo-users-tabs button.is-active span,
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users .bo-users-bulk-count > span,
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users .bo-users-pages button.is-current,
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users .bo-users-more i {
+  color: #0d111b;
+}

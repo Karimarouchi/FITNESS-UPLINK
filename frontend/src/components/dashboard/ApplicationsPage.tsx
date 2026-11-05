@@ -1,4 +1,21 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type ComponentType } from "react";
+import { Link } from "react-router-dom";
+import {
+  Archive,
+  ArrowRight,
+  BadgeCheck,
+  Ban,
+  BriefcaseBusiness,
+  CalendarDays,
+  CircleX,
+  Eye,
+  FileSignature,
+  FileText,
+  Handshake,
+  Send,
+  Video,
+} from "lucide-react";
+import { BoDrawer } from "@/components/ui/BoOverlay";
 import { HireThread, canMessage } from "@/features/recruitment/HireThread";
 import { NegotiationPanel } from "@/features/recruitment/NegotiationPanel";
 import {
@@ -10,6 +27,11 @@ import {
   type PipelineStatus,
   type Recruitment,
 } from "@/features/recruitment/api";
+import "@/shared/styles/backoffice-users.css";
+import "@/shared/styles/backoffice-modules.css";
+import "@/shared/styles/backoffice-hire.css";
+
+type IconType = ComponentType<{ size?: number }>;
 
 const STEPS = ["Envoyée", "En étude", "Entretien", "Contrat", "Recruté"];
 
@@ -33,25 +55,25 @@ function progressOf(status: PipelineStatus): number | null {
   }
 }
 
-function headline(status: PipelineStatus) {
+function headline(status: PipelineStatus): { icon: IconType; text: string; tone: string } {
   switch (status) {
     case "APPLIED":
-      return { icon: "send", text: "Candidature envoyée", tone: "" };
+      return { icon: Send, text: "Candidature envoyée", tone: "is-info" };
     case "NEW":
     case "CONTACTED":
-      return { icon: "visibility", text: "Dossier à l’étude", tone: "" };
+      return { icon: Eye, text: "Dossier à l’étude", tone: "is-info" };
     case "INTERVIEW_SCHEDULED":
-      return { icon: "event", text: "Entretien prévu", tone: "is-hot" };
+      return { icon: CalendarDays, text: "Entretien prévu", tone: "is-warn" };
     case "NEGOTIATION":
-      return { icon: "handshake", text: "En discussion", tone: "is-hot" };
+      return { icon: Handshake, text: "En discussion", tone: "is-warn" };
     case "CONTRACT_SENT":
-      return { icon: "draft", text: "Contrat à signer", tone: "is-hot" };
+      return { icon: FileSignature, text: "Contrat à signer", tone: "is-warn" };
     case "HIRED":
-      return { icon: "verified", text: "Recruté", tone: "is-win" };
+      return { icon: BadgeCheck, text: "Recruté", tone: "is-success" };
     case "REJECTED":
-      return { icon: "cancel", text: "Refusée", tone: "is-closed" };
+      return { icon: CircleX, text: "Refusée", tone: "is-danger" };
     default:
-      return { icon: "inventory_2", text: "Archivée", tone: "is-closed" };
+      return { icon: Archive, text: "Archivée", tone: "is-neutral" };
   }
 }
 
@@ -69,14 +91,25 @@ function Tracker({ status }: { status: PipelineStatus }) {
     return null;
   }
   return (
-    <ol className="appx-track" aria-label="Avancement de la candidature">
+    <ol className="hr-track" aria-label="Avancement de la candidature">
       {STEPS.map((step, index) => (
         <li key={step} className={index < reached ? "is-done" : index === reached ? "is-current" : ""}>
-          <span className="appx-pip" />
+          <i />
           <small>{step}</small>
         </li>
       ))}
     </ol>
+  );
+}
+
+function Status({ status }: { status: PipelineStatus }) {
+  const info = headline(status);
+  const Icon = info.icon;
+  return (
+    <span className={`bo-users-status hr-status ${info.tone}`}>
+      <Icon size={14} />
+      {info.text}
+    </span>
   );
 }
 
@@ -94,82 +127,70 @@ export function ApplicationsPage() {
   }, []);
 
   return (
-    <section className="hire-page">
-      <div className="page-head">
+    <section className="bo-dash bo-users bo-bm bo-hr">
+      <header className="bo-dash-head">
         <div>
-          <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>
           <h1>Mes candidatures</h1>
-          <p className="sub">Suivi de vos postulats et des recrutements ouverts à votre nom.</p>
+          <p>Suivi de vos postulats et des recrutements ouverts à votre nom.</p>
         </div>
-      </div>
-      {error ? <p className="auth-error">{error}</p> : null}
+        <Link to="/app/opportunities" className="bm-btn is-outline">
+          Voir les opportunités
+        </Link>
+      </header>
+
+      {error ? (
+        <p className="bo-dash-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
       {loading ? (
-        <div className="appx-grid" aria-busy="true">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="appx-card is-skeleton" style={{ "--i": index } as CSSProperties}>
-              <span className="appx-sk appx-sk-mark" />
-              <span className="appx-sk appx-sk-line" />
-              <span className="appx-sk appx-sk-line is-short" />
-            </div>
+        <div className="hr-grid hr-grid--bare" aria-busy="true">
+          {[0, 1, 2].map((key) => (
+            <div key={key} className="bo-skeleton hr-skel" />
           ))}
         </div>
       ) : rows.length === 0 && !error ? (
-        <div className="appx-empty">
-          <span className="material-symbols-outlined" aria-hidden="true">
-            work_history
-          </span>
-          <strong>Aucune candidature</strong>
-          <p>Postulez à une offre pour suivre ici l’avancement de votre dossier.</p>
-          <a className="appx-cta" href="/app/opportunities">
-            Voir les opportunités
-            <span className="material-symbols-outlined" aria-hidden="true">
-              arrow_forward
+        <div className="bo-dash-card">
+          <div className="bo-users-empty">
+            <span>
+              <BriefcaseBusiness size={22} aria-hidden="true" />
             </span>
-          </a>
+            <strong>Aucune candidature</strong>
+            <p>Postulez à une offre pour suivre ici l’avancement de votre dossier.</p>
+            <Link className="bm-btn" to="/app/opportunities">
+              Voir les opportunités
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
         </div>
       ) : (
-        <div className="appx-grid">
-          {rows.map((row, index) => {
+        <div className="hr-grid hr-grid--bare">
+          {rows.map((row) => {
             const info = headline(row.status);
             const employer = row.employer?.displayName ?? "Employeur";
             return (
-              <button
-                key={row.id}
-                type="button"
-                className={`appx-card ${info.tone}`}
-                style={{ "--i": index } as CSSProperties}
-                onClick={() => setSelected(row)}
-              >
-                <div className="appx-top">
-                  <span className="appx-mark" aria-hidden="true">
+              <button key={row.id} type="button" className={`hr-card hr-app ${info.tone}`} onClick={() => setSelected(row)}>
+                <div className="hr-card-top">
+                  <span className="hr-mark" aria-hidden="true">
                     {initials(employer)}
                   </span>
-                  <span className={`appx-badge ${info.tone}`}>
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      {info.icon}
-                    </span>
-                    {info.text}
-                  </span>
+                  <Status status={row.status} />
                 </div>
-                <h3 className="appx-title">{opportunityLabel(row)}</h3>
-                <p className="appx-employer">{employer}</p>
+                <h3 className="hr-title">{opportunityLabel(row)}</h3>
+                <p className="hr-employer">{employer}</p>
                 {row.status === "INTERVIEW_SCHEDULED" && row.interviewAt ? (
-                  <p className="appx-interview">
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      event
-                    </span>
+                  <p className="hr-interview">
+                    <CalendarDays size={15} aria-hidden="true" />
                     Entretien le {formatPipelineDate(row.interviewAt)}
                   </p>
                 ) : null}
                 <Tracker status={row.status} />
-                <div className="appx-foot">
-                  <span>Mis à jour le {formatPipelineDate(row.statusUpdatedAt || row.createdAt)}</span>
-                  <span className="appx-go">
+                <div className="hr-foot">
+                  <span className="hr-updated">Mis à jour le {formatPipelineDate(row.statusUpdatedAt || row.createdAt)}</span>
+                  <span className="hr-go">
                     Détails
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      arrow_forward
-                    </span>
+                    <ArrowRight size={15} aria-hidden="true" />
                   </span>
                 </div>
               </button>
@@ -179,26 +200,24 @@ export function ApplicationsPage() {
       )}
 
       {selected ? (
-        <div className="fu-backdrop" role="presentation" onClick={() => setSelected(null)}>
-          <aside className="fu-drawer appx-drawer" role="dialog" aria-modal="true" onClick={(event) => event.stopPropagation()}>
-            <button className="appx-close" type="button" onClick={() => setSelected(null)}>
-              <span className="material-symbols-outlined" aria-hidden="true">
-                close
-              </span>
-              Fermer
-            </button>
-            <p className="appx-kicker">{selected.employer?.displayName ?? "Employeur"}</p>
-            <h2 className="appx-drawer-title">{opportunityLabel(selected)}</h2>
-            <span className={`appx-badge ${headline(selected.status).tone}`}>
-              <span className="material-symbols-outlined" aria-hidden="true">
-                {headline(selected.status).icon}
-              </span>
-              {headline(selected.status).text}
-            </span>
+        <BoDrawer
+          premium
+          className="hr-drawer"
+          title={opportunityLabel(selected)}
+          onClose={() => setSelected(null)}
+          headerContent={
+            <div className="hr-drawer-head">
+              <p>{selected.employer?.displayName ?? "Employeur"}</p>
+              <h2>{opportunityLabel(selected)}</h2>
+              <Status status={selected.status} />
+            </div>
+          }
+        >
+          <div className="hr-drawer-body">
             <Tracker status={selected.status} />
 
             {selected.status === "INTERVIEW_SCHEDULED" && selected.interviewAt ? (
-              <div className="appx-block appx-meet">
+              <div className="hr-block hr-meet">
                 <h3>Votre entretien</h3>
                 <p>
                   <b>
@@ -210,8 +229,8 @@ export function ApplicationsPage() {
                 {selected.interviewMode === "ONSITE" ? (
                   <p>{selected.interviewPlace}</p>
                 ) : selected.interviewPlace ? (
-                  <a className="appx-join" href={selected.interviewPlace} target="_blank" rel="noreferrer noopener">
-                    <span className="material-symbols-outlined" aria-hidden="true">videocam</span>
+                  <a className="um-btn is-primary" href={selected.interviewPlace} target="_blank" rel="noreferrer noopener">
+                    <Video size={16} aria-hidden="true" />
                     Rejoindre la réunion
                   </a>
                 ) : null}
@@ -219,14 +238,14 @@ export function ApplicationsPage() {
             ) : null}
 
             {selected.coverLetterText ? (
-              <div className="appx-block">
+              <div className="hr-block">
                 <h3>Votre lettre</h3>
                 <p>{selected.coverLetterText}</p>
               </div>
             ) : null}
             {selected.coverLetterFile ? (
               <button
-                className="appx-btn"
+                className="um-btn"
                 type="button"
                 onClick={() => {
                   void fetchCoverLetterBlob(selected.id).then((blob) => {
@@ -235,9 +254,7 @@ export function ApplicationsPage() {
                   });
                 }}
               >
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  picture_as_pdf
-                </span>
+                <FileText size={16} aria-hidden="true" />
                 Voir le PDF joint
               </button>
             ) : null}
@@ -247,7 +264,7 @@ export function ApplicationsPage() {
             {canMessage(selected.status) ? <HireThread recruitmentId={selected.id} /> : null}
             {selected.status !== "REJECTED" && selected.status !== "ARCHIVED" ? (
               <button
-                className="appx-btn is-danger"
+                className="um-btn is-danger"
                 type="button"
                 onClick={() => {
                   void blockRecruitment(selected.id).then(() => {
@@ -256,14 +273,12 @@ export function ApplicationsPage() {
                   });
                 }}
               >
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  block
-                </span>
+                <Ban size={16} aria-hidden="true" />
                 Bloquer
               </button>
             ) : null}
-          </aside>
-        </div>
+          </div>
+        </BoDrawer>
       ) : null}
     </section>
   );

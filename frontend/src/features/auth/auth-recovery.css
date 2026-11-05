@@ -1,0 +1,426 @@
+/* ==================================================================
+   FORGOT PASSWORD + E-MAIL VERIFICATION - premium look + dark mode.
+   Wrapper `.auth-shell` (data-bo-theme set by the pages). The photo / sky
+   panel keeps its image; the form side follows the shared Light / Dark
+   palette (same tokens as login and the back-office).
+   ================================================================== */
+.auth-shell {
+  --ar-bg: #f3eee6;
+  --ar-surface: #ffffff;
+  --ar-field: #f8f4ee;
+  --ar-border: #e4ddd2;
+  --ar-text: #0b1a33;
+  --ar-muted: #5c6578;
+  --ar-link: #0b1a33;
+  --ar-orange: #fc5101;
+  --ar-error: #b3342f;
+  --ar-error-bg: #fdf1ef;
+  --bt-toggle-bg: #ffffff;
+  --bt-toggle-border: #e4ddd2;
+  --bt-toggle-knob: #e5e7eb;
+  --bt-toggle-ink: #0b1a33;
+  --bt-toggle-ghost: #9ca3af;
+  --bt-orange: #fc5101;
+}
+
+.auth-shell[data-bo-theme="dark"] {
+  color-scheme: dark;
+  /* the brand theme paints these surfaces from these variables */
+  --uf-cream: #0d111b;
+  --uf-cream-2: #1f2838;
+  --uf-ink: #f8fafc;
+  --uf-muted: #9ca9ba;
+  --uf-line: #343c4a;
+  --ar-bg: #0d111b;
+  --ar-surface: #1b2332;
+  --ar-field: #1b2332;
+  --ar-border: #343c4a;
+  --ar-text: #f8fafc;
+  --ar-muted: #9ca9ba;
+  --ar-link: #7ba3ff;
+  --ar-error: #ff8a85;
+  --ar-error-bg: rgba(255, 107, 102, 0.12);
+  --bt-toggle-bg: #151c2a;
+  --bt-toggle-border: #343c4a;
+  --bt-toggle-knob: #2c3a57;
+  --bt-toggle-ink: #ffffff;
+  --bt-toggle-ghost: #6b7688;
+}
+
+.auth-shell .auth-panel {
+  position: relative;
+  background: var(--ar-bg) !important;
+  color: var(--ar-text);
+}
+
+.auth-shell .ar-theme-slot {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 5;
+}
+
+/* hero: the title was navy on the navy photo; the logo was blue on the blue sky */
+.auth-shell .fgx-hero-copy h2,
+.auth-shell .fgx-hero-copy h2 {
+  color: #ffffff !important;
+}
+
+.auth-shell .fgx-hero-copy h2 span {
+  color: #fc5101 !important;
+}
+
+.auth-shell .vf-hero .ob-brand {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: #f3eee6;
+}
+
+/* titles, texts, labels */
+.auth-shell .auth-form :is(h1, h2, .vf-title, .font-headline-md),
+.auth-shell .fgx-head h1,
+.auth-shell .fgx-head h2 {
+  color: var(--ar-text) !important;
+  font-family: Outfit, Manrope, Inter, sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  text-transform: none !important;
+}
+
+.auth-shell .auth-form :is(p, .text-on-surface-variant, .fgx-head p, small, li) {
+  color: var(--ar-muted) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.auth-shell .auth-form strong {
+  color: var(--ar-text);
+}
+
+.auth-shell .vf-kicker {
+  color: var(--ar-text) !important;
+}
+
+.auth-shell .auth-label,
+.auth-shell .auth-form label {
+  color: var(--ar-text) !important;
+  font: 600 13px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* fields */
+.auth-shell .auth-input,
+.auth-shell .auth-form input:not([type="checkbox"]):not(.otp-hidden) {
+  min-height: 50px;
+  border: 1px solid var(--ar-border) !important;
+  border-radius: 14px !important;
+  background: var(--ar-field) !important;
+  box-shadow: none !important;
+  color: var(--ar-text) !important;
+  font: 400 15.5px Geist, Inter, sans-serif !important;
+}
+
+.auth-shell .auth-input:focus,
+.auth-shell .auth-form input:focus {
+  outline: 0;
+  border-color: var(--ar-orange) !important;
+  box-shadow: 0 0 0 4px rgba(252, 81, 1, 0.14) !important;
+}
+
+.auth-shell .auth-input::placeholder,
+.auth-shell .auth-form input::placeholder {
+  color: var(--ar-muted) !important;
+  opacity: 0.8;
+}
+
+.auth-shell .auth-form .material-symbols-outlined {
+  text-transform: none;
+}
+
+/* primary button: orange, rounded, no uppercase */
+.auth-shell .auth-btn,
+.auth-shell .auth-form button[type="submit"] {
+  min-height: 52px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--ar-orange) !important;
+  box-shadow: 0 8px 18px -10px rgba(252, 81, 1, 0.55) !important;
+  color: #ffffff !important;
+  font: 700 15.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+
+.auth-shell[data-bo-theme="dark"] .auth-btn,
+.auth-shell[data-bo-theme="dark"] .auth-form button[type="submit"] {
+  color: #0d111b !important;
+}
+
+.auth-shell .auth-btn:hover:not(:disabled),
+.auth-shell .auth-form button[type="submit"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ar-orange) 90%, #000) !important;
+}
+
+.auth-shell .auth-btn:disabled,
+.auth-shell .auth-form button[type="submit"]:disabled {
+  background: var(--ar-orange) !important;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.auth-shell .auth-btn:focus-visible,
+.auth-shell .auth-form button:focus-visible,
+.auth-shell .auth-form a:focus-visible {
+  outline: 3px solid rgba(0, 72, 252, 0.4);
+  outline-offset: 3px;
+}
+
+/* links + secondary actions */
+.auth-shell .auth-form a,
+.auth-shell .auth-form button:not([type="submit"]):not(.auth-eye):not(.otp-cell) {
+  color: var(--ar-link) !important;
+  font-family: Outfit, Manrope, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.auth-shell .auth-form hr,
+.auth-shell .auth-form [class*="border-t"] {
+  border-color: var(--ar-border) !important;
+}
+
+.auth-shell .auth-error,
+.auth-shell .fgx-alert {
+  padding: 12px 16px;
+  border-left: 4px solid var(--ar-error);
+  border-radius: 12px;
+  background: var(--ar-error-bg) !important;
+  color: var(--ar-error) !important;
+  font-size: 14px;
+}
+
+.auth-shell .fgx-ok {
+  color: #1c7a4d;
+}
+
+.auth-shell[data-bo-theme="dark"] .fgx-ok {
+  color: #6fe0a8;
+}
+
+/* one-time code cells */
+.auth-shell.vf .otp-cell {
+  border: 1px solid var(--ar-border) !important;
+  background: var(--ar-field) !important;
+  color: var(--ar-text) !important;
+}
+
+.auth-shell.vf .otp-cell:focus,
+.auth-shell.vf .otp-cell.is-active {
+  border-color: var(--ar-orange) !important;
+  box-shadow: 0 0 0 4px rgba(252, 81, 1, 0.14) !important;
+}
+
+.auth-shell.vf .otp-cell.is-filled {
+  background: var(--ar-surface) !important;
+}
+
+.auth-shell .otp-digit {
+  color: var(--ar-text) !important;
+}
+
+/* forgot-password steps: rounded, brand colours */
+.auth-shell .fgx-steps {
+  gap: 0;
+}
+
+.auth-shell .fgx-dot {
+  border: 1px solid var(--ar-border) !important;
+  border-radius: 14px !important;
+  background: var(--ar-surface) !important;
+  color: var(--ar-muted) !important;
+}
+
+.auth-shell .fgx-steps li.is-current .fgx-dot {
+  border-color: var(--ar-orange) !important;
+  background: var(--ar-orange) !important;
+  box-shadow: 0 0 0 4px rgba(252, 81, 1, 0.16) !important;
+  color: #ffffff !important;
+}
+
+.auth-shell .fgx-steps li.is-done .fgx-dot {
+  border-color: #1c7a4d !important;
+  background: rgba(28, 122, 77, 0.14) !important;
+  color: #1c7a4d !important;
+}
+
+.auth-shell .fgx-steps small {
+  color: var(--ar-muted) !important;
+  font: 600 12.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.auth-shell .fgx-steps li.is-current small,
+.auth-shell .fgx-steps li.is-done small {
+  color: var(--ar-text) !important;
+}
+
+.auth-shell .fgx-badge {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0 !important;
+  border-radius: 16px !important;
+  background: rgba(252, 81, 1, 0.12) !important;
+  color: #fc5101 !important;
+}
+
+.auth-shell .fgx-badge .material-symbols-outlined {
+  color: #fc5101 !important;
+}
+
+/* password strength + rules keep working, only the surface colours follow the theme */
+.auth-shell [data-level] span {
+  border-radius: 999px !important;
+}
+
+.auth-shell .bo-theme-toggle {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid var(--bt-toggle-border);
+  border-radius: 999px;
+  background: var(--bt-toggle-bg);
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.auth-shell .bo-theme-toggle:hover {
+  border-color: var(--bt-orange);
+}
+
+.auth-shell .bo-theme-toggle:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.5);
+  outline-offset: 2px;
+}
+
+.auth-shell .bo-theme-toggle-ghost {
+  position: absolute;
+  top: 50%;
+  color: var(--bt-toggle-ghost);
+  transform: translateY(-50%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.auth-shell .bo-theme-toggle-ghost.is-sun {
+  left: 7px;
+}
+
+.auth-shell .bo-theme-toggle-ghost.is-moon {
+  right: 7px;
+}
+
+/* the active side is carried by the knob */
+.auth-shell .bo-theme-toggle:not(.is-dark) .bo-theme-toggle-ghost.is-sun,
+.auth-shell .bo-theme-toggle.is-dark .bo-theme-toggle-ghost.is-moon {
+  opacity: 0;
+}
+
+.auth-shell .bo-theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bt-toggle-knob);
+  color: var(--bt-toggle-ink);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, color 0.3s ease;
+}
+
+.auth-shell .bo-theme-toggle.is-dark .bo-theme-toggle-knob {
+  transform: translateX(32px);
+}
+
+@media (max-width: 1024px) {
+  .auth-shell .bo-top-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-shell .bo-topbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .auth-shell .bo-top-actions {
+    gap: 6px;
+  }
+  .auth-shell .bo-icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell .bo-theme-toggle,
+  .auth-shell .bo-theme-toggle-knob,
+  .auth-shell .bo-theme-toggle-ghost,
+  .auth-shell .bo-main.is-themed {
+    transition: none;
+  }
+}
+
+
+@media (max-width: 1023px) {
+  .auth-shell .ar-theme-slot {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell .auth-btn {
+    transition: none;
+  }
+}
+
+.auth-shell[data-bo-theme="dark"] .auth-panel,
+.auth-shell.vf[data-bo-theme="dark"] .auth-panel {
+  background: #0d111b !important;
+}
+
+.auth-shell[data-bo-theme="dark"] .auth-form strong,
+.auth-shell[data-bo-theme="dark"] .vf-kicker {
+  color: #f8fafc !important;
+}
+
+.auth-shell[data-bo-theme="dark"] .auth-form :is(.vf-title, h1, h2) {
+  color: #f8fafc !important;
+}
+
+.auth-shell[data-bo-theme="dark"] .auth-label,
+.auth-shell[data-bo-theme="dark"] .auth-form label {
+  color: #f8fafc !important;
+}
+
+.auth-shell.vf[data-bo-theme="dark"] .otp-cell {
+  background: #1b2332 !important;
+  border-color: #343c4a !important;
+}
+
+.auth-shell .auth-form li > .material-symbols-outlined,
+.auth-shell .auth-form p > .material-symbols-outlined,
+.auth-shell .fgx-alert .material-symbols-outlined {
+  color: var(--ar-muted) !important;
+}

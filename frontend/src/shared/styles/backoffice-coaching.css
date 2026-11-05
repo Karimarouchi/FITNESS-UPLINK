@@ -1,0 +1,1245 @@
+/* ==================================================================
+   COACHING PAGES (agenda, services, packs) - Premium Light / Dark skin.
+   These pages keep their legacy markup; the wrapper `.cg-skin` restyles
+   it with the shared `--bt-*` tokens (backoffice-tokens.css), so it follows
+   the Light/Dark theme. The legacy theme layers load last with strong
+   rules, hence the `!important` on the properties they set; everything is
+   scoped to `.cg-skin`, nothing leaks to other pages.
+   P = `.fu-app .bo-shell .cg-skin`
+   ================================================================== */
+
+.fu-app .bo-shell .cg-skin {
+  display: grid;
+  gap: 22px;
+  color: var(--bt-text);
+  font-family: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+.fu-app .bo-shell .cg-skin > * {
+  min-width: 0;
+}
+
+.fu-app .bo-shell .cg-skin :is(h1, h2, h3, strong, b, small, span, label, button, a, p, li, th, td, legend) {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* ---------- header ---------- */
+.fu-app .bo-shell .cg-skin .page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin: 0;
+}
+
+.fu-app .bo-shell .cg-skin .page-head p,
+.fu-app .bo-shell .cg-skin .page-head .sub {
+  max-width: 62ch;
+  margin: 10px 0 0;
+  color: var(--bt-muted);
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell .cg-skin .head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---------- buttons ---------- */
+.fu-app .bo-shell .cg-skin :is(.btn-mini, .btn-outline, .btn-solid, .btn-ghost, .btn-danger, .pcx-btn, .agx-nav-today) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-mini, .btn-outline, .btn-solid, .btn-ghost, .pcx-btn, .agx-nav-today):hover:not(:disabled) {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid) {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid):hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid) {
+  color: #0d111b !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid):hover:not(:disabled) {
+  color: #fff !important;
+}
+
+.fu-app .bo-shell .cg-skin .btn-mini.dark {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-danger, .pcx-btn.is-ghost-danger) {
+  border-color: rgba(217, 83, 79, 0.45) !important;
+  color: var(--bt-rose-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-danger, .pcx-btn.is-ghost-danger):hover:not(:disabled) {
+  border-color: var(--bt-danger-solid) !important;
+  background: var(--bt-danger-solid) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-mini, .btn-outline, .btn-solid, .btn-danger, .pcx-btn, .agx-nav-btn):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fu-app .bo-shell .cg-skin :is(.btn-mini, .btn-outline, .btn-solid, .btn-danger, .pcx-btn, .agx-nav-btn):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .cg-skin .btn-outline .material-symbols-outlined,
+.fu-app .bo-shell .cg-skin .pcx-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* ---------- KPI cards (agenda `kcard`, services/packs `pcx-stat`) ---------- */
+.fu-app .bo-shell .cg-skin .cards-row,
+.fu-app .bo-shell .cg-skin .pcx-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin: 0;
+}
+
+.fu-app .bo-shell .cg-skin .kcard {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 130px;
+  padding: 22px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard.is-alert {
+  border-color: rgba(252, 81, 1, 0.45) !important;
+  background: var(--bt-orange-wash) !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard .lbl {
+  color: var(--bt-muted);
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard .val {
+  color: var(--bt-text);
+  font: 800 44px/1 Outfit, Manrope, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "icon value"
+    "icon label";
+  align-items: center;
+  column-gap: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-stat > .material-symbols-outlined {
+  display: grid;
+  grid-area: icon;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font-size: 26px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-stat b {
+  grid-area: value;
+  color: var(--bt-text);
+  font: 800 34px/1.1 Outfit, Manrope, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-stat small {
+  grid-area: label;
+  color: var(--bt-muted);
+  font: 500 14px Geist, Inter, sans-serif !important;
+}
+
+/* ---------- panels ---------- */
+.fu-app .bo-shell .cg-skin .panel {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-app .bo-shell .cg-skin .panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  padding: 18px 24px !important;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+  background: transparent !important;
+}
+
+.fu-app .bo-shell .cg-skin .panel-head h2 {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font: 800 19px/1.2 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.fu-app .bo-shell .cg-skin .panel-body {
+  padding: 22px 24px !important;
+}
+
+.fu-app .bo-shell .cg-skin .empty-hint {
+  margin: 0;
+  padding: 18px 24px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .cg-skin .panel > .empty-hint {
+  padding: 18px 24px;
+}
+
+/* ---------- fields ---------- */
+.fu-app .bo-shell .cg-skin :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+  color: var(--bt-text) !important;
+  font: 400 14.5px Geist, Inter, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(input, select, textarea):focus {
+  outline: 0;
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 4px var(--bt-orange-focus) !important;
+}
+
+.fu-app .bo-shell .cg-skin .field label,
+.fu-app .bo-shell .cg-skin label {
+  color: var(--bt-text);
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .field-hint {
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+/* ---------- switches (agenda days, services, packs) ---------- */
+.fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch) {
+  position: relative;
+  flex: none;
+  width: 44px !important;
+  height: 26px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--bt-track) !important;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch) > span {
+  position: absolute !important;
+  top: 3px !important;
+  left: 3px !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  background: var(--bt-surface) !important;
+  box-shadow: 0 1px 3px rgba(11, 26, 51, 0.3) !important;
+  transform: none !important;
+  transition: transform 0.2s ease;
+}
+
+.fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch)[aria-checked="true"] {
+  background: var(--bt-orange) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch)[aria-checked="true"] > span {
+  transform: translateX(18px) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+/* ---------- agenda: fold + weekly hours ---------- */
+.fu-app .bo-shell .cg-skin .agx-fold-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 18px 24px;
+  border: 0;
+  background: transparent;
+  color: var(--bt-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-head > :first-child {
+  flex: 1;
+  color: var(--bt-text);
+  font: 800 19px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-state {
+  color: var(--bt-muted);
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-dot {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-badge);
+  font: 600 12px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--bt-border);
+  border-radius: 10px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font-size: 20px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-head:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: -3px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-fold-inner,
+.fu-app .bo-shell .cg-skin .agx-week {
+  padding: 4px 24px 22px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-week-hint {
+  margin: 0 0 14px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-week-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--bt-line-soft) !important;
+  border-radius: 14px !important;
+  background: var(--bt-panel) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day.is-open {
+  border-color: var(--bt-border) !important;
+  background: var(--bt-surface) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day-name {
+  min-width: 110px;
+  color: var(--bt-text);
+  font: 700 15px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day-off {
+  color: var(--bt-muted);
+  font: 500 14px Geist, Inter, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-week-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ---------- agenda: calendar ---------- */
+.fu-app .bo-shell .cg-skin .agx-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .cg-skin .agx-nav-btn:hover:not(:disabled) {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-nav-label {
+  min-width: 128px;
+  color: var(--bt-text);
+  font: 700 14px Outfit, Manrope, sans-serif !important;
+  text-align: center;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid {
+  display: grid;
+  grid-template-columns: 64px repeat(7, minmax(0, 1fr));
+  border-top: 1px solid var(--bt-line-soft);
+  background: var(--bt-surface);
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .hd {
+  padding: 10px 6px;
+  border-right: 1px solid var(--bt-line-soft);
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+  background: var(--bt-thead) !important;
+  color: var(--bt-muted);
+  font: 700 12.5px Outfit, Manrope, sans-serif !important;
+  text-align: center;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .hd.is-today {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .hd.has-booking {
+  border-bottom: 3px solid var(--bt-orange) !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .hd-date {
+  color: var(--bt-subtle);
+  font: 500 11px Geist, Inter, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .time {
+  padding: 8px 6px;
+  border-right: 1px solid var(--bt-line-soft);
+  border-bottom: 1px solid var(--bt-line-row);
+  background: var(--bt-thead) !important;
+  color: var(--bt-muted);
+  font: 600 12px Outfit, Manrope, sans-serif !important;
+  text-align: center;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .slot {
+  min-height: 36px;
+  border-right: 1px solid var(--bt-line-row);
+  border-bottom: 1px solid var(--bt-line-row);
+  background: transparent;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .slot.is-free {
+  background: var(--bt-orange-wash) !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .slot.is-booked {
+  border-left: 3px solid var(--bt-blue) !important;
+  background: var(--bt-blue-soft) !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .slot.is-pending {
+  border-left: 3px solid var(--bt-orange) !important;
+  background: var(--bt-orange-soft) !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .slot.is-blocked {
+  background: repeating-linear-gradient(45deg, var(--bt-chip), var(--bt-chip) 6px, var(--bt-track) 6px, var(--bt-track) 12px) !important;
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .agx-slot-editable:hover {
+  box-shadow: inset 0 0 0 2px var(--bt-orange);
+}
+
+.fu-app .bo-shell .cg-skin .week-grid .agx-range {
+  color: var(--bt-orange-badge);
+  font: 600 10.5px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .slot-name {
+  overflow: hidden;
+  color: var(--bt-text);
+  font: 700 11px Outfit, Manrope, sans-serif !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .cg-skin .slot-sub {
+  color: var(--bt-muted);
+  font: 400 10px Geist, Inter, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-flag {
+  display: block;
+  color: var(--bt-rose-text);
+  font: 600 10px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--bt-line-soft);
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+.fu-app .bo-shell .cg-skin .legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--bt-border);
+  border-radius: 5px;
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw.is-free {
+  background: var(--bt-orange-soft);
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw.is-booked {
+  border-left: 3px solid var(--bt-blue);
+  background: var(--bt-blue-soft);
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw.is-pending {
+  border-left: 3px solid var(--bt-orange);
+  background: var(--bt-orange-soft);
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw.is-blocked {
+  background: repeating-linear-gradient(45deg, var(--bt-chip), var(--bt-chip) 4px, var(--bt-track) 4px, var(--bt-track) 8px);
+}
+
+.fu-app .bo-shell .cg-skin .legend .sw.is-off {
+  background: var(--bt-surface);
+}
+
+/* ---------- services + packs: cards ---------- */
+.fu-app .bo-shell .cg-skin .pcx-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-icon .material-symbols-outlined {
+  font-size: 24px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px !important;
+  background: var(--bt-chip) !important;
+  color: var(--bt-muted) !important;
+  font: 600 12.5px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-badge.is-live {
+  background: var(--bt-ok-soft) !important;
+  color: var(--bt-ok-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-name {
+  margin: 4px 0 0;
+  color: var(--bt-text) !important;
+  font: 800 19px/1.3 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.01em !important;
+  overflow-wrap: anywhere;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-price {
+  color: var(--bt-orange-text) !important;
+  font: 800 30px/1.1 Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-price small,
+.fu-app .bo-shell .cg-skin .pcx-price span {
+  color: var(--bt-muted);
+  font: 700 14px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-facts .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-desc {
+  margin: 0;
+  color: var(--bt-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .cg-skin .pcx-actions .pcx-btn {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 13.5px !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 48px 20px;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+  color: var(--bt-muted);
+  text-align: center;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-empty .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+  font-size: 26px;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-empty strong,
+.fu-app .bo-shell .cg-skin .pcx-title {
+  color: var(--bt-text);
+  font: 800 18px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .cg-skin .auth-error {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 4px solid var(--bt-rose);
+  border-radius: 12px;
+  background: var(--bt-error-bg);
+  color: var(--bt-error-text);
+  font-size: 14px;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .fu-app .bo-shell .cg-skin .head-actions,
+  .fu-app .bo-shell .cg-skin .head-actions > * {
+    width: 100%;
+  }
+  .fu-app .bo-shell .cg-skin .agx-fold-inner,
+  .fu-app .bo-shell .cg-skin .agx-week,
+  .fu-app .bo-shell .cg-skin .panel-body,
+  .fu-app .bo-shell .cg-skin .legend {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .fu-app .bo-shell .cg-skin .panel-head,
+  .fu-app .bo-shell .cg-skin .agx-fold-head {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .fu-app .bo-shell .cg-skin .agx-week-actions > * {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app .bo-shell .cg-skin :is(.agx-switch, .pcx-switch, .agx-switch > span, .pcx-switch > span, .btn-mini, .btn-outline, .pcx-btn) {
+    transition: none;
+  }
+}
+
+/* ---------- agenda: links, chips and small buttons (no more 3px orange underline) ---------- */
+.fu-app .bo-shell .cg-skin :is(a, button) {
+  text-decoration: none !important;
+  text-decoration-thickness: 0 !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px !important;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 10px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn:hover:not(:disabled) {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn.is-strong {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .cg-skin .agx-link-btn.is-strong {
+  color: #0d111b !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn.is-strong:hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn:focus-visible,
+.fu-app .bo-shell .cg-skin .agx-icon-btn:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn .material-symbols-outlined {
+  color: var(--bt-orange-text);
+  font-size: 18px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-link-btn.is-strong .material-symbols-outlined {
+  color: inherit;
+}
+
+.fu-app .bo-shell .cg-skin .agx-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-muted) !important;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .cg-skin .agx-icon-btn:hover {
+  border-color: var(--bt-danger-solid) !important;
+  color: var(--bt-rose-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--bt-line-soft) !important;
+  border-radius: 14px !important;
+  background: var(--bt-panel) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 999px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 13px Outfit, Manrope, sans-serif !important;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .cg-skin .agx-chip:hover,
+.fu-app .bo-shell .cg-skin .agx-chip.is-on {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .agx-day-body {
+  display: grid;
+  flex: 1;
+  gap: 10px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .cg-skin .agx-window {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .cg-skin .agx-window.is-bad input {
+  border-color: var(--bt-rose) !important;
+}
+
+/* ---------- finishing touches ---------- */
+.fu-app .bo-shell .cg-skin :is(.lbl, .val, .field label, div, dt, dd) {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.fu-app .bo-shell .cg-skin .page-head h1 {
+  color: var(--bt-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.kcard, .pcx-stat, .pcx-card, .panel) {
+  border-left: 1px solid var(--bt-border) !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard.is-alert {
+  border-left-color: rgba(252, 81, 1, 0.45) !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard .lbl {
+  color: var(--bt-muted) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .kcard .val {
+  color: var(--bt-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.field label, label) {
+  color: var(--bt-text) !important;
+}
+
+/* legacy accent bars and a few leftover legacy colours */
+.fu-app .bo-shell .cg-skin :is(.kcard, .pcx-card, .pcx-stat, .panel)::before,
+.fu-app .bo-shell .cg-skin :is(.kcard, .pcx-card, .pcx-stat, .panel)::after {
+  display: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .field > span,
+.fu-app .bo-shell .cg-skin label.field span {
+  color: var(--bt-text) !important;
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-price {
+  font-weight: 800 !important;
+}
+
+.fu-app .bo-shell .cg-skin .pcx-price :is(span, b, strong) {
+  font-weight: 800 !important;
+}
+
+/* ==================================================================
+   EMPLOYER PAGES (candidates, favorites, applications, job offers,
+   providers, quote requests) - rounded Premium cards, soft icon chips,
+   no navy blocks / accent bars / dashed boxes. Light + Dark via tokens.
+   ================================================================== */
+.fu-app .bo-shell .cg-skin :is(.tlx-card, .jobx-card, .fu-talent-card, .dsx-card, .tlx-filters, .tlx-upsell, .hire-filters, .booking-item, .exp-item) {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow, 0 1px 2px rgba(11, 26, 51, 0.04)) !important;
+  opacity: 1;
+}
+
+.fu-app .bo-shell .cg-skin :is(.jobx-card, .tlx-card, .fu-talent-card)::before,
+.fu-app .bo-shell .cg-skin :is(.jobx-card, .tlx-card, .fu-talent-card)::after {
+  display: none !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.jobx-card, .tlx-card, .fu-talent-card):hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--bt-orange) !important;
+}
+
+.fu-app .bo-shell .cg-skin .jobx-title {
+  color: var(--bt-text) !important;
+  font: 700 20px/1.2 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .jobx-facts li,
+.fu-app .bo-shell .cg-skin .jobx-facts li span {
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.jobx-icon, .tlx-empty > .material-symbols-outlined, .dsx-badge .material-symbols-outlined) {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text, var(--bt-orange)) !important;
+  transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-empty > .material-symbols-outlined {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 8px;
+}
+
+.fu-app .bo-shell .cg-skin .jobx-facts .material-symbols-outlined {
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin .jobx-actions {
+  border-top-color: var(--bt-border) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-empty, .jobs-empty, .empty-hint) {
+  border: 1px dashed var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-empty :is(h2, h3, strong) {
+  color: var(--bt-text) !important;
+  font: 700 20px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-empty p {
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-btn, .jobx-btn) {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-btn, .jobx-btn):hover:not(:disabled) {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text, var(--bt-orange)) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-btn.is-primary, .jobx-btn.is-primary, .tlx-cta) {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-btn.is-primary, .jobx-btn.is-primary, .tlx-cta):hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .cg-skin :is(.tlx-btn.is-primary, .jobx-btn.is-primary, .tlx-cta) {
+  color: #0d111b !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-search {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 14px !important;
+  background: var(--bt-field, var(--bt-surface)) !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-search:focus-within {
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 4px rgba(252, 81, 1, 0.14) !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-search input {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-search > .material-symbols-outlined {
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-avatar, .tlx-sk-avatar) {
+  border-radius: 16px !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-chip, .tlx-verified, .tlx-count, .jobs-chips > *, .dsx-badge, .pill) {
+  border-radius: 999px !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.tlx-name, .tlx-title, .dsx-title) {
+  color: var(--bt-text) !important;
+  font-family: Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin :is(.hire-stage-panel, .jobs-form) {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-search > :not(.material-symbols-outlined),
+.fu-app .bo-shell .cg-skin .tlx-search input {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .tlx-upsell {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ---------- academy: my formations ---------- */
+.fu-app .bo-shell .cg-skin .doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card::before,
+.fu-app .bo-shell .cg-skin .doc-card::after {
+  display: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card img {
+  margin-bottom: 10px !important;
+  border-radius: 14px;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card .t {
+  color: var(--bt-text) !important;
+  font: 700 18px/1.25 Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card .org {
+  color: var(--bt-orange-text, var(--bt-orange)) !important;
+  font: 600 13px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.fu-app .bo-shell .cg-skin .doc-card .meta {
+  color: var(--bt-muted) !important;
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .cg-skin .two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.fu-app .bo-shell .cg-skin .settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  color: var(--bt-text) !important;
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .cg-skin .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid, .tlx-btn.is-primary) {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #0d111b !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid):hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main .cg-skin .doc-card .org {
+  color: #ff7a36 !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main.is-legacy .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid, .tlx-btn.is-primary) {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #0d111b !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main.is-legacy .cg-skin :is(.btn-mini.primary, .pcx-btn.is-primary, .btn-solid):hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main.is-legacy .cg-skin .doc-card .org {
+  color: #ff7a36 !important;
+}

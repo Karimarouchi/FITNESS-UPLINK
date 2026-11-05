@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { fetchUploadBlob } from "@/features/onboarding/api";
 import { formatBytes, useOwnProfile } from "@/features/me/ownProfile";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 export function CvPage() {
   const { profile, error, loading } = useOwnProfile();
@@ -35,7 +36,7 @@ export function CvPage() {
       </div>
 
       <Panel title="Fichier actuel">
-        {loading ? <p className="empty-hint">Chargement…</p> : null}
+        {loading ? <SkeletonRows rows={1} /> : null}
         {error ? <p className="empty-hint">{error}</p> : null}
         {!loading && !cv ? <p className="empty-hint">Aucun CV n&apos;a encore été transmis.</p> : null}
         {cv ? (

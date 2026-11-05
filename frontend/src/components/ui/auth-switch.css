@@ -559,15 +559,11 @@
   text-transform: lowercase !important;
 }
 
+/* descriptions, field text and messages: Geist. Labels, kickers, links and buttons use the brand UI face (Outfit, --uf-ui). */
 .fu-switch.fu-auth :is(
-    .fu-form-kicker,
     .fu-form-sub,
-    .auth-label,
-    .fu-back,
     .auth-input,
-    .auth-btn,
     .fu-switch-hint,
-    .fu-meter small,
     .auth-field-error,
     .auth-error
   ) {
@@ -954,5 +950,393 @@
 @media (max-height: 820px) {
   .fu-auth .fu-perks {
     display: none;
+  }
+}
+
+
+/* ==================================================================
+   Typography + colour harmonisation (login / signup) — brand tokens
+   from brand-theme.css (--uf-*). Colour and font-family only: no layout,
+   image, animation or sizing rule is touched here.
+   ================================================================== */
+.fu-switch.fu-auth {
+  --uf-error: #b3342f;
+  --uf-error-soft: #fdf1ef;
+}
+
+/* secondary text: the brand muted grey instead of slate */
+.fu-switch.fu-auth .fu-check,
+.fu-switch.fu-auth .fu-switch-hint,
+.fu-switch.fu-auth .fu-recaptcha {
+  color: var(--uf-muted);
+}
+
+.fu-switch.fu-auth .fu-recaptcha a {
+  color: var(--uf-blue);
+}
+
+/* links inside the hint line ("Créer un compte", "Se connecter") use the UI face */
+.fu-switch.fu-auth .fu-switch-hint button {
+  font-family: var(--uf-ui);
+}
+
+.fu-switch.fu-auth .auth-input::placeholder {
+  color: var(--uf-grey);
+}
+
+/* errors: one brand red, readable on the cream surface */
+.fu-switch.fu-auth .auth-field-error {
+  color: var(--uf-error);
+}
+
+.fu-switch.fu-auth .auth-error {
+  border-color: rgba(179, 52, 47, 0.28);
+  background: var(--uf-error-soft);
+  color: var(--uf-error);
+}
+
+.fu-switch.fu-auth .auth-input.is-invalid,
+.fu-switch.fu-auth .auth-input.is-invalid:hover:not(:focus) {
+  border-color: var(--uf-error) !important;
+  background: var(--uf-error-soft) !important;
+  box-shadow: 0 0 0 4px rgba(179, 52, 47, 0.12) !important;
+}
+
+/* Outfit is narrower than Geist: keep the "Retour à l'accueil" pill at its previous width through tracking only */
+.fu-switch.fu-auth .fu-form .fu-back {
+  letter-spacing: 0.026em !important;
+}
+
+/* ==================================================================
+   Fidelity pass (login / signup): original sizes, spacing, orange button,
+   navy links and native controls are kept. Only the field surface, the
+   label ink and the button interaction states are refined.
+   ================================================================== */
+
+/* fields: very light cream (between the page cream and white), thin border */
+.fu-switch.fu-auth .fu-form .auth-input,
+.fu-switch.fu-auth .fu-form .auth-input:hover:not(:focus):not(.is-invalid) {
+  background: #f8f4ee !important;
+}
+
+.fu-switch.fu-auth .fu-form .auth-input:hover:not(:focus):not(.is-invalid) {
+  border-color: rgba(11, 26, 51, 0.24) !important;
+}
+
+.fu-switch.fu-auth .fu-form .auth-input:focus {
+  background: #fffdf9 !important;
+}
+
+/* labels: navy ink, brand tracking (0.04em) */
+.fu-switch.fu-auth .fu-form .auth-label {
+  color: var(--uf-ink) !important;
+}
+
+/* button: the vivid brand orange stays; hover is a deeper orange, not a lighter one */
+.fu-switch.fu-auth .fu-form .auth-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--uf-orange) 90%, #000) !important;
+  box-shadow: 0 12px 24px -12px rgba(252, 81, 1, 0.8) !important;
+}
+
+.fu-switch.fu-auth .fu-form .auth-btn:disabled,
+.fu-switch.fu-auth .fu-form .auth-btn:disabled:hover {
+  cursor: not-allowed;
+}
+
+.fu-switch.fu-auth .fu-form .auth-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+
+.fu-switch.fu-auth .fu-form .auth-btn:focus-visible {
+  outline: 3px solid rgba(0, 72, 252, 0.4) !important;
+  outline-offset: 3px;
+}
+
+/* ==================================================================
+   LOGIN / SIGNUP - dark mode + toggle.
+   Shares the ThemeProvider choice (localStorage `fu.bo.theme`) with the whole
+   app. Only the colours of the form side change: the photo panel, the curve
+   and the animations are untouched.
+   ================================================================== */
+.fu-switch.fu-auth {
+  --bt-toggle-bg: #ffffff;
+  --bt-toggle-border: #e4ddd2;
+  --bt-toggle-knob: #e5e7eb;
+  --bt-toggle-ink: #0b1a33;
+  --bt-toggle-ghost: #9ca3af;
+  --bt-orange: #fc5101;
+}
+
+.fu-switch.fu-auth .fu-theme-slot {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 12;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid var(--bt-toggle-border);
+  border-radius: 999px;
+  background: var(--bt-toggle-bg);
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle:hover {
+  border-color: var(--bt-orange);
+}
+
+.fu-switch.fu-auth .bo-theme-toggle:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.5);
+  outline-offset: 2px;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle-ghost {
+  position: absolute;
+  top: 50%;
+  color: var(--bt-toggle-ghost);
+  transform: translateY(-50%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle-ghost.is-sun {
+  left: 7px;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle-ghost.is-moon {
+  right: 7px;
+}
+
+/* the active side is carried by the knob */
+.fu-switch.fu-auth .bo-theme-toggle:not(.is-dark) .bo-theme-toggle-ghost.is-sun,
+.fu-switch.fu-auth .bo-theme-toggle.is-dark .bo-theme-toggle-ghost.is-moon {
+  opacity: 0;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bt-toggle-knob);
+  color: var(--bt-toggle-ink);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, color 0.3s ease;
+}
+
+.fu-switch.fu-auth .bo-theme-toggle.is-dark .bo-theme-toggle-knob {
+  transform: translateX(32px);
+}
+
+@media (max-width: 1024px) {
+  .fu-switch.fu-auth .bo-top-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .fu-switch.fu-auth .bo-topbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .fu-switch.fu-auth .bo-top-actions {
+    gap: 6px;
+  }
+  .fu-switch.fu-auth .bo-icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-switch.fu-auth .bo-theme-toggle,
+  .fu-switch.fu-auth .bo-theme-toggle-knob,
+  .fu-switch.fu-auth .bo-theme-toggle-ghost,
+  .fu-switch.fu-auth .bo-main.is-themed {
+    transition: none;
+  }
+}
+
+
+.fu-switch.fu-auth[data-bo-theme="dark"] {
+  color-scheme: dark;
+  --bt-toggle-bg: #151c2a;
+  --bt-toggle-border: #343c4a;
+  --bt-toggle-knob: #2c3a57;
+  --bt-toggle-ink: #ffffff;
+  --bt-toggle-ghost: #6b7688;
+  --vt-paper: #0d111b;
+  --vt-navy: #f8fafc;
+  --vt-text: #9ca9ba;
+  --vt-line: #343c4a;
+  --uf-cream: #0d111b;
+  --uf-cream-2: #1f2838;
+  --uf-ink: #f8fafc;
+  --uf-ink-2: #e2e8f0;
+  --uf-muted: #9ca9ba;
+  --uf-line: #343c4a;
+  --uf-error: #ff8a85;
+  --uf-error-soft: rgba(255, 107, 102, 0.12);
+  --ink: #f8fafc;
+  --slate: #9ca9ba;
+  --line: #343c4a;
+  background: #0d111b !important;
+  color: #f8fafc;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-forms,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-forms-inner {
+  background: #0d111b;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form-title {
+  color: #ff7a36 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form-kicker {
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form-sub,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-check,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-switch-hint,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-recaptcha,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-meter small {
+  color: #9ca9ba !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-label,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-meter small {
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input:hover:not(:focus):not(.is-invalid) {
+  border-color: #343c4a !important;
+  background: #1b2332 !important;
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input:hover:not(:focus):not(.is-invalid) {
+  border-color: #4a5568 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input:focus {
+  border-color: #7ba3ff !important;
+  background: #1f2838 !important;
+  box-shadow: 0 0 0 3px rgba(110, 150, 255, 0.25) !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-input::placeholder {
+  color: #8190a5 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-input:-webkit-autofill {
+  -webkit-text-fill-color: #f8fafc;
+  box-shadow: 0 0 0 100px #1b2332 inset !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input.is-invalid,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-input.is-invalid:hover:not(:focus) {
+  border-color: #ff8a85 !important;
+  background: rgba(255, 107, 102, 0.12) !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-field-icon,
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-eye {
+  color: #8190a5 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-eye:hover {
+  background: #283347 !important;
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-field-error,
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-error {
+  color: #ffb4b0 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .auth-error {
+  background: rgba(255, 107, 102, 0.12) !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .fu-link,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-switch-hint button,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-recaptcha a {
+  color: #7ba3ff !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .fu-link:hover,
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-switch-hint button:hover {
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .fu-back {
+  border-color: #343c4a !important;
+  background: #1b2332 !important;
+  color: #f8fafc !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .fu-back:hover {
+  border-color: #ff7a36 !important;
+  background: #1b2332 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-check input[type="checkbox"] {
+  border-color: #4a5568;
+  background-color: #1b2332;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-meter span {
+  background: #2a3342 !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-btn {
+  color: #0d111b !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-btn:hover:not(:disabled) {
+  color: #fff !important;
+}
+
+.fu-switch.fu-auth[data-bo-theme="dark"] .fu-form .auth-btn:disabled {
+  opacity: 0.5;
+}
+
+@media (max-width: 1023px) {
+  .fu-switch.fu-auth .fu-theme-slot {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+/* ---------- mobile layout: photo header on top, the form starts below it ---------- */
+@media (max-width: 1023px) {
+  .fu-switch.fu-auth .fu-blob,
+  .fu-switch.fu-auth.is-signup .fu-blob {
+    top: auto;
+    right: auto;
+    bottom: calc(100% - 200px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .fu-switch.fu-auth .fu-forms-inner,
+  .fu-switch.fu-auth.is-signup .fu-forms-inner {
+    padding-top: 224px;
+  }
+
+  .fu-switch.fu-auth .fu-form .fu-back {
+    margin-left: 0;
   }
 }

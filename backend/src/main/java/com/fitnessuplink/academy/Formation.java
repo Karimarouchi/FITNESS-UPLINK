@@ -49,6 +49,10 @@ public class Formation {
     private String priceCurrency;
     @Column(name = "has_certification", nullable = false)
     private boolean hasCertification;
+    @Column(name = "accepts_online", nullable = false)
+    private boolean acceptsOnline;
+    @Column(name = "accepts_on_site", nullable = false)
+    private boolean acceptsOnSite;
     @Column(name = "image_upload_id")
     private UUID imageUploadId;
     @Column(nullable = false)

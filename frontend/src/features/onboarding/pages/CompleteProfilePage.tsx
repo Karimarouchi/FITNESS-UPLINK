@@ -32,6 +32,9 @@ import {
   TagInput,
 } from "../ProfileWidgets";
 import "../signup-flow.css";
+import "@/features/onboarding/onboarding-premium.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 function parseJson<T>(value: string, fallback: T): T {
   try {
@@ -271,6 +274,7 @@ function sportSectionIcon(sectionKey: string, fallback?: string) {
 const IDENTITY_KEYS = new Set(["identity_document_type", "identity_document_number", "identity_document"]);
 
 export function CompleteProfilePage() {
+  const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const { locale, t } = useOnboardingLocale();
   const navigate = useNavigate();
@@ -875,7 +879,7 @@ export function CompleteProfilePage() {
 
   if (embedded) {
     return (
-      <section className="ob-embedded">
+      <section data-bo-theme={theme} className="ob-embedded fu-public ob-shell">
         <div className="page-head">
           <div>
             <h1>{business ? "Modifier le profil organisation" : "Modifier le profil"}</h1>
@@ -888,7 +892,7 @@ export function CompleteProfilePage() {
   }
 
   return (
-    <div className="fu-public ob-shell ob-shell--profile">
+    <div data-bo-theme={theme} className="fu-public ob-shell ob-shell--profile">
       <header className="ob-profile-nav">
         <button className="ob-nav-back" type="button" onClick={goBack}>
           <span className="material-symbols-outlined">arrow_back</span>
@@ -897,6 +901,7 @@ export function CompleteProfilePage() {
         <OnboardingBrand />
         <div className="flex items-center gap-3">
           <LocaleSwitch />
+          <ThemeToggle />
           <div className="ob-step-label">{memberFlow ? t.stepProfileMember : longFlow ? t.stepProfileLong : t.stepProfile}</div>
         </div>
       </header>

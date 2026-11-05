@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, LogOut, X } from "lucide-react";
+import { ChevronDown, ChevronsLeft, ChevronsRight, LogOut, X } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isSuperAdmin, shortNameOf } from "@/features/auth/types";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
+import { useNotifications } from "@/features/notifications/useNotifications";
 import { isSupplierWorkspace, shellSectionsFor, type ShellGroup, type ShellLink } from "./shellNav";
 
 function matches(pathname: string, link: ShellLink) {
@@ -18,7 +19,7 @@ function LinkItem({ link, badges, onNavigate }: { link: ShellLink; badges: Recor
   const count = link.badge ? badges[link.badge] ?? 0 : 0;
   if (link.external) {
     return (
-      <a className="bo-nav-link" href={link.to} target="_blank" rel="noreferrer">
+      <a className="bo-nav-link" href={link.to} target="_blank" rel="noreferrer" title={link.label}>
         <Icon className="bo-nav-icon" size={18} strokeWidth={1.8} />
         <span className="bo-nav-label">{link.label}</span>
       </a>
@@ -29,6 +30,7 @@ function LinkItem({ link, badges, onNavigate }: { link: ShellLink; badges: Recor
       to={link.to}
       end={link.end}
       onClick={onNavigate}
+      title={link.label}
       className={({ isActive }) => (isActive ? "bo-nav-link is-active" : "bo-nav-link")}
     >
       <Icon className="bo-nav-icon" size={18} strokeWidth={1.8} />
@@ -38,7 +40,19 @@ function LinkItem({ link, badges, onNavigate }: { link: ShellLink; badges: Recor
   );
 }
 
-function GroupItem({ group, badges, onNavigate }: { group: ShellGroup; badges: Record<string, number>; onNavigate: () => void }) {
+function GroupItem({
+  group,
+  badges,
+  onNavigate,
+  collapsed,
+  onExpand,
+}: {
+  group: ShellGroup;
+  badges: Record<string, number>;
+  onNavigate: () => void;
+  collapsed?: boolean;
+  onExpand?: () => void;
+}) {
   const { pathname } = useLocation();
   const childActive = group.children.some((child) => matches(pathname, child));
   const [open, setOpen] = useState(childActive);
@@ -55,7 +69,16 @@ function GroupItem({ group, badges, onNavigate }: { group: ShellGroup; badges: R
         className="bo-nav-link bo-nav-toggle"
         aria-expanded={open}
         aria-controls={`bo-group-${group.id}`}
-        onClick={() => setOpen((value) => !value)}
+        title={group.label}
+        onClick={() => {
+          // Icons-only mode has no room for sub-menus: widen the sidebar first.
+          if (collapsed && onExpand) {
+            onExpand();
+            setOpen(true);
+            return;
+          }
+          setOpen((value) => !value);
+        }}
       >
         <Icon className="bo-nav-icon" size={18} strokeWidth={1.8} />
         <span className="bo-nav-label">{group.label}</span>
@@ -72,12 +95,23 @@ function GroupItem({ group, badges, onNavigate }: { group: ShellGroup; badges: R
   );
 }
 
-export function BoSidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function BoSidebar({
+  open,
+  onClose,
+  collapsed = false,
+  onToggleCollapse,
+}: {
+  open: boolean;
+  onClose: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const supplier = isSupplierWorkspace(user);
   const unread = useMarketplaceUnread(supplier);
-  const badges = { marketplaceUnread: unread };
+  const { unreadCount } = useNotifications();
+  const badges = { marketplaceUnread: unread, notifications: unreadCount };
   const displayName = user?.displayName || "Profil";
   const roleLine = isSuperAdmin(user) ? "Super administrateur" : user?.role?.label ?? "Compte";
 
@@ -85,6 +119,18 @@ export function BoSidebar({ open, onClose }: { open: boolean; onClose: () => voi
     <aside className={`bo-sidebar${open ? " is-open" : ""}`} aria-label="Navigation principale">
       <div className="bo-brand">
         <BrandLogo to="/app/dashboard" />
+        {onToggleCollapse ? (
+          <button
+            type="button"
+            className="bo-collapse-btn"
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? "Déployer le menu" : "Réduire le menu"}
+            aria-pressed={collapsed}
+            title={collapsed ? "Déployer le menu" : "Réduire le menu"}
+          >
+            {collapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
+          </button>
+        ) : null}
         <button type="button" className="bo-sidebar-close" onClick={onClose} aria-label="Fermer le menu">
           <X size={18} />
         </button>
@@ -96,7 +142,7 @@ export function BoSidebar({ open, onClose }: { open: boolean; onClose: () => voi
             <div className="bo-nav-title">{section.title}</div>
             {section.items.map((item) =>
               item.kind === "group" ? (
-                <GroupItem key={item.id} group={item} badges={badges} onNavigate={onClose} />
+                <GroupItem key={item.id} group={item} badges={badges} onNavigate={onClose} collapsed={collapsed} onExpand={onToggleCollapse} />
               ) : (
                 <LinkItem key={item.to} link={item} badges={badges} onNavigate={onClose} />
               ),

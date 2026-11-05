@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight, FileText, Globe, MapPin } from "lucide-react";
 import { CONTRACT_TYPES, type Opportunity } from "./api";
 
 function contractLabel(value: string | null) {
@@ -14,69 +14,52 @@ function initials(name: string) {
     .join("");
 }
 
-export function OpportunityCard({ item, index = 0 }: { item: Opportunity; index?: number }) {
+export function OpportunityCard({ item }: { item: Opportunity; index?: number }) {
   const salary = item.salaryAmount ? `${item.salaryAmount} ${item.salaryCurrency ?? ""}`.trim() : null;
   const contract = item.contractType ? contractLabel(item.contractType) : null;
   const country = item.employerCountry ? `${item.employerCountry.flagEmoji} ${item.employerCountry.name}` : null;
   return (
-    <Link
-      className={item.applied ? "oppx-card is-applied" : "oppx-card"}
-      to={`/app/opportunities/${item.id}`}
-      style={{ "--i": index } as CSSProperties}
-    >
-      <div className="oppx-top">
-        <span className="oppx-mark" aria-hidden="true">
+    <Link className={item.applied ? "hr-card is-applied" : "hr-card"} to={`/app/opportunities/${item.id}`}>
+      <div className="hr-card-top">
+        <span className="hr-mark" aria-hidden="true">
           {initials(item.employerName || item.title)}
         </span>
         {item.applied ? (
-          <span className="oppx-badge">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              check_circle
-            </span>
-            Candidature envoyée
-          </span>
+          <span className="bo-users-status is-success">Candidature envoyée</span>
         ) : contract ? (
-          <span className="oppx-badge is-contract">{contract}</span>
+          <span className="bo-users-role is-blue">{contract}</span>
         ) : null}
       </div>
 
-      <h3 className="oppx-title">{item.title}</h3>
-      <p className="oppx-employer">{item.employerName}</p>
+      <h3 className="hr-title">{item.title}</h3>
+      <p className="hr-employer">{item.employerName}</p>
 
-      <ul className="oppx-facts">
+      <ul className="hr-facts">
         {item.location ? (
           <li>
-            <span className="material-symbols-outlined" aria-hidden="true">
-              location_on
-            </span>
+            <MapPin size={15} aria-hidden="true" />
             {item.location}
           </li>
         ) : null}
         {country ? (
           <li>
-            <span className="material-symbols-outlined" aria-hidden="true">
-              public
-            </span>
+            <Globe size={15} aria-hidden="true" />
             {country}
           </li>
         ) : null}
         {item.applied && contract ? (
           <li>
-            <span className="material-symbols-outlined" aria-hidden="true">
-              description
-            </span>
+            <FileText size={15} aria-hidden="true" />
             {contract}
           </li>
         ) : null}
       </ul>
 
-      <div className="oppx-foot">
-        <b className="oppx-salary">{salary ?? "Salaire non précisé"}</b>
-        <span className="oppx-go">
+      <div className="hr-foot">
+        <b className={salary ? "hr-salary" : "hr-salary is-muted"}>{salary ?? "Salaire non précisé"}</b>
+        <span className="hr-go">
           {item.applied ? "Voir" : "Postuler"}
-          <span className="material-symbols-outlined" aria-hidden="true">
-            arrow_forward
-          </span>
+          <ArrowRight size={15} aria-hidden="true" />
         </span>
       </div>
     </Link>

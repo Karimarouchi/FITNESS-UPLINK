@@ -1,0 +1,107 @@
+/* Shared loading placeholders (see Skeleton.tsx). Theme tokens when available, neutral greys otherwise. */
+.sk {
+  display: block;
+  max-width: 100%;
+  background: linear-gradient(90deg, var(--bt-skel-a, #e9ecf2) 25%, var(--bt-skel-b, #f5f7fb) 50%, var(--bt-skel-a, #e9ecf2) 75%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.4s linear infinite;
+}
+
+@keyframes sk-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.sk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.sk-stack,
+.sk-rows,
+.sk-page {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.sk-rows {
+  gap: 0;
+}
+
+.sk-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 4px;
+}
+
+.sk-row-main {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sk-cards,
+.sk-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.sk-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--bt-border, #e4ddd2);
+  border-radius: 20px;
+  background: var(--bt-surface, #ffffff);
+}
+
+.sk-page {
+  gap: 22px;
+  width: 100%;
+}
+
+.sk-page-head {
+  display: grid;
+  gap: 12px;
+}
+
+.sk-panel {
+  display: grid;
+  padding: 12px 20px;
+  border: 1px solid var(--bt-border, #e4ddd2);
+  border-radius: 20px;
+  background: var(--bt-surface, #ffffff);
+}
+
+.sk-screen {
+  display: grid;
+  align-content: start;
+  min-height: 100vh;
+  padding: clamp(20px, 4vw, 48px);
+  background: var(--bt-page, #f3eee6);
+}
+
+@media (prefers-color-scheme: dark) {
+  .sk-screen:not([data-bo-theme="light"]) {
+    background: var(--bt-page, #f3eee6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk {
+    animation: none;
+  }
+}

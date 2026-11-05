@@ -1,0 +1,201 @@
+/* Academy: QR tickets, payment timers, receipt and door scanner (Premium tokens, light + dark). */
+.fu-app .bo-shell .cg-skin .tk-ticket {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 18px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px dashed var(--bt-border);
+  border-radius: 16px;
+  background: var(--bt-surface);
+}
+
+.fu-app .bo-shell .cg-skin .tk-ticket svg {
+  flex: none;
+  padding: 6px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.fu-app .bo-shell .cg-skin .tk-ticket-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.fu-app .bo-shell .cg-skin .tk-ticket-copy strong {
+  color: var(--bt-text) !important;
+  font: 700 16px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .tk-ticket-copy small,
+.fu-app .bo-shell .cg-skin .tk-note {
+  color: var(--bt-muted) !important;
+  font-size: 13px;
+}
+
+.fu-app .bo-shell .cg-skin .tk-ticket-copy code {
+  color: var(--bt-muted);
+  font-size: 12px;
+}
+
+.fu-app .bo-shell .cg-skin .tk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .cg-skin .tk-timer {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted) !important;
+  font: 700 12.5px Outfit, Manrope, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .cg-skin .tk-timer.is-low {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b3342f !important;
+}
+
+.fu-app .bo-shell .cg-skin .tk-link {
+  margin-left: 10px;
+  color: var(--bt-orange-text, var(--bt-orange)) !important;
+  font: 600 13px Outfit, Manrope, sans-serif;
+  text-decoration: underline;
+}
+
+.fu-app .bo-shell .cg-skin .tk-alert {
+  border-color: #dc2626 !important;
+}
+
+/* ---------- receipt ---------- */
+.fu-app .bo-shell .cg-skin .rc-card {
+  max-width: 560px;
+  padding: 28px;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+}
+
+.fu-app .bo-shell .cg-skin .rc-card dl {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+}
+
+.fu-app .bo-shell .cg-skin .rc-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--bt-border);
+}
+
+.fu-app .bo-shell .cg-skin .rc-card dt {
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin .rc-card dd {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font-weight: 600;
+  text-align: right;
+}
+
+.fu-app .bo-shell .cg-skin .rc-total dd {
+  font: 800 22px Outfit, Manrope, sans-serif;
+}
+
+/* ---------- door scanner ---------- */
+.fu-app .bo-shell .cg-skin .sc-reader {
+  max-width: 460px;
+  overflow: hidden;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: #000;
+}
+
+.fu-app .bo-shell .cg-skin .sc-manual {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 460px;
+  margin-top: 16px;
+}
+
+.fu-app .bo-shell .cg-skin .sc-manual input {
+  flex: 1 1 220px;
+}
+
+.fu-app .bo-shell .cg-skin .sc-result {
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+  margin-top: 20px;
+  padding: 24px;
+  border: 2px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+}
+
+.fu-app .bo-shell .cg-skin .sc-result.is-ok {
+  border-color: #1c7a4d;
+  background: rgba(28, 122, 77, 0.1);
+}
+
+.fu-app .bo-shell .cg-skin .sc-result.is-due {
+  border-color: var(--bt-orange);
+  background: rgba(252, 81, 1, 0.1);
+}
+
+.fu-app .bo-shell .cg-skin .sc-result.is-no {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.fu-app .bo-shell .cg-skin .sc-result h2 {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font: 800 24px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .sc-result p {
+  margin: 0;
+  color: var(--bt-muted) !important;
+}
+
+.fu-app .bo-shell .cg-skin .sc-pay {
+  color: var(--bt-text) !important;
+  font: 800 34px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell .cg-skin .pill-paid,
+.fu-app .bo-shell .cg-skin .pill-due {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font: 700 12px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .cg-skin .pill-paid {
+  background: rgba(28, 122, 77, 0.14);
+  color: #1c7a4d !important;
+}
+
+.fu-app .bo-shell .cg-skin .pill-due {
+  background: rgba(252, 81, 1, 0.14);
+  color: var(--bt-orange-text, #fc5101) !important;
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .cg-skin .tk-ticket {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

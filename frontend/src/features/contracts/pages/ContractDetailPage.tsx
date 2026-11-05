@@ -21,6 +21,7 @@ import {
   type Contract,
   type ContractHistory,
 } from "../api";
+import { PageSkeleton } from "@/components/ui/Skeleton";
 
 function formatWhen(value: string) {
   return new Date(value).toLocaleString("fr-FR", {
@@ -175,7 +176,7 @@ export function ContractDetailPage() {
       {error ? <p className="auth-error">{error}</p> : null}
       {flash ? <p className="fu-flash">{flash}</p> : null}
       {!contract ? (
-        <p className="empty-hint">Chargement du contrat…</p>
+        <PageSkeleton label="Chargement du contrat…" />
       ) : (
         <>
           <div className="page-head">

@@ -6,6 +6,7 @@ import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from "pdfjs
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { fetchUploadBlob } from "@/features/onboarding/api";
 import { fetchCandidateFile } from "@/features/talent/api";
+import { SkeletonText } from "@/components/ui/Skeleton";
 
 GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -135,7 +136,7 @@ function PdfPages({ src, expanded }: { src: string; expanded: boolean }) {
 
   return (
     <div ref={wrapRef} className={expanded ? "doc-pdf is-full" : "doc-pdf"}>
-      {status === "loading" ? <p className="doc-preview-status">Chargement du document…</p> : null}
+      {status === "loading" ? <SkeletonText lines={5} label="Chargement du document…" /> : null}
       {status === "error" ? (
         <p className="doc-preview-status">
           Impossible de lire ce PDF.
@@ -186,7 +187,7 @@ export function DocumentPreview({
 
   function viewer(expanded: boolean) {
     if (!src) {
-      return <p className="doc-preview-status">{failed ? "Impossible de charger ce fichier." : "Chargement du document…"}</p>;
+      return failed ? <p className="doc-preview-status">Impossible de charger ce fichier.</p> : <SkeletonText lines={5} label="Chargement du document…" />;
     }
     if (kind === "pdf") {
       return <PdfPages src={src} expanded={expanded} />;

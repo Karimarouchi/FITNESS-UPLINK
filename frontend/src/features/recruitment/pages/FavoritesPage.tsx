@@ -6,6 +6,7 @@ import { CandidatePhoto } from "@/features/talent/CandidatePhoto";
 import { unfavoriteCandidate } from "@/features/talent/api";
 import { StartRecruitmentModal } from "../StartRecruitmentModal";
 import { fetchFavorites, statusLabel, type FavoriteCard, type Recruitment } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 export function FavoritesPage() {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ export function FavoritesPage() {
   }
 
   return (
-    <section className="tlx-page">
+    <section className="tlx-page cg-skin">
       <div className="page-head">
         <div>
           <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>

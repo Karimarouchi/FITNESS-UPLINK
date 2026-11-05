@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +27,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FormationService {
-
-    /** A seat is taken only once the registration is confirmed (paid, or free formation). */
-    private static final List<FormationRegistrationStatus> SEAT_STATUSES =
-            List.of(FormationRegistrationStatus.CONFIRMED);
 
     private final FormationRepository formationRepository;
     private final FormationSessionRepository sessionRepository;
@@ -124,7 +121,8 @@ public class FormationService {
     @Transactional(readOnly = true)
     public List<ParticipantDto> participants(User organizer, UUID formationId, UUID sessionId) {
         requireOrganizer(organizer);
-        requireOwned(organizer.getId(), formationId);
+        Formation formation = requireOwned(organizer.getId(), formationId);
+        boolean chargeable = formation.getPriceAmount() != null && formation.getPriceAmount().signum() > 0;
         sessionRepository.findByIdAndFormationId(sessionId, formationId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "SESSION_NOT_FOUND"));
         List<FormationRegistration> registrations = registrationRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
@@ -133,14 +131,24 @@ public class FormationService {
         ).stream().collect(Collectors.toMap(User::getId, u -> u));
         return registrations.stream()
                 .filter(r -> r.getStatus() != FormationRegistrationStatus.CANCELLED)
-                .map(r -> new ParticipantDto(
-                        r.getId(),
-                        r.getMemberId(),
-                        members.containsKey(r.getMemberId()) ? members.get(r.getMemberId()).getDisplayName() : "Membre",
-                        r.getStatus().name(),
-                        r.getWaitlistPosition(),
-                        r.getCreatedAt()
-                ))
+                .map(r -> {
+                    boolean paid = r.getPaymentId() != null || (r.getStatus() == FormationRegistrationStatus.CONFIRMED && !chargeable);
+                    boolean owes = !paid && (r.getStatus() == FormationRegistrationStatus.PENDING_ON_SITE
+                            || r.getStatus() == FormationRegistrationStatus.NO_SHOW);
+                    return new ParticipantDto(
+                            r.getId(),
+                            r.getMemberId(),
+                            members.containsKey(r.getMemberId()) ? members.get(r.getMemberId()).getDisplayName() : "Membre",
+                            r.getStatus().name(),
+                            r.getWaitlistPosition(),
+                            r.getCreatedAt(),
+                            r.getPaymentMethod() == null ? null : r.getPaymentMethod().name(),
+                            paid,
+                            owes ? formation.getPriceAmount() : BigDecimal.ZERO,
+                            formation.getPriceCurrency(),
+                            r.getCheckedInAt()
+                    );
+                })
                 .toList();
     }
 
@@ -178,6 +186,13 @@ public class FormationService {
         formation.setPriceCurrency(normalizeCurrency(request.priceCurrency()));
         formation.setHasCertification(Boolean.TRUE.equals(request.hasCertification()));
         formation.setImageUploadId(request.imageUploadId());
+        boolean online = request.acceptsOnline() == null || request.acceptsOnline();
+        boolean onSite = Boolean.TRUE.equals(request.acceptsOnSite());
+        if (formation.getPriceAmount().signum() > 0 && !online && !onSite) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "PAYMENT_METHOD_REQUIRED");
+        }
+        formation.setAcceptsOnline(online);
+        formation.setAcceptsOnSite(onSite);
     }
 
     private FormationContentType parseContentType(String value) {
@@ -219,12 +234,14 @@ public class FormationService {
                 formation.isHasCertification(),
                 formation.getImageUploadId(),
                 formation.isActive(),
-                formation.getCreatedAt()
+                formation.getCreatedAt(),
+                formation.isAcceptsOnline(),
+                formation.isAcceptsOnSite()
         );
     }
 
     private FormationSessionDto toSessionDto(FormationSession session) {
-        long confirmed = registrationRepository.countBySessionIdAndStatusIn(session.getId(), SEAT_STATUSES);
+        long confirmed = registrationRepository.countSeatsTaken(session.getId(), Instant.now());
         int seatsLeft = Math.max(0, session.getCapacity() - (int) confirmed);
         return new FormationSessionDto(
                 session.getId(),

@@ -1,0 +1,1480 @@
+/* ==================================================================
+   ONBOARDING - Premium Light.
+   Same language as the back-office: cream canvas, white 20px cards, thin
+   borders, discreet shadows, orange accent, Outfit titles. The legacy
+   stylesheets (signup-flow, plan-stage, pay-stage) load first and set
+   strong rules (uppercase, electric blue, navy stage), so the properties
+   they set are overridden here with `!important`; everything is scoped
+   to `.fu-public.ob-shell`, nothing leaks to other pages.
+   ================================================================== */
+
+.fu-public.ob-shell {
+  --bt-page: #f3eee6;
+  --bt-surface: #ffffff;
+  --bt-panel: #fbf8f3;
+  --bt-chip: #f3f0ea;
+  --bt-tabs: #f6f2ea;
+  --bt-track: #efeae2;
+  --bt-hover: #fcfaf6;
+  --bt-border: #e4ddd2;
+  --bt-line-soft: #efe9df;
+  --bt-text: #0b1a33;
+  --bt-muted: #5c6578;
+  --bt-subtle: #8b93a3;
+  --bt-orange: #fc5101;
+  --bt-orange-text: #d84600;
+  --bt-orange-soft: rgba(252, 81, 1, 0.1);
+  --bt-orange-wash: rgba(252, 81, 1, 0.07);
+  --bt-orange-focus: rgba(252, 81, 1, 0.14);
+  --bt-blue: #0048fc;
+  --bt-blue-soft: rgba(0, 72, 252, 0.09);
+  --bt-ok: #1c7a4d;
+  --bt-link-border: #dbe4ff;
+  --bt-skel-a: #eef1f6;
+  --bt-skel-b: #f6f8fb;
+  --bt-blue-text: #0048fc;
+  --bt-rose: #d9534f;
+  --bt-rose-text: #b3342f;
+  --bt-error-bg: #fdf1ef;
+  --bt-error-text: #7a1f14;
+  --bt-toggle-bg: #ffffff;
+  --bt-toggle-border: #e4ddd2;
+  --bt-toggle-knob: #e5e7eb;
+  --bt-toggle-ink: #0b1a33;
+  --bt-toggle-ghost: #9ca3af;
+  color-scheme: light;
+  --bt-shadow: 0 1px 2px rgba(11, 26, 51, 0.04), 0 14px 32px -20px rgba(11, 26, 51, 0.22);
+  --bt-shadow-hover: 0 2px 4px rgba(11, 26, 51, 0.05), 0 22px 40px -22px rgba(11, 26, 51, 0.3);
+
+  background: var(--bt-page) !important;
+  color: var(--bt-text) !important;
+  font-family: Geist, Inter, "Segoe UI", sans-serif;
+}
+
+.fu-public.ob-shell :is(h1, h2, h3, p, span, small, strong, label, button, a, li, div) {
+  letter-spacing: normal;
+}
+
+/* ---------- top bar ---------- */
+.fu-public.ob-shell :is(.ob-top, .ob-profile-nav, .ob-country-header) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px clamp(16px, 4vw, 48px) !important;
+  border-bottom: 1px solid var(--bt-border) !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+}
+
+.fu-public.ob-shell .ob-step-meta,
+.fu-public.ob-shell .ob-profile-nav > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fu-public.ob-shell .ob-step-label {
+  padding: 6px 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 999px;
+  background: var(--bt-panel) !important;
+  color: var(--bt-muted) !important;
+  font: 600 13px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.fu-public.ob-shell .ob-nav-back:hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-nav-back .material-symbols-outlined {
+  color: var(--bt-orange-text) !important;
+  font-size: 20px;
+}
+
+.fu-public.ob-shell .ob-nav-back :is(.font-label-caps, .uppercase) {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-locale {
+  display: inline-flex;
+  padding: 3px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--bt-tabs) !important;
+}
+
+.fu-public.ob-shell .ob-locale button {
+  min-width: 42px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: var(--bt-muted) !important;
+  font: 700 12.5px Outfit, Manrope, sans-serif !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .ob-locale button:is(.is-active, [aria-pressed="true"], [aria-current="true"], .is-on) {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+/* ---------- headings ---------- */
+.fu-public.ob-shell .ob-main {
+  padding-top: clamp(24px, 4vw, 48px);
+}
+
+.fu-public.ob-shell .ob-heading {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+}
+
+.fu-public.ob-shell .ob-heading h1 {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font: 800 clamp(30px, 3.4vw, 44px) / 1.1 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.03em !important;
+}
+
+.fu-public.ob-shell .ob-heading p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--bt-muted) !important;
+  font: 400 15.5px/1.55 Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell .ob-kicker {
+  color: var(--bt-orange-text) !important;
+  font: 700 13px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* ---------- audience tabs ---------- */
+.fu-public.ob-shell .ob-audience {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.fu-public.ob-shell .ob-audience-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: var(--bt-tabs) !important;
+}
+
+.fu-public.ob-shell .ob-audience-indicator {
+  display: none !important;
+}
+
+.fu-public.ob-shell .ob-audience-tab {
+  min-width: 140px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: var(--bt-muted) !important;
+  font: 600 14.5px Outfit, Manrope, sans-serif !important;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-public.ob-shell .ob-audience-tab.is-active {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-audience-hint {
+  margin: 0;
+  color: var(--bt-muted) !important;
+  font-size: 14px;
+}
+
+/* ---------- choice cards (role, intent) ---------- */
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) {
+  gap: 20px !important;
+}
+
+.fu-public.ob-shell .profile-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 24px !important;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+  color: var(--bt-text) !important;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.fu-public.ob-shell .profile-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(252, 81, 1, 0.35) !important;
+  box-shadow: var(--bt-shadow-hover) !important;
+}
+
+.fu-public.ob-shell .profile-card.active {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange-wash) !important;
+  box-shadow: 0 0 0 3px var(--bt-orange-focus), var(--bt-shadow) !important;
+}
+
+.fu-public.ob-shell .profile-card:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-public.ob-shell .profile-card .profile-card-icon {
+  display: grid;
+  place-items: center;
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 14px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font-size: 26px !important;
+}
+
+.fu-public.ob-shell .profile-card h3 {
+  margin: 4px 0 0;
+  color: var(--bt-text) !important;
+  font: 800 20px/1.25 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.fu-public.ob-shell .profile-card .ob-role-desc {
+  color: var(--bt-muted) !important;
+  font: 400 14px/1.55 Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell .profile-card .check-icon {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  color: var(--bt-orange) !important;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.fu-public.ob-shell .profile-card.active .check-icon {
+  opacity: 1;
+}
+
+/* ---------- buttons ---------- */
+.fu-public.ob-shell :is(.ob-primary-pill, .ob-primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--bt-orange) !important;
+  border-radius: 12px !important;
+  background: var(--bt-orange) !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.fu-public.ob-shell :is(.ob-primary-pill, .ob-primary):hover:not(:disabled) {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+}
+
+.fu-public.ob-shell :is(.ob-primary-pill, .ob-primary):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fu-public.ob-shell :is(.ob-primary-pill, .ob-primary, .ob-ghost, .ob-plan-cta, .ob-nav-back, .ob-audience-tab):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-public.ob-shell .ob-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .ob-ghost:hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell :is(.ob-footer-end, .ob-country-actions) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+/* ---------- country ---------- */
+.fu-public.ob-shell .ob-country {
+  display: grid;
+  gap: 18px;
+}
+
+.fu-public.ob-shell .ob-country-header {
+  border-bottom: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.fu-public.ob-shell .ob-search {
+  position: relative;
+}
+
+.fu-public.ob-shell .ob-search input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px 0 44px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 400 15px Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell .ob-search input:focus {
+  outline: 0;
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 4px var(--bt-orange-focus) !important;
+}
+
+.fu-public.ob-shell .ob-search .material-symbols-outlined {
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .country-list {
+  overflow: hidden auto;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-public.ob-shell .country-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 20px;
+  border: 0 !important;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+  background: transparent !important;
+  color: var(--bt-text) !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fu-public.ob-shell .country-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.fu-public.ob-shell .country-row:hover {
+  background: var(--bt-hover) !important;
+}
+
+.fu-public.ob-shell .country-row.is-active {
+  background: var(--bt-orange-wash) !important;
+  box-shadow: inset 4px 0 0 var(--bt-orange);
+}
+
+.fu-public.ob-shell .country-row .country-name {
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell .country-row .country-flag {
+  color: var(--bt-muted) !important;
+  font: 700 13px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-public.ob-shell .country-row .country-check {
+  margin-left: auto;
+  color: var(--bt-orange) !important;
+}
+
+.fu-public.ob-shell .country-empty {
+  padding: 24px;
+  color: var(--bt-muted) !important;
+}
+
+/* ---------- plans + payment: light stage instead of the navy one ---------- */
+.fu-public.ob-shell.pay-shell {
+  background: var(--bt-page) !important;
+  border-radius: 0 !important;
+}
+
+.fu-public.ob-shell.pay-shell .pay-orbs,
+.fu-public.ob-shell .plan-shine {
+  display: none !important;
+}
+
+.fu-public.ob-shell.pay-shell :is(.pay-title, .ob-plans-title) {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font: 800 clamp(30px, 3.4vw, 44px) / 1.1 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.03em !important;
+}
+
+.fu-public.ob-shell.pay-shell :is(.pay-lead, .ob-plans-lead) {
+  max-width: 62ch;
+  margin-inline: auto;
+  color: var(--bt-muted) !important;
+  font: 400 15.5px/1.55 Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell.pay-shell .pay-kicker {
+  color: var(--bt-orange-text) !important;
+  font: 700 13px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell.pay-shell .ob-plan-badge {
+  display: inline-flex;
+  padding: 5px 14px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font: 700 12.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-plans-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+  padding: 10px 14px !important;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 16px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow);
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell .ob-plans-tools :is(label, span) {
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-plans-switch-track {
+  background: var(--bt-track) !important;
+  border-radius: 999px !important;
+}
+
+.fu-public.ob-shell .ob-plans-switch.is-on .ob-plans-switch-track {
+  background: var(--bt-orange) !important;
+}
+
+.fu-public.ob-shell .ob-plans-switch-knob {
+  background: var(--bt-surface) !important;
+  box-shadow: 0 1px 3px rgba(11, 26, 51, 0.3);
+}
+
+.fu-public.ob-shell .plan-currency-seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--bt-tabs) !important;
+}
+
+.fu-public.ob-shell .plan-currency-seg button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  color: var(--bt-muted) !important;
+  font: 700 13px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .plan-currency-seg button.is-on {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card.is-featured {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue-soft) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card :is(h2, h3, h4, strong, li, p, span, small, em) {
+  color: var(--bt-text) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-plan-card :is(p, small, em, .ob-plan-tag) {
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card :is(h2, h3) {
+  font: 800 22px/1.2 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-price {
+  color: var(--bt-text) !important;
+  font: 800 44px/1 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.03em !important;
+}
+
+.fu-public.ob-shell .ob-plan-card.is-featured .ob-plan-price {
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-badge {
+  border-radius: 999px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-blue-text) !important;
+  border: 1px solid var(--bt-link-border) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-cta:hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-cta--lime {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-cta--lime:hover {
+  border-color: var(--bt-blue) !important;
+  background: var(--bt-blue) !important;
+  color: #fff !important;
+}
+
+/* ---------- payment ---------- */
+.fu-public.ob-shell .pay-cgv {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px !important;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 16px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell .pay-cgv :is(strong, span, small, div) {
+  color: var(--bt-text) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .pay-cgv small {
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .pay-cgv-box {
+  border: 2px solid var(--bt-border) !important;
+  border-radius: 6px !important;
+  background: var(--bt-surface) !important;
+}
+
+.fu-public.ob-shell .pay-cgv.is-on .pay-cgv-box {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+}
+
+.fu-public.ob-shell .ccp-form {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+}
+
+.fu-public.ob-shell .ccp-form :is(label, .ccp-section-title) {
+  color: var(--bt-text) !important;
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ccp-form :is(input, select) {
+  min-height: 48px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 400 15px Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell .ccp-form :is(input, select):focus {
+  outline: 0;
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 4px var(--bt-orange-focus) !important;
+}
+
+.fu-public.ob-shell .ccp-submit {
+  min-height: 50px;
+  border: 1px solid var(--bt-orange) !important;
+  border-radius: 12px !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ccp-submit:disabled {
+  background: var(--bt-chip) !important;
+  border-color: var(--bt-border) !important;
+  color: var(--bt-subtle) !important;
+}
+
+.fu-public.ob-shell .auth-error {
+  margin: 0;
+  padding: 12px 16px;
+  border-left: 4px solid var(--bt-rose);
+  border-radius: 12px;
+  background: var(--bt-error-bg) !important;
+  color: var(--bt-error-text) !important;
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .fu-public.ob-shell .ob-audience-tab {
+    min-width: 0;
+    flex: 1;
+  }
+  .fu-public.ob-shell :is(.ob-footer-end, .ob-country-actions) {
+    flex-direction: column-reverse;
+  }
+  .fu-public.ob-shell :is(.ob-footer-end, .ob-country-actions) > * {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-public.ob-shell .profile-card {
+    transition: none;
+  }
+  .fu-public.ob-shell .profile-card:hover {
+    transform: none;
+  }
+}
+
+/* ---------- second pass ---------- */
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card {
+  background: var(--bt-surface) !important;
+  background-image: none !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card.active {
+  background: var(--bt-orange-wash) !important;
+  background-image: none !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card.active :is(h3, .ob-role-desc) {
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card.active .ob-role-desc {
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .ob-nav-back :is(span, .font-label-caps, .uppercase) {
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-nav-back .material-symbols-outlined {
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .plan-trial {
+  display: inline-flex;
+  padding: 5px 14px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font: 700 12.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-plan-card.is-featured {
+  background: linear-gradient(var(--bt-blue-soft), var(--bt-blue-soft)), var(--bt-surface) !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-price {
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.fu-public.ob-shell .ob-plan-card .ob-plan-price :is(small, span) {
+  color: var(--bt-muted) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.fu-public.ob-shell .pay-cgv span:not(.pay-cgv-box),
+.fu-public.ob-shell .pay-cgv small,
+.fu-public.ob-shell .pay-cgv p {
+  color: var(--bt-muted) !important;
+  font: 400 13.5px Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell .pay-cgv strong {
+  color: var(--bt-text) !important;
+  font: 700 15px Outfit, Manrope, sans-serif !important;
+}
+
+/* ---------- profile (Votre dossier) ---------- */
+.fu-public.ob-shell .ob-profile-intro {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+}
+
+.fu-public.ob-shell .ob-profile-intro h1 {
+  margin: 0;
+  color: var(--bt-text) !important;
+  font: 800 clamp(30px, 3.4vw, 44px) / 1.1 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.03em !important;
+}
+
+.fu-public.ob-shell .ob-profile-intro p:not(.ob-kicker) {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--bt-muted) !important;
+  font: 400 15.5px/1.55 Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-badge, .ob-cv-import, .ob-section, .repeat-card, .multi-card, .file-block) {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 20px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell .ob-role-badge {
+  border-radius: 16px !important;
+}
+
+.fu-public.ob-shell .ob-role-badge :is(span, strong, div) {
+  color: var(--bt-text) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-link,
+.fu-public.ob-shell .ob-role-badge a,
+.fu-public.ob-shell .ob-role-badge button {
+  color: var(--bt-orange-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  text-decoration: none !important;
+}
+
+.fu-public.ob-shell .ob-section {
+  padding: 22px 24px !important;
+}
+
+.fu-public.ob-shell .ob-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bt-line-soft) !important;
+}
+
+.fu-public.ob-shell .ob-section-head :is(h2, h3, strong) {
+  color: var(--bt-text) !important;
+  font: 800 19px/1.2 Outfit, Manrope, sans-serif !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-section-index {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font: 800 15px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-public.ob-shell .ob-section-meta {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bt-chip) !important;
+  color: var(--bt-muted) !important;
+  font: 600 12.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .ob-section-head .material-symbols-outlined,
+.fu-public.ob-shell .ob-chevron {
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell :is(.auth-label, .ob-field > label, .ob-fields label) {
+  color: var(--bt-text) !important;
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell :is(.custom-input, .custom-textarea, .ob-field input, .ob-field select, .ob-field textarea) {
+  min-height: 46px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+  color: var(--bt-text) !important;
+  font: 400 15px Geist, Inter, sans-serif !important;
+}
+
+.fu-public.ob-shell :is(.custom-input, .custom-textarea, .ob-field input, .ob-field select, .ob-field textarea):focus {
+  outline: 0;
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 4px var(--bt-orange-focus) !important;
+}
+
+.fu-public.ob-shell :is(.custom-input.is-invalid, .is-invalid) {
+  border-color: var(--bt-rose) !important;
+}
+
+.fu-public.ob-shell :is(.field-hint, .auth-field-error, .ob-missing) {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell .field-hint {
+  color: var(--bt-muted) !important;
+  font-size: 13px;
+}
+
+.fu-public.ob-shell :is(.auth-field-error, .ob-missing) {
+  color: var(--bt-rose-text) !important;
+  font-size: 13px;
+}
+
+/* chips, multi-select cards, countries, yes/no, weekdays */
+.fu-public.ob-shell .chip,
+.fu-public.ob-shell .chip-suggest,
+.fu-public.ob-shell .country-pill,
+.fu-public.ob-shell .bool-toggle button,
+.fu-public.ob-shell .slot-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 999px !important;
+  background: var(--bt-surface) !important;
+  box-shadow: none !important;
+  color: var(--bt-text) !important;
+  font: 600 13.5px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.fu-public.ob-shell :is(.chip-suggest, .country-pill, .bool-toggle button, .slot-day):hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell :is(.chip-list .chip, .country-pill.selected, .bool-toggle .is-active, .bool-toggle button.is-active, .slot-day.is-active) {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .chip-box {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 14px !important;
+  background: var(--bt-surface) !important;
+}
+
+.fu-public.ob-shell .chip-suggestions {
+  border: 1px solid var(--bt-line-soft) !important;
+  border-radius: 14px !important;
+  background: var(--bt-panel) !important;
+}
+
+.fu-public.ob-shell .file-drop {
+  border: 1px dashed var(--bt-border) !important;
+  border-radius: 14px !important;
+  background: var(--bt-panel) !important;
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .file-drop:hover {
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange-wash) !important;
+}
+
+.fu-public.ob-shell .file-drop .material-symbols-outlined {
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell :is(.repeat-add, .slot-add) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px dashed var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell :is(.repeat-add, .slot-add):hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .slot-add {
+  border-style: solid !important;
+  border-color: var(--bt-orange) !important;
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+/* footer actions */
+.fu-public.ob-shell :is(.ob-profile-actions, .ob-profile-footer) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.fu-public.ob-shell .ob-profile-footer {
+  padding-top: 18px;
+  border-top: 1px solid var(--bt-line-soft) !important;
+  color: var(--bt-muted) !important;
+  font-size: 13.5px;
+}
+
+.fu-public.ob-shell .ob-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .ob-secondary:hover {
+  border-color: var(--bt-orange) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+/* generic leftovers: uppercase mono labels */
+.fu-public.ob-shell :is(.font-label-caps, .uppercase, .font-mono-data) {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* ---------- third pass ---------- */
+/* keep the Material icon font on icon spans inside the back button */
+.fu-public.ob-shell .ob-nav-back .material-symbols-outlined {
+  font-family: "Material Symbols Outlined" !important;
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card.active {
+  background: linear-gradient(var(--bt-orange-wash), var(--bt-orange-wash)), var(--bt-surface) !important;
+}
+
+.fu-public.ob-shell .profile-card.active .check-icon {
+  opacity: 1 !important;
+  color: var(--bt-orange) !important;
+}
+
+.fu-public.ob-shell :is(.ob-footer-end, .ob-country-actions) :is(.ob-primary-pill, .ob-primary) {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.fu-public.ob-shell .photo-copy :is(button, label) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-orange) !important;
+  border-radius: 12px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  cursor: pointer;
+}
+
+.fu-public.ob-shell .photo-copy :is(button, label):hover {
+  background: var(--bt-orange) !important;
+  color: #fff !important;
+}
+
+/* ---------- fourth pass ---------- */
+.fu-public.ob-shell .ob-country-header {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.fu-public.ob-shell .ob-country-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px;
+}
+
+.fu-public.ob-shell .pay-cgv em {
+  display: block;
+  margin-top: 2px;
+  color: var(--bt-muted) !important;
+  font: 400 13px Geist, Inter, sans-serif !important;
+  font-style: normal !important;
+}
+
+.fu-public.ob-shell .pay-cgv.is-on .pay-cgv-box::after {
+  border-color: #fff !important;
+}
+
+@media (max-width: 560px) {
+  .fu-public.ob-shell :is(.ob-profile-nav, .ob-top) {
+    gap: 8px;
+    padding: 12px 14px !important;
+  }
+  .fu-public.ob-shell .ob-profile-nav .ob-nav-back span:not(.material-symbols-outlined),
+  .fu-public.ob-shell .ob-top .ob-nav-back span:not(.material-symbols-outlined) {
+    display: none;
+  }
+  .fu-public.ob-shell :is(.ob-profile-nav, .ob-top) .ob-step-label {
+    padding: 4px 10px;
+    font-size: 12px !important;
+    white-space: nowrap;
+  }
+  .fu-public.ob-shell :is(.ob-profile-nav, .ob-top) .ob-locale button {
+    min-width: 34px;
+    padding: 0 8px;
+  }
+  .fu-public.ob-shell :is(.ob-profile-nav, .ob-top) img {
+    max-height: 30px;
+    width: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .fu-public.ob-shell .ob-section {
+    padding: 18px 14px !important;
+  }
+  .fu-public.ob-shell .ob-section-head {
+    gap: 10px;
+  }
+  .fu-public.ob-shell .ob-section-meta {
+    padding: 3px 8px;
+    font-size: 11.5px !important;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- theme toggle (copy of the back-office switch) ---------- */
+.fu-public.ob-shell .bo-theme-toggle {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 32px;
+  padding: 4px;
+  border: 1px solid var(--bt-toggle-border);
+  border-radius: 999px;
+  background: var(--bt-toggle-bg);
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.fu-public.ob-shell .bo-theme-toggle:hover {
+  border-color: var(--bt-orange);
+}
+
+.fu-public.ob-shell .bo-theme-toggle:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.5);
+  outline-offset: 2px;
+}
+
+.fu-public.ob-shell .bo-theme-toggle-ghost {
+  position: absolute;
+  top: 50%;
+  color: var(--bt-toggle-ghost);
+  transform: translateY(-50%);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.fu-public.ob-shell .bo-theme-toggle-ghost.is-sun {
+  left: 7px;
+}
+
+.fu-public.ob-shell .bo-theme-toggle-ghost.is-moon {
+  right: 7px;
+}
+
+/* the active side is carried by the knob */
+.fu-public.ob-shell .bo-theme-toggle:not(.is-dark) .bo-theme-toggle-ghost.is-sun,
+.fu-public.ob-shell .bo-theme-toggle.is-dark .bo-theme-toggle-ghost.is-moon {
+  opacity: 0;
+}
+
+.fu-public.ob-shell .bo-theme-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bt-toggle-knob);
+  color: var(--bt-toggle-ink);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, color 0.3s ease;
+}
+
+.fu-public.ob-shell .bo-theme-toggle.is-dark .bo-theme-toggle-knob {
+  transform: translateX(32px);
+}
+
+@media (max-width: 1024px) {
+  .fu-public.ob-shell .bo-top-actions {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .fu-public.ob-shell .bo-topbar {
+    padding: 0 10px;
+    gap: 8px;
+  }
+  .fu-public.ob-shell .bo-top-actions {
+    gap: 6px;
+  }
+  .fu-public.ob-shell .bo-icon-btn {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-public.ob-shell .bo-theme-toggle,
+  .fu-public.ob-shell .bo-theme-toggle-knob,
+  .fu-public.ob-shell .bo-theme-toggle-ghost,
+  .fu-public.ob-shell .bo-main.is-themed {
+    transition: none;
+  }
+}
+
+
+/* ==================================================================
+   DARK MODE (same palette as the back-office tokens)
+   The ThemeProvider choice (localStorage `fu.bo.theme`) is shared with the
+   whole app: the pages set `data-bo-theme` on `.fu-public.ob-shell`.
+   ================================================================== */
+.fu-public.ob-shell[data-bo-theme="dark"] {
+  color-scheme: dark;
+  --bt-page: #0d111b;
+  --bt-surface: #1b2332;
+  --bt-panel: #1f2838;
+  --bt-chip: #252f42;
+  --bt-tabs: #151c2a;
+  --bt-track: #2a3342;
+  --bt-hover: #222c3d;
+  --bt-border: #343c4a;
+  --bt-line-soft: #2a3342;
+  --bt-text: #f8fafc;
+  --bt-muted: #9ca9ba;
+  --bt-subtle: #8190a5;
+  --bt-orange-text: #ff7a36;
+  --bt-orange-soft: rgba(252, 81, 1, 0.18);
+  --bt-orange-wash: rgba(252, 81, 1, 0.13);
+  --bt-orange-focus: rgba(252, 81, 1, 0.3);
+  --bt-blue-soft: rgba(110, 150, 255, 0.16);
+  --bt-link-border: #34508f;
+  --bt-skel-a: #232d3f;
+  --bt-skel-b: #2c374b;
+  --bt-blue-text: #7ba3ff;
+  --bt-ok: #4fd18e;
+  --bt-rose: #ff6b66;
+  --bt-rose-text: #ff8a85;
+  --bt-error-bg: rgba(255, 107, 102, 0.12);
+  --bt-error-text: #ffb4b0;
+  --bt-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -20px rgba(0, 0, 0, 0.65);
+  --bt-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 22px 40px -22px rgba(0, 0, 0, 0.75);
+  --bt-toggle-bg: #151c2a;
+  --bt-toggle-border: #343c4a;
+  --bt-toggle-knob: #2c3a57;
+  --bt-toggle-ink: #ffffff;
+  --bt-toggle-ghost: #6b7688;
+}
+
+/* the brand mark is blue on transparent: keep it on a light plate in dark */
+.fu-public.ob-shell[data-bo-theme="dark"] :is(.ob-brand, .ob-country-brand .ob-brand) {
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: #f3eee6;
+}
+
+/* orange buttons carry dark ink in dark, like the back-office */
+.fu-public.ob-shell[data-bo-theme="dark"] :is(.ob-primary-pill, .ob-primary, .ob-plan-card .ob-plan-cta--lime, .ccp-submit:not(:disabled), .slot-add) {
+  color: #0d111b !important;
+}
+
+.fu-public.ob-shell[data-bo-theme="dark"] :is(.ob-primary-pill, .ob-primary):hover:not(:disabled),
+.fu-public.ob-shell[data-bo-theme="dark"] .ob-plan-card .ob-plan-cta--lime:hover {
+  color: #fff !important;
+}
+
+.fu-public.ob-shell[data-bo-theme="dark"] .profile-card:hover {
+  border-color: rgba(255, 122, 54, 0.5) !important;
+}
+
+.fu-public.ob-shell[data-bo-theme="dark"] .ob-audience-tab.is-active,
+.fu-public.ob-shell[data-bo-theme="dark"] .ob-locale button.is-active {
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell[data-bo-theme="dark"] :is(.file-drop, .chip-suggestions) {
+  background: var(--bt-panel) !important;
+}
+
+.fu-public.ob-shell .ob-theme-slot {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- hover clipping + legacy blue hover ring ---------- */
+/* the viewport only needs to clip the slide animation sideways: top and bottom stay visible so the lifted card, its shadow and its focus ring are never cut */
+.fu-public.ob-shell .ob-role-viewport {
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+  padding: 16px 12px 20px;
+  margin: -16px -12px -20px;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card:hover {
+  background-color: var(--bt-surface) !important;
+  box-shadow: var(--bt-shadow-hover) !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card.active:hover {
+  background: linear-gradient(var(--bt-orange-wash), var(--bt-orange-wash)), var(--bt-surface) !important;
+  border-color: var(--bt-orange) !important;
+  box-shadow: 0 0 0 3px var(--bt-orange-focus), var(--bt-shadow-hover) !important;
+}
+
+.fu-public.ob-shell :is(.ob-role-grid, .ob-intent-grid) .profile-card:hover .profile-card-icon {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+/* ---------- fifth pass: dossier headings, section numbers, badge ---------- */
+.fu-public.ob-shell .ob-profile :is(h2, h3, h4, strong) {
+  color: var(--bt-text) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell :is(.ob-cv-import, .ob-id-photo, .ob-dossier) :is(p, small, span:not(.material-symbols-outlined)) {
+  color: var(--bt-muted) !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.fu-public.ob-shell :is(.ob-cv-import, .ob-id-photo) .material-symbols-outlined {
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-section .ob-section-head .ob-section-index {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-public.ob-shell .ob-id-photo {
+  border: 1px solid var(--bt-line-soft) !important;
+  border-radius: 16px !important;
+  background: var(--bt-panel) !important;
+}
+
+/* ---------- profile form embedded in the app shell (Modifier le profil) ---------- */
+.fu-public.ob-shell.ob-embedded {
+  min-height: 0;
+  padding: 0;
+  background: transparent !important;
+}
+
+.fu-public.ob-shell.ob-embedded .page-head h1 {
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell.ob-embedded .page-head .sub {
+  color: var(--bt-muted) !important;
+}
+
+/* card headings + weekly slot editor (dark-safe) */
+.fu-public.ob-shell :is(.ob-cv-import, .ob-id-photo, .ob-cv-import-head) :is(h2, h3, h4, strong, b) {
+  color: var(--bt-text) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.fu-public.ob-shell :is(.slot-week, .slot-range-row, .slot-ranges, .slot-empty, .slot-problem) {
+  border-color: var(--bt-border) !important;
+  background: var(--bt-panel) !important;
+  color: var(--bt-muted) !important;
+}
+
+.fu-public.ob-shell .slot-range {
+  border: 1px solid var(--bt-border) !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+}
+
+/* plan / payment pages shown inside the app shell */
+.fu-public.ob-shell.ob-embedded .ob-plans-title,
+.fu-public.ob-shell.ob-embedded .pay-title {
+  display: none;
+}
+
+.fu-public.ob-shell.ob-embedded :is(.ob-plans, .ob-pay) {
+  min-height: 0;
+  padding-top: 8px;
+  overflow: visible;
+  background: transparent !important;
+}
+
+.fu-public.ob-shell.ob-embedded .ob-plan-grid {
+  padding-inline: 0;
+}
+
+.fu-public.ob-shell.ob-embedded .btn-outline {
+  border: 1px solid var(--bt-border) !important;
+  border-radius: 12px !important;
+  background: var(--bt-surface) !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-public.ob-shell.ob-embedded .page-head :is(a, button) {
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}

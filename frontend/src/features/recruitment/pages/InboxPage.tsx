@@ -21,6 +21,7 @@ import {
   type PipelineStatus,
   type Recruitment,
 } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 function needsRecruit(status: PipelineStatus) {
   return status === "APPLIED" || status === "NEW";
@@ -131,7 +132,7 @@ export function InboxPage() {
   const active = items.filter((item) => !needsRecruit(item.status));
 
   return (
-    <section className="hire-page">
+    <section className="hire-page cg-skin">
       <div className="page-head">
         <div>
           <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>

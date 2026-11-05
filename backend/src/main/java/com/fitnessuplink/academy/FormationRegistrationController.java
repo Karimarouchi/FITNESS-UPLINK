@@ -1,7 +1,9 @@
 package com.fitnessuplink.academy;
 
 import com.fitnessuplink.auth.security.UserPrincipal;
+import com.fitnessuplink.academy.dto.AcademyDtos.CheckinDto;
 import com.fitnessuplink.academy.dto.AcademyDtos.PayRegistrationRequest;
+import com.fitnessuplink.academy.dto.AcademyDtos.ReceiptDto;
 import com.fitnessuplink.academy.dto.AcademyDtos.RegistrationDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,8 +26,32 @@ public class FormationRegistrationController {
     private final FormationRegistrationService formationRegistrationService;
 
     @PostMapping
-    public RegistrationDto register(@AuthenticationPrincipal UserPrincipal principal, @RequestParam UUID sessionId) {
-        return formationRegistrationService.register(principal.getUser(), sessionId);
+    public RegistrationDto register(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam UUID sessionId,
+            @RequestParam(required = false) PaymentMethod method
+    ) {
+        return formationRegistrationService.register(principal.getUser(), sessionId, method);
+    }
+
+    @GetMapping("/debts")
+    public List<RegistrationDto> debts(@AuthenticationPrincipal UserPrincipal principal) {
+        return formationRegistrationService.debts(principal.getUser());
+    }
+
+    @GetMapping("/{id}/receipt")
+    public ReceiptDto receipt(@AuthenticationPrincipal UserPrincipal principal, @PathVariable UUID id) {
+        return formationRegistrationService.receipt(principal.getUser(), id);
+    }
+
+    @GetMapping("/checkin/{token}")
+    public CheckinDto lookupTicket(@AuthenticationPrincipal UserPrincipal principal, @PathVariable String token) {
+        return formationRegistrationService.lookupTicket(principal.getUser(), token);
+    }
+
+    @PostMapping("/checkin/{token}/confirm")
+    public CheckinDto confirmTicket(@AuthenticationPrincipal UserPrincipal principal, @PathVariable String token) {
+        return formationRegistrationService.confirmTicket(principal.getUser(), token);
     }
 
     @GetMapping("/mine")

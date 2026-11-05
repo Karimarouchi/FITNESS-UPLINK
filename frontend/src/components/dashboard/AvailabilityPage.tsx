@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Panel } from "@/components/ui/Panel";
 import { Tag } from "@/components/ui/Tag";
 import { useOwnProfile } from "@/features/me/ownProfile";
+import { SkeletonRows } from "@/components/ui/Skeleton";
 
 export function AvailabilityPage() {
   const { profile, error, loading } = useOwnProfile();
@@ -19,7 +20,7 @@ export function AvailabilityPage() {
           </Button>
         </div>
       </div>
-      {loading ? <p className="empty-hint">Chargement…</p> : null}
+      {loading ? <SkeletonRows rows={3} /> : null}
       {error ? <p className="empty-hint">{error}</p> : null}
       <Panel title="Disponibilité générale">
         <div className="info-grid">

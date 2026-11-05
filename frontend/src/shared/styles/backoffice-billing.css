@@ -1,0 +1,703 @@
+/* ==================================================================
+   ABONNEMENTS — Premium Light / Dark.
+   Built on the Dashboard + Users blocks (wrapper `bo-dash bo-users bo-bm
+   bo-bs`) and on backoffice-modules.css. Only what is specific to the
+   billing screens lives here, and it starts with `bs-`: the audience hub,
+   the Starter / Pro / Business matrix and the payment tools.
+
+   Colours come from the `--bt-*` tokens (backoffice-tokens.css).
+   P = `.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs`
+   ================================================================== */
+
+/* ---------- header helpers ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px -4px;
+  padding: 6px 10px 6px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bt-muted);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-back:hover {
+  background: var(--bt-chip-2);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs :is(.bs-back, .bs-hub-card, .bs-switch input, .bs-renew):focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ---------- audience hub ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub {
+  display: grid;
+  gap: 18px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 26px 28px;
+  border: 1px solid var(--bt-border);
+  border-radius: 20px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(252, 81, 1, 0.35);
+  box-shadow: var(--bt-shadow-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile.is-orange {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile.is-blue {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile.is-violet {
+  background: var(--bt-violet-soft);
+  color: var(--bt-violet-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile.is-green {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy strong {
+  color: var(--bt-text);
+  font: 800 22px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy em {
+  color: var(--bt-muted);
+  font-size: 14.5px;
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-go {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count {
+  display: grid;
+  justify-items: center;
+  min-width: 56px;
+  line-height: 1.1;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count strong {
+  color: var(--bt-orange-text);
+  font: 800 38px/1 Outfit, Manrope, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count small {
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-count-skel {
+  width: 40px;
+  height: 38px;
+  border-radius: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-arrow {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card:hover .bs-hub-arrow {
+  background: var(--bt-orange);
+  color: #fff;
+}
+
+/* ---------- notice + save state ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-note svg {
+  flex: none;
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-note > span:not(.bs-save) {
+  flex: 1 1 260px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-save.is-saved {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-save.is-error {
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+}
+
+.bs-spin {
+  animation: bs-rotate 0.9s linear infinite;
+}
+
+@keyframes bs-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- "annual price" switch ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  color: var(--bt-text);
+  font: 500 14.5px Geist, Inter, sans-serif;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch-track {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--bt-track);
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bt-surface);
+  box-shadow: 0 1px 3px rgba(11, 26, 51, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch.is-on .bs-switch-track {
+  background: var(--bt-orange);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch.is-on .bs-switch-knob {
+  transform: translateX(18px);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-switch:focus-within {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+/* ---------- matrix ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix-wrap {
+  overflow-x: auto;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix-skel {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix-skel .bo-skeleton {
+  height: 56px;
+  border-radius: 12px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix th,
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix td {
+  border-bottom: 1px solid var(--bt-line-row);
+  background: var(--bt-surface);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix thead th {
+  vertical-align: top;
+  border-bottom: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 30%;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix :is(th, td) {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head {
+  padding: 24px 24px 20px;
+  vertical-align: bottom;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head span,
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head small {
+  display: block;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head small {
+  margin-top: 4px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head span {
+  color: var(--bt-text);
+  font: 800 17px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn-head small {
+  color: var(--bt-muted);
+  font: 400 13px Geist, Inter, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-plan-head {
+  padding: 14px 20px 20px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-plan-top {
+  display: block;
+  min-height: 24px;
+  margin-bottom: 4px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border: 1px solid var(--bt-link-border);
+  border-radius: 999px;
+  background: var(--bt-surface);
+  color: var(--bt-blue-text);
+  font: 700 11.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-plan-head strong {
+  display: block;
+  color: var(--bt-text);
+  font: 800 22px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-plan-head em {
+  display: block;
+  min-height: 40px;
+  margin-top: 4px;
+  color: var(--bt-muted);
+  font: 400 13px/1.45 Geist, Inter, sans-serif;
+  font-style: normal;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-money,
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-trial {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--bt-muted);
+  font: 500 13.5px Geist, Inter, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-money-cur {
+  color: var(--bt-text);
+  font: 700 14px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-trial svg {
+  flex: none;
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix input[type="number"] {
+  min-width: 0;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-input);
+  color: var(--bt-text);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-money input {
+  width: 100%;
+  max-width: 120px;
+  height: 46px;
+  padding: 0 12px;
+  font: 800 22px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-trial input {
+  width: 64px;
+  height: 38px;
+  padding: 0 10px;
+  font: 600 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix input[type="number"]:focus {
+  outline: 0;
+  border-color: var(--bt-orange);
+  box-shadow: 0 0 0 4px var(--bt-orange-focus);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn {
+  padding: 14px 24px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn strong {
+  display: block;
+  color: var(--bt-text);
+  font: 600 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-fn em {
+  display: block;
+  margin-top: 2px;
+  color: var(--bt-muted);
+  font: 400 12.5px/1.4 Geist, Inter, sans-serif;
+  font-style: normal;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix td {
+  padding: 12px 20px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix tbody tr:hover :is(th, td):not(.is-featured) {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cell > input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #fc5101;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cell > input[type="checkbox"]:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-limit {
+  width: 76px;
+  height: 36px;
+  padding: 0 10px;
+  font: 600 14px Outfit, Manrope, sans-serif;
+}
+
+/* featured plan: very pale blue, thin blue outline, no heavy block */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix :is(th, td).is-featured {
+  border-right: 1px solid var(--bt-link-border);
+  border-left: 1px solid var(--bt-link-border);
+  background: var(--bt-blue-soft);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix thead th.is-featured {
+  border-top: 1px solid var(--bt-link-border);
+  border-radius: 16px 16px 0 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix tbody tr:last-child td.is-featured {
+  border-bottom: 1px solid var(--bt-link-border);
+  border-radius: 0 0 16px 16px;
+}
+
+/* ---------- tools ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-head h2 {
+  flex: 1;
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 19px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-count {
+  min-width: 28px;
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: var(--bt-tab-count);
+  color: var(--bt-muted);
+  font: 700 12.5px Outfit, Manrope, sans-serif;
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-lead {
+  margin: 0;
+  padding: 16px 22px 4px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cards {
+  display: grid;
+  margin: 0;
+  padding: 8px 0 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cards li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--bt-line-row);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-pan {
+  min-width: 110px;
+  color: var(--bt-text);
+  font: 700 15px Outfit, Manrope, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-label {
+  flex: 1;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add {
+  display: grid;
+  gap: 8px;
+  padding: 18px 22px 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add label {
+  color: var(--bt-text);
+  font: 600 13.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add-row .bm-input {
+  flex: 1 1 260px;
+  max-width: 360px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-vat {
+  min-width: 360px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-iso {
+  color: var(--bt-text);
+  font: 700 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-rate .bm-input {
+  width: 110px;
+  height: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1024px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 18px 20px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-go {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--bt-line-soft);
+  }
+}
+
+@media (max-width: 720px) {
+  /* the three plans stay reachable by scrolling the matrix card itself, the feature column no longer pins itself */
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix {
+    min-width: 760px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-matrix th:first-child {
+    position: static;
+    width: 200px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
+    padding: 20px 18px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy strong {
+    font-size: 19px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-toolbar > * {
+    flex: 1 1 140px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-toolbar .bo-dash-select-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-card-head,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-lead,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-cards li {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-renew {
+    width: 100%;
+    justify-content: center;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-add-row .bm-input {
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs :is(.bs-hub-card, .bs-hub-arrow, .bs-switch-track, .bs-switch-knob, .bs-back) {
+    transition: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card:hover {
+    transform: none;
+  }
+  .bs-spin {
+    animation: none;
+  }
+}

@@ -19,9 +19,10 @@ import type { AuthUser } from "@/features/auth/types";
 import { hasPermission, isBackOfficeUser } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { ADMIN_CONFIG, ADMIN_MODULES } from "@/components/admin/adminNav";
+import { sidebarGroupsFor } from "../sidebarNav";
 import { lucideFor } from "./navIcons";
 
-export type ShellBadge = "marketplaceUnread";
+export type ShellBadge = "marketplaceUnread" | "notifications";
 
 export type ShellLink = {
   kind?: "link";
@@ -45,8 +46,9 @@ export type ShellItem = ShellLink | ShellGroup;
 
 export type ShellSection = { title: string; items: ShellItem[] };
 
+/** Every signed-in account now uses the same sidebar + header shell (the sidebar content depends on the role). */
 export function usesWorkspaceShell(user: AuthUser | null | undefined) {
-  return isBackOfficeUser(user) || hasPermission(user, PERMS.MARKETPLACE_MANAGE);
+  return Boolean(user);
 }
 
 export function isSupplierWorkspace(user: AuthUser | null | undefined) {
@@ -63,7 +65,7 @@ function accountSection(user: AuthUser | null): ShellSection {
     });
   }
   if (hasPermission(user, PERMS.ACCOUNT_NOTIFICATIONS)) {
-    items.push({ label: "Notifications", to: "/notifications", icon: Bell });
+    items.push({ label: "Notifications", to: "/notifications", icon: Bell, badge: "notifications" });
   }
   if (hasPermission(user, PERMS.ACCOUNT_SETTINGS)) {
     items.push({ label: "Paramètres", to: "/app/settings", icon: Settings });
@@ -119,9 +121,11 @@ function adminSections(user: AuthUser | null): ShellSection[] {
   }
 
   const sections: ShellSection[] = [
-    { title: "Pilotage", items: [{ label: "Tableau de bord", to: "/app/dashboard", icon: LayoutDashboard, end: true }] },
+    {
+      title: "Menu principal",
+      items: [{ label: "Dashboard", to: "/app/dashboard", icon: LayoutDashboard, end: true }, ...manage],
+    },
   ];
-  if (manage.length) sections.push({ title: "Gestion", items: manage });
   if (platform.length) sections.push({ title: "Plateforme", items: platform });
   sections.push(accountSection(user));
   return sections;
@@ -142,8 +146,47 @@ function supplierSections(user: AuthUser | null): ShellSection[] {
   ];
 }
 
+/** Candidates, coaches, members, employers, gyms, academies... : the same menu as before, in the sidebar. */
+function memberSections(user: AuthUser | null): ShellSection[] {
+  const main: ShellItem[] = [];
+  const account: ShellLink[] = [];
+
+  const asLink = (item: { label: string; to: string; icon: string; end?: boolean }): ShellLink => ({
+    label: item.label,
+    to: item.to,
+    icon: lucideFor(item.icon),
+    end: item.end,
+    badge: item.to === "/notifications" ? "notifications" : item.to === "/app/marketplace/messages" ? "marketplaceUnread" : undefined,
+  });
+
+  for (const group of sidebarGroupsFor(user)) {
+    for (const item of group.items) {
+      if (item.kind === "dropdown") {
+        if (item.id === "account") {
+          account.push(...item.children.map(asLink));
+        } else {
+          main.push({
+            kind: "group",
+            id: item.id,
+            label: item.label,
+            icon: lucideFor(item.icon),
+            children: item.children.map(asLink),
+          });
+        }
+      } else if (item.to === "/app/profile") {
+        account.unshift({ ...asLink(item), icon: UserRound });
+      } else {
+        main.push(asLink(item));
+      }
+    }
+  }
+  return [{ title: "Menu principal", items: main }, { title: "Compte", items: account }];
+}
+
 export function shellSectionsFor(user: AuthUser | null): ShellSection[] {
-  return isSupplierWorkspace(user) ? supplierSections(user) : adminSections(user);
+  if (isSupplierWorkspace(user)) return supplierSections(user);
+  if (isBackOfficeUser(user)) return adminSections(user);
+  return memberSections(user);
 }
 
 export function flattenLinks(sections: ShellSection[]): ShellLink[] {

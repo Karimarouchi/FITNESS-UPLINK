@@ -1,0 +1,203 @@
+/* ==================================================================
+   BACK-OFFICE THEME TOKENS (light + dark)
+
+   One set of `--bt-*` variables drives the sidebar, header, Dashboard,
+   Users page and their modals. A component never hard-codes a neutral
+   colour: it asks for a token, and the theme decides its value.
+
+   Where the variables live
+   - `.fu-app .bo-shell.bo-light`          the back-office shell
+   - `.fu-app.bo-overlay.um-overlay`       Users modals (portal outside the shell)
+   Dark values apply when the element has `data-bo-theme="dark"`, which the
+   ThemeProvider-driven AppLayout / UsersModal set. Nothing outside the
+   back-office reads these variables: the public site, login and member
+   areas are untouched.
+
+   Light values below are exactly the colours the Premium Light design
+   already used.
+   ================================================================== */
+
+.fu-app .bo-shell.bo-light,
+.fu-app.bo-overlay.um-overlay {
+  color-scheme: light;
+
+  /* layout (same in both themes) */
+  --bt-sidebar-w: 280px;
+  --bt-sidebar-w-collapsed: 88px;
+
+  /* canvas and chrome */
+  --bt-page: #f3eee6;
+  --bt-chrome: #ffffff;
+  --bt-chrome-glass: rgba(255, 255, 255, 0.94);
+
+  /* surfaces */
+  --bt-surface: #ffffff;
+  --bt-card-soft: #fffdf9;
+  --bt-panel: #fbf8f3;
+  --bt-thead: #f8f4ed;
+  --bt-input: #f5f1ea;
+  --bt-tabs: #f6f2ea;
+  --bt-tab-count: #e9e3d8;
+  --bt-chip: #f3f0ea;
+  --bt-chip-2: #f1ede6;
+  --bt-track: #efeae2;
+  --bt-ink: #0b1a33;
+
+  /* interaction */
+  --bt-hover: #fcfaf6;
+  --bt-hover-2: #faf7f2;
+  --bt-hover-3: #f7f3ec;
+  --bt-scroll: #ddd5c9;
+
+  /* lines */
+  --bt-border: #e4ddd2;
+  --bt-line-soft: #efe9df;
+  --bt-line-row: #f3eee5;
+  --bt-line-3: #f1ece3;
+  --bt-link-border: #dbe4ff;
+
+  /* text */
+  --bt-text: #0b1a33;
+  --bt-muted: #5c6578;
+  --bt-subtle: #8b93a3;
+
+  /* brand */
+  --bt-orange: #fc5101;
+  --bt-orange-text: #fc5101;
+  --bt-orange-badge: #bf3f00;
+  --bt-orange-wash: rgba(252, 81, 1, 0.07);
+  --bt-orange-soft: rgba(252, 81, 1, 0.1);
+  --bt-orange-soft-2: rgba(252, 81, 1, 0.12);
+  --bt-orange-focus: rgba(252, 81, 1, 0.14);
+  --bt-blue: #0048fc;
+  --bt-blue-text: #0048fc;
+  --bt-blue-soft: rgba(0, 72, 252, 0.09);
+  --bt-blue-soft-2: rgba(0, 72, 252, 0.1);
+  --bt-violet-text: #5b3fc4;
+  --bt-violet-soft: rgba(106, 79, 209, 0.12);
+
+  /* status */
+  --bt-ok: #1c7a4d;
+  --bt-ok-text: #1c7a4d;
+  --bt-ok-strong: #14583a;
+  --bt-ok-soft: rgba(28, 122, 77, 0.12);
+  --bt-ok-border: rgba(28, 122, 77, 0.25);
+  --bt-rose: #d9534f;
+  --bt-rose-text: #b3342f;
+  --bt-rose-wash: rgba(217, 83, 79, 0.08);
+  --bt-rose-soft: rgba(217, 83, 79, 0.1);
+  --bt-rose-soft-2: rgba(217, 83, 79, 0.12);
+  --bt-danger-solid: #d9534f;
+  --bt-error-bg: #fdf1ef;
+  --bt-error-text: #7a1f14;
+
+  /* charts */
+  --bt-bar-1: #fc5101;
+  --bt-bar-2: #0048fc;
+  --bt-bar-3: #8fb0ff;
+  --bt-bar-4: #d9d2c6;
+  --bt-donut-blue: #0048fc;
+  --bt-donut-rose: #f3a98a;
+  --bt-donut-track: #efe8dc;
+  --bt-tip-bg: #0b1a33;
+  --bt-tip-accent: #ffb08a;
+
+  /* depth, overlays, loading */
+  --bt-shadow: 0 1px 2px rgba(11, 26, 51, 0.04), 0 14px 32px -20px rgba(11, 26, 51, 0.22);
+  --bt-shadow-hover: 0 2px 4px rgba(11, 26, 51, 0.05), 0 22px 40px -22px rgba(11, 26, 51, 0.3);
+  --bt-shadow-lg: 0 24px 48px -20px rgba(11, 26, 51, 0.35);
+  --bt-shadow-modal-color: rgba(11, 26, 51, 0.55);
+  --bt-overlay: rgba(11, 26, 51, 0.46);
+  --bt-skel-a: #eef1f6;
+  --bt-skel-b: #f6f8fb;
+
+  /* toggle */
+  --bt-toggle-bg: #ffffff;
+  --bt-toggle-border: #e4ddd2;
+  --bt-toggle-knob: #e5e7eb;
+  --bt-toggle-ink: #0b1a33;
+  --bt-toggle-ghost: #9ca3af;
+}
+
+.fu-app .bo-shell.bo-light[data-bo-theme="dark"],
+.fu-app.bo-overlay.um-overlay[data-bo-theme="dark"] {
+  color-scheme: dark;
+
+  --bt-page: #0d111b;
+  --bt-chrome: #111827;
+  --bt-chrome-glass: rgba(17, 24, 39, 0.92);
+
+  --bt-surface: #1b2332;
+  --bt-card-soft: #1f2838;
+  --bt-panel: #1f2838;
+  --bt-thead: #202a3a;
+  --bt-input: #1b2332;
+  --bt-tabs: #151c2a;
+  --bt-tab-count: #2c3750;
+  --bt-chip: #252f42;
+  --bt-chip-2: #212b3d;
+  --bt-track: #2a3342;
+  --bt-ink: #2d3a52;
+
+  --bt-hover: #222c3d;
+  --bt-hover-2: #222c3d;
+  --bt-hover-3: #283347;
+  --bt-scroll: #3a4456;
+
+  --bt-border: #343c4a;
+  --bt-line-soft: #2a3342;
+  --bt-line-row: #262f3e;
+  --bt-line-3: #2b3444;
+  --bt-link-border: #34508f;
+
+  --bt-text: #f8fafc;
+  --bt-muted: #9ca9ba;
+  --bt-subtle: #8190a5;
+
+  --bt-orange-text: #ff7a36;
+  --bt-orange-badge: #ff9a66;
+  --bt-orange-wash: rgba(252, 81, 1, 0.13);
+  --bt-orange-soft: rgba(252, 81, 1, 0.18);
+  --bt-orange-soft-2: rgba(252, 81, 1, 0.2);
+  --bt-orange-focus: rgba(252, 81, 1, 0.3);
+  --bt-blue-text: #7ba3ff;
+  --bt-blue-soft: rgba(110, 150, 255, 0.16);
+  --bt-blue-soft-2: rgba(110, 150, 255, 0.18);
+  --bt-violet-text: #bfb0ff;
+  --bt-violet-soft: rgba(160, 140, 255, 0.18);
+
+  --bt-ok: #4fd18e;
+  --bt-ok-text: #6fe0a8;
+  --bt-ok-strong: #8be8b8;
+  --bt-ok-soft: rgba(79, 209, 142, 0.14);
+  --bt-ok-border: rgba(79, 209, 142, 0.3);
+  --bt-rose: #ff6b66;
+  --bt-rose-text: #ff8a85;
+  --bt-rose-wash: rgba(255, 107, 102, 0.1);
+  --bt-rose-soft: rgba(255, 107, 102, 0.14);
+  --bt-rose-soft-2: rgba(255, 107, 102, 0.16);
+  --bt-danger-solid: #c93c38;
+  --bt-error-bg: rgba(255, 107, 102, 0.12);
+  --bt-error-text: #ffb4b0;
+
+  --bt-bar-2: #4a78ff;
+  --bt-bar-3: #6f93f5;
+  --bt-bar-4: #566277;
+  --bt-donut-blue: #4a78ff;
+  --bt-donut-track: #2a3342;
+  --bt-tip-bg: #2d3a52;
+
+  --bt-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 14px 32px -20px rgba(0, 0, 0, 0.65);
+  --bt-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 22px 40px -22px rgba(0, 0, 0, 0.75);
+  --bt-shadow-lg: 0 24px 48px -20px rgba(0, 0, 0, 0.7);
+  --bt-shadow-modal-color: rgba(0, 0, 0, 0.7);
+  --bt-overlay: rgba(4, 7, 14, 0.68);
+  --bt-skel-a: #232d3f;
+  --bt-skel-b: #2c374b;
+
+  --bt-toggle-bg: #151c2a;
+  --bt-toggle-border: #343c4a;
+  --bt-toggle-knob: #2c3a57;
+  --bt-toggle-ink: #ffffff;
+  --bt-toggle-ghost: #6b7688;
+}

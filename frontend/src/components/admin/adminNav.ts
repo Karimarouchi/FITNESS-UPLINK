@@ -84,14 +84,6 @@ export const ADMIN_CONFIG: AdminLink[] = [
     empty: "",
   },
   {
-    slug: "langues",
-    title: "Langues",
-    path: "/admin/config/langues",
-    icon: "translate",
-    lead: "Langues de l’interface et contenus traduits",
-    empty: "Aucune table de langues n’existe encore. Le catalogue actuel n’expose pas ce paramètre.",
-  },
-  {
     slug: "devises",
     title: "Devises",
     path: "/admin/config/devises",

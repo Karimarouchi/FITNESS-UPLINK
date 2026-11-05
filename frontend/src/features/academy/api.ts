@@ -32,6 +32,8 @@ export type FormationCard = {
   organizer: OrganizerSummary | null;
   nextSessionAt: string | null;
   nextSessionSeatsLeft: number | null;
+  acceptsOnline: boolean;
+  acceptsOnSite: boolean;
 };
 
 export type FormationPage = {
@@ -73,6 +75,8 @@ export type Formation = {
   imageUploadId: string | null;
   active: boolean;
   createdAt: string;
+  acceptsOnline: boolean;
+  acceptsOnSite: boolean;
 };
 
 export type UpsertFormationRequest = {
@@ -87,6 +91,8 @@ export type UpsertFormationRequest = {
   priceCurrency: string;
   hasCertification: boolean;
   imageUploadId?: string | null;
+  acceptsOnline: boolean;
+  acceptsOnSite: boolean;
 };
 
 export type Registration = {
@@ -95,11 +101,50 @@ export type Registration = {
   formationId: string | null;
   formationTitle: string;
   scheduledAt: string | null;
-  status: "PENDING_PAYMENT" | "CONFIRMED" | "WAITLISTED" | "CANCELLED";
+  status: "PENDING_PAYMENT" | "PENDING_ON_SITE" | "CONFIRMED" | "WAITLISTED" | "CANCELLED" | "NO_SHOW";
   waitlistPosition: number | null;
   priceAmount: string;
   priceCurrency: string;
   createdAt: string;
+  paymentMethod: PaymentMethod | null;
+  paid: boolean;
+  /** Secret shown as a QR code; only present while the seat is held (confirmed / pay on site). */
+  ticketToken: string | null;
+  /** End of the 5-minute online payment window. */
+  holdExpiresAt: string | null;
+  checkedInAt: string | null;
+  canCancel: boolean;
+  /** Last moment a member can cancel (48 h before the session). */
+  cancelDeadline: string | null;
+  invoiceNumber: string | null;
+};
+
+export type PaymentMethod = "ONLINE" | "ON_SITE";
+
+export type Receipt = {
+  invoiceNumber: string;
+  formationTitle: string;
+  scheduledAt: string;
+  memberName: string;
+  amount: string;
+  currency: string;
+  provider: string;
+  paidAt: string;
+};
+
+export type Checkin = {
+  registrationId: string;
+  memberName: string;
+  formationTitle: string;
+  scheduledAt: string;
+  status: string;
+  paymentMethod: PaymentMethod | null;
+  paid: boolean;
+  amountDue: string;
+  currency: string;
+  checkedInAt: string | null;
+  canConfirm: boolean;
+  blockReason: string | null;
 };
 
 export type Participant = {
@@ -109,6 +154,11 @@ export type Participant = {
   status: string;
   waitlistPosition: number | null;
   createdAt: string;
+  paymentMethod: PaymentMethod | null;
+  paid: boolean;
+  amountDue: string;
+  currency: string;
+  checkedInAt: string | null;
 };
 
 export function formationImageUrl(formationId: string, uploadId: string) {
@@ -167,8 +217,24 @@ export function fetchParticipants(formationId: string, sessionId: string) {
   return api.get<Participant[]>(`/v1/academy/mine/${formationId}/sessions/${sessionId}/participants`);
 }
 
-export function registerForSession(sessionId: string) {
-  return api.post<Registration>(`/v1/academy/registrations?sessionId=${sessionId}`, {});
+export function registerForSession(sessionId: string, method: PaymentMethod = "ONLINE") {
+  return api.post<Registration>(`/v1/academy/registrations?sessionId=${sessionId}&method=${method}`, {});
+}
+
+export function fetchMyDebts() {
+  return api.get<Registration[]>("/v1/academy/registrations/debts");
+}
+
+export function fetchReceipt(id: string) {
+  return api.get<Receipt>(`/v1/academy/registrations/${id}/receipt`);
+}
+
+export function lookupTicket(token: string) {
+  return api.get<Checkin>(`/v1/academy/registrations/checkin/${encodeURIComponent(token)}`);
+}
+
+export function confirmTicket(token: string) {
+  return api.post<Checkin>(`/v1/academy/registrations/checkin/${encodeURIComponent(token)}/confirm`, {});
 }
 
 export function fetchMyRegistrations() {
@@ -195,6 +261,21 @@ const ACADEMY_ERRORS: Record<string, string> = {
   ALREADY_REGISTERED: "Vous êtes déjà inscrit(e) à cette session.",
   REGISTRATION_NOT_AWAITING_PAYMENT: "Cette inscription n’attend plus de paiement.",
   PAYMENT_FAILED: "Carte refusée. Pour le test, utilisez 4242 4242 4242 4242.",
+  HOLD_EXPIRED: "Le délai de 5 minutes est dépassé : la place a été libérée. Réservez à nouveau.",
+  ACCOUNT_BLOCKED_UNPAID: "Votre compte est bloqué : réglez d’abord la somme due pour une formation manquée.",
+  PAYMENT_METHOD_NOT_ACCEPTED: "Ce mode de paiement n’est pas proposé pour cette formation.",
+  PAYMENT_METHOD_REQUIRED: "Choisissez au moins un mode de paiement (en ligne ou sur place).",
+  CANCEL_TOO_LATE: "L’annulation n’est plus possible : elle doit se faire au moins 48 h avant la formation.",
+  REGISTRATION_NO_SHOW: "Cette inscription est marquée absente : il reste à régler la somme due.",
+  REGISTRATION_ALREADY_CANCELLED: "Cette inscription est déjà annulée.",
+  TICKET_NOT_FOUND: "Billet introuvable. Vérifiez le code.",
+  ALREADY_CHECKED_IN: "Ce billet a déjà été validé.",
+  SESSION_CANCELLED: "Cette session est annulée.",
+  PAYMENT_NOT_DONE: "Paiement en ligne non terminé : la place n’est pas confirmée.",
+  ON_WAITLIST: "Cette personne est encore sur liste d’attente.",
+  REGISTRATION_CANCELLED: "Cette inscription a été annulée.",
+  RECEIPT_NOT_AVAILABLE: "Aucun reçu disponible pour cette inscription.",
+  FORBIDDEN: "Ce billet n’appartient pas à l’une de vos formations.",
 };
 
 /** Turns backend error codes (e.g. SESSION_NOT_OPEN) into French messages. */

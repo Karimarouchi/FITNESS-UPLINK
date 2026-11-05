@@ -29,6 +29,8 @@ import {
   validateLoginPassword,
   validateName,
 } from "@/features/auth/validation";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "./ThemeToggle";
 import "./auth-switch.css";
 
 type Mode = "login" | "signup";
@@ -109,6 +111,7 @@ function BackHome() {
 }
 
 export function AuthSwitch() {
+  const { theme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -247,7 +250,10 @@ export function AuthSwitch() {
   }
 
   return (
-    <div className={cn("fu-switch fu-auth", isSignup && "is-signup")} lang="fr">
+    <div className={cn("fu-switch fu-auth", isSignup && "is-signup")} lang="fr" data-bo-theme={theme}>
+      <div className="fu-theme-slot">
+        <ThemeToggle />
+      </div>
       <div className="fu-blob" aria-hidden>
         <div className="fu-blob-photo" />
         <div className="fu-blob-glow" />

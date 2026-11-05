@@ -1,6 +1,33 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/Badge";
+import {
+  ArrowRight,
+  Bell,
+  BellOff,
+  BriefcaseBusiness,
+  CalendarCheck,
+  CalendarClock,
+  CalendarDays,
+  CalendarX,
+  CheckCircle2,
+  ClipboardList,
+  Circle,
+  FilePenLine,
+  FileSignature,
+  GraduationCap,
+  History,
+  IdCard,
+  MessageSquare,
+  Pencil,
+  SearchX,
+  ShieldCheck,
+  Star,
+  Tag,
+  Ticket,
+  Users,
+  Dumbbell,
+  Wallet,
+} from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasPermission, isVerified, verificationLabel } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
@@ -21,8 +48,25 @@ import {
   type PipelineStatus,
   type Recruitment,
 } from "@/features/recruitment/api";
+import "@/shared/styles/backoffice-pro.css";
+
+type IconType = ComponentType<{ size?: number }>;
 
 const PROGRESS_STEPS = ["Envoyée", "En étude", "Entretien", "Contrat", "Recruté"];
+
+// the notification helper names a Material Symbol; this dashboard shows the matching Lucide icon
+const NOTIFICATION_ICONS: Record<string, IconType> = {
+  payments: Wallet,
+  chat: MessageSquare,
+  event_busy: CalendarX,
+  event_seat: Ticket,
+  school: GraduationCap,
+  event_available: CalendarCheck,
+  contract: FileSignature,
+  work: BriefcaseBusiness,
+  verified_user: ShieldCheck,
+  notifications: Bell,
+};
 
 function progressOf(status: PipelineStatus): number | null {
   switch (status) {
@@ -48,7 +92,88 @@ function stepLabel(status: PipelineStatus) {
   return index === null ? "Clôturée" : PROGRESS_STEPS[index];
 }
 
-type Task = { icon: string; text: string; to: string; urgent?: boolean };
+type Task = { icon: IconType; text: string; to: string; urgent?: boolean };
+
+function Ring({ value }: { value: number }) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <div className="pp-ring" role="img" aria-label={`Profil complété à ${value} %`}>
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle className="pp-ring-bg" cx="50" cy="50" r={radius} />
+        <circle
+          className="pp-ring-fg"
+          cx="50"
+          cy="50"
+          r={radius}
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * (1 - value / 100)}
+        />
+      </svg>
+      <div>
+        <b>{value}%</b>
+        <small>Profil complété</small>
+      </div>
+    </div>
+  );
+}
+
+function Kpi({
+  to,
+  icon: Icon,
+  tone = "",
+  value,
+  label,
+  alert,
+}: {
+  to: string;
+  icon: IconType;
+  tone?: string;
+  value: ReactNode;
+  label: string;
+  alert?: boolean;
+}) {
+  return (
+    <Link to={to} className={alert ? "pp-kpi is-alert" : "pp-kpi"}>
+      <span className={`pp-icon ${alert ? "is-rose" : tone}`} aria-hidden="true">
+        <Icon size={22} />
+      </span>
+      <span className="pp-kpi-label">{label}</span>
+      <span className="pp-kpi-value">{value}</span>
+    </Link>
+  );
+}
+
+function Card({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section className="pp-card">
+      <header>
+        <h2>{title}</h2>
+        {action}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function Empty({ icon: Icon, children }: { icon: IconType; children: ReactNode }) {
+  return (
+    <p className="pp-empty">
+      <span aria-hidden="true">
+        <Icon size={20} />
+      </span>
+      <span>{children}</span>
+    </p>
+  );
+}
 
 export function ProDashboard() {
   const { user } = useAuth();
@@ -115,193 +240,162 @@ export function ProDashboard() {
 
   const tasks: Task[] = [];
   if (!isVerified(user)) {
-    tasks.push({ icon: "verified_user", text: `Compte : ${verificationLabel(user).toLowerCase()}. Complétez votre dossier pour être vérifié.`, to: "/app/profile", urgent: true });
+    tasks.push({ icon: ShieldCheck, text: `Compte : ${verificationLabel(user).toLowerCase()}. Complétez votre dossier pour être vérifié.`, to: "/app/profile", urgent: true });
   }
-  toSign.forEach((contract) => tasks.push({ icon: "draw", text: `Contrat à signer : ${contract.title}`, to: `/contracts/${contract.id}`, urgent: true }));
+  toSign.forEach((contract) => tasks.push({ icon: FileSignature, text: `Contrat à signer : ${contract.title}`, to: `/contracts/${contract.id}`, urgent: true }));
   if (summary && summary.pendingRequests > 0) {
-    tasks.push({ icon: "pending_actions", text: `${summary.pendingRequests} demande${summary.pendingRequests > 1 ? "s" : ""} de séance à traiter`, to: "/app/coaching/agenda", urgent: true });
+    tasks.push({ icon: ClipboardList, text: `${summary.pendingRequests} demande${summary.pendingRequests > 1 ? "s" : ""} de séance à traiter`, to: "/app/coaching/agenda", urgent: true });
   }
   interviews.slice(0, 2).forEach((row) =>
     tasks.push({
-      icon: "event",
+      icon: CalendarDays,
       text: `Entretien ${row.employer?.displayName ? `avec ${row.employer.displayName}` : ""} le ${new Date(row.interviewAt as string).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}`,
       to: "/app/applications",
     }),
   );
-  missing.slice(0, 3).forEach((item) => tasks.push({ icon: "edit_note", text: `Profil : ajouter ${item.label.toLowerCase()}`, to: item.to }));
+  missing.slice(0, 3).forEach((item) => tasks.push({ icon: FilePenLine, text: `Profil : ajouter ${item.label.toLowerCase()}`, to: item.to }));
 
   const unread = notifications.unreadCount;
   const recommended = (opportunities ?? []).filter((item) => !item.applied).slice(0, 3);
   const firstName = user?.firstName || user?.displayName || "champion";
+  const verified = isVerified(user);
+  const statusTone = verified ? "is-success" : user?.verificationStatus === "rejected" ? "is-danger" : "is-warn";
 
   return (
-    <section className="pdx">
-      <header className="pdx-hero">
-        <div className="pdx-hero-copy">
-          <p className="pdx-kicker">Votre espace professionnel</p>
+    <section className="pp">
+      <header className="pp-head">
+        <div className="pp-head-copy">
+          <p className="pp-kicker">Votre espace professionnel</p>
           <h1>
             Bonjour, <span>{firstName}.</span>
           </h1>
-          <div className="pdx-badges">
-            <Badge variant={isVerified(user) ? "default" : user?.verificationStatus === "rejected" ? "warn" : "pending"}>
-              {verificationLabel(user)}
-            </Badge>
-            {profile?.availabilityLabel ? <span className="pdx-chip">Disponibilité : {profile.availabilityLabel}</span> : null}
-            {profile?.city ? <span className="pdx-chip">{profile.city}</span> : null}
+          <div className="pp-badges">
+            <span className={`pp-status ${statusTone}`}>{verificationLabel(user)}</span>
+            {profile?.availabilityLabel ? <span className="pp-chip">Disponibilité : {profile.availabilityLabel}</span> : null}
+            {profile?.city ? <span className="pp-chip">{profile.city}</span> : null}
           </div>
         </div>
-        <div className="pdx-ring" style={{ "--p": completion } as CSSProperties} role="img" aria-label={`Profil complété à ${completion} %`}>
-          <div>
-            <b>{completion}%</b>
-            <small>Profil complété</small>
-          </div>
-        </div>
+        <Ring value={completion} />
       </header>
 
-      {error ? <p className="empty-hint">{error}</p> : null}
+      {error ? (
+        <p className="pp-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <div className="pdx-kpis">
+      <div className="pp-kpis">
         {canHire ? (
           <>
-        <Link to="/app/applications" className="pdx-kpi" style={{ "--i": 0 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">work</span>
-          <b>{rows ? active.length : "—"}</b>
-          <small>Candidatures actives</small>
-        </Link>
-        <Link to="/app/applications" className="pdx-kpi" style={{ "--i": 1 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">event</span>
-          <b>{rows ? interviews.length : "—"}</b>
-          <small>Entretien{interviews.length > 1 ? "s" : ""} à venir</small>
-        </Link>
+            <Kpi to="/app/applications" icon={BriefcaseBusiness} value={rows ? active.length : "—"} label="Candidatures actives" />
+            <Kpi to="/app/applications" icon={CalendarClock} tone="is-blue" value={rows ? interviews.length : "—"} label={`Entretien${interviews.length > 1 ? "s" : ""} à venir`} />
           </>
         ) : null}
         {canContracts ? (
-          <Link to="/contracts" className={toSign.length ? "pdx-kpi is-alert" : "pdx-kpi"} style={{ "--i": 2 } as CSSProperties}>
-            <span className="material-symbols-outlined" aria-hidden="true">draw</span>
-            <b>{contracts ? toSign.length : "—"}</b>
-            <small>Contrat{toSign.length > 1 ? "s" : ""} à signer</small>
-          </Link>
+          <Kpi
+            to="/contracts"
+            icon={FileSignature}
+            tone="is-violet"
+            alert={toSign.length > 0}
+            value={contracts ? toSign.length : "—"}
+            label={`Contrat${toSign.length > 1 ? "s" : ""} à signer`}
+          />
         ) : null}
-        <Link to="/app/profile" className="pdx-kpi" style={{ "--i": 3 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">notifications</span>
-          <b>{unread}</b>
-          <small>Notification{unread > 1 ? "s" : ""} non lue{unread > 1 ? "s" : ""}</small>
-        </Link>
+        <Kpi to="/notifications" icon={Bell} tone="is-neutral" value={unread} label={`Notification${unread > 1 ? "s" : ""} non lue${unread > 1 ? "s" : ""}`} />
         {isCoach ? (
           <>
-            <Link to="/app/coaching/agenda" className="pdx-kpi" style={{ "--i": 4 } as CSSProperties}>
-              <span className="material-symbols-outlined" aria-hidden="true">event_available</span>
-              <b>{summary?.sessionsThisWeek ?? "—"}</b>
-              <small>Séances cette semaine</small>
-            </Link>
-            <Link to="/app/coaching/agenda" className={summary && summary.pendingRequests > 0 ? "pdx-kpi is-alert" : "pdx-kpi"} style={{ "--i": 5 } as CSSProperties}>
-              <span className="material-symbols-outlined" aria-hidden="true">pending_actions</span>
-              <b>{summary?.pendingRequests ?? "—"}</b>
-              <small>Demandes en attente</small>
-            </Link>
-            <Link to="/app/coaching/packs" className="pdx-kpi" style={{ "--i": 6 } as CSSProperties}>
-              <span className="material-symbols-outlined" aria-hidden="true">groups</span>
-              <b>{summary?.activeClients ?? "—"}</b>
-              <small>Clients actifs</small>
-            </Link>
-            <Link to="/app/coaching/agenda" className="pdx-kpi" style={{ "--i": 7 } as CSSProperties}>
-              <span className="material-symbols-outlined" aria-hidden="true">star</span>
-              <b>{summary && summary.averageRating > 0 ? summary.averageRating.toFixed(1) : "—"}</b>
-              <small>Note moyenne</small>
-            </Link>
+            <Kpi to="/app/coaching/agenda" icon={CalendarCheck} tone="is-blue" value={summary?.sessionsThisWeek ?? "—"} label="Séances cette semaine" />
+            <Kpi
+              to="/app/coaching/agenda"
+              icon={ClipboardList}
+              alert={Boolean(summary && summary.pendingRequests > 0)}
+              value={summary?.pendingRequests ?? "—"}
+              label="Demandes en attente"
+            />
+            <Kpi to="/app/coaching/packs" icon={Users} tone="is-neutral" value={summary?.activeClients ?? "—"} label="Clients actifs" />
+            <Kpi to="/app/coaching/agenda" icon={Star} value={summary && summary.averageRating > 0 ? summary.averageRating.toFixed(1) : "—"} label="Note moyenne" />
           </>
         ) : null}
       </div>
 
       {isCoach ? (
-        <nav className="pdx-links" aria-label="Raccourcis coaching">
-          <Link to="/app/coaching/agenda"><span className="material-symbols-outlined" aria-hidden="true">calendar_month</span>Agenda</Link>
-          <Link to="/app/coaching/services"><span className="material-symbols-outlined" aria-hidden="true">fitness_center</span>Mes services</Link>
-          <Link to="/app/coaching/packs"><span className="material-symbols-outlined" aria-hidden="true">sell</span>Packs</Link>
-          <Link to={`/coaches/${user?.id ?? ""}`}><span className="material-symbols-outlined" aria-hidden="true">badge</span>Profil public</Link>
-          <Link to="/app/profile/edit"><span className="material-symbols-outlined" aria-hidden="true">edit</span>Mon profil</Link>
+        <nav className="pp-links" aria-label="Raccourcis coaching">
+          <Link to="/app/coaching/agenda"><CalendarDays size={16} aria-hidden="true" />Agenda</Link>
+          <Link to="/app/coaching/services"><Dumbbell size={16} aria-hidden="true" />Mes services</Link>
+          <Link to="/app/coaching/packs"><Tag size={16} aria-hidden="true" />Packs</Link>
+          <Link to={`/coaches/${user?.id ?? ""}`}><IdCard size={16} aria-hidden="true" />Profil public</Link>
+          <Link to="/app/profile/edit"><Pencil size={16} aria-hidden="true" />Mon profil</Link>
         </nav>
       ) : null}
 
-      <div className="pdx-cols">
-        <div className="pdx-main">
-          <section className="pdx-card">
-            <header>
-              <h2>À faire</h2>
-              <span>{tasks.length ? `${tasks.length} action${tasks.length > 1 ? "s" : ""}` : "Tout est à jour"}</span>
-            </header>
+      <div className="pp-cols">
+        <div className="pp-main">
+          <Card title="À faire" action={<span className="pp-meta">{tasks.length ? `${tasks.length} action${tasks.length > 1 ? "s" : ""}` : "Tout est à jour"}</span>}>
             {tasks.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">task_alt</span>Rien à faire pour le moment. Bravo !</p>
+              <Empty icon={CheckCircle2}>Rien à faire pour le moment. Bravo !</Empty>
             ) : (
-              <ul className="pdx-tasks">
-                {tasks.map((task) => (
-                  <li key={`${task.icon}-${task.text}`} className={task.urgent ? "is-urgent" : ""}>
-                    <Link to={task.to}>
-                      <span className="material-symbols-outlined" aria-hidden="true">{task.icon}</span>
-                      <span>{task.text}</span>
-                      <span className="material-symbols-outlined pdx-go" aria-hidden="true">arrow_forward</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          {canHire ? (
-          <section className="pdx-card">
-            <header>
-              <h2>Mes candidatures</h2>
-              <Link to="/app/applications">Voir tout</Link>
-            </header>
-            {rows === null ? (
-              <div className="pdx-skeleton" />
-            ) : active.length === 0 ? (
-              <p className="pdx-empty">
-                <span className="material-symbols-outlined" aria-hidden="true">work_history</span>
-                Aucune candidature en cours. <Link to="/app/opportunities">Parcourir les opportunités</Link>
-              </p>
-            ) : (
-              <ul className="pdx-apps">
-                {active.slice(0, 4).map((row) => {
-                  const reached = progressOf(row.status) ?? 0;
+              <ul className="pp-tasks">
+                {tasks.map((task) => {
+                  const Icon = task.icon;
                   return (
-                    <li key={row.id}>
-                      <Link to="/app/applications">
-                        <div className="pdx-app-top">
-                          <strong>{opportunityLabel(row)}</strong>
-                          <span className="pdx-pill">{stepLabel(row.status)}</span>
-                        </div>
-                        <small>{row.employer?.displayName ?? "Employeur"} · mis à jour le {formatPipelineDate(row.statusUpdatedAt || row.createdAt)}</small>
-                        <div className="pdx-track" aria-hidden="true">
-                          {PROGRESS_STEPS.map((step, index) => (
-                            <span key={step} className={index < reached ? "is-done" : index === reached ? "is-current" : ""} />
-                          ))}
-                        </div>
+                    <li key={`${task.text}`}>
+                      <Link to={task.to} className={task.urgent ? "is-urgent" : ""}>
+                        <span className="pp-task-icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <span className="pp-task-text">{task.text}</span>
+                        <ArrowRight size={16} className="pp-go" aria-hidden="true" />
                       </Link>
                     </li>
                   );
                 })}
               </ul>
             )}
-          </section>
+          </Card>
+
+          {canHire ? (
+            <Card title="Mes candidatures" action={<Link className="pp-link" to="/app/applications">Voir tout</Link>}>
+              {rows === null ? (
+                <div className="pp-skel" />
+              ) : active.length === 0 ? (
+                <Empty icon={History}>
+                  Aucune candidature en cours. <Link to="/app/opportunities">Parcourir les opportunités</Link>
+                </Empty>
+              ) : (
+                <ul className="pp-apps">
+                  {active.slice(0, 4).map((row) => {
+                    const reached = progressOf(row.status) ?? 0;
+                    return (
+                      <li key={row.id}>
+                        <Link to="/app/applications">
+                          <span className="pp-app-top">
+                            <strong>{opportunityLabel(row)}</strong>
+                            <span className="pp-status is-info">{stepLabel(row.status)}</span>
+                          </span>
+                          <small>{row.employer?.displayName ?? "Employeur"} · mis à jour le {formatPipelineDate(row.statusUpdatedAt || row.createdAt)}</small>
+                          <span className="pp-track" aria-hidden="true">
+                            {PROGRESS_STEPS.map((step, index) => (
+                              <i key={step} className={index < reached ? "is-done" : index === reached ? "is-current" : ""} />
+                            ))}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </Card>
           ) : null}
 
           {isCoach ? (
-            <section className="pdx-card">
-              <header>
-                <h2>Prochaines séances</h2>
-                <Link to="/app/coaching/agenda">Agenda</Link>
-              </header>
+            <Card title="Prochaines séances" action={<Link className="pp-link" to="/app/coaching/agenda">Agenda</Link>}>
               {upcomingSessions.length === 0 ? (
-                <p className="pdx-empty">
-                  <span className="material-symbols-outlined" aria-hidden="true">event_busy</span>
-                  Aucune séance confirmée à venir.
-                </p>
+                <Empty icon={CalendarX}>Aucune séance confirmée à venir.</Empty>
               ) : (
-                <ul className="pdx-sessions">
+                <ul className="pp-sessions">
                   {upcomingSessions.map((session) => (
                     <li key={session.id}>
-                      <time>
+                      <time dateTime={session.scheduledAt}>
                         <b>{new Date(session.scheduledAt).toLocaleDateString("fr-FR", { day: "2-digit" })}</b>
                         <small>{new Date(session.scheduledAt).toLocaleDateString("fr-FR", { month: "short" })}</small>
                       </time>
@@ -315,80 +409,76 @@ export function ProDashboard() {
                   ))}
                 </ul>
               )}
-            </section>
+            </Card>
           ) : null}
         </div>
 
-        <aside className="pdx-side">
-          <section className="pdx-card">
-            <header>
-              <h2>Mon profil</h2>
-              <Link to="/app/profile/edit">Modifier</Link>
-            </header>
-            <ul className="pdx-check">
+        <aside className="pp-side">
+          <Card title="Mon profil" action={<Link className="pp-link" to="/app/profile/edit">Modifier</Link>}>
+            <ul className="pp-check">
               {checklist.map((item) => (
                 <li key={item.label} className={item.done ? "is-done" : ""}>
                   <Link to={item.to}>
-                    <span className="material-symbols-outlined" aria-hidden="true">{item.done ? "check_circle" : "radio_button_unchecked"}</span>
+                    {item.done ? <CheckCircle2 size={18} aria-hidden="true" /> : <Circle size={18} aria-hidden="true" />}
                     {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </section>
+          </Card>
 
           {canHire ? (
-          <section className="pdx-card">
-            <header>
-              <h2>Opportunités pour vous</h2>
-              <Link to="/app/opportunities">Tout voir</Link>
-            </header>
-            {opportunities === null ? (
-              <div className="pdx-skeleton" />
-            ) : recommended.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">search_off</span>Aucune nouvelle offre.</p>
-            ) : (
-              <ul className="pdx-opps">
-                {recommended.map((offer) => (
-                  <li key={offer.id}>
-                    <Link to={`/app/opportunities/${offer.id}`}>
-                      <strong>{offer.title}</strong>
-                      <small>
-                        {offer.employerName}
-                        {offer.location ? ` · ${offer.location}` : ""}
-                      </small>
-                      {offer.salaryAmount ? <b>{offer.salaryAmount} {offer.salaryCurrency}</b> : null}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+            <Card title="Opportunités pour vous" action={<Link className="pp-link" to="/app/opportunities">Tout voir</Link>}>
+              {opportunities === null ? (
+                <div className="pp-skel" />
+              ) : recommended.length === 0 ? (
+                <Empty icon={SearchX}>Aucune nouvelle offre.</Empty>
+              ) : (
+                <ul className="pp-opps">
+                  {recommended.map((offer) => (
+                    <li key={offer.id}>
+                      <Link to={`/app/opportunities/${offer.id}`}>
+                        <strong>{offer.title}</strong>
+                        <small>
+                          {offer.employerName}
+                          {offer.location ? ` · ${offer.location}` : ""}
+                        </small>
+                        {offer.salaryAmount ? <b>{offer.salaryAmount} {offer.salaryCurrency}</b> : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
           ) : null}
 
-          <section className="pdx-card">
-            <header>
-              <h2>Notifications</h2>
-              {unread > 0 ? <button type="button" onClick={() => void notifications.markAllRead()}>Tout lire</button> : null}
-            </header>
+          <Card
+            title="Notifications"
+            action={unread > 0 ? <button type="button" className="pp-link" onClick={() => void notifications.markAllRead()}>Tout lire</button> : undefined}
+          >
             {notifications.items.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">notifications_off</span>Aucune notification.</p>
+              <Empty icon={BellOff}>Aucune notification.</Empty>
             ) : (
-              <ul className="pdx-notifs">
-                {notifications.items.slice(0, 4).map((item) => (
-                  <li key={item.id} className={item.readAt ? "" : "is-unread"}>
-                    <Link to={item.actionPath ?? "/app/dashboard"} onClick={() => !item.readAt && void notifications.markRead(item.id)}>
-                      <span className="material-symbols-outlined" aria-hidden="true">{notificationIcon(item)}</span>
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{notificationTime(item.createdAt)}</small>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+              <ul className="pp-notifs">
+                {notifications.items.slice(0, 4).map((item) => {
+                  const Icon = NOTIFICATION_ICONS[notificationIcon(item)] ?? Bell;
+                  return (
+                    <li key={item.id} className={item.readAt ? "" : "is-unread"}>
+                      <Link to={item.actionPath ?? "/app/dashboard"} onClick={() => !item.readAt && void notifications.markRead(item.id)}>
+                        <span className="pp-task-icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <small>{notificationTime(item.createdAt)}</small>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
-          </section>
+          </Card>
         </aside>
       </div>
     </section>

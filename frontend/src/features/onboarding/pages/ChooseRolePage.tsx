@@ -7,6 +7,8 @@ import { fetchRoles, selectRole } from "../api";
 import { OnboardingFrame } from "../OnboardingFrame";
 import { useOnboardingLocale } from "../LocaleContext";
 import { roleI18n } from "../i18n";
+import "@/features/onboarding/onboarding-premium.css";
+import { SkeletonCards } from "@/components/ui/Skeleton";
 
 type RoleGroup = {
   category: string;
@@ -126,7 +128,7 @@ export function ChooseRolePage() {
           <p>{t.roleSubtitle}</p>
           <p>{t.roleHint}</p>
         </div>
-        {loading ? <p className="font-body-md text-on-surface-variant">{t.loadingRoles}</p> : null}
+        {loading ? <SkeletonCards count={2} h={200} label={t.loadingRoles} /> : null}
         <div className="ob-audience">
           <div className="ob-audience-tabs" role="tablist" aria-label="Type de compte">
             <button

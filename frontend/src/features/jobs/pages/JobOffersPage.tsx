@@ -18,6 +18,7 @@ import {
   type UpsertJobOffer,
 } from "../api";
 import { recruitmentError } from "@/features/recruitment/api";
+import "@/shared/styles/backoffice-coaching.css";
 
 const EMPTY: UpsertJobOffer = {
   title: "",
@@ -161,7 +162,7 @@ export function JobOffersPage() {
   }
 
   return (
-    <section className="hire-page">
+    <section className="hire-page cg-skin">
       <div className="page-head">
         <div>
           <p className="font-label-caps uppercase text-on-surface-variant">Recrutement</p>

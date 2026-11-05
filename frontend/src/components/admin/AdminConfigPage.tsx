@@ -29,7 +29,7 @@ export function AdminConfigHubPage() {
       <div className="page-head">
         <div>
           <h1>Configuration</h1>
-          <div className="sub">Langues, devises, pays, catégories, commissions, e-mails, notifications, paramètres</div>
+          <div className="sub">Devises, pays, catégories, commissions, e-mails, notifications, paramètres</div>
         </div>
       </div>
       <div className="admin-tiles">

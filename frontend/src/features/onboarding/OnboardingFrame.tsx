@@ -2,6 +2,9 @@ import { type ReactNode } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { LocaleSwitch } from "./LocaleContext";
 import "./signup-flow.css";
+import "./onboarding-premium.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 type OnboardingFrameProps = {
   children: ReactNode;
@@ -18,8 +21,9 @@ export function OnboardingBrand() {
 }
 
 export function OnboardingFrame({ children, step, back }: OnboardingFrameProps) {
+  const { theme } = useTheme();
   return (
-    <div className="fu-public ob-shell ob-shell--wide">
+    <div data-bo-theme={theme} className="fu-public ob-shell ob-shell--wide">
       <header className="ob-top">
         {back ? (
           <button className="ob-nav-back" type="button" onClick={back.onClick}>
@@ -32,6 +36,7 @@ export function OnboardingFrame({ children, step, back }: OnboardingFrameProps) 
         <div className="ob-step-meta">
           <span className="ob-step-label">{step}</span>
           <LocaleSwitch />
+          <ThemeToggle />
         </div>
       </header>
       {children}

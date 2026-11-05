@@ -55,6 +55,25 @@ interface FormationRegistrationRepository extends JpaRepository<FormationRegistr
 
     long countBySessionIdAndStatusIn(UUID sessionId, List<FormationRegistrationStatus> statuses);
 
+    /** Seats held: paid / free, promised on site, or an online payment still inside its 5-minute hold. */
+    @Query("""
+            SELECT COUNT(r) FROM FormationRegistration r WHERE r.sessionId = :sessionId AND (
+              r.status IN (com.fitnessuplink.academy.FormationRegistrationStatus.CONFIRMED,
+                           com.fitnessuplink.academy.FormationRegistrationStatus.PENDING_ON_SITE)
+              OR (r.status = com.fitnessuplink.academy.FormationRegistrationStatus.PENDING_PAYMENT AND r.holdExpiresAt > :now))
+            """)
+    long countSeatsTaken(@Param("sessionId") UUID sessionId, @Param("now") Instant now);
+
+    Optional<FormationRegistration> findByTicketToken(String ticketToken);
+
+    List<FormationRegistration> findByStatusAndHoldExpiresAtBefore(FormationRegistrationStatus status, Instant when);
+
+    List<FormationRegistration> findBySessionIdAndStatus(UUID sessionId, FormationRegistrationStatus status);
+
+    boolean existsByMemberIdAndStatusAndPaymentIdIsNull(UUID memberId, FormationRegistrationStatus status);
+
+    List<FormationRegistration> findByMemberIdAndStatusAndPaymentIdIsNull(UUID memberId, FormationRegistrationStatus status);
+
     List<FormationRegistration> findBySessionIdAndStatusOrderByCreatedAtAsc(UUID sessionId, FormationRegistrationStatus status);
 
     List<FormationRegistration> findByStatus(FormationRegistrationStatus status);

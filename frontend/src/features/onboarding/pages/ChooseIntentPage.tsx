@@ -5,6 +5,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { selectIntent } from "../api";
 import { OnboardingFrame } from "../OnboardingFrame";
 import { useOnboardingLocale } from "../LocaleContext";
+import "@/features/onboarding/onboarding-premium.css";
 
 const OPTIONS = [
   { id: "JOB" as const, titleKey: "intentJob" as const, helpKey: "intentJobHelp" as const, icon: "work" },

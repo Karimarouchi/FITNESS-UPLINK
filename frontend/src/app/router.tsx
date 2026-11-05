@@ -66,6 +66,8 @@ import { FormationDetailPage } from "@/features/academy/pages/FormationDetailPag
 import { MyFormationsPage } from "@/features/academy/pages/MyFormationsPage";
 import { MyRegistrationsPage } from "@/features/academy/pages/MyRegistrationsPage";
 import { PayRegistrationPage } from "@/features/academy/pages/PayRegistrationPage";
+import { ReceiptPage } from "@/features/academy/pages/ReceiptPage";
+import { CheckinPage } from "@/features/academy/pages/CheckinPage";
 import { AcademyHomeRedirect } from "@/features/academy/AcademyHomeRedirect";
 import { hasPermission, isSuperAdmin } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
@@ -191,9 +193,12 @@ export function AppRouter() {
           <Route element={<RoleRoute allow={(user) => hasPermission(user, PERMS.ACADEMY_BROWSE)} />}>
             <Route path="/app/academy/registrations" element={<MyRegistrationsPage />} />
             <Route path="/app/academy/registrations/:id/pay" element={<PayRegistrationPage />} />
+            <Route path="/app/academy/registrations/:id/receipt" element={<ReceiptPage />} />
+            <Route path="/app/academy/debt" element={<Navigate to="/app/academy/registrations" replace />} />
           </Route>
           <Route element={<RoleRoute allow={(user) => hasPermission(user, PERMS.ACADEMY_MANAGE)} />}>
             <Route path="/app/academy/formations" element={<MyFormationsPage />} />
+            <Route path="/app/academy/checkin" element={<CheckinPage />} />
           </Route>
           <Route
             element={

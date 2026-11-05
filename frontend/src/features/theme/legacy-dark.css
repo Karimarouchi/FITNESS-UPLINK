@@ -1,0 +1,15 @@
+/* Hand-written fixes on top of legacy-dark.generated.css (the generated file darkens the legacy pages of the app shell). */
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-main.is-legacy {
+  --bo-bg: #0d111b;
+  --bo-surface: #1b2332;
+  --bo-surface-2: #1f2838;
+  --bo-border: #343c4a;
+  --bo-border-strong: #4a5568;
+  --bo-text: #f8fafc;
+  --bo-text-2: #e2e8f0;
+  --bo-muted: #9ca9ba;
+  --bo-subtle: #8190a5;
+  --vt-text: #9ca9ba;
+  --vt-line: #343c4a;
+  color: #f8fafc;
+}

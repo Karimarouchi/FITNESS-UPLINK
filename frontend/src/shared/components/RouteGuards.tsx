@@ -1,11 +1,12 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { destinationFor, safeRedirectTarget, type AuthUser } from "@/features/auth/types";
+import { AppLoading } from "@/components/ui/Skeleton";
 
 export function ProtectedRoute() {
   const { user, ready } = useAuth();
   if (!ready) {
-    return <div className="min-h-screen bg-surface-container-lowest" />;
+    return <AppLoading />;
   }
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -23,7 +24,7 @@ export function GuestRoute() {
   const { user, ready } = useAuth();
   const location = useLocation();
   if (!ready) {
-    return <div className="min-h-screen bg-surface-container-lowest" />;
+    return <AppLoading />;
   }
   if (user) {
     const redirect = safeRedirectTarget(new URLSearchParams(location.search).get("redirect"));
@@ -36,7 +37,7 @@ export function MemberOnlyRoute() {
   const { user, ready } = useAuth();
   const location = useLocation();
   if (!ready) {
-    return <div className="min-h-screen bg-surface-container-lowest" />;
+    return <AppLoading />;
   }
   if (!user) {
     const target = `${location.pathname}${location.search}`;
@@ -49,7 +50,7 @@ export function OnboardingRoute() {
   const { user, ready } = useAuth();
   const location = useLocation();
   if (!ready) {
-    return <div className="min-h-screen bg-surface-container-lowest" />;
+    return <AppLoading />;
   }
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -91,7 +92,7 @@ export function OnboardingRoute() {
 export function VerifyEmailRoute() {
   const { user, ready } = useAuth();
   if (!ready) {
-    return <div className="min-h-screen bg-surface-container-lowest" />;
+    return <AppLoading />;
   }
   if (!user) {
     return <Navigate to="/login" replace />;

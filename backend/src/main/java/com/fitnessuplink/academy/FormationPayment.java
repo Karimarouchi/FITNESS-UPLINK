@@ -45,6 +45,8 @@ public class FormationPayment {
     private String invoiceNumber;
     @Column(name = "invoice_html", nullable = false, columnDefinition = "TEXT")
     private String invoiceHtml;
+    @Column(name = "collected_by")
+    private UUID collectedBy;
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 }

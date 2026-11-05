@@ -10,10 +10,14 @@ import { LocaleSwitch, useOnboardingLocale } from "../LocaleContext";
 import { selectPlan } from "../api";
 import "./pay-stage.css";
 import "./plan-stage.css";
+import "@/features/onboarding/onboarding-premium.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function ChoosePlanPage({ account = false }: { account?: boolean }) {
+  const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const { t } = useOnboardingLocale();
   const navigate = useNavigate();
@@ -192,7 +196,7 @@ export function ChoosePlanPage({ account = false }: { account?: boolean }) {
 
   if (account) {
     return (
-      <section>
+      <section data-bo-theme={theme} className="fu-public ob-shell pay-shell ob-embedded">
         <div className="page-head">
           <div>
             <h1>Changer d’offre</h1>
@@ -208,7 +212,7 @@ export function ChoosePlanPage({ account = false }: { account?: boolean }) {
   }
 
   return (
-    <div className="fu-public ob-shell ob-shell--wide pay-shell">
+    <div data-bo-theme={theme} className="fu-public ob-shell ob-shell--wide pay-shell">
       <header className="ob-profile-nav">
         <button className="ob-nav-back" type="button" onClick={() => navigate("/onboarding/profile")}>
           <span className="material-symbols-outlined">arrow_back</span>
@@ -217,6 +221,7 @@ export function ChoosePlanPage({ account = false }: { account?: boolean }) {
         <OnboardingBrand />
         <div className="flex items-center gap-3">
           <LocaleSwitch />
+          <ThemeToggle />
           <div className="ob-step-label">{t.stepPlan}</div>
         </div>
       </header>

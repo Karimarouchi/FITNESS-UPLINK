@@ -21,7 +21,9 @@ public final class AcademyDtos {
             BigDecimal priceAmount,
             String priceCurrency,
             Boolean hasCertification,
-            UUID imageUploadId
+            UUID imageUploadId,
+            Boolean acceptsOnline,
+            Boolean acceptsOnSite
     ) {
     }
 
@@ -42,7 +44,9 @@ public final class AcademyDtos {
             boolean hasCertification,
             UUID imageUploadId,
             boolean active,
-            Instant createdAt
+            Instant createdAt,
+            boolean acceptsOnline,
+            boolean acceptsOnSite
     ) {
     }
 
@@ -60,7 +64,9 @@ public final class AcademyDtos {
             UUID imageUploadId,
             OrganizerSummaryDto organizer,
             Instant nextSessionAt,
-            Integer nextSessionSeatsLeft
+            Integer nextSessionSeatsLeft,
+            boolean acceptsOnline,
+            boolean acceptsOnSite
     ) {
     }
 
@@ -95,11 +101,47 @@ public final class AcademyDtos {
             Integer waitlistPosition,
             BigDecimal priceAmount,
             String priceCurrency,
-            Instant createdAt
+            Instant createdAt,
+            String paymentMethod,
+            boolean paid,
+            String ticketToken,
+            Instant holdExpiresAt,
+            Instant checkedInAt,
+            boolean canCancel,
+            Instant cancelDeadline,
+            String invoiceNumber
     ) {
     }
 
     public record PayRegistrationRequest(String cardNumber) {
+    }
+
+    public record ReceiptDto(
+            String invoiceNumber,
+            String formationTitle,
+            Instant scheduledAt,
+            String memberName,
+            BigDecimal amount,
+            String currency,
+            String provider,
+            Instant paidAt
+    ) {
+    }
+
+    public record CheckinDto(
+            UUID registrationId,
+            String memberName,
+            String formationTitle,
+            Instant scheduledAt,
+            String status,
+            String paymentMethod,
+            boolean paid,
+            BigDecimal amountDue,
+            String currency,
+            Instant checkedInAt,
+            boolean canConfirm,
+            String blockReason
+    ) {
     }
 
     public record ParticipantDto(
@@ -108,7 +150,12 @@ public final class AcademyDtos {
             String memberDisplayName,
             String status,
             Integer waitlistPosition,
-            Instant createdAt
+            Instant createdAt,
+            String paymentMethod,
+            boolean paid,
+            BigDecimal amountDue,
+            String currency,
+            Instant checkedInAt
     ) {
     }
 }

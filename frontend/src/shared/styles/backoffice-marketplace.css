@@ -1,0 +1,713 @@
+/* ==================================================================
+   MARKETPLACE ADMIN — Premium Light / Dark.
+   Same recipe as the Verifications page: the wrapper carries
+   `bo-dash bo-users bo-mx`, so the header, KPI cards (one pastel icon),
+   tabs, search, dropdowns, status badges, table, pager and modals come from
+   backoffice-light.css and backoffice-users.css. This file only holds what
+   is specific to Marketplace, and it starts with `.mx-`.
+
+   Colours come from the `--bt-*` tokens: nothing here knows about the theme.
+   The hide modal is `UsersModal` (portal with `um-overlay` + data-bo-theme).
+   P = `.fu-app .bo-shell .bo-dash.bo-users.bo-mx`
+   ================================================================== */
+
+/* the wide tables scroll inside their card instead of stretching the page grid */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx > * {
+  min-width: 0;
+}
+
+/* ---------- header actions ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx a.bo-users-btn {
+  text-decoration: none;
+}
+
+/* ---------- KPI cards: same card, two of them are shortcuts ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi.mx-kpi {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi.mx-kpi:hover {
+  border-color: var(--bt-orange-soft-2);
+  box-shadow: var(--bt-shadow-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi.mx-kpi:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 3px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi {
+  grid-template-rows: 48px 1fr;
+  grid-template-areas:
+    "icon label label"
+    "value meta meta";
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi-value,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi-meta {
+  align-self: end;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-icon.is-violet {
+  background: var(--bt-violet-soft);
+  color: var(--bt-violet-text);
+}
+
+/* ---------- sections tabs (Articles / Fournisseurs) ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-tabs.mx-sections {
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* ---------- dropdowns with many options (22 categories) ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-select-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* ---------- table ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table {
+  min-width: 1000px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table th,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table th:first-child,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td:first-child {
+  padding-left: 20px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table.is-suppliers {
+  min-width: 920px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table th.mx-num,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table th.mx-actions {
+  padding-right: 22px;
+  text-align: right;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-actions {
+  padding-right: 22px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-price {
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-date {
+  color: var(--bt-muted);
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-muted {
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item > div,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item-text,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item strong,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  max-width: 280px;
+  color: var(--bt-text);
+  font: 700 14.5px/1.3 Outfit, Manrope, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-product {
+  min-width: 230px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table td.mx-supplier {
+  min-width: 170px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two strong {
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item small,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two small {
+  overflow: hidden;
+  max-width: 280px;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-thumb {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  overflow: hidden;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-thumb img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-initial {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-badge);
+  font: 800 16px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-state {
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-reason-note {
+  display: block;
+  overflow: hidden;
+  max-width: 220px;
+  margin-top: 4px;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-status.is-neutral {
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx a.bo-users-icon {
+  text-decoration: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table th,
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table caption {
+  position: relative;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-pager > span:only-child {
+  margin: 0 auto 0 0;
+}
+
+/* same card height as the Users KPI cards (which carry a badge row) */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi {
+  min-height: 200px;
+}
+
+/* four status tabs with counters: 2 x 2 grid on narrow phones instead of overflowing */
+@media (max-width: 520px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-toolbar .bo-users-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- tablet / phone ---------- */
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-dash-kpi {
+    min-height: 160px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-tabs.mx-sections {
+    width: 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .bo-users-tabs.mx-sections button {
+    flex: 1;
+    justify-content: center;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-head-actions {
+    width: 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-head-actions .bo-users-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table.is-suppliers {
+    min-width: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table thead {
+    display: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody tr:not(.is-skeleton) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "product actions"
+      "supplier supplier"
+      "state price";
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table.is-suppliers tbody tr:not(.is-skeleton) {
+    grid-template-areas:
+      "product actions"
+      "state state";
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-product {
+    grid-area: product;
+    min-width: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-supplier {
+    grid-area: supplier;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-state {
+    grid-area: state;
+    justify-self: start;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-price {
+    grid-area: price;
+    justify-self: end;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-actions {
+    grid-area: actions;
+    padding: 0;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table.is-suppliers tbody td.mx-price {
+    display: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-category,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-views,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-contacts,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-convs,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-table tbody td.mx-date {
+    display: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item strong,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item small,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two strong,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-two small {
+    max-width: 100%;
+  }
+}
+
+/* ==================================================================
+   HIDE MODAL (portal — tokens from `.um-overlay`)
+   ================================================================== */
+.fu-app.bo-overlay.um-overlay .mx-modal-lead {
+  margin: 0 0 16px;
+  color: var(--bt-muted);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.fu-app.bo-overlay.um-overlay .um-error + .mx-reasons {
+  margin-top: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-reasons button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 999px;
+  background: var(--bt-surface);
+  color: var(--bt-muted);
+  font: 600 13px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-reasons button:hover {
+  border-color: var(--bt-orange);
+  color: var(--bt-orange-text);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-reasons button.is-active {
+  border-color: var(--bt-orange);
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-reasons button:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field {
+  display: grid;
+  gap: 8px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field > span {
+  color: var(--bt-text);
+  font: 700 14px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field textarea {
+  width: 100%;
+  min-height: 104px;
+  padding: 12px 14px;
+  border: 1px solid var(--bt-border);
+  border-radius: 12px;
+  background: var(--bt-input);
+  color: var(--bt-text);
+  font: 400 14.5px/1.5 Geist, Inter, sans-serif;
+  resize: vertical;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field textarea::placeholder {
+  color: var(--bt-subtle);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field textarea:focus {
+  border-color: var(--bt-orange);
+  box-shadow: 0 0 0 4px var(--bt-orange-focus);
+  outline: none;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-field small {
+  justify-self: end;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app.bo-overlay.um-overlay .mx-reasons button {
+    transition: none;
+  }
+}
+
+/* ---------- product cell is a button that opens the details drawer ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item-btn {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item-btn:hover strong {
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-mx .mx-item-btn:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 3px;
+}
+
+/* ==================================================================
+   PRODUCT DETAILS DRAWER (portal — tokens from `.um-overlay`;
+   base look comes from `.vx-drawer` in backoffice-verifications.css)
+   Compact: one sheet, hairline separators, label / value rows.
+   ================================================================== */
+.fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-head {
+  align-items: center;
+  padding: 14px 20px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer .bo-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer-head {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer-head .vx-eyebrow {
+  font-size: 11px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer-head h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 19px/1.2 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-body {
+  gap: 0;
+  padding: 16px 20px 20px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--bt-line-soft);
+  background: var(--bt-surface);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-foot .um-btn {
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer a.um-btn {
+  text-decoration: none;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-drawer .vx-note.is-error[role="alert"] {
+  margin-bottom: 14px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-sheet {
+  display: grid;
+  padding: 14px 18px 4px;
+  border: 1px solid var(--bt-border);
+  border-radius: 16px;
+  background: var(--bt-surface);
+  box-shadow: var(--bt-shadow);
+}
+
+/* gallery */
+.fu-app.bo-overlay.um-overlay .mx-photo {
+  display: grid;
+  place-items: center;
+  height: 240px;
+  border-radius: 14px;
+  background: var(--bt-chip);
+  overflow: hidden;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-photo.is-empty {
+  height: 110px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-photo-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+/* title block */
+.fu-app.bo-overlay.um-overlay .mx-summary {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0 16px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-summary-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-summary-date {
+  color: var(--bt-muted);
+  font-size: 12.5px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-summary h3 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 19px/1.25 Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-summary p {
+  margin: 0;
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-summary-price {
+  margin-top: 2px;
+  color: var(--bt-orange-badge);
+  font: 800 21px Outfit, Manrope, sans-serif;
+}
+
+/* sections */
+.fu-app.bo-overlay.um-overlay .mx-block {
+  display: grid;
+  gap: 8px;
+  padding: 14px 0 16px;
+  border-top: 1px solid var(--bt-line-soft);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-block h4 {
+  margin: 0;
+  color: var(--bt-muted);
+  font: 700 11.5px Outfit, Manrope, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-rows {
+  display: grid;
+  margin: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-rows > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px solid var(--bt-line-row);
+}
+
+.fu-app.bo-overlay.um-overlay .mx-rows > div:first-child {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-rows dt {
+  flex: none;
+  color: var(--bt-muted);
+  font-size: 13.5px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-rows dd {
+  margin: 0;
+  color: var(--bt-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-hint {
+  margin: 0;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-block .vx-note {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+/* supplier */
+.fu-app.bo-overlay.um-overlay .mx-supplier-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-supplier-card > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-supplier-card strong {
+  color: var(--bt-text);
+  font: 700 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-supplier-card > div > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bt-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.fu-app.bo-overlay.um-overlay .mx-initial {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-badge);
+  font: 800 15px Outfit, Manrope, sans-serif;
+}
+
+@media (max-width: 720px) {
+  .fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-head {
+    padding: 12px 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-body {
+    padding: 14px 16px 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-foot {
+    padding: 12px 16px;
+  }
+  .fu-app.bo-overlay.um-overlay .mx-drawer .bo-drawer-foot .um-btn {
+    flex: 1 1 auto;
+  }
+  .fu-app.bo-overlay.um-overlay .mx-photo {
+    height: 190px;
+  }
+}

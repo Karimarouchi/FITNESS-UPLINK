@@ -11,8 +11,12 @@ import { fetchMe } from "@/features/auth/api";
 import { OnboardingBrand } from "../OnboardingFrame";
 import { LocaleSwitch, useOnboardingLocale } from "../LocaleContext";
 import "./pay-stage.css";
+import "@/features/onboarding/onboarding-premium.css";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function PayOnboardingPage({ account = false }: { account?: boolean }) {
+  const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const { t } = useOnboardingLocale();
   const navigate = useNavigate();
@@ -145,7 +149,7 @@ export function PayOnboardingPage({ account = false }: { account?: boolean }) {
 
   if (account) {
     return (
-      <section>
+      <section data-bo-theme={theme} className="fu-public ob-shell pay-shell ob-embedded">
         <div className="page-head">
           <div>
             <h1>Paiement</h1>
@@ -161,7 +165,7 @@ export function PayOnboardingPage({ account = false }: { account?: boolean }) {
   }
 
   return (
-    <div className="fu-public ob-shell ob-shell--wide pay-shell">
+    <div data-bo-theme={theme} className="fu-public ob-shell ob-shell--wide pay-shell">
       <header className="ob-profile-nav">
         <button className="ob-nav-back" type="button" onClick={() => navigate("/onboarding/plans")}>
           <span className="material-symbols-outlined">arrow_back</span>
@@ -170,6 +174,7 @@ export function PayOnboardingPage({ account = false }: { account?: boolean }) {
         <OnboardingBrand />
         <div className="flex items-center gap-3">
           <LocaleSwitch />
+          <ThemeToggle />
           <div className="ob-step-label">{t.stepPayment}</div>
         </div>
       </header>

@@ -13,7 +13,8 @@ import {
   ShieldAlert,
   Trash2,
 } from "lucide-react";
-import { BoModal } from "@/components/ui/BoOverlay";
+import { DashSelect } from "@/components/admin/dash/DashSelect";
+import { UsersModal } from "@/features/users/UsersModal";
 import { ApiError } from "@/shared/api/client";
 import {
   conditionLabel,
@@ -28,6 +29,8 @@ import {
 } from "../api";
 import { compactNumber, productStatus, timeAgo } from "../format";
 import { ProductEditorDrawer } from "../ProductEditorDrawer";
+import "@/shared/styles/backoffice-users.css";
+import "@/shared/styles/backoffice-modules.css";
 
 type Filter = "ALL" | "PUBLISHED" | "DRAFT" | "HIDDEN";
 type Sort = "recent" | "views" | "name";
@@ -154,9 +157,15 @@ export function MyProductsPage() {
     { id: "HIDDEN", label: "Masqués" },
   ];
 
+  const SORTS: { value: Sort; label: string }[] = [
+    { value: "recent", label: "Modifiés récemment" },
+    { value: "views", label: "Les plus vus" },
+    { value: "name", label: "Nom (A → Z)" },
+  ];
+
   return (
-    <section className="bo-page">
-      <div className="bo-head">
+    <section className="bo-dash bo-users bo-bm bo-mp">
+      <header className="bo-dash-head">
         <div>
           <h1>Mes articles</h1>
           <p>
@@ -164,34 +173,34 @@ export function MyProductsPage() {
             plateforme.
           </p>
         </div>
-        <div className="bo-head-actions">
-          <a className="bo-btn" href="/marketplace/products" target="_blank" rel="noreferrer">
-            <ExternalLink size={16} />
+        <div className="sd-head-actions">
+          <a className="bm-btn is-outline" href="/marketplace/products" target="_blank" rel="noreferrer">
+            <ExternalLink size={16} aria-hidden="true" />
             Voir la vitrine
           </a>
-          <button type="button" className="bo-btn bo-btn--primary" onClick={() => setEditing(null)}>
-            <PackagePlus size={16} />
+          <button type="button" className="bm-btn" onClick={() => setEditing(null)}>
+            <PackagePlus size={16} aria-hidden="true" />
             Nouvel article
           </button>
         </div>
-      </div>
+      </header>
 
       {counts.HIDDEN > 0 ? (
-        <div className="bo-alert is-danger" style={{ marginBottom: 16 }}>
-          <ShieldAlert size={18} />
-          <div>
-            <strong>
-              {counts.HIDDEN} article{counts.HIDDEN > 1 ? "s" : ""} masqué{counts.HIDDEN > 1 ? "s" : ""} par la modération.
-            </strong>{" "}
-            Ouvrez-les pour voir le motif et corriger l’annonce.
-          </div>
-        </div>
+        <p className="bo-dash-error" role="alert">
+          <ShieldAlert size={16} aria-hidden="true" className="mp-alert-icon" />
+          {counts.HIDDEN} article{counts.HIDDEN > 1 ? "s" : ""} masqué{counts.HIDDEN > 1 ? "s" : ""} par la modération. Ouvrez-les
+          pour voir le motif et corriger l’annonce.
+        </p>
       ) : null}
-      {error ? <p className="bo-error">{error}</p> : null}
+      {error ? (
+        <p className="bo-dash-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <div className="bo-card">
-        <div className="bo-toolbar">
-          <div className="bo-seg" role="tablist">
+      <div className="bo-dash-card bo-users-card">
+        <div className="bo-users-toolbar">
+          <div className="bo-users-tabs" role="tablist" aria-label="Filtrer les articles">
             {FILTERS.map((item) => (
               <button
                 key={item.id}
@@ -202,129 +211,123 @@ export function MyProductsPage() {
                 onClick={() => setFilter(item.id)}
               >
                 {item.label}
-                <span className="bo-seg-count">{counts[item.id]}</span>
+                <span>{counts[item.id]}</span>
               </button>
             ))}
           </div>
-          <div className="bo-toolbar-spacer" />
-          <div className="bo-toolbar-search">
-            <Search size={16} />
+          <label className="bo-users-search">
+            <Search size={16} aria-hidden="true" />
             <input
-              className="bo-input"
+              type="search"
               value={query}
               placeholder="Rechercher un article…"
+              aria-label="Rechercher un article"
               onChange={(event) => setQuery(event.target.value)}
             />
+          </label>
+          <div className="bo-users-filters">
+            <DashSelect label="Trier" value={sort} options={SORTS} onChange={setSort} />
           </div>
-          <select className="bo-select" value={sort} onChange={(event) => setSort(event.target.value as Sort)} aria-label="Trier">
-            <option value="recent">Modifiés récemment</option>
-            <option value="views">Les plus vus</option>
-            <option value="name">Nom (A → Z)</option>
-          </select>
         </div>
 
         {products === null ? (
-          <div className="bo-product-grid">
+          <div className="mp-grid" aria-busy="true">
             {[0, 1, 2, 3].map((key) => (
-              <div key={key} className="bo-skeleton" style={{ height: 300 }} />
+              <div key={key} className="bo-skeleton mp-skel" />
             ))}
           </div>
         ) : visible.length === 0 ? (
-          <div className="bo-empty">
-            <div className="bo-empty-icon">
-              <Package size={24} />
-            </div>
-            <div className="bo-empty-title">{products.length === 0 ? "Aucun article pour l’instant" : "Aucun résultat"}</div>
+          <div className="bo-users-empty">
+            <span>
+              <Package size={22} aria-hidden="true" />
+            </span>
+            <strong>{products.length === 0 ? "Aucun article pour l’instant" : "Aucun résultat"}</strong>
             <p>
               {products.length === 0
                 ? "Ajoutez votre premier article : vélos, haltères, textiles, nutrition… Tout ce qui touche au sport."
                 : "Modifiez la recherche ou le filtre pour retrouver vos articles."}
             </p>
             {products.length === 0 ? (
-              <button type="button" className="bo-btn bo-btn--primary" onClick={() => setEditing(null)}>
-                <PackagePlus size={16} />
+              <button type="button" className="bm-btn" onClick={() => setEditing(null)}>
+                <PackagePlus size={16} aria-hidden="true" />
                 Créer un article
               </button>
             ) : null}
           </div>
         ) : (
-          <div className="bo-product-grid">
+          <div className="mp-grid">
             {visible.map((product) => {
               const status = productStatus(product);
               const price = formatPrice(product.priceAmount, product.priceCurrency);
               const cover = product.photoUploadIds[0];
               return (
-                <article className="bo-product" key={product.id}>
-                  <div className="bo-product-media">
-                    {cover ? <img src={productPhotoUrl(product.id, cover)} alt="" loading="lazy" /> : <ImageIcon size={32} />}
-                    <span className={`bo-pill ${status.tone}`}>{status.label}</span>
+                <article className="mp-card" key={product.id}>
+                  <div className="mp-media">
+                    {cover ? <img src={productPhotoUrl(product.id, cover)} alt="" loading="lazy" /> : <ImageIcon size={32} aria-hidden="true" />}
+                    <span className={`bo-users-status mp-status ${status.tone}`}>{status.label}</span>
                     {product.photoUploadIds.length > 1 ? (
-                      <span className="bo-product-photos">
-                        <ImageIcon size={12} />
+                      <span className="mp-photos">
+                        <ImageIcon size={12} aria-hidden="true" />
                         {product.photoUploadIds.length}
                       </span>
                     ) : null}
                   </div>
-                  <div className="bo-product-body">
-                    <div className="bo-product-cat">
+                  <div className="mp-body">
+                    <div className="mp-cat">
                       {product.categoryName} · {conditionLabel(product.condition)}
                     </div>
-                    <div className="bo-product-name">{product.name}</div>
-                    {price ? (
-                      <div className="bo-product-price">{price}</div>
-                    ) : (
-                      <div className="bo-product-price is-muted">Prix sur demande</div>
-                    )}
-                    <div className="bo-product-meta">
+                    <h3 className="mp-name">{product.name}</h3>
+                    {price ? <div className="mp-price">{price}</div> : <div className="mp-price is-muted">Prix sur demande</div>}
+                    <div className="mp-meta">
                       <span title="Vues">
-                        <Eye size={14} />
+                        <Eye size={14} aria-hidden="true" />
                         {compactNumber(product.viewCount)}
                       </span>
                       <span>Modifié {timeAgo(product.updatedAt)}</span>
                     </div>
+                    {product.hiddenByAdmin && product.hiddenReason ? (
+                      <p className="mp-reason">
+                        <strong>Motif :</strong> {product.hiddenReason}
+                      </p>
+                    ) : null}
                   </div>
-                  {product.hiddenByAdmin && product.hiddenReason ? (
-                    <div className="bo-product-mod">
-                      <strong>Motif :</strong> {product.hiddenReason}
-                    </div>
-                  ) : null}
-                  <div className="bo-product-actions">
-                    <button type="button" className="bo-btn bo-btn--sm" onClick={() => setEditing(product)}>
-                      <Pencil size={14} />
+                  <div className="mp-actions">
+                    <button type="button" className="bo-users-btn" onClick={() => setEditing(product)}>
+                      <Pencil size={14} aria-hidden="true" />
                       Modifier
                     </button>
                     {!product.hiddenByAdmin ? (
                       <button
                         type="button"
-                        className="bo-btn bo-btn--sm bo-btn--icon"
+                        className="bo-users-icon"
                         disabled={busyId === product.id}
                         title={product.active ? "Repasser en brouillon" : "Publier"}
                         aria-label={product.active ? "Repasser en brouillon" : "Publier"}
                         onClick={() => void togglePublish(product)}
                       >
-                        {product.active ? <EyeOff size={15} /> : <Eye size={15} />}
+                        {product.active ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     ) : null}
                     {product.active && !product.hiddenByAdmin ? (
                       <a
-                        className="bo-btn bo-btn--sm bo-btn--icon"
+                        className="bo-users-icon"
                         href={`/marketplace/products/${product.id}`}
                         target="_blank"
                         rel="noreferrer"
                         title="Voir l’annonce"
                         aria-label="Voir l’annonce"
                       >
-                        <ExternalLink size={15} />
+                        <ExternalLink size={16} />
                       </a>
                     ) : null}
                     <button
                       type="button"
-                      className="bo-btn bo-btn--sm bo-btn--icon bo-btn--danger"
+                      className="bo-users-icon is-danger"
                       title="Supprimer"
                       aria-label="Supprimer"
                       onClick={() => setDeleting(product)}
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </article>
@@ -344,32 +347,27 @@ export function MyProductsPage() {
       ) : null}
 
       {deleting ? (
-        <BoModal
+        <UsersModal
           title="Supprimer cet article ?"
           subtitle={deleting.name}
           onClose={() => setDeleting(null)}
           footer={
             <>
-              <button type="button" className="bo-btn" onClick={() => setDeleting(null)}>
+              <button type="button" className="um-btn" data-autofocus onClick={() => setDeleting(null)}>
                 Annuler
               </button>
-              <button
-                type="button"
-                className="bo-btn bo-btn--danger-solid"
-                disabled={busyId === deleting.id}
-                onClick={() => void confirmDelete()}
-              >
-                <Trash2 size={15} />
+              <button type="button" className="um-btn is-danger" disabled={busyId === deleting.id} onClick={() => void confirmDelete()}>
+                <Trash2 size={15} aria-hidden="true" />
                 Supprimer
               </button>
             </>
           }
         >
-          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "var(--bo-text-2)" }}>
+          <p className="mp-delete-note">
             L’annonce disparaît du catalogue. Les conversations existantes restent accessibles dans{" "}
-            <MessagesSquare size={14} style={{ verticalAlign: "-2px" }} /> Messages.
+            <MessagesSquare size={14} aria-hidden="true" /> Messages.
           </p>
-        </BoModal>
+        </UsersModal>
       ) : null}
     </section>
   );

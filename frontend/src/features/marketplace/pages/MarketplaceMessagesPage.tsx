@@ -17,6 +17,8 @@ import {
 } from "../api";
 import { clockTime, dayLabel, timeAgo } from "../format";
 import { refreshMarketplaceUnread } from "../useMarketplaceUnread";
+import "@/shared/styles/backoffice-users.css";
+import "@/shared/styles/backoffice-modules.css";
 
 function Thumb({ conversation }: { conversation: Conversation }) {
   if (conversation.productId && conversation.productPhotoUploadId) {
@@ -29,6 +31,18 @@ function Thumb({ conversation }: { conversation: Conversation }) {
   return (
     <span className="bo-thumb is-sm">
       <ImageIcon size={18} />
+    </span>
+  );
+}
+
+function MsThumb({ conversation }: { conversation: Conversation }) {
+  return (
+    <span className="ms-thumb">
+      {conversation.productId && conversation.productPhotoUploadId ? (
+        <img src={productPhotoUrl(conversation.productId, conversation.productPhotoUploadId)} alt="" />
+      ) : (
+        <ImageIcon size={18} aria-hidden="true" />
+      )}
     </span>
   );
 }
@@ -143,6 +157,171 @@ export function MarketplaceMessagesPage() {
 
   const conversation = thread?.conversation ?? null;
   const price = conversation ? formatPrice(conversation.productPriceAmount, conversation.productPriceCurrency) : null;
+
+  if (workspace) {
+    return (
+      <section className="bo-dash bo-users bo-bm bo-ms">
+        <header className="bo-dash-head">
+          <div>
+            <h1>Messages</h1>
+            <p>
+              {supplier
+                ? "Les acheteurs intéressés par vos articles vous écrivent ici. Répondez rapidement pour conclure."
+                : "Vos échanges avec les fournisseurs de la marketplace."}
+            </p>
+          </div>
+        </header>
+
+        <div className={`bo-dash-card ms-inbox${activeId ? " has-thread" : ""}`}>
+          <div className="ms-list">
+            <div className="ms-list-head">
+              <label className="bo-users-search">
+                <Search size={16} aria-hidden="true" />
+                <input
+                  type="search"
+                  value={filter}
+                  placeholder="Rechercher une conversation…"
+                  aria-label="Rechercher une conversation"
+                  onChange={(event) => setFilter(event.target.value)}
+                />
+              </label>
+            </div>
+            <div className="ms-items">
+              {conversations === null ? (
+                <div className="ms-skels" aria-busy="true">
+                  {[0, 1, 2].map((key) => (
+                    <div key={key} className="bo-skeleton" />
+                  ))}
+                </div>
+              ) : shown.length === 0 ? (
+                <div className="bo-users-empty">
+                  <span>
+                    <MessagesSquare size={22} aria-hidden="true" />
+                  </span>
+                  <strong>{conversations.length ? "Aucun résultat" : "Aucune conversation"}</strong>
+                  <p>
+                    {supplier
+                      ? "Quand un acheteur vous contacte depuis une annonce, la conversation apparaît ici."
+                      : "Ouvrez une annonce et cliquez sur « Contacter le fournisseur »."}
+                  </p>
+                </div>
+              ) : (
+                shown.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`ms-conv${item.id === activeId ? " is-active" : ""}${item.unreadCount > 0 ? " is-unread" : ""}`}
+                    aria-current={item.id === activeId ? "true" : undefined}
+                    onClick={() => setParams({ c: item.id })}
+                  >
+                    <MsThumb conversation={item} />
+                    <span className="ms-conv-main">
+                      <span className="ms-conv-top">
+                        <strong>{item.counterpart.displayName}</strong>
+                        <small>{timeAgo(item.lastMessageAt)}</small>
+                      </span>
+                      <span className="ms-conv-product">{item.productName}</span>
+                      <span className="ms-conv-preview">
+                        <span>{item.lastMessagePreview ?? "—"}</span>
+                        {item.unreadCount > 0 ? <i className="ms-badge">{item.unreadCount}</i> : null}
+                      </span>
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="ms-thread">
+            {!activeId ? (
+              <div className="bo-users-empty ms-thread-empty">
+                <span>
+                  <MessagesSquare size={22} aria-hidden="true" />
+                </span>
+                <strong>Sélectionnez une conversation</strong>
+              </div>
+            ) : threadLoading && !thread ? (
+              <div className="ms-thread-empty">
+                <Loader2 size={22} className="ms-spin" aria-label="Chargement" />
+              </div>
+            ) : conversation ? (
+              <>
+                <div className="ms-thread-head">
+                  <button type="button" className="bo-users-icon ms-back" onClick={() => setParams({})} aria-label="Retour">
+                    <ArrowLeft size={18} />
+                  </button>
+                  <MsThumb conversation={conversation} />
+                  <div className="ms-thread-title">
+                    <strong>
+                      {conversation.productName}
+                      {!conversation.productAvailable ? <span className="bo-users-status is-neutral">Plus disponible</span> : null}
+                    </strong>
+                    <small>
+                      {conversation.viewerRole === "SUPPLIER" ? "Acheteur" : "Fournisseur"} : {conversation.counterpart.displayName}
+                      {conversation.counterpart.subtitle ? ` · ${conversation.counterpart.subtitle}` : ""}
+                      {price ? ` · ${price}` : " · Prix sur demande"}
+                    </small>
+                  </div>
+                  {conversation.productId && conversation.productAvailable ? (
+                    <a
+                      className="bm-btn is-outline ms-ad"
+                      href={`/marketplace/products/${conversation.productId}`}
+                      target={supplier ? "_blank" : undefined}
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={14} aria-hidden="true" />
+                      Annonce
+                    </a>
+                  ) : null}
+                </div>
+                <div className="ms-body" ref={bodyRef}>
+                  {thread!.messages.map((message, index) => {
+                    const previous = thread!.messages[index - 1];
+                    const newDay = !previous || new Date(previous.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+                    return (
+                      <Fragment key={message.id}>
+                        {newDay ? <div className="ms-day">{dayLabel(message.createdAt)}</div> : null}
+                        <div className={message.mine ? "ms-msg is-mine" : "ms-msg"}>
+                          <div className="ms-bubble">{message.body}</div>
+                          <div className="ms-meta">
+                            {message.mine ? "Vous" : message.senderName} · {clockTime(message.createdAt)}
+                          </div>
+                        </div>
+                      </Fragment>
+                    );
+                  })}
+                </div>
+                {error ? (
+                  <p className="bo-dash-error ms-error" role="alert">
+                    {error}
+                  </p>
+                ) : null}
+                <div className="ms-composer">
+                  <textarea
+                    value={draft}
+                    rows={1}
+                    maxLength={4000}
+                    aria-label="Votre message"
+                    placeholder="Écrire un message… (Entrée pour envoyer)"
+                    onChange={(event) => setDraft(event.target.value)}
+                    onKeyDown={onKeyDown}
+                  />
+                  <button type="button" className="bm-btn" disabled={!draft.trim() || sending} onClick={() => void send()}>
+                    {sending ? <Loader2 size={16} className="ms-spin" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
+                    Envoyer
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="ms-thread-empty">
+                <p className="bo-dash-error">{error ?? "Conversation introuvable."}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bo-page">

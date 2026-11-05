@@ -30,6 +30,7 @@ import {
   type FileRef,
 } from "../api";
 import { CandidatePhoto } from "../CandidatePhoto";
+import { PageSkeleton } from "@/components/ui/Skeleton";
 
 const LEVELS: Record<string, string> = {
   a1: "A1",
@@ -299,7 +300,7 @@ export function CandidateDetailPage() {
     );
   }
   if (!item) {
-    return <p className="empty-hint">Chargement de la fiche…</p>;
+    return <PageSkeleton label="Chargement de la fiche…" />;
   }
 
   const current = latestRecruitment(item);

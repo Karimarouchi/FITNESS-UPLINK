@@ -1,0 +1,626 @@
+/* ==================================================================
+   ROLES AND PERMISSIONS — Premium Light / Dark.
+   Same recipe as Verifications and Marketplace: the wrapper carries
+   `bo-dash bo-users bo-rx`, so the header, the cards, the success alert, the
+   error banner, the empty state and the modals come from backoffice-light.css
+   and backoffice-users.css. This file only holds what is specific to this
+   page, and it starts with `.rx-`. Colours come from the `--bt-*` tokens.
+   P = `.fu-app .bo-shell .bo-dash.bo-users.bo-rx`
+   ================================================================== */
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* ---------- save button ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 20px;
+  border: 1px solid var(--bt-orange);
+  border-radius: 12px;
+  background: var(--bt-orange);
+  color: #fff;
+  font: 600 14.5px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-save:hover:not(:disabled) {
+  border-color: var(--bt-blue);
+  background: var(--bt-blue);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-save:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users.bo-rx .rx-save {
+  color: #0d111b;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bo-dash.bo-users.bo-rx .rx-save:hover:not(:disabled) {
+  color: #fff;
+}
+
+.rx-spin {
+  animation: rx-rotate 0.9s linear infinite;
+}
+
+@keyframes rx-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- roles card ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-roles,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms {
+  padding: 20px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-card-head h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 19px Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-card-head span {
+  min-width: 26px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--bt-tab-count);
+  color: var(--bt-muted);
+  font: 700 12.5px Outfit, Manrope, sans-serif;
+  text-align: center;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-skel {
+  height: 56px;
+  border-radius: 14px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--bt-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role.is-active {
+  border-color: var(--bt-orange-soft-2);
+  background: var(--bt-orange-soft-2);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role:focus-visible,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-blue {
+  background: var(--bt-blue-soft);
+  color: var(--bt-blue-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-orange {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-green {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-violet {
+  background: var(--bt-violet-soft);
+  color: var(--bt-violet-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-rose {
+  background: var(--bt-rose-soft);
+  color: var(--bt-rose);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-tile.is-ink {
+  background: var(--bt-ink);
+  color: #fff;
+}
+
+/* the selected role speaks orange */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role.is-active .rx-tile {
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-copy {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-copy strong {
+  color: var(--bt-text);
+  font: 700 14.5px/1.25 Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role.is-active .rx-role-copy strong {
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-copy small {
+  overflow: hidden;
+  color: var(--bt-muted);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 600 11.5px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-badge.is-lock {
+  background: var(--bt-ink);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-chevron {
+  flex: none;
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role.is-active .rx-role-chevron {
+  color: var(--bt-orange-badge);
+}
+
+/* ---------- permissions card ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin-bottom: 16px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms-head h2 {
+  margin: 0;
+  color: var(--bt-text);
+  font: 800 21px Outfit, Manrope, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms-head p {
+  max-width: 56ch;
+  margin: 6px 0 0;
+  color: var(--bt-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms-meta {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-count {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 500 13px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-count strong {
+  color: var(--bt-text);
+  font-weight: 800;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-dirty,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-clean {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bt-orange-badge);
+  font: 600 13px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-clean {
+  color: var(--bt-muted);
+  font-weight: 500;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-dirty i,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-clean i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bt-orange);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-clean i {
+  background: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--bt-orange-soft-2);
+  border-radius: 14px;
+  background: var(--bt-orange-wash);
+  color: var(--bt-text);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-warning svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-locked {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-panel);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-locked > span {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bt-ink);
+  color: #fff;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-locked strong {
+  color: var(--bt-text);
+  font: 700 15px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-locked p {
+  margin: 4px 0 0;
+  color: var(--bt-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- accordions ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-groups {
+  display: grid;
+  gap: 10px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group {
+  border: 1px solid var(--bt-border);
+  border-radius: 14px;
+  background: var(--bt-surface);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group.is-open {
+  border-color: var(--bt-orange-soft-2);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--bt-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head:focus-visible {
+  outline-offset: -3px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-copy {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-copy strong {
+  color: var(--bt-text);
+  font: 700 15.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-copy small {
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-progress {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bt-chip);
+  color: var(--bt-muted);
+  font: 700 12px Outfit, Manrope, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-progress.is-some {
+  background: var(--bt-orange-soft-2);
+  color: var(--bt-orange-badge);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-progress.is-all {
+  background: var(--bt-ok-soft);
+  color: var(--bt-ok-text);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-chevron {
+  flex: none;
+  color: var(--bt-muted);
+  transition: transform 0.25s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group.is-open .rx-chevron {
+  transform: rotate(180deg);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-body {
+  display: grid;
+  gap: 2px;
+  padding: 6px 12px 12px;
+  border-top: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-master {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: end;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--bt-orange-badge);
+  font: 600 13px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-master:hover {
+  background: var(--bt-orange-wash);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check input,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-master input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: #fc5101;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check input:focus-visible,
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-master input:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.45);
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check > span {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--bt-text);
+  font: 600 14.5px Outfit, Manrope, sans-serif;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check small {
+  color: var(--bt-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-admin {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bt-rose-soft-2);
+  color: var(--bt-rose-text);
+  font: 700 11px Outfit, Manrope, sans-serif;
+  font-style: normal;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check-mark {
+  flex: none;
+  margin-top: 2px;
+  color: var(--bt-orange-badge);
+}
+
+/* ---------- sticky save bar inside the permissions card ---------- */
+.fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px -20px -20px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--bt-line-soft);
+  border-radius: 0 0 20px 20px;
+  background: var(--bt-surface);
+}
+
+/* ---------- tablet / phone ---------- */
+@media (max-width: 1100px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-layout {
+    grid-template-columns: minmax(250px, 300px) minmax(0, 1fr);
+    gap: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-badge:not(.is-lock) {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-list {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-chevron {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-roles,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms {
+    padding: 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx > .bo-dash-head .rx-save {
+    width: 100%;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-perms-meta {
+    justify-items: start;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head {
+    padding: 12px;
+    gap: 10px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-foot {
+    margin: 16px -16px -16px;
+    padding: 12px 16px;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-foot .rx-save {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-spin {
+    animation: none;
+  }
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-chevron,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-role,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-group-head,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-check,
+  .fu-app .bo-shell .bo-dash.bo-users.bo-rx .rx-save {
+    transition: none;
+  }
+}

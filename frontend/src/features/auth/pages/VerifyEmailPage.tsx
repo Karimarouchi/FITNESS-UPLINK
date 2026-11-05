@@ -7,8 +7,12 @@ import { changeEmail, resendVerification, verifyEmail } from "../api";
 import { destinationFor, type AuthUser } from "../types";
 import { LIMITS, validateEmail } from "../validation";
 import { VerifyHero } from "../components/VerifyHero";
+import { useTheme } from "@/features/theme/ThemeContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import "@/features/auth/auth-recovery.css";
 
 export function VerifyEmailPage() {
+  const { theme } = useTheme();
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const otpRef = useRef<OtpInputHandle>(null);
@@ -99,9 +103,12 @@ export function VerifyEmailPage() {
   }
 
   return (
-    <div className="auth-shell vf">
+    <div data-bo-theme={theme} className="auth-shell vf">
       <VerifyHero />
       <section className="auth-panel">
+        <div className="ar-theme-slot">
+          <ThemeToggle />
+        </div>
         <div className="auth-form">
           <div className="mb-8">
             <p className="vf-kicker">Vérification</p>

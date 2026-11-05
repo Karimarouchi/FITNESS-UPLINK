@@ -6,6 +6,7 @@ import { Tag } from "@/components/ui/Tag";
 import { Badge } from "@/components/ui/Badge";
 import { fetchProviders, fetchServiceCategories, providerLocation, type ProviderCard, type ServiceCategory } from "../api";
 import { ProviderLogo } from "../ProviderLogo";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -67,7 +68,7 @@ export function ProviderSearchPage() {
   const pageCount = Math.max(1, Math.ceil(total / size));
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Trouver un prestataire</h1>

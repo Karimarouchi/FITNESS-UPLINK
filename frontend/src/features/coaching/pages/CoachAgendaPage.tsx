@@ -24,6 +24,7 @@ import {
   type Booking,
   type CoachAgendaSummary,
 } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const HOURS = Array.from({ length: 14 }, (_, i) => i + 7);
@@ -475,7 +476,7 @@ export function CoachAgendaPage() {
   }
 
   return (
-    <section className="agx-page">
+    <section className="agx-page cg-skin">
       <div className="page-head">
         <div>
           <h1>Agenda &amp; réservations</h1>
@@ -508,7 +509,7 @@ export function CoachAgendaPage() {
           <div className="val">{summary && summary.averageRating > 0 ? summary.averageRating.toFixed(1) : "—"}</div>
         </motion.div>
         {summary && summary.pendingRequests > 0 ? (
-          <motion.div className="kcard" style={{ borderColor: "var(--vt-lime, #FC5101)", background: "var(--vt-lime-soft, #ffe8dc)" }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2, ease }}>
+          <motion.div className="kcard is-alert" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2, ease }}>
             <div className="lbl">Demandes en attente</div>
             <div className="val">{summary.pendingRequests}</div>
           </motion.div>
@@ -1105,16 +1106,11 @@ function UnifiedCalendar({
           return (
             <div
               key={i}
-              className="hd"
-              style={{
-                background: isToday ? "var(--vt-lime-soft, #ffe8dc)" : undefined,
-                fontWeight: isToday ? 800 : undefined,
-                borderBottom: hasBkg ? "3px solid var(--navy, #141a32)" : undefined,
-              }}
+              className={`hd${isToday ? " is-today" : ""}${hasBkg ? " has-booking" : ""}`}
             >
               {WEEK_LABELS[i]}
               <br />
-              <span style={{ fontWeight: 400, fontSize: 11, color: "var(--slate-light)" }}>
+              <span className="hd-date">
                 {d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}
               </span>
               {dayBlocked ? <span className="agx-flag">Bloqué</span> : null}
@@ -1142,23 +1138,14 @@ function UnifiedCalendar({
 
               const hasBooking = cellBookings.length > 0;
               const isAwaitingPayment = cellBookings.some((b) => b.status === "AWAITING_PAYMENT");
-              const cellBg = isAwaitingPayment
-                ? "#ffe6bf"
-                : hasBooking
-                  ? "#d5dcea"
-                  : blocked
-                    ? "repeating-linear-gradient(45deg, #eef0f4, #eef0f4 6px, #e1e4ea 6px, #e1e4ea 12px)"
-                    : rule
-                      ? "var(--vt-lime-soft, #ffe8dc)"
-                      : undefined;
-              const cellBorder = isAwaitingPayment ? "#c9820a" : hasBooking ? "var(--navy, #141a32)" : undefined;
+              const slotState = isAwaitingPayment ? "is-pending" : hasBooking ? "is-booked" : blocked ? "is-blocked" : rule ? "is-free" : "";
               const editable = Boolean(rule) && !hasBooking;
               const startsHere = rule ? toMin(rule.startTime) >= hourStart : false;
 
               return (
                 <div
                   key={`${hour}-${jsDay}`}
-                  className={editable ? "slot agx-slot-editable" : "slot"}
+                  className={["slot", editable ? "agx-slot-editable" : "", slotState].filter(Boolean).join(" ")}
                   role={editable ? "button" : undefined}
                   tabIndex={editable ? 0 : undefined}
                   title={
@@ -1169,9 +1156,6 @@ function UnifiedCalendar({
                         : undefined
                   }
                   style={{
-                    // Booking takes visual priority over availability rule
-                    background: cellBg,
-                    borderLeft: hasBooking ? `3px solid ${cellBorder}` : undefined,
                     padding: hasBooking ? "2px 5px" : undefined,
                     cursor: editable ? "pointer" : "default",
                     overflow: "hidden",
@@ -1192,14 +1176,11 @@ function UnifiedCalendar({
                     </span>
                   ) : null}
                   {cellBookings.map((b) => (
-                    <div
-                      key={b.id}
-                      style={{ fontWeight: 700, color: "#141a32", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                    >
+                    <div key={b.id} className="slot-name">
                       {new Date(b.scheduledAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}{" "}
                       {b.clientDisplayName ?? "Client"}
                       <br />
-                      <span style={{ fontWeight: 400, fontSize: 10, color: "#334" }}>
+                      <span className="slot-sub">
                         {b.serviceName} · {b.durationMinutes} min
                         {b.status === "AWAITING_PAYMENT" ? " ⏳" : " ✓"}
                       </span>
@@ -1215,23 +1196,23 @@ function UnifiedCalendar({
       {/* Legend */}
       <div className="legend">
         <span>
-          <span className="sw" style={{ background: "var(--vt-lime-soft, #ffe8dc)", border: "1px solid var(--paper-line)" }} />
+          <span className="sw is-free" />
           Disponible (cliquer pour modifier)
         </span>
         <span>
-          <span className="sw" style={{ background: "#d5dcea", borderLeft: "3px solid #141a32" }} />
+          <span className="sw is-booked" />
           Séance réservée ✓
         </span>
         <span>
-          <span className="sw" style={{ background: "#ffe6bf", borderLeft: "3px solid #c9820a" }} />
+          <span className="sw is-pending" />
           En attente paiement ⏳
         </span>
         <span>
-          <span className="sw" style={{ background: "repeating-linear-gradient(45deg, #eef0f4, #eef0f4 4px, #e1e4ea 4px, #e1e4ea 8px)" }} />
+          <span className="sw is-blocked" />
           Date bloquée
         </span>
         <span>
-          <span className="sw" style={{ background: "var(--paper-2)", border: "1px solid var(--paper-line)" }} />
+          <span className="sw is-off" />
           Indisponible
         </span>
       </div>

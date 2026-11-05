@@ -1,6 +1,25 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/Badge";
+import {
+  Bell,
+  BellOff,
+  CalendarClock,
+  CalendarDays,
+  CheckCircle2,
+  FilePenLine,
+  FilePlus2,
+  FileSignature,
+  FileText,
+  Heart,
+  Inbox,
+  Megaphone,
+  Plus,
+  ShieldCheck,
+  UserSearch,
+  Users,
+  UsersRound,
+} from "lucide-react";
+import { Card, Empty, Kpi, NOTIFICATION_ICONS, type IconType } from "./ppParts";
 import { useAuth } from "@/features/auth/AuthContext";
 import { isVerified, verificationLabel } from "@/features/auth/types";
 import { can, useBilling } from "@/features/billing/useBilling";
@@ -28,7 +47,7 @@ const FUNNEL: { status: PipelineStatus; label: string }[] = [
   { status: "HIRED", label: "Recruté" },
 ];
 
-type Task = { icon: string; text: string; to: string; urgent?: boolean };
+type Task = { icon: IconType; text: string; to: string; urgent?: boolean };
 
 export function EmployerDashboard() {
   const { user } = useAuth();
@@ -78,158 +97,145 @@ export function EmployerDashboard() {
 
   const tasks: Task[] = [];
   if (!isVerified(user)) {
-    tasks.push({ icon: "verified_user", text: `Compte : ${verificationLabel(user).toLowerCase()}. La recherche de talents est réservée aux comptes vérifiés.`, to: "/app/profile", urgent: true });
+    tasks.push({ icon: ShieldCheck, text: `Compte : ${verificationLabel(user).toLowerCase()}. La recherche de talents est réservée aux comptes vérifiés.`, to: "/app/profile", urgent: true });
   }
   if ((inbox ?? 0) > 0) {
-    tasks.push({ icon: "inbox", text: `${inbox} candidature${(inbox ?? 0) > 1 ? "s" : ""} à examiner`, to: "/applications", urgent: true });
+    tasks.push({ icon: Inbox, text: `${inbox} candidature${(inbox ?? 0) > 1 ? "s" : ""} à examiner`, to: "/applications", urgent: true });
   }
   toSign.slice(0, 3).forEach((contract) =>
-    tasks.push({ icon: "draw", text: `Contrat à signer : ${contract.candidateName} (${contract.jobOffer?.title || contract.terms?.position || "recrutement direct"})`, to: `/contracts/${contract.id}`, urgent: true }),
+    tasks.push({ icon: FileSignature, text: `Contrat à signer : ${contract.candidateName} (${contract.jobOffer?.title || contract.terms?.position || "recrutement direct"})`, to: `/contracts/${contract.id}`, urgent: true }),
   );
   interviews.slice(0, 2).forEach((row) =>
     tasks.push({
-      icon: "event",
+      icon: CalendarDays,
       text: `Entretien avec ${row.candidate.displayName} le ${new Date(row.interviewAt as string).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })}`,
       to: "/applications",
     }),
   );
   if (drafts.length > 0) {
-    tasks.push({ icon: "edit_note", text: `${drafts.length} offre${drafts.length > 1 ? "s" : ""} en brouillon à publier`, to: "/job-offers" });
+    tasks.push({ icon: FilePenLine, text: `${drafts.length} offre${drafts.length > 1 ? "s" : ""} en brouillon à publier`, to: "/job-offers" });
   }
   if (offers && offers.length === 0 && canJobs) {
-    tasks.push({ icon: "post_add", text: "Publiez votre première offre d’emploi", to: "/job-offers" });
+    tasks.push({ icon: FilePlus2, text: "Publiez votre première offre d’emploi", to: "/job-offers" });
   }
 
+  const verified = isVerified(user);
+  const firstName = user?.firstName || user?.displayName || "équipe";
+  const canCreate = canJobs && (jobLimit == null || (offers?.length ?? 0) < jobLimit);
+
   return (
-    <section className="pdx">
-      <header className="pdx-hero">
-        <div className="pdx-hero-copy">
-          <p className="pdx-kicker">Espace employeur · salle · studio</p>
+    <section className="pp">
+      <header className="pp-head">
+        <div className="pp-head-copy">
+          <p className="pp-kicker">Espace employeur · salle · studio</p>
           <h1>
-            Bonjour, <span>{user?.firstName || user?.displayName || "équipe"}.</span>
+            Bonjour, <span>{firstName}.</span>
           </h1>
-          <div className="pdx-badges">
-            <Badge variant={isVerified(user) ? "default" : "pending"}>{verificationLabel(user)}</Badge>
-            {user?.country ? <span className="pdx-chip">{user.country.flagEmoji} {user.country.name}</span> : null}
+          <div className="pp-badges">
+            <span className={`pp-status ${verified ? "is-success" : "is-warn"}`}>{verificationLabel(user)}</span>
+            {user?.country ? (
+              <span className="pp-chip">
+                {user.country.flagEmoji} {user.country.name}
+              </span>
+            ) : null}
           </div>
         </div>
-        <div className="pdx-hero-actions">
-          {canJobs && (jobLimit == null || (offers?.length ?? 0) < jobLimit) ? (
-            <Link className="pdx-cta" to="/job-offers">
-              <span className="material-symbols-outlined" aria-hidden="true">add</span>
+        <div className="pp-head-actions">
+          {canCreate ? (
+            <Link className="pp-cta" to="/job-offers">
+              <Plus size={16} aria-hidden="true" />
               Nouvelle offre
             </Link>
           ) : null}
-          <Link className="pdx-cta is-ghost" to="/candidates">
-            <span className="material-symbols-outlined" aria-hidden="true">person_search</span>
+          <Link className="pp-cta is-outline" to="/candidates">
+            <UserSearch size={16} aria-hidden="true" />
             Rechercher des talents
           </Link>
         </div>
       </header>
 
-      {error ? <p className="empty-hint">{error}</p> : null}
+      {error ? (
+        <p className="pp-error" role="alert">
+          {error}
+        </p>
+      ) : null}
 
-      <div className="pdx-kpis">
-        <Link to="/applications" className={(inbox ?? 0) > 0 ? "pdx-kpi is-alert" : "pdx-kpi"} style={{ "--i": 0 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">inbox</span>
-          <b>{inbox ?? "—"}</b>
-          <small>À examiner</small>
-        </Link>
-        <Link to="/applications" className="pdx-kpi" style={{ "--i": 1 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">groups</span>
-          <b>{pipeline ? open.length : "—"}</b>
-          <small>Recrutements en cours</small>
-        </Link>
-        <Link to="/job-offers" className="pdx-kpi" style={{ "--i": 2 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">campaign</span>
-          <b>{offers ? `${published.length}${jobLimit != null ? `/${jobLimit}` : ""}` : "—"}</b>
-          <small>Offres publiées</small>
-        </Link>
-        <Link to="/applications" className="pdx-kpi" style={{ "--i": 3 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">event</span>
-          <b>{pipeline ? interviews.length : "—"}</b>
-          <small>Entretien{interviews.length > 1 ? "s" : ""} à venir</small>
-        </Link>
-        <Link to="/contracts" className={toSign.length ? "pdx-kpi is-alert" : "pdx-kpi"} style={{ "--i": 4 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">draw</span>
-          <b>{contracts ? toSign.length : "—"}</b>
-          <small>Contrat{toSign.length > 1 ? "s" : ""} à signer</small>
-        </Link>
-        <Link to="/favorites" className="pdx-kpi" style={{ "--i": 5 } as CSSProperties}>
-          <span className="material-symbols-outlined" aria-hidden="true">favorite</span>
-          <b>{favorites ?? "—"}</b>
-          <small>Favoris</small>
-        </Link>
+      <div className="pp-kpis pp-kpis--6">
+        <Kpi to="/applications" icon={Inbox} alert={(inbox ?? 0) > 0} value={inbox ?? "—"} label="À examiner" />
+        <Kpi to="/applications" icon={UsersRound} tone="is-blue" value={pipeline ? open.length : "—"} label="Recrutements en cours" />
+        <Kpi
+          to="/job-offers"
+          icon={Megaphone}
+          tone="is-violet"
+          value={offers ? `${published.length}${jobLimit != null ? `/${jobLimit}` : ""}` : "—"}
+          label="Offres publiées"
+        />
+        <Kpi to="/applications" icon={CalendarClock} tone="is-blue" value={pipeline ? interviews.length : "—"} label={`Entretien${interviews.length > 1 ? "s" : ""} à venir`} />
+        <Kpi to="/contracts" icon={FileSignature} tone="is-violet" alert={toSign.length > 0} value={contracts ? toSign.length : "—"} label={`Contrat${toSign.length > 1 ? "s" : ""} à signer`} />
+        <Kpi to="/favorites" icon={Heart} tone="is-neutral" value={favorites ?? "—"} label="Favoris" />
       </div>
 
-      <div className="pdx-cols">
-        <div className="pdx-main">
-          <section className="pdx-card">
-            <header>
-              <h2>À faire</h2>
-              <span>{tasks.length ? `${tasks.length} action${tasks.length > 1 ? "s" : ""}` : "Tout est à jour"}</span>
-            </header>
+      <div className="pp-cols">
+        <div className="pp-main">
+          <Card title="À faire" action={<span className="pp-meta">{tasks.length ? `${tasks.length} action${tasks.length > 1 ? "s" : ""}` : "Tout est à jour"}</span>}>
             {tasks.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">task_alt</span>Rien d’urgent pour le moment.</p>
+              <Empty icon={CheckCircle2}>Rien d’urgent pour le moment.</Empty>
             ) : (
-              <ul className="pdx-tasks">
-                {tasks.map((task) => (
-                  <li key={`${task.icon}-${task.text}`} className={task.urgent ? "is-urgent" : ""}>
-                    <Link to={task.to}>
-                      <span className="material-symbols-outlined" aria-hidden="true">{task.icon}</span>
-                      <span>{task.text}</span>
-                      <span className="material-symbols-outlined pdx-go" aria-hidden="true">arrow_forward</span>
-                    </Link>
-                  </li>
-                ))}
+              <ul className="pp-tasks">
+                {tasks.map((task) => {
+                  const Icon = task.icon;
+                  return (
+                    <li key={task.text}>
+                      <Link to={task.to} className={task.urgent ? "is-urgent" : ""}>
+                        <span className="pp-task-icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <span className="pp-task-text">{task.text}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
-          </section>
+          </Card>
 
-          <section className="pdx-card">
-            <header>
-              <h2>Pipeline de recrutement</h2>
-              <Link to="/applications">Ouvrir</Link>
-            </header>
+          <Card title="Pipeline de recrutement" action={<Link className="pp-link" to="/applications">Ouvrir</Link>}>
             {pipeline === null ? (
-              <div className="pdx-skeleton" />
+              <div className="pp-skel" />
             ) : (
-              <ol className="pdx-funnel">
-                {counts.map((stage, index) => (
-                  <li key={stage.status} style={{ "--i": index } as CSSProperties}>
-                    <span className="pdx-funnel-label">{stage.label}</span>
-                    <span className="pdx-funnel-bar">
-                      <span style={{ width: `${(stage.count / peak) * 100}%` }} />
+              <ol className="pp-funnel">
+                {counts.map((stage) => (
+                  <li key={stage.status}>
+                    <span className="pp-funnel-label">{stage.label}</span>
+                    <span className="pp-funnel-bar" aria-hidden="true">
+                      <i style={{ width: `${(stage.count / peak) * 100}%` }} />
                     </span>
                     <b>{stage.count}</b>
                   </li>
                 ))}
               </ol>
             )}
-            <p className="pdx-foot">{hired} recrutement{hired > 1 ? "s" : ""} finalisé{hired > 1 ? "s" : ""} au total.</p>
-          </section>
+            <p className="pp-foot">
+              {hired} recrutement{hired > 1 ? "s" : ""} finalisé{hired > 1 ? "s" : ""} au total.
+            </p>
+          </Card>
 
-          <section className="pdx-card">
-            <header>
-              <h2>Dossiers récents</h2>
-              <Link to="/applications">Voir tout</Link>
-            </header>
+          <Card title="Dossiers récents" action={<Link className="pp-link" to="/applications">Voir tout</Link>}>
             {pipeline === null ? (
-              <div className="pdx-skeleton" />
+              <div className="pp-skel" />
             ) : rows.length === 0 ? (
-              <p className="pdx-empty">
-                <span className="material-symbols-outlined" aria-hidden="true">group_off</span>
+              <Empty icon={Users}>
                 Aucun recrutement en cours. <Link to="/candidates">Rechercher un talent</Link>
-              </p>
+              </Empty>
             ) : (
-              <ul className="pdx-apps">
+              <ul className="pp-apps">
                 {rows.slice(0, 5).map((row) => (
                   <li key={row.id}>
                     <Link to="/applications">
-                      <div className="pdx-app-top">
+                      <span className="pp-app-top">
                         <strong>{row.candidate.displayName}</strong>
-                        <span className="pdx-pill">{statusLabel(row.status)}</span>
-                      </div>
+                        <span className="pp-status is-info">{statusLabel(row.status)}</span>
+                      </span>
                       <small>
                         {opportunityLabel(row)} · {formatPipelineDate(row.statusUpdatedAt || row.createdAt)}
                       </small>
@@ -238,29 +244,25 @@ export function EmployerDashboard() {
                 ))}
               </ul>
             )}
-          </section>
+          </Card>
         </div>
 
-        <aside className="pdx-side">
-          <section className="pdx-card">
-            <header>
-              <h2>Mes offres</h2>
-              <Link to="/job-offers">Gérer</Link>
-            </header>
+        <aside className="pp-side">
+          <Card title="Mes offres" action={<Link className="pp-link" to="/job-offers">Gérer</Link>}>
             {offers === null ? (
-              <div className="pdx-skeleton" />
+              <div className="pp-skel" />
             ) : offers.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">post_add</span>Aucune offre. <Link to="/job-offers">En créer une</Link></p>
+              <Empty icon={FilePlus2}>
+                Aucune offre. <Link to="/job-offers">En créer une</Link>
+              </Empty>
             ) : (
-              <ul className="pdx-opps">
+              <ul className="pp-opps">
                 {offers.slice(0, 4).map((offer) => (
                   <li key={offer.id}>
                     <Link to="/job-offers">
                       <strong>{offer.title}</strong>
-                      <small>
-                        {[offer.position, offer.location].filter(Boolean).join(" · ") || "Détails non renseignés"}
-                      </small>
-                      <span className={offer.status === "PUBLISHED" ? "pdx-pill" : "pdx-pill is-muted"}>
+                      <small>{[offer.position, offer.location].filter(Boolean).join(" · ") || "Détails non renseignés"}</small>
+                      <span className={`pp-status ${offer.status === "PUBLISHED" ? "is-success" : "is-warn"}`}>
                         {offer.status === "PUBLISHED" ? "Publiée" : "Brouillon"}
                       </span>
                     </Link>
@@ -268,58 +270,60 @@ export function EmployerDashboard() {
                 ))}
               </ul>
             )}
-          </section>
+          </Card>
 
-          <section className="pdx-card">
-            <header>
-              <h2>Contrats</h2>
-              <Link to="/contracts">Voir tout</Link>
-            </header>
+          <Card title="Contrats" action={<Link className="pp-link" to="/contracts">Voir tout</Link>}>
             {contracts === null ? (
-              <div className="pdx-skeleton" />
+              <div className="pp-skel" />
             ) : contracts.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">description</span>Aucun contrat pour le moment.</p>
+              <Empty icon={FileText}>Aucun contrat pour le moment.</Empty>
             ) : (
-              <ul className="pdx-opps">
+              <ul className="pp-opps">
                 {contracts.slice(0, 3).map((contract) => (
                   <li key={contract.id}>
                     <Link to={`/contracts/${contract.id}`}>
                       <strong>{contract.candidateName}</strong>
                       <small>{contract.jobOffer?.title || contract.terms?.position || "Recrutement direct"}</small>
-                      <span className="pdx-pill is-muted">{contractStatusLabel(contract.status)}</span>
+                      <span className="pp-status is-neutral">{contractStatusLabel(contract.status)}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
             )}
             {waitingCandidate.length > 0 ? (
-              <p className="pdx-foot">{waitingCandidate.length} contrat{waitingCandidate.length > 1 ? "s" : ""} en attente de la signature du candidat.</p>
+              <p className="pp-foot">
+                {waitingCandidate.length} contrat{waitingCandidate.length > 1 ? "s" : ""} en attente de la signature du candidat.
+              </p>
             ) : null}
-          </section>
+          </Card>
 
-          <section className="pdx-card">
-            <header>
-              <h2>Notifications</h2>
-              {unread > 0 ? <button type="button" onClick={() => void notifications.markAllRead()}>Tout lire</button> : null}
-            </header>
+          <Card
+            title="Notifications"
+            action={unread > 0 ? <button type="button" className="pp-link" onClick={() => void notifications.markAllRead()}>Tout lire</button> : undefined}
+          >
             {notifications.items.length === 0 ? (
-              <p className="pdx-empty"><span className="material-symbols-outlined" aria-hidden="true">notifications_off</span>Aucune notification.</p>
+              <Empty icon={BellOff}>Aucune notification.</Empty>
             ) : (
-              <ul className="pdx-notifs">
-                {notifications.items.slice(0, 4).map((item) => (
-                  <li key={item.id} className={item.readAt ? "" : "is-unread"}>
-                    <Link to={item.actionPath ?? "/app/dashboard"} onClick={() => !item.readAt && void notifications.markRead(item.id)}>
-                      <span className="material-symbols-outlined" aria-hidden="true">{notificationIcon(item)}</span>
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{notificationTime(item.createdAt)}</small>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+              <ul className="pp-notifs">
+                {notifications.items.slice(0, 4).map((item) => {
+                  const Icon = NOTIFICATION_ICONS[notificationIcon(item)] ?? Bell;
+                  return (
+                    <li key={item.id} className={item.readAt ? "" : "is-unread"}>
+                      <Link to={item.actionPath ?? "/app/dashboard"} onClick={() => !item.readAt && void notifications.markRead(item.id)}>
+                        <span className="pp-task-icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <small>{notificationTime(item.createdAt)}</small>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
-          </section>
+          </Card>
         </aside>
       </div>
     </section>

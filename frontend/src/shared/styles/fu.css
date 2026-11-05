@@ -2196,6 +2196,10 @@ button.doc-card {
   outline: 2px solid var(--lime);
   outline-offset: 2px;
 }
+.fu-app .app-navbar-logo:focus,
+.fu-app .app-navbar-logo:focus-visible {
+  outline: none;
+}
 
 .fu-app .app-shell {
   flex-direction: column;

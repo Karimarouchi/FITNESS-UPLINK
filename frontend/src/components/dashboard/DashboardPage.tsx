@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/Badge";
+import { ArrowUpRight } from "lucide-react";
+import { lucideFor } from "@/components/layout/shell/navIcons";
+import "@/shared/styles/backoffice-pro.css";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   hasPermission,
@@ -67,46 +69,42 @@ function MemberDashboard() {
   const { user } = useAuth();
   const tiles = MEMBER_TILES.filter((tile) => !tile.perm || hasPermission(user, tile.perm));
   const verified = isVerified(user);
+  const firstName = user?.firstName || user?.displayName || "champion";
   return (
-    <section className="vt-dash">
-      <div className="vt-dash-hero">
-        <div>
-          <p className="vt-dash-kicker">Votre espace</p>
+    <section className="pp">
+      <header className="pp-head">
+        <div className="pp-head-copy">
+          <p className="pp-kicker">Votre espace</p>
           <h1>
-            Bonjour,
-            <br />
-            <span>{user?.firstName || user?.displayName || "champion"}.</span>
+            Bonjour, <span>{firstName}.</span>
           </h1>
-          <p className="vt-dash-lead">Tout le réseau Fitness Universe, à portée de main. Choisissez par où commencer.</p>
+          <p className="pp-lead">Tout le réseau Fitness Universe, à portée de main. Choisissez par où commencer.</p>
+          <div className="pp-badges">
+            <span className={`pp-status ${verified ? "is-success" : "is-warn"}`}>{verificationLabel(user)}</span>
+            <Link className="pp-link" to="/app/profile">
+              {verified ? "Voir mon profil" : "Compléter mon profil"}
+            </Link>
+            <Link className="pp-link" to="/">
+              Voir le site
+            </Link>
+          </div>
         </div>
-        <div className="vt-dash-status">
-          <Badge variant={verified ? "default" : "pending"}>{verificationLabel(user)}</Badge>
-          <Link className="vt-dash-btn" to="/app/profile">
-            {verified ? "Voir mon profil" : "Compléter mon profil"}
-            <span className="material-symbols-outlined" aria-hidden="true">
-              arrow_forward
-            </span>
-          </Link>
-          <Link className="vt-dash-link" to="/">
-            Voir le site
-          </Link>
-        </div>
-      </div>
+      </header>
 
-      <div className="vt-dash-grid">
-        {tiles.map((tile, index) => (
-          <Link className="vt-dash-tile" to={tile.to} key={tile.to}>
-            <span className="vt-dash-idx">{String(index + 1).padStart(2, "0")}</span>
-            <span className="vt-dash-icon material-symbols-outlined" aria-hidden="true">
-              {tile.icon}
-            </span>
-            <strong>{tile.title}</strong>
-            <small>{tile.text}</small>
-            <span className="vt-dash-go material-symbols-outlined" aria-hidden="true">
-              north_east
-            </span>
-          </Link>
-        ))}
+      <div className="pp-tiles">
+        {tiles.map((tile) => {
+          const Icon = lucideFor(tile.icon);
+          return (
+            <Link className="pp-tile" to={tile.to} key={tile.to}>
+              <span className="pp-icon" aria-hidden="true">
+                <Icon size={22} />
+              </span>
+              <strong>{tile.title}</strong>
+              <small>{tile.text}</small>
+              <ArrowUpRight className="pp-tile-go" size={18} aria-hidden="true" />
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
