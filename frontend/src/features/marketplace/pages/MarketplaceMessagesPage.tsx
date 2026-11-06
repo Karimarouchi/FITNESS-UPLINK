@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ExternalLink, Image as ImageIcon, Loader2, MessagesSquare, Search, Send, Store } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
@@ -6,6 +6,7 @@ import { hasPermission, isBackOfficeUser } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { ApiError } from "@/shared/api/client";
 import { isSupplierWorkspace } from "@/components/layout/shell/shellNav";
+import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import {
   fetchConversation,
   fetchConversations,
@@ -47,6 +48,10 @@ function MsThumb({ conversation }: { conversation: Conversation }) {
   );
 }
 
+function sameDay(left: string, right: string) {
+  return new Date(left).toDateString() === new Date(right).toDateString();
+}
+
 export function MarketplaceMessagesPage() {
   const { user } = useAuth();
   const supplier = isSupplierWorkspace(user);
@@ -62,6 +67,7 @@ export function MarketplaceMessagesPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
 
   const loadList = useCallback(() => {
     fetchConversations()
@@ -116,6 +122,14 @@ export function MarketplaceMessagesPage() {
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [thread?.messages.length, thread?.conversation.id]);
+
+  // the composer grows with its text, up to the max-height set in CSS
+  useLayoutEffect(() => {
+    const field = composerRef.current;
+    if (!field) return;
+    field.style.height = "auto";
+    field.style.height = `${field.scrollHeight}px`;
+  }, [draft]);
 
   const shown = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -175,6 +189,10 @@ export function MarketplaceMessagesPage() {
         <div className={`bo-dash-card ms-inbox${activeId ? " has-thread" : ""}`}>
           <div className="ms-list">
             <div className="ms-list-head">
+              <div className="ms-list-title">
+                <h2>Conversations</h2>
+                {conversations?.length ? <span>{conversations.length}</span> : null}
+              </div>
               <label className="bo-users-search">
                 <Search size={16} aria-hidden="true" />
                 <input
@@ -214,17 +232,20 @@ export function MarketplaceMessagesPage() {
                     aria-current={item.id === activeId ? "true" : undefined}
                     onClick={() => setParams({ c: item.id })}
                   >
-                    <MsThumb conversation={item} />
+                    <span className="ms-conv-who">
+                      <ProfileAvatar name={item.counterpart.displayName} size={42} />
+                      <MsThumb conversation={item} />
+                    </span>
                     <span className="ms-conv-main">
                       <span className="ms-conv-top">
                         <strong>{item.counterpart.displayName}</strong>
                         <small>{timeAgo(item.lastMessageAt)}</small>
                       </span>
-                      <span className="ms-conv-product">{item.productName}</span>
                       <span className="ms-conv-preview">
                         <span>{item.lastMessagePreview ?? "—"}</span>
                         {item.unreadCount > 0 ? <i className="ms-badge">{item.unreadCount}</i> : null}
                       </span>
+                      <span className="ms-conv-product">{item.productName}</span>
                     </span>
                   </button>
                 ))
@@ -250,41 +271,55 @@ export function MarketplaceMessagesPage() {
                   <button type="button" className="bo-users-icon ms-back" onClick={() => setParams({})} aria-label="Retour">
                     <ArrowLeft size={18} />
                   </button>
-                  <MsThumb conversation={conversation} />
+                  <ProfileAvatar name={conversation.counterpart.displayName} size={42} />
                   <div className="ms-thread-title">
-                    <strong>
-                      {conversation.productName}
-                      {!conversation.productAvailable ? <span className="bo-users-status is-neutral">Plus disponible</span> : null}
-                    </strong>
-                    <small>
-                      {conversation.viewerRole === "SUPPLIER" ? "Acheteur" : "Fournisseur"} : {conversation.counterpart.displayName}
-                      {conversation.counterpart.subtitle ? ` · ${conversation.counterpart.subtitle}` : ""}
-                      {price ? ` · ${price}` : " · Prix sur demande"}
-                    </small>
+                    <strong>{conversation.counterpart.displayName}</strong>
+                    <small>{conversation.counterpart.subtitle ?? (conversation.viewerRole === "SUPPLIER" ? "Acheteur" : "Fournisseur")}</small>
                   </div>
+                </div>
+                <div className="ms-product">
+                  <MsThumb conversation={conversation} />
+                  <div className="ms-product-copy">
+                    <strong>{conversation.productName}</strong>
+                    <small>{price ?? "Prix sur demande"}</small>
+                  </div>
+                  {!conversation.productAvailable ? <span className="bo-users-status is-neutral">Plus disponible</span> : null}
                   {conversation.productId && conversation.productAvailable ? (
                     <a
-                      className="bm-btn is-outline ms-ad"
+                      className="ms-ad"
                       href={`/marketplace/products/${conversation.productId}`}
                       target={supplier ? "_blank" : undefined}
                       rel="noreferrer"
                     >
+                      Voir l’annonce
                       <ExternalLink size={14} aria-hidden="true" />
-                      Annonce
                     </a>
                   ) : null}
                 </div>
                 <div className="ms-body" ref={bodyRef}>
                   {thread!.messages.map((message, index) => {
                     const previous = thread!.messages[index - 1];
-                    const newDay = !previous || new Date(previous.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+                    const next = thread!.messages[index + 1];
+                    const newDay = !previous || !sameDay(previous.createdAt, message.createdAt);
+                    // consecutive messages from one sender on one day read as a single block
+                    const startsGroup = newDay || previous.senderId !== message.senderId;
+                    const endsGroup = !next || next.senderId !== message.senderId || !sameDay(next.createdAt, message.createdAt);
+                    const rowClass = `ms-msg${message.mine ? " is-mine" : ""}${startsGroup ? " is-start" : ""}${endsGroup ? " is-end" : ""}`;
                     return (
                       <Fragment key={message.id}>
                         {newDay ? <div className="ms-day">{dayLabel(message.createdAt)}</div> : null}
-                        <div className={message.mine ? "ms-msg is-mine" : "ms-msg"}>
-                          <div className="ms-bubble">{message.body}</div>
-                          <div className="ms-meta">
-                            {message.mine ? "Vous" : message.senderName} · {clockTime(message.createdAt)}
+                        <div className={rowClass}>
+                          {!message.mine ? (
+                            <span className="ms-msg-avatar">{startsGroup ? <ProfileAvatar name={message.senderName} size={30} /> : null}</span>
+                          ) : null}
+                          <div className="ms-msg-col">
+                            <div className="ms-bubble">{message.body}</div>
+                            {endsGroup ? (
+                              <div className="ms-meta">
+                                {message.mine ? <span className="bm-sr">Vous · </span> : `${message.senderName} · `}
+                                {clockTime(message.createdAt)}
+                              </div>
+                            ) : null}
                           </div>
                         </div>
                       </Fragment>
@@ -297,19 +332,29 @@ export function MarketplaceMessagesPage() {
                   </p>
                 ) : null}
                 <div className="ms-composer">
-                  <textarea
-                    value={draft}
-                    rows={1}
-                    maxLength={4000}
-                    aria-label="Votre message"
-                    placeholder="Écrire un message… (Entrée pour envoyer)"
-                    onChange={(event) => setDraft(event.target.value)}
-                    onKeyDown={onKeyDown}
-                  />
-                  <button type="button" className="bm-btn" disabled={!draft.trim() || sending} onClick={() => void send()}>
-                    {sending ? <Loader2 size={16} className="ms-spin" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
-                    Envoyer
-                  </button>
+                  <div className="ms-composer-box">
+                    <textarea
+                      ref={composerRef}
+                      value={draft}
+                      rows={1}
+                      maxLength={4000}
+                      aria-label="Votre message"
+                      placeholder="Écrire un message…"
+                      onChange={(event) => setDraft(event.target.value)}
+                      onKeyDown={onKeyDown}
+                    />
+                    <button
+                      type="button"
+                      className="ms-send"
+                      aria-label="Envoyer"
+                      title="Envoyer"
+                      disabled={!draft.trim() || sending}
+                      onClick={() => void send()}
+                    >
+                      {sending ? <Loader2 size={18} className="ms-spin" aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
+                    </button>
+                  </div>
+                  <small className="ms-hint">Entrée pour envoyer · Maj + Entrée pour aller à la ligne</small>
                 </div>
               </>
             ) : (

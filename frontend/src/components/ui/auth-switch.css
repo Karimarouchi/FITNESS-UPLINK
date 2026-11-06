@@ -1072,6 +1072,9 @@
   top: 20px;
   right: 24px;
   z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .fu-switch.fu-auth .bo-theme-toggle {

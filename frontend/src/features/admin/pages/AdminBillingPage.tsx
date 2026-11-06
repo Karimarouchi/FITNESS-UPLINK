@@ -365,7 +365,7 @@ export function AdminBillingPage() {
             return (
               <button key={item.code} className="bs-hub-card" type="button" onClick={() => openFamily(item.code)}>
                 <span className={`bs-tile ${item.tone}`} aria-hidden="true">
-                  <Icon size={30} />
+                  <Icon size={22} />
                 </span>
                 <span className="bs-hub-copy">
                   <strong>{item.title}</strong>
@@ -384,7 +384,7 @@ export function AdminBillingPage() {
                     <small>offre{count > 1 ? "s" : ""}</small>
                   </span>
                   <span className="bs-hub-arrow" aria-hidden="true">
-                    <ArrowRight size={20} />
+                    <ArrowRight size={16} />
                   </span>
                 </span>
               </button>
@@ -392,7 +392,7 @@ export function AdminBillingPage() {
           })}
           <button className="bs-hub-card" type="button" onClick={() => setParams({ view: "tools" })}>
             <span className="bs-tile is-blue" aria-hidden="true">
-              <CreditCard size={30} />
+              <CreditCard size={22} />
             </span>
             <span className="bs-hub-copy">
               <strong>Abonnés, cartes et TVA</strong>
@@ -409,7 +409,7 @@ export function AdminBillingPage() {
                 <small>abonné{subs.length > 1 ? "s" : ""}</small>
               </span>
               <span className="bs-hub-arrow" aria-hidden="true">
-                <ArrowRight size={20} />
+                <ArrowRight size={16} />
               </span>
             </span>
           </button>

@@ -30,6 +30,7 @@ import {
   validateName,
 } from "@/features/auth/validation";
 import { useTheme } from "@/features/theme/ThemeContext";
+import { SizeControl } from "./SizeControl";
 import { ThemeToggle } from "./ThemeToggle";
 import "./auth-switch.css";
 
@@ -252,6 +253,7 @@ export function AuthSwitch() {
   return (
     <div className={cn("fu-switch fu-auth", isSignup && "is-signup")} lang="fr" data-bo-theme={theme}>
       <div className="fu-theme-slot">
+        <SizeControl />
         <ThemeToggle />
       </div>
       <div className="fu-blob" aria-hidden>

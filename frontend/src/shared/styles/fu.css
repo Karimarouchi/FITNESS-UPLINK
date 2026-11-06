@@ -49,7 +49,7 @@
   background: var(--paper);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100 * var(--site-vh));
 }
 
 .fu-public-main {
@@ -450,7 +450,7 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100 * var(--app-vh));
 }
 
 .app-navbar {
@@ -2213,7 +2213,7 @@ button.doc-card {
   width: 264px;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: calc(100 * var(--app-vh));
   padding: 20px 12px 16px;
   background: linear-gradient(180deg, #0f172a 0%, #0b1224 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -4174,7 +4174,7 @@ button.doc-card {
 }
 .fu-chat-panel {
   width: min(380px, calc(100vw - 32px));
-  height: min(560px, calc(100vh - 120px));
+  height: min(560px, calc(100 * var(--app-vh) - 120px));
   background: #fff;
   border-radius: 24px;
   box-shadow: 0 18px 48px rgba(20, 26, 50, 0.22);

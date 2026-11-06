@@ -48,7 +48,7 @@
 }
 .fu-app .bo-head h1,
 .fu-app .bo-shell .page-head h1 {
-  font-size: clamp(34px, 3.4vw, 46px);
+  font-size: clamp(28px, 2.6vw, 36px);
   color: var(--bo-text);
 }
 .fu-app .bo-welcome h1 {

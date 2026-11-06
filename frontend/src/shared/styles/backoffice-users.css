@@ -879,7 +879,7 @@
   display: flex;
   flex-direction: column;
   width: min(620px, 100%);
-  max-height: min(86vh, 760px);
+  max-height: min(calc(86 * var(--app-vh)), 760px);
   border-radius: 20px;
   background: var(--bt-surface);
   box-shadow: 0 40px 90px -30px var(--bt-shadow-modal-color);
@@ -1172,7 +1172,7 @@
     padding: 12px;
   }
   .fu-app.bo-overlay.um-overlay .um-modal {
-    max-height: 92vh;
+    max-height: calc(92 * var(--app-vh));
     border-radius: 20px;
   }
   .fu-app.bo-overlay.um-overlay .um-head,

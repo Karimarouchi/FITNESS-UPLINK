@@ -1,0 +1,120 @@
+/* ==================================================================
+   DISPLAY SCALE
+
+   Every size in the app is written in px, so size is set here, with `zoom`:
+   - `--ui-scale`: the visitor's choice (SizeControl), on the whole site.
+   - `--app-density`: the logged-in app's default, on desktop only.
+     Phones keep full size. The two multiply.
+
+   Viewport units shrink with `zoom`, so a full-height rule uses
+   `calc(100 * var(--site-vh))`, or `--app-vh` inside `.fu-app`, not 100vh.
+   ================================================================== */
+:root {
+  --ui-scale: 1;
+  --app-density: 1;
+  --site-vh: calc(1vh / var(--ui-scale));
+  --app-vh: calc(1vh / (var(--ui-scale) * var(--app-density)));
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --app-density: 0.85;
+  }
+}
+
+body {
+  zoom: var(--ui-scale);
+}
+
+.fu-app {
+  zoom: var(--app-density);
+}
+
+/* ---------- size stepper ---------- */
+.ui-size {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 32px;
+  padding: 0 2px;
+  border: 1px solid var(--ui-size-border, rgba(128, 128, 128, 0.35));
+  border-radius: 999px;
+  background: var(--ui-size-bg, transparent);
+  color: inherit;
+}
+
+.ui-size button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  min-width: 0;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 600 12.5px Outfit, Manrope, sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ui-size button.ui-size-value {
+  width: 46px;
+}
+
+.ui-size button:hover:not(:disabled) {
+  background: rgba(128, 128, 128, 0.16);
+}
+
+.ui-size button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ui-size button:focus-visible {
+  outline: 3px solid rgba(252, 81, 1, 0.5);
+  outline-offset: 1px;
+}
+
+/* the back-office shell resets radii and menu buttons at a higher specificity */
+.fu-app .bo-shell.bo-light .ui-size {
+  --ui-size-border: var(--bt-toggle-border);
+  --ui-size-bg: var(--bt-toggle-bg);
+  border-radius: 999px;
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.bo-light .ui-size button {
+  width: 26px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.fu-app .bo-shell.bo-light .ui-size button.ui-size-value {
+  width: 46px;
+}
+
+.fu-app .bo-shell.bo-light .bo-menu-size {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  color: var(--bt-text);
+  font-size: 14px;
+}
+
+/* a phone's top bar has no room left: the stepper moves into the account menu */
+@media (max-width: 720px) {
+  .fu-app .bo-shell.bo-light .bo-top-actions > .ui-size {
+    display: none;
+  }
+  .fu-app .bo-shell.bo-light .bo-menu-size {
+    display: flex;
+  }
+}

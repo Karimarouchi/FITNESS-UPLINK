@@ -7,23 +7,9 @@ import { PERMS } from "@/features/auth/permissions";
 import { useNotifications } from "@/features/notifications/useNotifications";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
+import { SizeControl } from "@/components/ui/SizeControl";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { isSupplierWorkspace, shellSectionsFor } from "./shellNav";
-
-type SearchTarget = { path: string; placeholder: string };
-
-/** Where the header search sends the query: the same destinations the previous top navbar used, per role. */
-function searchTargetFor(user: ReturnType<typeof useAuth>["user"]): SearchTarget | null {
-  if (isSupplierWorkspace(user)) return { path: "/app/marketplace/mine", placeholder: "Rechercher un article…" };
-  if (hasPermission(user, PERMS.ADMIN_USERS)) return { path: "/users", placeholder: "Rechercher un utilisateur…" };
-  if (isBackOfficeUser(user)) return null;
-  if (hasPermission(user, PERMS.HIRE_SEARCH)) return { path: "/candidates", placeholder: "Rechercher un talent…" };
-  if (hasPermission(user, PERMS.HIRE_APPLY)) return { path: "/app/opportunities", placeholder: "Rechercher une offre…" };
-  if (hasPermission(user, PERMS.COACHING_DISCOVER)) return { path: "/coaches", placeholder: "Rechercher un coach…" };
-  if (hasPermission(user, PERMS.ACADEMY_BROWSE)) return { path: "/academie", placeholder: "Rechercher une formation…" };
-  if (hasPermission(user, PERMS.MARKETPLACE_BROWSE)) return { path: "/marketplace/products", placeholder: "Rechercher un article…" };
-  return null;
-}
 
 function useCrumbs() {
   const { user } = useAuth();
@@ -61,7 +47,8 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
   const [query, setQuery] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
   const displayName = user?.displayName || "Profil";
-  const searchTarget = searchTargetFor(user);
+  // The header search only looks up users, so it only appears on the users page.
+  const showSearch = pathname === "/users";
 
   useEffect(() => {
     if (!open) return;
@@ -82,8 +69,7 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
   function onSearch(event: FormEvent) {
     event.preventDefault();
     const q = query.trim();
-    if (!searchTarget) return;
-    navigate(q ? `${searchTarget.path}?q=${encodeURIComponent(q)}` : searchTarget.path);
+    navigate(q ? `/users?q=${encodeURIComponent(q)}` : "/users");
   }
 
   return (
@@ -106,13 +92,13 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
       </div>
       ) : null}
 
-      {searchTarget ? (
+      {showSearch ? (
         <form className="bo-search" onSubmit={onSearch} role="search">
           <Search size={16} className="bo-search-icon" aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={searchTarget?.placeholder}
+            placeholder="Rechercher un utilisateur…"
             aria-label="Recherche"
           />
         </form>
@@ -121,6 +107,7 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
       )}
 
       <div className="bo-top-actions">
+        <SizeControl />
         <ThemeToggle />
         {hasMessages ? (
           <Link className="bo-icon-btn" to="/app/marketplace/messages" aria-label="Messages" title="Messages">
@@ -152,6 +139,10 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
                   {user?.email}
                   {isVerified(user) ? " · vérifié" : ""}
                 </div>
+              </div>
+              <div className="bo-menu-size">
+                <span>Taille</span>
+                <SizeControl />
               </div>
               <Link role="menuitem" to="/app/profile" onClick={() => setOpen(false)}>
                 <UserRound size={16} />

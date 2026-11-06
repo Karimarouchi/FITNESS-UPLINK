@@ -35,7 +35,7 @@
 
 .fu-app .bo-shell {
   display: flex;
-  min-height: 100vh;
+  min-height: calc(100 * var(--app-vh));
   background: var(--bo-bg);
   font-family: var(--bo-font);
   color: var(--bo-text);
@@ -50,7 +50,7 @@
   flex-direction: column;
   flex: 0 0 264px;
   width: 264px;
-  height: 100vh;
+  height: calc(100 * var(--app-vh));
   background: var(--bo-surface);
   border-right: 1px solid var(--bo-border);
 }
@@ -1930,7 +1930,7 @@ a.bo-list-item:hover {
 .bo-inbox {
   display: grid;
   grid-template-columns: 340px minmax(0, 1fr);
-  height: calc(100vh - 64px - 28px - 64px - 92px);
+  height: calc(100 * var(--app-vh) - 64px - 28px - 64px - 92px);
   min-height: 520px;
   border: 1px solid var(--bo-border);
   border-radius: var(--bo-radius);
@@ -2128,14 +2128,14 @@ a.bo-list-item:hover {
   place-items: center;
 }
 .app-shell:not(.bo-shell) .bo-inbox {
-  height: calc(100vh - 220px);
+  height: calc(100 * var(--app-vh) - 220px);
   margin-bottom: 96px;
 }
 
 @media (max-width: 860px) {
   .bo-inbox {
     grid-template-columns: 1fr;
-    height: calc(100vh - 170px);
+    height: calc(100 * var(--app-vh) - 170px);
   }
   .bo-inbox.has-thread .bo-inbox-list {
     display: none;

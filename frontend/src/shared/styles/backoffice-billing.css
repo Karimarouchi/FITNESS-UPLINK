@@ -45,18 +45,18 @@
 /* ---------- audience hub ---------- */
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub {
   display: grid;
-  gap: 18px;
+  gap: 12px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   width: 100%;
-  padding: 26px 28px;
+  padding: 14px 18px;
   border: 1px solid var(--bt-border);
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--bt-surface);
   box-shadow: var(--bt-shadow);
   color: inherit;
@@ -76,9 +76,9 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 84px;
-  height: 84px;
-  border-radius: 22px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile.is-orange {
@@ -103,13 +103,13 @@
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy {
   display: grid;
-  gap: 6px;
+  gap: 3px;
   min-width: 0;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy strong {
   color: var(--bt-text);
-  font: 800 22px/1.2 Outfit, Manrope, sans-serif;
+  font: 800 17px/1.2 Outfit, Manrope, sans-serif;
   letter-spacing: -0.02em;
 }
 
@@ -117,51 +117,55 @@
   color: var(--bt-muted);
   font-size: 14.5px;
   font-style: normal;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-roles {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-roles .bo-users-role {
+  padding: 3px 10px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-go {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 14px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count {
   display: grid;
   justify-items: center;
-  min-width: 56px;
+  min-width: 44px;
   line-height: 1.1;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count strong {
   color: var(--bt-orange-text);
-  font: 800 38px/1 Outfit, Manrope, sans-serif;
+  font: 800 24px/1 Outfit, Manrope, sans-serif;
   font-variant-numeric: tabular-nums;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-count small {
   color: var(--bt-muted);
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-count-skel {
-  width: 40px;
-  height: 38px;
-  border-radius: 10px;
+  width: 28px;
+  height: 24px;
+  border-radius: 8px;
 }
 
 .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-arrow {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--bt-orange-soft);
   color: var(--bt-orange-text);
@@ -637,12 +641,12 @@
 @media (max-width: 1024px) {
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 18px 20px;
+    gap: 12px 16px;
   }
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-go {
     grid-column: 1 / -1;
     justify-content: space-between;
-    padding-top: 14px;
+    padding-top: 10px;
     border-top: 1px solid var(--bt-line-soft);
   }
 }
@@ -657,15 +661,15 @@
     width: 200px;
   }
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-card {
-    padding: 20px 18px;
+    padding: 14px 16px;
   }
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-tile {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
   }
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-hub-copy strong {
-    font-size: 19px;
+    font-size: 16px;
   }
   .fu-app .bo-shell .bo-dash.bo-users.bo-bm.bo-bs .bs-toolbar > * {
     flex: 1 1 140px;
