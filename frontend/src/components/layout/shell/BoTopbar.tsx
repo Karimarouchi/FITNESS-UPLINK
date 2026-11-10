@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, ChevronRight, LogOut, Menu, MessagesSquare, Search, Settings, UserRound } from "lucide-react";
+import { Bell, ChevronDown, ChevronRight, CreditCard, LogOut, Menu, MessagesSquare, Search, Settings, UserRound } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasPermission, isBackOfficeUser, isVerified, shortNameOf } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
@@ -10,7 +10,7 @@ import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
 import { SizeControl } from "@/components/ui/SizeControl";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { RailAction, RailTabs, RailThemeSwitch } from "./RailNav";
+import { NavTabs, RailAction, RailThemeSwitch } from "./RailNav";
 import { isSupplierWorkspace, shellSectionsFor } from "./shellNav";
 
 function useCrumbs() {
@@ -83,7 +83,7 @@ export function BoTopbar({ onMenu, rail = false }: { onMenu: () => void; rail?: 
       {rail ? (
         <>
           <BrandLogo to="/app/dashboard" className="mb-logo" />
-          <RailTabs />
+          <NavTabs />
         </>
       ) : showCrumbs ? (
       <div className="bo-crumbs" aria-label="Fil d'Ariane">
@@ -160,6 +160,10 @@ export function BoTopbar({ onMenu, rail = false }: { onMenu: () => void; rail?: 
               <Link role="menuitem" to="/app/settings" onClick={() => setOpen(false)}>
                 <Settings size={16} />
                 Paramètres
+              </Link>
+              <Link role="menuitem" to="/app/billing" onClick={() => setOpen(false)}>
+                <CreditCard size={16} />
+                Abonnement
               </Link>
               <button
                 type="button"

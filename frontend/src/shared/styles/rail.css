@@ -48,7 +48,7 @@
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 14px 36px 34px 104px;
+  padding: 14px 36px 34px;
   background: transparent;
 }
 
@@ -175,7 +175,7 @@
   gap: 22px;
   height: auto;
   min-height: 84px;
-  padding: 18px 36px 10px 104px;
+  padding: 18px 36px 10px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -197,6 +197,7 @@
 /* last resort for a very tight bar: the tabs scroll instead of pushing the page wider */
 .fu-app .bo-shell .mb-tabs {
   display: flex;
+  margin-left: clamp(16px, 3vw, 56px);
   flex: 0 1 auto;
   align-items: center;
   gap: 26px;
@@ -612,29 +613,29 @@
   }
 }
 
-/* roles with many tabs reach those same steps earlier */
+/* roles with three or more tabs reach those same steps earlier */
 @container mbbar (max-width: 1500px) {
-  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) :is(.mb-tab svg, .mb-theme span) {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(3)) :is(.mb-tab svg, .mb-theme span) {
     display: none;
   }
 
-  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-theme button {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(3)) .mb-theme button {
     padding: 0 8px;
   }
 }
 
 @container mbbar (max-width: 1300px) {
-  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) :is(.mb-logo, .mb-cta span) {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(3)) :is(.mb-logo, .mb-cta span) {
     display: none;
   }
 
-  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-cta {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(3)) .mb-cta {
     width: 40px;
     padding: 0;
     justify-content: center;
   }
 
-  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-tabs {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(3)) .mb-tabs {
     gap: 18px;
   }
 }
@@ -1539,5 +1540,242 @@
   .fu-app .bo-shell .bo-main[data-art] :is(.bo-dash-head, .bo-head, .page-head)::before {
     width: 64px;
     height: 64px;
+  }
+}
+
+/* notifications: separate rows with room between them; only the unread ones carry a light tint */
+.fu-app .bo-shell.is-rail .bo-content .bo-nx .nx-list {
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .bo-nx .nx-item {
+  border-bottom: 0;
+  border-radius: 16px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .bo-nx .nx-item:hover {
+  background: var(--bt-hover);
+}
+
+.fu-app .bo-shell.is-rail .bo-content .bo-nx .nx-item.is-unread {
+  background: color-mix(in srgb, var(--bt-orange-wash) 55%, transparent);
+  box-shadow: none;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .bo-nx .nx-group h2 {
+  padding: 18px 22px 10px;
+}
+
+/* time picker of the booking dialog */
+.bk-slots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bk-slots .slot-pick {
+  min-height: 42px;
+  border: 1px solid var(--bt-line-soft, #e6e0d6);
+  border-radius: 12px;
+  background: var(--bt-surface, #fff);
+  color: var(--bt-text, #1b2332);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.bk-slots .slot-pick:not(:disabled):hover {
+  border-color: var(--mb-accent, #fc5101);
+  color: var(--mb-accent, #fc5101);
+}
+
+.bk-slots .slot-pick:disabled {
+  background: transparent;
+  color: var(--bt-muted, #5c6578);
+  opacity: 0.55;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.bk-slots .slot-pick.selected {
+  border-color: var(--mb-accent, #fc5101);
+  background: var(--mb-accent, #fc5101);
+  color: #fff;
+}
+
+.bk-slots .empty-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* coaching and academy pages: cards sit two per row instead of stretching across the whole page */
+.fu-app .bo-shell.is-rail .bo-content .cg-skin {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .cg-skin > :not(.panel) {
+  grid-column: 1 / -1;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .cg-skin > .panel {
+  margin: 0;
+  min-width: 0;
+}
+
+/* in a half-width card the actions drop under the title instead of squeezing it */
+.fu-app .bo-shell.is-rail .bo-content .cg-skin .booking-item {
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: start;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .cg-skin .booking-item > :nth-child(n + 3) {
+  grid-column: 2;
+  justify-self: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 1100px) {
+  .fu-app .bo-shell.is-rail .bo-content .cg-skin {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* history filters and pager */
+.bk-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 4px 22px 14px;
+}
+
+.bk-filters input,
+.bk-filters select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--bt-line-soft, #e6e0d6);
+  border-radius: 12px;
+  background: var(--bt-surface, #fff);
+  color: var(--bt-text, #1b2332);
+  font: 500 14px Outfit, Manrope, sans-serif;
+}
+
+.bk-filters input[type="search"] {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.bk-filters label {
+  display: grid;
+  gap: 4px;
+  color: var(--bt-muted, #5c6578);
+  font: 600 12px Outfit, Manrope, sans-serif;
+}
+
+.bk-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid var(--bt-line-soft, #e6e0d6);
+  color: var(--bt-muted, #5c6578);
+  font: 500 13px Outfit, Manrope, sans-serif;
+}
+
+/* history status menu: a flat select with its own arrow, readable in both themes */
+.bk-filters select {
+  min-width: 170px;
+  padding-right: 34px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a93a3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color-scheme: light;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell[data-bo-theme="dark"] .bk-filters :is(select, input) {
+  color-scheme: dark;
+}
+
+.bk-filters select:focus-visible,
+.bk-filters input:focus-visible {
+  outline: 2px solid var(--mb-accent, #fc5101);
+  outline-offset: 1px;
+}
+
+/* coach cards: neutral chips and a quiet button, orange stays for the main actions */
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card .tag-row {
+  gap: 6px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card .tag {
+  padding: 3px 10px;
+  background: var(--bt-chip) !important;
+  color: var(--bt-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card .fu-talent-meta {
+  color: var(--bt-muted);
+  font-weight: 500;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card .fu-talent-meta {
+  font-size: 14px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card-actions .btn-mini {
+  border: 1px solid var(--bt-line-soft) !important;
+  background: transparent !important;
+  color: var(--bt-text) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card-actions .btn-mini:hover {
+  border-color: var(--bt-text) !important;
+}
+
+/* top navigation: no rail, so the page starts at the left edge; a second row lists the pages of the current section */
+.fu-app .bo-shell .mb-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 2px 36px 4px;
+}
+
+.fu-app .bo-shell .mb-subtab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  color: var(--bt-muted);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-subtab:hover {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-subtab.is-on {
+  background: var(--bt-chip);
+  color: var(--bt-text);
+}
+
+@media (max-width: 1024px) {
+  .fu-app .bo-shell .mb-subtabs {
+    padding: 2px 16px 4px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
   }
 }

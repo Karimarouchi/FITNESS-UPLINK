@@ -26,34 +26,34 @@
   --bt-sidebar-w-collapsed: 88px;
 
   /* canvas and chrome */
-  --bt-page: #f3eee6;
+  --bt-page: #f4f6f9;
   --bt-chrome: #ffffff;
   --bt-chrome-glass: rgba(255, 255, 255, 0.94);
 
   /* surfaces */
   --bt-surface: #ffffff;
-  --bt-card-soft: #fffdf9;
-  --bt-panel: #fbf8f3;
-  --bt-thead: #f8f4ed;
-  --bt-input: #f5f1ea;
-  --bt-tabs: #f6f2ea;
-  --bt-tab-count: #e9e3d8;
-  --bt-chip: #f3f0ea;
-  --bt-chip-2: #f1ede6;
-  --bt-track: #efeae2;
+  --bt-card-soft: #fcfdff;
+  --bt-panel: #f8fafc;
+  --bt-thead: #f6f8fb;
+  --bt-input: #f1f4f8;
+  --bt-tabs: #f1f4f8;
+  --bt-tab-count: #e3e8ef;
+  --bt-chip: #eff2f6;
+  --bt-chip-2: #edf0f5;
+  --bt-track: #e9edf3;
   --bt-ink: #0b1a33;
 
   /* interaction */
-  --bt-hover: #fcfaf6;
-  --bt-hover-2: #faf7f2;
-  --bt-hover-3: #f7f3ec;
-  --bt-scroll: #ddd5c9;
+  --bt-hover: #f8fafc;
+  --bt-hover-2: #f5f7fa;
+  --bt-hover-3: #f1f4f8;
+  --bt-scroll: #cfd6e0;
 
   /* lines */
-  --bt-border: #e4ddd2;
-  --bt-line-soft: #efe9df;
-  --bt-line-row: #f3eee5;
-  --bt-line-3: #f1ece3;
+  --bt-border: #e2e7ee;
+  --bt-line-soft: #e9edf3;
+  --bt-line-row: #eef1f6;
+  --bt-line-3: #ecf0f5;
   --bt-link-border: #dbe4ff;
 
   /* text */

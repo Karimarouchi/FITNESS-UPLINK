@@ -8,5 +8,5 @@ export function AcademyHomeRedirect() {
   if (hasPermission(user, PERMS.ACADEMY_MANAGE)) {
     return <Navigate to="/app/academy/formations" replace />;
   }
-  return <Navigate to="/app/academy/registrations" replace />;
+  return <Navigate to="/academie" replace />;
 }

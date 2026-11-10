@@ -153,7 +153,7 @@ export function CoachSearchPage() {
                   </div>
                   <RatingStars value={item.averageRating} count={item.reviewCount} />
                   <div className="tag-row">
-                    {(item.specialties ?? []).slice(0, 4).map((tag) => (
+                    {(item.specialties ?? []).slice(0, 3).map((tag) => (
                       <Tag key={tag}>{tag}</Tag>
                     ))}
                   </div>

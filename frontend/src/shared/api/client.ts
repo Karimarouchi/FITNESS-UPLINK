@@ -86,7 +86,9 @@ async function request<T>(path: string, init: RequestOptions = {}): Promise<T> {
   if (init.responseType === "blob") {
     return (await response.blob()) as T;
   }
-  return response.json() as Promise<T>;
+  // a controller returning void answers 200 with an empty body: that is a success, not invalid JSON
+  const text = await response.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 export const api = {

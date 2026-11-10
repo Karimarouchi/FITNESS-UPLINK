@@ -3714,3 +3714,8 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+/* reCAPTCHA badge hidden; the required notice is shown in the signup form (auth-switch.tsx). visibility, not display, so the script keeps working. */
+.grecaptcha-badge {
+  visibility: hidden;
+}

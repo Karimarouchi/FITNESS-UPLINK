@@ -10,13 +10,13 @@
    brand-theme.css resets every radius inside `.fu-app .bo-shell` (specificity
    0,2,0) and is loaded after this file, so rules here use `.fu-app .bo-shell`
    prefixes (0,3,0+) instead of `!important`.
-   Tokens come from brand-theme.css (--uf-*): cream #f3eee6, ink var(--bt-text),
+   Tokens come from brand-theme.css (--uf-*): cream #f4f6f9, ink var(--bt-text),
    orange #fc5101, blue #0048fc, line var(--bt-border), muted var(--bt-muted).
    ================================================================== */
 
 .fu-app .bo-shell.bo-light {
   /* tokens (--bt-*) are defined in backoffice-tokens.css, light and dark */
-  background: #f3eee6;
+  background: #f4f6f9;
 }
 
 /* pages that follow the theme also paint the column under the sidebar */
@@ -1491,7 +1491,7 @@
 .fu-app .bo-shell.bo-light[data-bo-theme="dark"] .bo-brand .fu-brand {
   padding: 6px 12px;
   border-radius: 14px;
-  background: #f3eee6;
+  background: #f4f6f9;
 }
 
 .fu-app .bo-shell.bo-light[data-bo-theme="dark"] .bo-brand .fu-brand img {

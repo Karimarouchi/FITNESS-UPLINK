@@ -247,3 +247,18 @@
 .fu-public[data-bo-theme="dark"] .pub-kicker.ink {
   color: #7ba3ff;
 }
+
+/* Hero title: white instead of blue in dark mode */
+.fu-public[data-bo-theme="dark"] .vx .vx-title,
+.fu-public[data-bo-theme="dark"] .vx .vx-title-lead,
+.fu-public[data-bo-theme="dark"] .vx .vx-title-impact {
+  color: #ffffff !important;
+}
+
+/* Section titles: white lines, orange accent line (instead of blue) */
+.fu-public[data-bo-theme="dark"] .fu-home.vt .vt-title {
+  color: #ffffff !important;
+}
+.fu-public[data-bo-theme="dark"] .fu-home.vt .vt-title .vt-muted {
+  color: #fc5101 !important;
+}

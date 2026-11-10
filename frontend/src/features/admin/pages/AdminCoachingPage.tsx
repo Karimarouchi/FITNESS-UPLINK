@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   CalendarDays,
@@ -57,7 +57,9 @@ function formatDate(value: string) {
 }
 
 export function AdminCoachingPage() {
-  const [tab, setTab] = useState<Tab>("coaches");
+  const [params] = useSearchParams();
+  const requested = params.get("tab");
+  const [tab, setTab] = useState<Tab>(requested === "reports" || requested === "bookings" ? requested : "coaches");
   const [coaches, setCoaches] = useState<AdminCoachSummary[] | null>(null);
   const [bookings, setBookings] = useState<Booking[] | null>(null);
   const [reports, setReports] = useState<CoachingReport[] | null>(null);

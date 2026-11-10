@@ -3,7 +3,14 @@ import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/Button";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { academyErrorMessage, cancelRegistration, fetchMyRegistrations, type Registration } from "../api";
+import {
+  academyErrorMessage,
+  cancelRegistration,
+  fetchFormations,
+  fetchMyRegistrations,
+  type FormationCard,
+  type Registration,
+} from "../api";
 import "@/shared/styles/backoffice-coaching.css";
 import "./academy-tickets.css";
 
@@ -55,6 +62,13 @@ function Ticket({ registration }: { registration: Registration }) {
 export function MyRegistrationsPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [available, setAvailable] = useState<FormationCard[]>([]);
+
+  useEffect(() => {
+    fetchFormations({ size: 3 })
+      .then((page) => setAvailable(page.items))
+      .catch(() => setAvailable([]));
+  }, []);
 
   function load() {
     fetchMyRegistrations().then(setRegistrations).catch(() => setRegistrations([]));
@@ -113,6 +127,33 @@ export function MyRegistrationsPage() {
       </div>
 
       {error ? <p className="auth-error">{error}</p> : null}
+
+      {available.length > 0 ? (
+        <div className="panel">
+          <div className="panel-head">
+            <h2>Formations disponibles</h2>
+            <Link className="tk-link" to="/academie">
+              Voir tout le catalogue
+            </Link>
+          </div>
+          {available.map((f) => (
+            <div key={f.id} className="booking-item">
+              <div className="booking-time">{f.nextSessionAt ? formatWhen(f.nextSessionAt) : "—"}</div>
+              <div className="booking-body">
+                <div className="t">{f.title}</div>
+                <div className="s">
+                  {[f.trainerName, f.online ? "En ligne" : f.location, Number(f.priceAmount) > 0 ? `${f.priceAmount} ${f.priceCurrency}` : "Gratuit"]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </div>
+              </div>
+              <Button variant="primary" to={`/academie/formations/${f.id}`}>
+                Voir et s’inscrire
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {debts.length > 0 ? (
         <div className="panel tk-alert">

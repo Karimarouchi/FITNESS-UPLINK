@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -60,11 +60,18 @@ function statusLabel(status: Booking["status"]) {
   }
 }
 
+const HISTORY_PAGE_SIZE = 3;
+
 export function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const [review, setReview] = useState<string | null>(null);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historyStatus, setHistoryStatus] = useState("");
+  const [historyFrom, setHistoryFrom] = useState("");
+  const [historyTo, setHistoryTo] = useState("");
+  const [historyPage, setHistoryPage] = useState(0);
 
   function load() {
     fetchMyBookings().then(setBookings).catch(() => setBookings([]));
@@ -82,6 +89,35 @@ export function MyBookingsPage() {
     (b) => b.status === "DECLINED" || b.status === "CANCELLED" || b.status === "COMPLETED" || b.status === "NO_SHOW" ||
       (b.status === "CONFIRMED" && new Date(b.scheduledAt).getTime() < now),
   );
+
+  const filteredPast = useMemo(() => {
+    const q = historyQuery.trim().toLowerCase();
+    const from = historyFrom ? new Date(`${historyFrom}T00:00:00`).getTime() : null;
+    const to = historyTo ? new Date(`${historyTo}T23:59:59`).getTime() : null;
+    return past
+      .filter((b) => {
+        const when = new Date(b.scheduledAt).getTime();
+        if (from !== null && when < from) return false;
+        if (to !== null && when > to) return false;
+        if (historyStatus && b.status !== historyStatus) return false;
+        if (q && !`${b.coachDisplayName ?? ""} ${b.serviceName}`.toLowerCase().includes(q)) return false;
+        return true;
+      })
+      .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookings, historyQuery, historyStatus, historyFrom, historyTo]);
+  const historyPages = Math.max(1, Math.ceil(filteredPast.length / HISTORY_PAGE_SIZE));
+  const historyCurrent = Math.min(historyPage, historyPages - 1);
+  const historyRows = filteredPast.slice(historyCurrent * HISTORY_PAGE_SIZE, (historyCurrent + 1) * HISTORY_PAGE_SIZE);
+  const historyFiltered = Boolean(historyQuery || historyStatus || historyFrom || historyTo);
+
+  function resetHistory() {
+    setHistoryQuery("");
+    setHistoryStatus("");
+    setHistoryFrom("");
+    setHistoryTo("");
+    setHistoryPage(0);
+  }
 
   async function cancel(id: string) {
     setCancelError(null);
@@ -196,12 +232,74 @@ export function MyBookingsPage() {
         <div className="panel-head">
           <h2>Historique</h2>
         </div>
+        {past.length > 0 ? (
+          <div className="bk-filters">
+            <input
+              type="search"
+              value={historyQuery}
+              placeholder="Rechercher un coach ou un service…"
+              aria-label="Rechercher dans l'historique"
+              onChange={(e) => {
+                setHistoryQuery(e.target.value);
+                setHistoryPage(0);
+              }}
+            />
+            <select
+              value={historyStatus}
+              aria-label="Statut"
+              onChange={(e) => {
+                setHistoryStatus(e.target.value);
+                setHistoryPage(0);
+              }}
+            >
+              <option value="">Tous les statuts</option>
+              <option value="COMPLETED">Terminée</option>
+              <option value="CANCELLED">Annulée</option>
+              <option value="DECLINED">Refusée</option>
+              <option value="NO_SHOW">Absence</option>
+              <option value="CONFIRMED">Passée</option>
+            </select>
+            <label>
+              Du
+              <input
+                type="date"
+                value={historyFrom}
+                max={historyTo || undefined}
+                onChange={(e) => {
+                  setHistoryFrom(e.target.value);
+                  setHistoryPage(0);
+                }}
+              />
+            </label>
+            <label>
+              Au
+              <input
+                type="date"
+                value={historyTo}
+                min={historyFrom || undefined}
+                onChange={(e) => {
+                  setHistoryTo(e.target.value);
+                  setHistoryPage(0);
+                }}
+              />
+            </label>
+            {historyFiltered ? (
+              <Button variant="mini" onClick={resetHistory}>
+                Réinitialiser
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         {past.length === 0 ? (
           <p className="empty-hint" style={{ padding: "0 22px 20px" }}>
             Aucune séance passée.
           </p>
+        ) : filteredPast.length === 0 ? (
+          <p className="empty-hint" style={{ padding: "0 22px 20px" }}>
+            Aucune séance ne correspond à ces filtres.
+          </p>
         ) : (
-          past.map((b) => (
+          historyRows.map((b) => (
             <div key={b.id}>
               <div className="booking-item">
                 <div className="booking-time">{new Date(b.scheduledAt).toLocaleDateString("fr-FR")}</div>
@@ -243,6 +341,19 @@ export function MyBookingsPage() {
             </div>
           ))
         )}
+        {filteredPast.length > HISTORY_PAGE_SIZE ? (
+          <nav className="bk-pager" aria-label="Pagination de l'historique">
+            <Button variant="mini" disabled={historyCurrent === 0} onClick={() => setHistoryPage(historyCurrent - 1)}>
+              Précédent
+            </Button>
+            <span>
+              Page {historyCurrent + 1} sur {historyPages} · {filteredPast.length} séances
+            </span>
+            <Button variant="mini" disabled={historyCurrent >= historyPages - 1} onClick={() => setHistoryPage(historyCurrent + 1)}>
+              Suivant
+            </Button>
+          </nav>
+        ) : null}
       </div>
     </section>
   );

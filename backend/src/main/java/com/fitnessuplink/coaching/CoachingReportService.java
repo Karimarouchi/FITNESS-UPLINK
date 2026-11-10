@@ -50,7 +50,7 @@ public class CoachingReportService {
                 "Litige coaching",
                 reporter.getDisplayName() + " a signalé une réservation.",
                 "Ouvrir",
-                "/admin/coaching"
+                "/admin/coaching?tab=reports"
         ));
     }
 

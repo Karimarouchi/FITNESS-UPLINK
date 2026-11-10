@@ -419,7 +419,7 @@ function BookingModal({
                 <span>Date</span>
                 <input type="date" value={date} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} />
               </label>
-              <div className="week-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)", marginTop: 12 }}>
+              <div className="bk-slots">
                 {slots.map((slot) => {
                   const label = new Date(slot.start).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
                   const isSelected = selected?.start === slot.start;
@@ -428,7 +428,7 @@ function BookingModal({
                       key={slot.start}
                       type="button"
                       disabled={!slot.available}
-                      className={`slot slot-pick ${slot.available ? "avail" : "booked"} ${isSelected ? "selected" : ""}`}
+                      className={`slot-pick ${isSelected ? "selected" : ""}`}
                       onClick={() => {
                         setSelected(slot);
                         setBlocks(1);

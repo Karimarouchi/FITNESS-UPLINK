@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronsLeft, ChevronsRight, LogOut, X } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { ChevronDown, ChevronsLeft, ChevronsRight, X } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
-import { isSuperAdmin, shortNameOf } from "@/features/auth/types";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
-import { useNotifications } from "@/features/notifications/useNotifications";
 import { isSupplierWorkspace, shellSectionsFor, type ShellGroup, type ShellLink } from "./shellNav";
 
 function matches(pathname: string, link: ShellLink) {
@@ -106,14 +103,11 @@ export function BoSidebar({
   collapsed?: boolean;
   onToggleCollapse?: () => void;
 }) {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const supplier = isSupplierWorkspace(user);
   const unread = useMarketplaceUnread(supplier);
-  const { unreadCount } = useNotifications();
-  const badges = { marketplaceUnread: unread, notifications: unreadCount };
-  const displayName = user?.displayName || "Profil";
-  const roleLine = isSuperAdmin(user) ? "Super administrateur" : user?.role?.label ?? "Compte";
+  // notifications live in the top bar only
+  const badges = { marketplaceUnread: unread };
 
   return (
     <aside className={`bo-sidebar${open ? " is-open" : ""}`} aria-label="Navigation principale">
@@ -140,7 +134,7 @@ export function BoSidebar({
         {shellSectionsFor(user).map((section) => (
           <div className="bo-nav-section" key={section.title}>
             <div className="bo-nav-title">{section.title}</div>
-            {section.items.map((item) =>
+            {section.items.filter((item) => item.kind === "group" || item.to !== "/notifications").map((item) =>
               item.kind === "group" ? (
                 <GroupItem key={item.id} group={item} badges={badges} onNavigate={onClose} collapsed={collapsed} onExpand={onToggleCollapse} />
               ) : (
@@ -150,27 +144,6 @@ export function BoSidebar({
           </div>
         ))}
       </nav>
-
-      <div className="bo-sidebar-foot">
-        <div className="bo-user">
-          <ProfileAvatar uploadId={user?.avatarUploadId} name={displayName} size={36} />
-          <div className="bo-user-copy">
-            <div className="bo-user-name">{user ? shortNameOf(user) : "Profil"}</div>
-            <div className="bo-user-role">{roleLine}</div>
-          </div>
-          <button
-            type="button"
-            className="bo-icon-btn"
-            aria-label="Déconnexion"
-            title="Déconnexion"
-            onClick={() => {
-              void logout().then(() => navigate("/login", { replace: true }));
-            }}
-          >
-            <LogOut size={17} />
-          </button>
-        </div>
-      </div>
     </aside>
   );
 }

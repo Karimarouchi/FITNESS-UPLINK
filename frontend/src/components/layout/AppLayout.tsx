@@ -6,13 +6,11 @@ import { useOnboardingLocale } from "@/features/onboarding/LocaleContext";
 import { useTheme } from "@/features/theme/ThemeContext";
 import { hasPermission, isBackOfficeUser } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
-import { AppNavbar } from "./AppNavbar";
 import { BoSidebar } from "./shell/BoSidebar";
 import { BoTopbar } from "./shell/BoTopbar";
-import { RailMenu } from "./shell/RailNav";
+import { NavSubTabs } from "./shell/RailNav";
 import { pageArtFor } from "./shell/pageArt";
 import { usesWorkspaceShell } from "./shell/shellNav";
-import { ChatWidget } from "@/features/recruitment/ChatWidget";
 import "./app-vantage.css";
 import "@/shared/styles/backoffice-tokens.css";
 import "@/shared/styles/backoffice-light.css";
@@ -79,8 +77,14 @@ export function AppLayout() {
     ADMIN_MODULE_PAGES.includes(pathname) ||
     (workspace && ACCOUNT_PAGES.includes(pathname)) ||
     pathname === "/app/dashboard";
-  // Everyone but the back-office gets the curved rail instead of the sidebar.
-  const rail = workspace && memberLike;
+  // Roles that run a business tool (recruitment, agenda, formations) keep the full sidebar like the back-office;
+  // the other roles (members, candidates, suppliers, providers, organizers, creators) get a top navigation bar.
+  const managesWork =
+    hasPermission(user, PERMS.HIRE_SEARCH) ||
+    hasPermission(user, PERMS.HIRE_JOBS) ||
+    hasPermission(user, PERMS.COACHING_MANAGE) ||
+    hasPermission(user, PERMS.ACADEMY_MANAGE);
+  const rail = workspace && memberLike && !managesWork;
   const art = pageArtFor(pathname, user);
   const artStyle = art ? ({ "--page-art": `url(/illustrations/${art}.png)` } as CSSProperties) : undefined;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -136,33 +140,21 @@ export function AppLayout() {
 
   return (
     <div className="fu-app" id="app" lang="fr" dir="ltr">
-      {workspace ? (
-        <div
-          className={`app-shell is-admin bo-shell bo-light${collapsed ? " is-collapsed" : ""}${rail ? " is-rail" : ""}`}
-          data-bo-theme={theme}
-        >
-          <BoSidebar open={menuOpen} onClose={() => setMenuOpen(false)} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
-          {menuOpen ? <div className="bo-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
-          {rail ? <RailMenu /> : null}
-          <div className={themedPage ? "bo-main is-themed" : "bo-main is-themed is-legacy vt-app"} data-art={art ?? undefined} style={artStyle}>
-            <BoTopbar onMenu={() => setMenuOpen(true)} rail={rail} />
-            <main className="bo-content main-content">
-              {visibilityBanner}
-              <Outlet />
-            </main>
-          </div>
+      <div
+        className={`app-shell is-admin bo-shell bo-light${collapsed ? " is-collapsed" : ""}${rail ? " is-rail" : ""}`}
+        data-bo-theme={theme}
+      >
+        <BoSidebar open={menuOpen} onClose={() => setMenuOpen(false)} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
+        {menuOpen ? <div className="bo-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
+                <div className={themedPage ? "bo-main is-themed" : "bo-main is-themed is-legacy vt-app"} data-art={art ?? undefined} style={artStyle}>
+          <BoTopbar onMenu={() => setMenuOpen(true)} rail={rail} />
+          {rail ? <NavSubTabs /> : null}
+          <main className="bo-content main-content">
+            {visibilityBanner}
+            <Outlet />
+          </main>
         </div>
-      ) : (
-        <div className="app-shell vt-app">
-          <AppNavbar />
-          <div className="main">
-            <div className="main-content">
-              {visibilityBanner}
-              <Outlet />
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
       {memberLike && notice && user && user.profileVisible === false ? (
         <div className="ob-visibility" role="dialog" aria-modal="true">
           <div className="ob-visibility-card">
@@ -175,7 +167,6 @@ export function AppLayout() {
           </div>
         </div>
       ) : null}
-      {!workspace ? <ChatWidget /> : null}
     </div>
   );
 }

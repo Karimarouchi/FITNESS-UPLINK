@@ -49,7 +49,7 @@ export function RailMenu() {
         <div className="mb-rail-body">
           {sections.map((section) => (
             <div className="mb-rail-group" key={section.title}>
-              {section.items.map((item) => {
+              {section.items.filter((item) => item.kind === "group" || item.to !== "/notifications").map((item) => {
                 const link = asRailLink(item);
                 const Icon = link.icon;
                 const count = item.kind === "group" ? 0 : item.badge ? badges[item.badge] : 0;
@@ -116,6 +116,57 @@ export function RailTabs() {
           </NavLink>
         );
       })}
+    </nav>
+  );
+}
+
+/** Top navigation of the roles without a side menu: one tab per section of their workspace. */
+export function NavTabs() {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const items = useMemo(
+    () =>
+      shellSectionsFor(user)
+        .filter((section) => section.title !== "Compte")
+        .flatMap((section) => section.items),
+    [user],
+  );
+  return (
+    <nav className="mb-tabs" aria-label="Navigation principale">
+      {items.map((item) => {
+        const link = asRailLink(item);
+        const Icon = link.icon;
+        if (link.external) return null;
+        return (
+          <NavLink key={link.to} to={link.to} end={link.end} className={itemIsOn(pathname, item) ? "mb-tab is-on" : "mb-tab"}>
+            <Icon size={16} strokeWidth={2} aria-hidden="true" />
+            {link.label}
+          </NavLink>
+        );
+      })}
+    </nav>
+  );
+}
+
+/** Second row of the top navigation: the pages of the section being viewed (only when it has several). */
+export function NavSubTabs() {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const group = useMemo(
+    () =>
+      shellSectionsFor(user)
+        .flatMap((section) => section.items)
+        .find((item): item is ShellGroup => item.kind === "group" && item.children.some((child) => isOn(pathname, child))),
+    [pathname, user],
+  );
+  if (!group || group.children.length < 2) return null;
+  return (
+    <nav className="mb-subtabs" aria-label={`Pages de ${group.label}`}>
+      {group.children.map((child) => (
+        <NavLink key={child.to} to={child.to} end={child.end} className={isOn(pathname, child) ? "mb-subtab is-on" : "mb-subtab"}>
+          {child.label}
+        </NavLink>
+      ))}
     </nav>
   );
 }
