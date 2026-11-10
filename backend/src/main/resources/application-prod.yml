@@ -16,7 +16,7 @@ app:
     jwt:
       secret: ${JWT_SECRET}
     cookie:
-      secure: true
+      secure: ${COOKIE_SECURE:true}
     super-admin:
       email: ${SUPER_ADMIN_EMAIL}
       password: ${SUPER_ADMIN_PASSWORD}
@@ -26,3 +26,19 @@ app:
     from-email: ${MAIL_FROM:${MAIL_USERNAME}}
   frontend:
     base-url: ${FRONTEND_URL}
+
+# Behind the host nginx + the web container, the socket peer is a private proxy address.
+# "native" makes Tomcat resolve the real client IP from X-Forwarded-For, trusting it only when the
+# immediate peer is an internal (private-range) proxy, so the auth rate limiter keeps working per client.
+server:
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

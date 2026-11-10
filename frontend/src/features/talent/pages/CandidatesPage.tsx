@@ -69,9 +69,10 @@ export function CandidatesPage() {
   const [relocate, setRelocate] = useState(params.get("relocate") === "true");
   const [hasDiploma, setHasDiploma] = useState(params.get("hasDiploma") === "true");
   const [hasCertification, setHasCertification] = useState(params.get("hasCertification") === "true");
-  const [sort, setSort] = useState<"date" | "relevance" | "experience">(
-    params.get("sort") === "relevance" || params.get("sort") === "experience" ? params.get("sort") : "date",
-  );
+  const [sort, setSort] = useState<"date" | "relevance" | "experience">(() => {
+    const requested = params.get("sort");
+    return requested === "relevance" || requested === "experience" ? requested : "date";
+  });
   const [page, setPage] = useState(Number(params.get("page") ?? "0") || 0);
   const [items, setItems] = useState<CandidateCard[]>([]);
   const [total, setTotal] = useState(0);

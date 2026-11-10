@@ -51,6 +51,7 @@ function PdfPages({ src, expanded }: { src: string; expanded: boolean }) {
     if (!host) {
       return;
     }
+    const container: HTMLDivElement = host;
 
     let cancelled = false;
     let loadingTask: PDFDocumentLoadingTask | null = null;
@@ -60,7 +61,7 @@ function PdfPages({ src, expanded }: { src: string; expanded: boolean }) {
     async function render() {
       setStatus("loading");
       setErrorDetail("");
-      host.replaceChildren();
+      container.replaceChildren();
       try {
         const response = await fetch(src);
         const data = new Uint8Array(await response.arrayBuffer());
@@ -73,7 +74,7 @@ function PdfPages({ src, expanded }: { src: string; expanded: boolean }) {
         if (cancelled) {
           return;
         }
-        const boxWidth = wrap?.clientWidth || host.clientWidth || 640;
+        const boxWidth = wrap?.clientWidth || container.clientWidth || 640;
         const usable = Math.max(280, boxWidth - 24);
         for (let n = 1; n <= pdf.numPages; n += 1) {
           if (cancelled) {
@@ -103,7 +104,7 @@ function PdfPages({ src, expanded }: { src: string; expanded: boolean }) {
           if (cancelled) {
             return;
           }
-          host.appendChild(canvas);
+          container.appendChild(canvas);
           if (n === 1) {
             setStatus("ready");
           }

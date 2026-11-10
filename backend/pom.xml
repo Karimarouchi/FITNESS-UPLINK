@@ -21,6 +21,8 @@
         <java.version>25</java.version>
         <jjwt.version>0.12.6</jjwt.version>
         <springdoc.version>3.0.1</springdoc.version>
+        <!-- Override the Spring Boot managed Tomcat (11.0.24) to pick up security fixes. -->
+        <tomcat.version>11.0.27</tomcat.version>
     </properties>
 
     <dependencies>

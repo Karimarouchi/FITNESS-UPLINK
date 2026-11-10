@@ -373,7 +373,7 @@ function MemberHome({ user }: { user: AuthUser | null }) {
           to: "/app/academy/registrations",
         };
       });
-    return [...sessions, ...formations].filter((item) => isUpcoming(item.at)).sort(byDate);
+    return [...sessions, ...formations].filter((item) => item.at !== undefined && isUpcoming(item.at)).sort(byDate);
   }, [bookings, registrations]);
 
   const shortcuts: Shortcut[] = [];

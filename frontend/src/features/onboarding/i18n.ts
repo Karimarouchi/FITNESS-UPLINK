@@ -332,7 +332,17 @@ export const copy = {
   },
 } as const;
 
-export type OnboardingCopy = (typeof copy)["fr"];
+type WidenLiterals<T> = T extends string
+  ? string
+  : T extends (...args: infer A) => infer R
+    ? (...args: A) => R
+    : T extends readonly (infer U)[]
+      ? readonly WidenLiterals<U>[]
+      : T extends object
+        ? { readonly [K in keyof T]: WidenLiterals<T[K]> }
+        : T;
+
+export type OnboardingCopy = WidenLiterals<(typeof copy)["fr"]>;
 
 export function roleI18n(code: string, locale: OnboardingLocale, fallback: { label: string; description: string | null; categoryLabel: string }) {
   if (locale === "en") {
