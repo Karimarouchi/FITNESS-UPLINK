@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 
 /**
- * Display size chosen by the visitor, in percent of the default size.
+ * Display size chosen by the user, in percent of the default size.
  * The provider lives in App.tsx and writes `--ui-scale` on <html>; scale.css applies it to the
- * whole site, public pages included. Stored per browser, like the theme.
+ * back office only. Stored per browser, like the theme.
  */
 export const UI_SCALE_STORAGE_KEY = "fu.ui.scale";
 export const UI_SCALE_DEFAULT = 100;

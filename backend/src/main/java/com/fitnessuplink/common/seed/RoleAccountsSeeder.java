@@ -27,9 +27,12 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,6 +132,88 @@ public class RoleAccountsSeeder implements ApplicationRunner {
         if (created > 0) {
             log.info("Role accounts seeded: {} created. They use the password {}", created, PASSWORD);
         }
+        seedMemberActivity();
+    }
+
+    /**
+     * Gives the member login something to show on its dashboard: sessions with the demo coach, an academy registration and
+     * unread notifications. Runs once, while the member has no booking.
+     *
+     * The registration avoids PENDING_ON_SITE on purpose: once its session has passed, that status counts as a debt and locks the account.
+     */
+    private void seedMemberActivity() {
+        UUID member = userId("membre");
+        UUID coach = userId("coach");
+        if (member == null || coach == null) {
+            return;
+        }
+        Integer bookings = jdbc.queryForObject("SELECT COUNT(*) FROM coaching_bookings WHERE client_id = ?", Integer.class, member);
+        if (bookings != null && bookings > 0) {
+            return;
+        }
+        List<Map<String, Object>> services = jdbc.queryForList("""
+                SELECT id, duration_minutes, price_amount, price_currency FROM coach_services WHERE coach_id = ? ORDER BY duration_minutes
+                """, coach);
+        if (services.isEmpty()) {
+            return;
+        }
+        Object[][] sessions = {
+                {1, LocalTime.of(10, 0), "CONFIRMED", 0},
+                {1, LocalTime.of(16, 30), "AWAITING_PAYMENT", 1},
+                {3, LocalTime.of(9, 0), "PENDING", 0},
+                {6, LocalTime.of(11, 0), "CONFIRMED", 0},
+                {-7, LocalTime.of(10, 0), "COMPLETED", 0},
+                {-14, LocalTime.of(10, 0), "COMPLETED", 1},
+        };
+        for (Object[] session : sessions) {
+            Map<String, Object> service = services.get(Math.min((int) session[3], services.size() - 1));
+            jdbc.update("""
+                    INSERT INTO coaching_bookings (id, coach_id, client_id, coach_service_id, scheduled_at, duration_minutes, status,
+                                                   price_amount, price_currency, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
+                    """, UUID.randomUUID(), coach, member, service.get("id"), ts(weekdayAt((int) session[0], (LocalTime) session[1])),
+                    service.get("duration_minutes"), session[2], service.get("price_amount"), service.get("price_currency"));
+        }
+
+        List<UUID> formationSessions = jdbc.queryForList("""
+                SELECT s.id FROM formation_sessions s JOIN formations f ON f.id = s.formation_id
+                WHERE f.organizer_id = ? ORDER BY s.scheduled_at
+                """, UUID.class, userId("academie"));
+        if (!formationSessions.isEmpty()) {
+            jdbc.update("""
+                    INSERT INTO formation_registrations (id, session_id, member_id, status, waitlist_position, ticket_token, created_at, updated_at)
+                    VALUES (?, ?, ?, 'WAITLISTED', 1, ?, now(), now())
+                    """, UUID.randomUUID(), formationSessions.get(0), member, UUID.randomUUID().toString());
+        }
+
+        Object[][] notifications = {
+                {"Séance confirmée", "Votre coach a confirmé votre prochaine séance individuelle.", "Voir mes séances", "/app/coaching/bookings", 2},
+                {"Paiement en attente", "Réglez votre bilan pour bloquer le créneau.", "Payer", "/app/coaching/bookings", 20},
+                {"Liste d'attente", "Vous êtes premier sur la liste d'attente de la Certification Coach Fitness.", "Voir", "/app/academy/registrations", 30},
+        };
+        for (Object[] notification : notifications) {
+            jdbc.update("""
+                    INSERT INTO notifications (id, user_id, title, message, action_label, action_path, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, UUID.randomUUID(), member, notification[0], notification[1], notification[2], notification[3],
+                    ts(Instant.now().minus((int) notification[4], ChronoUnit.HOURS)));
+        }
+        log.info("Member demo activity seeded");
+    }
+
+    private UUID userId(String login) {
+        List<UUID> ids = jdbc.queryForList("SELECT id FROM users WHERE email = ?", UUID.class, login + DOMAIN);
+        return ids.isEmpty() ? null : ids.get(0);
+    }
+
+    /** That many days from today at this time, moved to the Monday when it lands on a weekend: the coach only works weekdays. */
+    private static Instant weekdayAt(int days, LocalTime time) {
+        ZoneId zone = ZoneId.of("Africa/Tunis");
+        LocalDate date = LocalDate.now(zone).plusDays(days);
+        while (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.plusDays(1);
+        }
+        return date.atTime(time).atZone(zone).toInstant();
     }
 
     private UUID insertUser(Account account, String hash) {

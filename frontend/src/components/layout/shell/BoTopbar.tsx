@@ -5,10 +5,12 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { hasPermission, isBackOfficeUser, isVerified, shortNameOf } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { useNotifications } from "@/features/notifications/useNotifications";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
 import { useMarketplaceUnread } from "@/features/marketplace/useMarketplaceUnread";
 import { SizeControl } from "@/components/ui/SizeControl";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { RailAction, RailTabs, RailThemeSwitch } from "./RailNav";
 import { isSupplierWorkspace, shellSectionsFor } from "./shellNav";
 
 function useCrumbs() {
@@ -32,7 +34,7 @@ function useCrumbs() {
   }, [pathname, user]);
 }
 
-export function BoTopbar({ onMenu }: { onMenu: () => void }) {
+export function BoTopbar({ onMenu, rail = false }: { onMenu: () => void; rail?: boolean }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const crumbs = useCrumbs();
@@ -78,7 +80,12 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
         <Menu size={20} />
       </button>
 
-      {showCrumbs ? (
+      {rail ? (
+        <>
+          <BrandLogo to="/app/dashboard" className="mb-logo" />
+          <RailTabs />
+        </>
+      ) : showCrumbs ? (
       <div className="bo-crumbs" aria-label="Fil d'Ariane">
         {crumbs ? (
           <>
@@ -107,8 +114,9 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
       )}
 
       <div className="bo-top-actions">
+        {rail ? <RailThemeSwitch /> : null}
         <SizeControl />
-        <ThemeToggle />
+        {rail ? null : <ThemeToggle />}
         {hasMessages ? (
           <Link className="bo-icon-btn" to="/app/marketplace/messages" aria-label="Messages" title="Messages">
             <MessagesSquare size={19} strokeWidth={1.8} />
@@ -119,6 +127,7 @@ export function BoTopbar({ onMenu }: { onMenu: () => void }) {
           <Bell size={19} strokeWidth={1.8} />
           {unreadCount > 0 ? <span className="bo-dot-count">{unreadCount > 9 ? "9+" : unreadCount}</span> : null}
         </Link>
+        {rail ? <RailAction /> : null}
         <div className="bo-account" ref={menuRef}>
           <button
             type="button"

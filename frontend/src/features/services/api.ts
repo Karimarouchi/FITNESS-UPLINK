@@ -36,7 +36,7 @@ export type ProviderPage = {
   size: number;
 };
 
-export type ProviderProfile = ProviderCard & {
+export type ProviderProfile = Omit<ProviderCard, "categoryNames"> & {
   website: string | null;
   phone: string | null;
   email: string | null;

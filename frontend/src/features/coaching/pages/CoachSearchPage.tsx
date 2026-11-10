@@ -6,6 +6,7 @@ import { Tag } from "@/components/ui/Tag";
 import { coachLocation, fetchCoaches, type CoachCard } from "../api";
 import { CoachPhoto } from "../CoachPhoto";
 import { RatingStars } from "../RatingStars";
+import "@/shared/styles/backoffice-coaching.css";
 
 const SPECIALTIES = [
   { value: "musculation", label: "Musculation" },
@@ -76,7 +77,7 @@ export function CoachSearchPage() {
   const pageCount = Math.max(1, Math.ceil(total / size));
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Trouver un coach</h1>

@@ -226,3 +226,24 @@
   border-color: #fc5101 !important;
   color: #0d111b !important;
 }
+
+/* the generated rule for every tab also lands on the selected one, which has a solid fill */
+.fu-public[data-bo-theme="dark"].fu-public .pub-tab.is-on {
+  color: #fff !important;
+}
+
+/* the logo blue is too dark to read as text on the dark sections */
+.fu-public[data-bo-theme="dark"] .fu-home.vt :is(.vt-title, .vt-idx),
+.fu-public[data-bo-theme="dark"].fu-public .pn-links a.is-active,
+.fu-public[data-bo-theme="dark"].fu-public .pn--solid .pn-links a.is-active,
+.fu-public[data-bo-theme="dark"] .pub-crumbs [aria-current],
+.fu-public.ob-shell[data-bo-theme="dark"] :is(.profile-card-icon, .ob-link, .ob-nav-back),
+.fu-switch.fu-auth[data-bo-theme="dark"] :is(.fu-control:focus-within .auth-label, .fu-control:focus-within .fu-field-icon, .auth-rule.is-ok, .auth-eye:hover) {
+  color: #7ba3ff !important;
+}
+
+/* lower specificity on purpose: kickers on the promise and call-to-action bands keep their own colour */
+.fu-public[data-bo-theme="dark"] .pub-kicker,
+.fu-public[data-bo-theme="dark"] .pub-kicker.ink {
+  color: #7ba3ff;
+}

@@ -1,21 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { fetchMyDebts } from "@/features/academy/api";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useOnboardingLocale } from "@/features/onboarding/LocaleContext";
 import { useTheme } from "@/features/theme/ThemeContext";
-import { hasPermission, isBackOfficeUser, isSuperAdmin } from "@/features/auth/types";
+import { hasPermission, isBackOfficeUser } from "@/features/auth/types";
 import { PERMS } from "@/features/auth/permissions";
 import { AppNavbar } from "./AppNavbar";
 import { BoSidebar } from "./shell/BoSidebar";
 import { BoTopbar } from "./shell/BoTopbar";
-import { isSupplierWorkspace, usesWorkspaceShell } from "./shell/shellNav";
+import { RailMenu } from "./shell/RailNav";
+import { pageArtFor } from "./shell/pageArt";
+import { usesWorkspaceShell } from "./shell/shellNav";
 import { ChatWidget } from "@/features/recruitment/ChatWidget";
 import "./app-vantage.css";
 import "@/shared/styles/backoffice-tokens.css";
 import "@/shared/styles/backoffice-light.css";
 import "@/features/theme/legacy-dark.generated.css";
 import "@/features/theme/legacy-dark.css";
+import "@/shared/styles/rail.css";
 
 // the seven admin module pages (exact routes, no wildcard)
 const ADMIN_MODULE_PAGES = [
@@ -43,28 +46,6 @@ const ACCOUNT_PAGES = [
   "/app/coaching/services",
   "/app/coaching/packs",
 ];
-
-/** Same rule as DashboardPage: these accounts get the professional dashboard. */
-function usesProDashboard(user: ReturnType<typeof useAuth>["user"]) {
-  if (isSuperAdmin(user) || hasPermission(user, PERMS.HIRE_PIPELINE)) return false;
-  return (
-    hasPermission(user, PERMS.HIRE_APPLY) ||
-    (hasPermission(user, PERMS.HIRE_PROFILE) && hasPermission(user, PERMS.COACHING_MANAGE))
-  );
-}
-
-/** Members (and any account without a dedicated workspace) get the member dashboard: same fall-through order as DashboardPage. */
-function usesMemberDashboard(user: ReturnType<typeof useAuth>["user"]) {
-  if (isSuperAdmin(user) || usesProDashboard(user) || isSupplierWorkspace(user)) return false;
-  return !(
-    hasPermission(user, PERMS.HIRE_PIPELINE) ||
-    hasPermission(user, PERMS.ACADEMY_MANAGE) ||
-    hasPermission(user, PERMS.SERVICES_MANAGE) ||
-    hasPermission(user, PERMS.EVENTS_MANAGE) ||
-    hasPermission(user, PERMS.CONTENT_PUBLISH) ||
-    hasPermission(user, PERMS.COACHING_MANAGE)
-  );
-}
 
 export function AppLayout() {
   const { user } = useAuth();
@@ -97,7 +78,11 @@ export function AppLayout() {
     pathname === "/admin/config/emails" ||
     ADMIN_MODULE_PAGES.includes(pathname) ||
     (workspace && ACCOUNT_PAGES.includes(pathname)) ||
-    (pathname === "/app/dashboard" && (isSuperAdmin(user) || isSupplierWorkspace(user) || usesProDashboard(user) || usesMemberDashboard(user) || hasPermission(user, PERMS.HIRE_PIPELINE)));
+    pathname === "/app/dashboard";
+  // Everyone but the back-office gets the curved rail instead of the sidebar.
+  const rail = workspace && memberLike;
+  const art = pageArtFor(pathname, user);
+  const artStyle = art ? ({ "--page-art": `url(/illustrations/${art}.png)` } as CSSProperties) : undefined;
   const [menuOpen, setMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => {
     try {
@@ -153,13 +138,14 @@ export function AppLayout() {
     <div className="fu-app" id="app" lang="fr" dir="ltr">
       {workspace ? (
         <div
-          className={collapsed ? "app-shell is-admin bo-shell bo-light is-collapsed" : "app-shell is-admin bo-shell bo-light"}
+          className={`app-shell is-admin bo-shell bo-light${collapsed ? " is-collapsed" : ""}${rail ? " is-rail" : ""}`}
           data-bo-theme={theme}
         >
           <BoSidebar open={menuOpen} onClose={() => setMenuOpen(false)} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
           {menuOpen ? <div className="bo-backdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" /> : null}
-          <div className={themedPage ? "bo-main is-themed" : "bo-main is-themed is-legacy vt-app"}>
-            <BoTopbar onMenu={() => setMenuOpen(true)} />
+          {rail ? <RailMenu /> : null}
+          <div className={themedPage ? "bo-main is-themed" : "bo-main is-themed is-legacy vt-app"} data-art={art ?? undefined} style={artStyle}>
+            <BoTopbar onMenu={() => setMenuOpen(true)} rail={rail} />
             <main className="bo-content main-content">
               {visibilityBanner}
               <Outlet />

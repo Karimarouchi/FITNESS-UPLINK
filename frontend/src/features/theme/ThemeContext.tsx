@@ -14,13 +14,13 @@ function isTheme(value: unknown): value is BoTheme {
   return value === "light" || value === "dark";
 }
 
-/** Light by default; a previous choice is restored. Read synchronously so the first paint is right. */
+/** Dark by default; a previous choice is restored. Read synchronously so the first paint is right. */
 function readStoredTheme(): BoTheme {
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return isTheme(stored) ? stored : "light";
+    return isTheme(stored) ? stored : "dark";
   } catch {
-    return "light";
+    return "dark";
   }
 }
 
@@ -76,9 +76,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-const FALLBACK: ThemeValue = { theme: "light", isDark: false, setTheme: () => undefined, toggleTheme: () => undefined };
+const FALLBACK: ThemeValue = { theme: "dark", isDark: true, setTheme: () => undefined, toggleTheme: () => undefined };
 
-/** Safe outside the provider (returns the light theme and does nothing on toggle). */
+/** Safe outside the provider (returns the dark theme and does nothing on toggle). */
 export function useTheme(): ThemeValue {
   return useContext(ThemeContext) ?? FALLBACK;
 }

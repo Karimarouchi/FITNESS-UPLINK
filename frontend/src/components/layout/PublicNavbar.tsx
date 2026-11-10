@@ -4,7 +4,6 @@ import { PUBLIC_NAV_LINKS } from "@/components/public/publicData";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ProfileAvatar } from "@/shared/components/ProfileAvatar";
-import { SizeControl } from "@/components/ui/SizeControl";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const OVERLAY_PATHS = new Set([
@@ -169,7 +168,6 @@ export function PublicNavbar() {
         </nav>
 
         <div className="pn-actions">
-          <SizeControl />
           <ThemeToggle />
           {user ? (
             <>
@@ -228,7 +226,6 @@ export function PublicNavbar() {
           ))}
         </div>
         <div className="pn-sheet-actions">
-          <SizeControl />
           <ThemeToggle />
           {user ? (
             <>

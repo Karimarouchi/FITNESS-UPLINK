@@ -1,4 +1,5 @@
 import { Panel } from "@/components/ui/Panel";
+import "@/shared/styles/backoffice-coaching.css";
 
 export type WorkspaceCopy = {
   title: string;
@@ -28,7 +29,7 @@ export function ModuleWorkspacePage({ workspace }: { workspace: string }) {
   const copy = WORKSPACES[workspace];
   if (!copy) {
     return (
-      <section>
+      <section className="cg-skin">
         <div className="page-head">
           <h1>Espace</h1>
         </div>
@@ -39,7 +40,7 @@ export function ModuleWorkspacePage({ workspace }: { workspace: string }) {
     );
   }
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>{copy.title}</h1>

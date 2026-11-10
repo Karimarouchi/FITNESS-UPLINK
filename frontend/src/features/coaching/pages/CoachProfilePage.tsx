@@ -25,6 +25,7 @@ import { CoachPhoto } from "../CoachPhoto";
 import { RatingStars } from "../RatingStars";
 import { openCoachChat } from "@/features/recruitment/openHireChat";
 import "@/features/onboarding/signup-flow.css";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 type Tab = "services" | "availability" | "reviews";
@@ -46,7 +47,7 @@ export function CoachProfilePage() {
 
   if (error) {
     return (
-      <section>
+      <section className="cg-skin">
         <p className="jobs-empty">
           <strong>{error}</strong>
         </p>
@@ -60,7 +61,7 @@ export function CoachProfilePage() {
   const place = coachLocation(profile);
 
   return (
-    <section>
+    <section className="cg-skin">
       <motion.div className="profile-banner" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
         <CoachPhoto coachId={profile.id} uploadId={profile.photoUploadId} name={profile.displayName} size={88} />
         <div>

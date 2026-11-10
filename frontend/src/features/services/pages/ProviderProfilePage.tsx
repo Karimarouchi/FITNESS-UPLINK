@@ -15,6 +15,7 @@ import {
   type ProviderProfile,
 } from "../api";
 import { ProviderLogo } from "../ProviderLogo";
+import "@/shared/styles/backoffice-coaching.css";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -30,7 +31,7 @@ export function ProviderProfilePage() {
 
   if (error) {
     return (
-      <section>
+      <section className="cg-skin">
         <p className="jobs-empty">
           <strong>{error}</strong>
         </p>
@@ -44,7 +45,7 @@ export function ProviderProfilePage() {
   const place = providerLocation(profile);
 
   return (
-    <section>
+    <section className="cg-skin">
       <motion.div className="profile-banner" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
         <ProviderLogo providerId={profile.id} uploadId={profile.logoUploadId} name={profile.displayName} size={88} />
         <div>
@@ -52,7 +53,7 @@ export function ProviderProfilePage() {
           {profile.subscribed ? <Badge>Abonné</Badge> : null}
           <div className="ploc">{place || "Lieu non renseigné"}</div>
           <div className="tag-row">
-            {profile.categoryNames.map((c) => (
+            {[...new Set(profile.services.map((service) => service.categoryName))].map((c) => (
               <Tag key={c}>{c}</Tag>
             ))}
           </div>

@@ -1,0 +1,1543 @@
+/* ==================================================================
+   RAIL INTERFACE, every role but the back-office
+   A full-screen page with a curved icon rail on its left edge.
+   Only `.is-rail` shells get it; the back-office keeps the sidebar.
+   Uses the `--bt-*` theme tokens, so it follows light and dark.
+   The `[data-art]` rule at the end applies to the back-office too.
+   ================================================================== */
+.fu-app .bo-shell.bo-light {
+  --mb-accent: var(--bt-orange);
+  --mb-accent-ink: #ffffff;
+  --mb-panel: #fdfbf8;
+  --mb-card: #ffffff;
+  --mb-card-shadow: 0 1px 2px rgba(11, 26, 51, 0.03), 0 14px 34px -18px rgba(11, 26, 51, 0.16);
+  --mb-raised-shadow: 0 2px 4px rgba(11, 26, 51, 0.05), 0 18px 34px -14px rgba(11, 26, 51, 0.24);
+  --mb-rail-ink: rgba(255, 255, 255, 0.82);
+  --mb-cta: var(--bt-text);
+  --mb-cta-ink: #ffffff;
+  --mb-gap: 18px;
+}
+
+.fu-app .bo-shell.bo-light.is-rail {
+  position: relative;
+  background: var(--mb-panel);
+}
+
+.fu-app .bo-shell.bo-light[data-bo-theme="dark"] {
+  --mb-panel: #121926;
+  --mb-card: #1b2332;
+  --mb-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --mb-raised-shadow: 0 16px 30px -14px rgba(0, 0, 0, 0.7);
+  --mb-cta: #f8fafc;
+  --mb-cta-ink: #0b1a33;
+}
+
+/* backoffice-light.css paints the shell through a :has() rule, so only `background` is repeated at that weight */
+.fu-app .bo-shell.bo-light.is-rail:has(.bo-main.is-themed) {
+  background: var(--mb-panel);
+}
+
+/* ---------- page ---------- */
+.fu-app .bo-shell.bo-light.is-rail .bo-main,
+.fu-app .bo-shell.bo-light.is-rail .bo-main.is-themed {
+  z-index: 1;
+  background: transparent;
+}
+
+.fu-app .bo-shell.bo-light.is-rail .bo-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 14px 36px 34px 104px;
+  background: transparent;
+}
+
+/* ---------- rail ---------- */
+.fu-app .bo-shell.bo-light.is-rail .bo-sidebar {
+  display: none;
+}
+
+.fu-app .bo-shell .mb-rail-slot {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  align-self: stretch;
+  width: 0;
+}
+
+.fu-app .bo-shell .mb-rail {
+  position: sticky;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  width: 88px;
+  margin-top: 88px;
+  color: var(--mb-accent);
+}
+
+.fu-app .bo-shell .mb-rail-cap {
+  display: block;
+  width: 100%;
+  height: 76px;
+  margin: -1px 0;
+  fill: currentColor;
+}
+
+.fu-app .bo-shell .mb-rail-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 2px 0;
+  background: currentColor;
+}
+
+.fu-app .bo-shell .mb-rail-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.fu-app .bo-shell .mb-rail-group + .mb-rail-group {
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.fu-app .bo-shell .mb-rail-link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--mb-rail-ink);
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.fu-app .bo-shell .mb-rail-link:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.fu-app .bo-shell .mb-rail-link:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.fu-app .bo-shell .mb-rail-link.is-on {
+  background: #ffffff;
+  color: var(--bt-orange);
+  box-shadow: 0 8px 18px -8px rgba(11, 26, 51, 0.5);
+}
+
+.fu-app .bo-shell .mb-rail-tip {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: calc(100% + 12px);
+  padding: 6px 11px;
+  border-radius: 9px;
+  background: var(--bt-tip-bg);
+  color: #ffffff;
+  font: 600 13px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-4px, -50%);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+.fu-app .bo-shell .mb-rail-link:hover .mb-rail-tip,
+.fu-app .bo-shell .mb-rail-link:focus-visible .mb-rail-tip {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.fu-app .bo-shell .mb-rail-count {
+  position: absolute;
+  top: -3px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--bt-blue);
+  color: #ffffff;
+  font: 700 11px/18px Outfit, Manrope, sans-serif;
+  text-align: center;
+}
+
+/* ---------- top bar ---------- */
+.fu-app .bo-shell.bo-light.is-rail .bo-topbar {
+  position: static;
+  flex-wrap: nowrap;
+  gap: 22px;
+  height: auto;
+  min-height: 84px;
+  padding: 18px 36px 10px 104px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  container: mbbar / inline-size;
+}
+
+.fu-app .bo-shell.bo-light.is-rail .bo-search-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .mb-logo img {
+  display: block;
+  width: auto;
+  height: 40px;
+}
+
+/* last resort for a very tight bar: the tabs scroll instead of pushing the page wider */
+.fu-app .bo-shell .mb-tabs {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 26px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.fu-app .bo-shell .mb-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0;
+  color: var(--bt-muted);
+  font: 600 15px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-tab:hover {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-tab.is-on {
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-tab.is-on::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--mb-accent);
+}
+
+.fu-app .bo-shell.is-rail .bo-top-actions {
+  gap: 12px;
+}
+
+.fu-app .bo-shell.is-rail .bo-account-name {
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-theme {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--bt-orange-soft);
+}
+
+.fu-app .bo-shell .mb-theme button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  margin: 0;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--bt-orange-text);
+  font: 600 13px Outfit, Manrope, sans-serif;
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .mb-theme button.is-on {
+  background: var(--mb-accent);
+  color: var(--mb-accent-ink);
+}
+
+.fu-app .bo-shell .mb-cta {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--mb-cta);
+  color: var(--mb-cta-ink);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-cta:hover {
+  opacity: 0.88;
+}
+
+/* ---------- dashboard ---------- */
+.fu-app .bo-shell .mb {
+  color: var(--bt-text);
+  font-family: Outfit, Manrope, sans-serif;
+  container: mb / inline-size;
+}
+
+.fu-app .bo-shell .mb h1,
+.fu-app .bo-shell .mb h2,
+.fu-app .bo-shell .mb p {
+  margin: 0;
+}
+
+/* one grid for both rows, so the cards below line up with the shortcuts above */
+.fu-app .bo-shell .mb-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+  gap: var(--mb-gap);
+}
+
+.fu-app .bo-shell .mb-hero {
+  align-self: center;
+}
+
+.fu-app .bo-shell .mb-hero h1 {
+  color: var(--bt-text);
+  font-size: 38px;
+  /* brand-theme.css sets these on every h1 with !important */
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell .mb-hero p {
+  margin-top: 8px;
+  color: var(--bt-muted);
+  font-size: 18px;
+}
+
+.fu-app .bo-shell .mb-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px 16px;
+  border-radius: 24px;
+  background: var(--mb-card);
+  box-shadow: var(--mb-card-shadow);
+  color: var(--bt-text);
+  text-align: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fu-app .bo-shell .mb-tile:hover {
+  box-shadow: var(--mb-raised-shadow);
+  transform: translateY(-3px);
+}
+
+.fu-app .bo-shell .mb-tile img {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+}
+
+.fu-app .bo-shell .mb-tile strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .mb-card {
+  min-width: 0;
+  padding: 22px 24px;
+  border-radius: 24px;
+  background: var(--mb-card);
+  box-shadow: var(--mb-card-shadow);
+}
+
+.fu-app .bo-shell .mb-upcoming {
+  grid-column: span 2;
+}
+
+.fu-app .bo-shell .mb-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fu-app .bo-shell .mb-card h2 {
+  color: var(--bt-text);
+  font: 600 19px Outfit, Manrope, sans-serif;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell .mb-more {
+  color: var(--bt-orange-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .mb-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .mb-list li + li {
+  border-top: 1px solid var(--bt-line-soft);
+}
+
+.fu-app .bo-shell .mb-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-date {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.fu-app .bo-shell .mb-date b {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.fu-app .bo-shell .mb-item-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .mb-item-copy strong,
+.fu-app .bo-shell .mb-news-item strong {
+  display: block;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-item-copy small,
+.fu-app .bo-shell .mb-news-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+.fu-app .bo-shell .mb-note {
+  flex: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-item-go {
+  flex: none;
+  color: var(--bt-subtle);
+}
+
+.fu-app .bo-shell .mb-news-item {
+  display: block;
+  padding: 11px 0;
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-item:hover strong,
+.fu-app .bo-shell .mb-news-item:hover strong {
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .mb-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 0;
+  color: var(--bt-muted);
+  font-size: 15.5px;
+  text-align: center;
+}
+
+.fu-app .bo-shell .mb-btn {
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: var(--mb-accent);
+  color: var(--mb-accent-ink);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .mb-premium {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--mb-accent);
+  color: #ffffff;
+  text-align: center;
+  transition: transform 0.18s ease;
+}
+
+.fu-app .bo-shell .mb-premium:hover {
+  transform: translateY(-3px);
+}
+
+.fu-app .bo-shell .mb-premium img {
+  width: 116px;
+  height: 116px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 12px rgba(11, 26, 51, 0.25));
+}
+
+.fu-app .bo-shell .mb-premium strong {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.fu-app .bo-shell .mb-premium span {
+  margin-top: 4px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #0b1a33;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ---------- narrower screens ----------
+   Container queries, not media queries: they see the width left after `zoom`. */
+@container mb (max-width: 900px) {
+  .fu-app .bo-shell .mb-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fu-app .bo-shell .mb-hero,
+  .fu-app .bo-shell .mb-upcoming {
+    grid-column: 1 / -1;
+  }
+
+  .fu-app .bo-shell .mb-news {
+    grid-column: span 2;
+  }
+}
+
+/* phones: every card is a full-width line, shortcuts included */
+@container mb (max-width: 560px) {
+  .fu-app .bo-shell .mb-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fu-app .bo-shell .mb-news {
+    grid-column: auto;
+  }
+
+  .fu-app .bo-shell .mb-hero h1 {
+    font-size: 30px;
+  }
+
+  .fu-app .bo-shell .mb-tile,
+  .fu-app .bo-shell .mb-premium {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 10px 16px;
+    text-align: left;
+  }
+
+  .fu-app .bo-shell .mb-tile img,
+  .fu-app .bo-shell .mb-premium img {
+    width: 68px;
+    height: 68px;
+  }
+
+  .fu-app .bo-shell .mb-premium span {
+    margin: 0 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .fu-app .bo-shell .mb-note {
+    display: none;
+  }
+}
+
+/* the top bar drops its extras as its own width shrinks, which also covers a large display size */
+@container mbbar (max-width: 1300px) {
+  .fu-app .bo-shell .mb-tab svg,
+  .fu-app .bo-shell .mb-theme span {
+    display: none;
+  }
+
+  .fu-app .bo-shell .mb-theme button {
+    padding: 0 8px;
+  }
+}
+
+/* roles with many tabs reach those same steps earlier */
+@container mbbar (max-width: 1500px) {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) :is(.mb-tab svg, .mb-theme span) {
+    display: none;
+  }
+
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-theme button {
+    padding: 0 8px;
+  }
+}
+
+@container mbbar (max-width: 1300px) {
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) :is(.mb-logo, .mb-cta span) {
+    display: none;
+  }
+
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-cta {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .fu-app .bo-shell .bo-topbar:has(.mb-tab:nth-child(4)) .mb-tabs {
+    gap: 18px;
+  }
+}
+
+@container mbbar (max-width: 1100px) {
+  .fu-app .bo-shell .mb-logo,
+  .fu-app .bo-shell .mb-cta span {
+    display: none;
+  }
+
+  .fu-app .bo-shell .mb-cta {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+}
+
+/* ---------- the dashboard fills the screen ----------
+   `--app-vh` is a screen-height unit that already allows for the display size. */
+.fu-app .bo-shell.is-rail .bo-content:has(> .mb) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.fu-app .bo-shell .mb {
+  display: flex;
+  flex: 1;
+}
+
+.fu-app .bo-shell .mb-grid {
+  flex: 1;
+  min-width: 0;
+}
+
+.fu-app .bo-shell :is(.mb-upcoming, .mb-news) {
+  display: flex;
+  flex-direction: column;
+}
+
+.fu-app .bo-shell .mb-list {
+  flex: 1;
+}
+
+.fu-app .bo-shell .mb-list li {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+/* min-width: a long title shortens instead of pushing its label out of the card */
+.fu-app .bo-shell .mb-list li > a {
+  width: 100%;
+  min-width: 0;
+}
+
+.fu-app .bo-shell .mb-empty {
+  flex: 1;
+  justify-content: center;
+}
+
+.fu-app .bo-shell .mb-empty img {
+  width: clamp(84px, calc(15 * var(--app-vh)), 150px);
+  height: clamp(84px, calc(15 * var(--app-vh)), 150px);
+  object-fit: contain;
+}
+
+@container mb (min-width: 901px) {
+  .fu-app .bo-shell .mb-grid {
+    grid-template-rows: minmax(auto, 0.9fr) minmax(auto, 1fr);
+  }
+
+  /* always three equal lines, so a short list starts at the top instead of floating */
+  .fu-app .bo-shell .mb-list {
+    display: grid;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .fu-app .bo-shell .mb-tile img {
+    width: clamp(132px, calc(23 * var(--app-vh)), 240px);
+    height: clamp(132px, calc(23 * var(--app-vh)), 240px);
+  }
+
+  .fu-app .bo-shell .mb-tile strong {
+    font-size: 19px;
+  }
+
+  .fu-app .bo-shell .mb-premium img {
+    width: clamp(116px, calc(22 * var(--app-vh)), 230px);
+    height: clamp(116px, calc(22 * var(--app-vh)), 230px);
+  }
+
+  .fu-app .bo-shell .mb-hero h1 {
+    font-size: clamp(38px, calc(5.6 * var(--app-vh)), 54px);
+  }
+
+  .fu-app .bo-shell .mb-hero p {
+    font-size: clamp(18px, calc(2.4 * var(--app-vh)), 22px);
+  }
+}
+
+/* the rail runs down the whole page, with its icons in the middle */
+.fu-app .bo-shell .mb-rail {
+  min-height: calc(100 * var(--app-vh) - 120px);
+}
+
+.fu-app .bo-shell .mb-rail-body {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ---------- the week calendar, for roles with dated items ---------- */
+.fu-app .bo-shell .mb-cal {
+  display: flex;
+  flex-direction: column;
+}
+
+.fu-app .bo-shell .mb-grid:has(> .mb-cal) .mb-upcoming {
+  grid-column: auto;
+}
+
+.fu-app .bo-shell .mb-cal h2 {
+  text-transform: capitalize;
+}
+
+.fu-app .bo-shell .mb-cal-arrows {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.fu-app .bo-shell .mb-cal-arrows button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .mb-cal-arrows button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.fu-app .bo-shell .mb-cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  margin-bottom: 10px;
+}
+
+.fu-app .bo-shell .mb-cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 2px 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--bt-text);
+  cursor: pointer;
+}
+
+.fu-app .bo-shell .mb-cal-day small {
+  color: var(--bt-muted);
+  font-size: 13px;
+}
+
+/* grows with the window, but never wider than its seventh of the card */
+.fu-app .bo-shell .mb-cal-day b {
+  display: grid;
+  place-items: center;
+  width: min(100%, clamp(34px, calc(4.6 * var(--app-vh)), 46px));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.fu-app .bo-shell .mb-cal-day:hover b {
+  background: var(--bt-orange-soft);
+}
+
+.fu-app .bo-shell .mb-cal-day.is-today b {
+  box-shadow: inset 0 0 0 1.5px var(--mb-accent);
+}
+
+.fu-app .bo-shell .mb-cal-day.is-selected b {
+  background: var(--mb-accent);
+  box-shadow: none;
+  color: var(--mb-accent-ink);
+}
+
+.fu-app .bo-shell .mb-cal-day.is-planned::after {
+  position: absolute;
+  bottom: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mb-accent);
+  content: "";
+}
+
+.fu-app .bo-shell .mb-cal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fu-app .bo-shell .mb-cal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell .mb-cal-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+}
+
+.fu-app .bo-shell .mb-cal-item strong {
+  display: block;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-cal-item small {
+  display: block;
+  overflow: hidden;
+  color: var(--bt-muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .mb-cal-item:hover strong {
+  color: var(--bt-orange-text);
+}
+
+/* smaller than the other empty cards: the week already takes part of this one */
+.fu-app .bo-shell .mb-cal .mb-empty {
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.fu-app .bo-shell .mb-cal .mb-empty img {
+  width: clamp(64px, calc(10.5 * var(--app-vh)), 130px);
+  height: clamp(64px, calc(10.5 * var(--app-vh)), 130px);
+}
+
+/* four cards no longer fit on one line: they go two by two, and the calendar keeps room for its seven days */
+@container mb (max-width: 1180px) {
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) .mb-hero {
+    grid-column: 1 / -1;
+  }
+
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) :is(.mb-upcoming, .mb-news) {
+    grid-column: span 2;
+  }
+}
+
+@container mb (max-width: 900px) {
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) :is(.mb-upcoming, .mb-cal) {
+    grid-column: 1 / -1;
+  }
+}
+
+@container mb (max-width: 560px) {
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fu-app .bo-shell .mb-grid:has(> .mb-cal) .mb-news {
+    grid-column: auto;
+  }
+}
+
+/* the rail gives way to the sidebar drawer */
+@media (max-width: 1024px) {
+  .fu-app .bo-shell .mb-rail-slot {
+    display: none;
+  }
+
+  .fu-app .bo-shell.bo-light.is-rail .bo-sidebar {
+    display: flex;
+  }
+
+  .fu-app .bo-shell.bo-light.is-rail .bo-topbar {
+    gap: 12px;
+    min-height: 64px;
+    padding: 10px 16px;
+  }
+
+  .fu-app .bo-shell.bo-light.is-rail .bo-content {
+    padding: 8px 16px 24px;
+  }
+
+  .fu-app .bo-shell .mb-tabs,
+  .fu-app .bo-shell .mb-cta {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  /* three buttons do not fit on one line on a phone */
+  .fu-app .bo-shell.is-rail .booking-item > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  .fu-app .bo-shell .mb-theme span {
+    display: none;
+  }
+
+  .fu-app .bo-shell .mb-theme button {
+    padding: 0 8px;
+  }
+}
+
+/* ---------- inner pages ----------
+   The dashboard's look on every other page: borderless white cards with
+   a soft shadow, calm headings, no capitals. The older theme layers set many of
+   these with !important, so these do too. */
+.fu-app .bo-shell.is-rail .bo-content :is(.page-head, .bo-dash-head, .bo-head) {
+  align-items: center;
+  gap: 14px 18px;
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.page-head, .bo-dash-head, .bo-head) h1 {
+  margin: 0;
+  color: var(--bt-text);
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.page-head, .bo-dash-head, .bo-head) p {
+  margin-top: 4px;
+  color: var(--bt-muted);
+  font-family: Outfit, Manrope, sans-serif;
+  font-size: 16px;
+}
+
+.fu-app .bo-shell.is-rail .bo-main[data-art] .bo-content :is(.page-head, .bo-dash-head, .bo-head)::before {
+  width: 76px;
+  height: 76px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(h2, h3) {
+  font-family: Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.cg-skin, .bo-dash) {
+  gap: var(--mb-gap);
+  font-family: Outfit, Manrope, sans-serif;
+}
+
+/* cards */
+.fu-app .bo-shell.is-rail .bo-content :is(.panel, .hire-filters, .fu-talent-card, .profile-banner, .bo-dash-card, .ob-section, .ob-plan-card, .pcx-empty, .pdx-card, .ofx-fact, .kcard, .pcx-stat, .pcx-card, .tlx-filters, .tlx-card, .tlx-empty, .jobx-card, .mp-card, .hr-card, .tlx-upsell, .dsx-card, .hire-fiche-banner) {
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: var(--mb-card) !important;
+  box-shadow: var(--mb-card-shadow) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .ob-plan-card.is-featured {
+  box-shadow: 0 0 0 2px var(--mb-accent), var(--mb-card-shadow) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .panel {
+  margin: 0;
+  overflow: hidden;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .panel-head {
+  padding: 20px 24px 6px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .panel-head h2 {
+  color: var(--bt-text);
+  font-size: 19px !important;
+  font-weight: 600 !important;
+}
+
+/* the facts inside a card sit on the page colour instead of a frame */
+.fu-app .bo-shell.is-rail .bo-content :is(.st-fact, .pf-cell, .st-session) {
+  border: 0 !important;
+  border-radius: 14px;
+  background: var(--mb-panel) !important;
+}
+
+/* some of these paddings are written inline in the pages, hence the !important */
+.fu-app .bo-shell.is-rail .bo-content .panel > p {
+  margin: 0;
+  padding: 4px 24px 20px !important;
+  color: var(--bt-muted) !important;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .empty-hint {
+  margin: 0;
+  padding: 4px 24px 20px !important;
+  border: 0 !important;
+  background: none !important;
+  color: var(--bt-muted);
+  font-size: 15px;
+  text-align: left;
+}
+
+/* rows inside a card: lines, not cards inside cards */
+.fu-app .bo-shell.is-rail .bo-content .booking-item {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  padding: 14px 24px;
+  border: 0 !important;
+  border-top: 1px solid var(--bt-line-soft) !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .booking-time {
+  color: var(--bt-orange-text);
+  font: 600 15px / 1.3 Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .booking-body .t {
+  color: var(--bt-text);
+  font: 600 16px / 1.3 Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .booking-body .s {
+  color: var(--bt-muted);
+  font-size: 14px;
+}
+
+/* the alert card keeps its tint but loses the frame */
+.fu-app .bo-shell.is-rail .bo-content .kcard.is-alert {
+  background: var(--bt-orange-soft) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .kcard .val {
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+/* label / value blocks: the old grid shows its background through the gaps */
+.fu-app .bo-shell.is-rail .bo-content .info-grid {
+  gap: 10px;
+  padding: 0 24px 16px;
+  border: 0 !important;
+  background: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .info-cell {
+  border: 0 !important;
+  border-radius: 14px;
+  background: var(--mb-panel) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .info-cell .k {
+  color: var(--bt-muted);
+  font: 500 13px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+/* small rounded parts the old layer left square */
+.fu-app .bo-shell.is-rail .bo-content :is(.app-avatar, .tlx-fav, .badge) {
+  border-radius: 999px !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.tlx-toggle, .tlx-reset, .tlx-cta, .file-row, .slot-range-row, .ob-phone-code) {
+  border-radius: 12px !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .photo-avatar {
+  border-radius: 16px !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .mp-media {
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .video-card {
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: 20px !important;
+  box-shadow: var(--mb-card-shadow);
+}
+
+.fu-app .bo-shell.is-rail .bo-content .week-grid {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.file-block, .repeat-card, .chip-box, .chip-suggestions, .ob-cv-import, .ob-id-photo, .slot-ranges) {
+  border-radius: 16px !important;
+}
+
+/* job offer page: a white card instead of the navy banner */
+.fu-app .bo-shell.is-rail .bo-content .ofx :is(a, button, span, small, strong, b, p, h2, h3) {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-hero {
+  border: 0 !important;
+  border-radius: 24px !important;
+  background: var(--mb-card) !important;
+  box-shadow: var(--mb-card-shadow) !important;
+  color: var(--bt-text);
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-hero::before,
+.fu-app .bo-shell.is-rail .bo-content .pdx-hero::after {
+  display: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-hero h1 {
+  color: var(--bt-text) !important;
+  font-size: 30px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-kicker {
+  color: var(--bt-orange-text) !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .ofx-mark {
+  border-radius: 14px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.pdx-chip, .tlx-chip) {
+  padding: 4px 11px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+  font: 600 13px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-chip.is-lime {
+  background: var(--mb-accent) !important;
+  color: var(--mb-accent-ink) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.pdx-cta, .ofx-btn) {
+  border: 0 !important;
+  border-radius: 12px !important;
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.pdx-cta, .ofx-btn.is-primary),
+.fu-app .bo-shell.bo-light.is-rail[data-bo-theme="dark"] .bo-main.is-legacy .bo-content :is(.pdx-cta, .ofx-btn.is-primary) {
+  background: var(--mb-accent) !important;
+  color: var(--mb-accent-ink) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .ofx-apply {
+  border-top: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .pdx-card > header {
+  border: 0 !important;
+  background: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .ofx-back {
+  color: var(--bt-muted);
+  font: 600 14px Outfit, Manrope, sans-serif !important;
+}
+
+/* talent file */
+.fu-app .bo-shell.is-rail .bo-content :is(.hire-file-row, .hire-file-kind) {
+  border-radius: 12px !important;
+}
+
+/* notifications */
+.fu-app .bo-shell.is-rail .bo-content .nx-item {
+  border-left: 0 !important;
+  border-radius: 16px;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .nx-item::before {
+  display: none;
+}
+
+/* controls */
+.fu-app .bo-shell.is-rail .bo-content :is(.btn-mini, .btn-outline, .btn-solid, .btn-ghost, .btn-danger, .bm-btn, .bo-btn, .ob-plan-cta) {
+  min-height: 40px;
+  border-radius: 12px !important;
+  font-family: Outfit, Manrope, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.status-pill, .tag) {
+  padding: 4px 11px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  font-family: Outfit, Manrope, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.bo-light.is-rail .bo-main .bo-content .cg-skin .status-pill.pending,
+.fu-app .bo-shell.bo-light.is-rail[data-bo-theme="dark"] .bo-main.is-legacy .bo-content .cg-skin .status-pill.pending {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .tag {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .hire-filters {
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .hire-filters :is(input, select) {
+  min-height: 44px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background-color: var(--mb-panel) !important;
+  font-family: Outfit, Manrope, sans-serif;
+  font-size: 15px;
+}
+
+/* coach cards */
+.fu-app .bo-shell.is-rail .bo-content .muted-line {
+  margin: 0;
+  color: var(--bt-muted);
+  font: 500 15px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-grid {
+  gap: var(--mb-gap);
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.fu-talent-card-top, .profile-banner) .pn {
+  margin: 0;
+  color: var(--bt-text);
+  /* public-shell.css styles a bare .pn for the public navbar, and it reaches these names too */
+  position: static;
+  display: block;
+  width: auto;
+  height: auto;
+  padding: 0;
+  background: none;
+  font: 600 18px / 1.25 Outfit, Manrope, sans-serif !important;
+  text-align: left;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.fu-talent-card-top, .profile-banner) .pt {
+  color: var(--bt-muted);
+  font: 400 14.5px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content :is(.fu-talent-card-top, .profile-banner) .ploc {
+  color: var(--bt-subtle);
+  font-size: 13.5px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-meta {
+  margin: 0;
+  color: var(--bt-text);
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card-actions {
+  margin-top: auto;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .fu-talent-card-actions .btn-mini {
+  width: 100%;
+  border: 0 !important;
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+/* coach profile */
+.fu-app .bo-shell.is-rail .bo-content .profile-banner {
+  margin: 0;
+  padding: 22px 24px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .profile-banner .app-avatar,
+.fu-app .bo-shell.is-rail .bo-content .profile-banner .app-avatar img {
+  border-radius: 999px !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .meta-bar {
+  gap: 6px;
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .meta-bar button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: none !important;
+  color: var(--bt-muted) !important;
+  font: 600 15px Outfit, Manrope, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .meta-bar button.active {
+  background: var(--bt-orange-soft) !important;
+  color: var(--bt-orange-text) !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .doc-grid {
+  padding: 8px 24px 22px;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .doc-card {
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: var(--mb-card) !important;
+  box-shadow: var(--mb-card-shadow) !important;
+}
+
+/* inside a card, a soft block is enough */
+.fu-app .bo-shell.is-rail .bo-content .panel .doc-card {
+  border-radius: 16px !important;
+  background: var(--mb-panel) !important;
+  box-shadow: none !important;
+}
+
+.fu-app .bo-shell.is-rail .bo-content .doc-icon {
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--bt-orange-soft) !important;
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell.is-rail .bo-content :is(.page-head, .bo-dash-head, .bo-head) h1 {
+    font-size: 26px !important;
+  }
+
+  .fu-app .bo-shell.is-rail .bo-main[data-art] .bo-content :is(.page-head, .bo-dash-head, .bo-head)::before {
+    width: 56px;
+    height: 56px;
+  }
+
+  /* the old three-column grids and long rows do not fit a phone */
+  .fu-app .bo-shell.is-rail .bo-content .doc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fu-app .bo-shell.is-rail .bo-content .cards-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fu-app .bo-shell.is-rail .bo-content .panel-head,
+  .fu-app .bo-shell.is-rail .bo-content .panel-head > div {
+    flex-wrap: wrap;
+  }
+
+  /* a day's time ranges take their own line under its name */
+  .fu-app .bo-shell.is-rail .bo-content .agx-day-body {
+    flex: 1 1 100%;
+  }
+
+  .fu-app .bo-shell.is-rail .bo-content .panel-head {
+    padding: 18px 18px 6px !important;
+  }
+
+  .fu-app .bo-shell.is-rail .bo-content :is(.empty-hint, .panel > p) {
+    padding: 4px 18px 18px !important;
+  }
+
+  .fu-app .bo-shell.is-rail .bo-content .booking-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 14px 18px;
+  }
+}
+
+/* the icon and its title belong together, in the middle of the empty thread */
+.fu-app .bo-shell .bo-dash.bo-users.bo-ms .ms-thread .bo-users-empty.ms-thread-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.fu-app .bo-shell .ms-browse {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--bt-orange-soft);
+  color: var(--bt-orange-text);
+  font: 600 14px Outfit, Manrope, sans-serif;
+  white-space: nowrap;
+}
+
+.fu-app .bo-shell .ms-browse:hover {
+  background: var(--bt-orange-soft-2);
+}
+
+/* ---------- page illustrations, all roles ---------- */
+.fu-app .bo-shell .bo-main[data-art] :is(.bo-dash-head, .bo-head, .page-head)::before {
+  content: "";
+  flex: none;
+  width: 92px;
+  height: 92px;
+  background: var(--page-art) center / contain no-repeat;
+}
+
+.fu-app .bo-shell .bo-main[data-art] :is(.bo-dash-head, .bo-head, .page-head) > :first-child {
+  flex: 1 1 0;
+  min-width: min(100%, 240px);
+}
+
+@media (max-width: 720px) {
+  .fu-app .bo-shell .bo-main[data-art] :is(.bo-dash-head, .bo-head, .page-head)::before {
+    width: 64px;
+    height: 64px;
+  }
+}

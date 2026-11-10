@@ -14,6 +14,7 @@ import {
   type Booking,
   type CoachingMessage,
 } from "../api";
+import "@/shared/styles/backoffice-coaching.css";
 
 function cancelErrorMessage(err: unknown) {
   if (err instanceof ApiError && err.message === "CANCELLATION_DEADLINE_PASSED") {
@@ -93,7 +94,7 @@ export function MyBookingsPage() {
   }
 
   return (
-    <section>
+    <section className="cg-skin">
       <div className="page-head">
         <div>
           <h1>Mes réservations</h1>

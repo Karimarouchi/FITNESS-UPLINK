@@ -329,6 +329,18 @@
   color: #fff;
 }
 
+/* the call-to-action card is dark: its outline button needs light text */
+.fu-public.fu-public .pub-cta-card :is(.pub-btn-line, .pub-btn-ghost):not(.ink) {
+  border-color: rgba(255, 255, 255, 0.75);
+  color: #fff;
+}
+
+.fu-public.fu-public .pub-cta-card :is(.pub-btn-line, .pub-btn-ghost):not(.ink):hover {
+  border-color: var(--uf-blue);
+  background: var(--uf-blue);
+  color: #fff;
+}
+
 .fu-public .fu-home.vt .vt-btn-navy {
   border-color: var(--uf-orange);
   background: var(--uf-orange);
